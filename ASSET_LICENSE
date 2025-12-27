@@ -1,0 +1,89 @@
+ASSET LICENSE (PROPRIETARY / ALL RIGHTS RESERVED)
+
+Copyright (c) [YYYY] [YOUR NAME / STUDIO NAME]
+All rights reserved.
+
+This ASSET LICENSE applies ONLY to the non-code content in this repository that is
+owned by the Licensor (the “Assets”), including (without limitation): artwork,
+sprites, textures, animations, audio (music/sfx/voice), video, narrative text,
+dialogue, level/scene data, UI art, icons, branding, and any other creative
+content.
+
+This ASSET LICENSE does NOT apply to:
+- Source code (which is licensed separately; see the main LICENSE file), or
+- Any third-party assets included in the repository that carry their own license
+  terms (see any accompanying attribution/licensing files).
+
+1. DEFINITIONS
+“Licensor” means [YOUR NAME / STUDIO NAME].
+“Game” means the software project in this repository.
+“Assets” means all non-code creative content in this repository that is owned by
+the Licensor.
+
+2. PERMITTED USES (LIMITED LICENSE)
+Subject to the terms below, Licensor grants you a limited, non-exclusive,
+non-transferable, revocable license to:
+(a) download/clone the repository and view the Assets; and
+(b) use the Assets only as necessary to build and run the Game from this
+    repository for personal evaluation/testing.
+
+3. RESTRICTIONS (WHAT YOU MAY NOT DO)
+Unless you have prior written permission from the Licensor, you may NOT:
+(a) redistribute the Assets (in whole or in part), whether standalone or bundled
+    with a fork/modified version of the Game;
+(b) sell, license, rent, lease, monetize, or otherwise commercially exploit the
+    Assets;
+(c) use the Assets in another project, game, product, service, website, demo,
+    asset pack, template, or NFT/crypto-related offering;
+(d) publish the Assets or derived assets (including edits, recolors, crops,
+    remixes, re-encodes, upscales, “AI trained” derivatives, or similar) except
+    by submitting them as a contribution to this repository under Section 4;
+(e) remove or alter copyright notices, watermarks, credits, or attribution
+    metadata embedded in the Assets.
+
+For clarity: you may distribute the code under its code license, but you may not
+distribute the Licensor’s Assets with your fork without permission.
+
+4. CONTRIBUTIONS INVOLVING ASSETS
+If you submit a pull request or other contribution that includes new or modified
+Assets, you agree that:
+(a) you have the rights to submit those Assets; and
+(b) you grant the Licensor a perpetual, worldwide, royalty-free, irrevocable
+    license to use, modify, sublicense, and distribute your contributed Assets
+    as part of the Game (including commercially), and to relicense them under
+    this ASSET LICENSE or other terms at the Licensor’s discretion.
+
+5. OWNERSHIP
+All right, title, and interest in the Assets remain with the Licensor (and/or
+its licensors). No rights are granted except as expressly stated in this ASSET
+LICENSE.
+
+6. TRADEMARKS
+Names, logos, and branding associated with the Game are not licensed. You may
+not use the Licensor’s trademarks (including the Game name/logo) to market or
+identify your fork or derivative product.
+
+7. TERMINATION
+This license automatically terminates if you violate any term. Upon termination,
+you must stop using the Assets and delete any copies in your possession/control.
+
+8. NO WARRANTY
+THE ASSETS ARE PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+9. LIMITATION OF LIABILITY
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE LICENSOR SHALL NOT BE LIABLE FOR ANY
+CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM OR RELATED TO THE ASSETS OR THIS
+LICENSE.
+
+10. CONTACT / COMMERCIAL LICENSES
+To request permission or a commercial license to use the Assets, contact:
+[EMAIL OR CONTACT METHOD]
+
+---
+Notes:
+- Replace bracketed placeholders.
+- If you include any third-party assets, add a THIRD_PARTY_ASSETS.md (or similar)
+  listing each item’s source and license, and keep them separate from your own
+  Assets.
