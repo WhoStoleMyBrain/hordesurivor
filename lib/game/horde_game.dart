@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flame/game.dart';
 
 import '../render/player_component.dart';
+import '../render/sprite_pipeline.dart';
 import 'player_state.dart';
 
 class HordeGame extends FlameGame {
@@ -16,10 +17,18 @@ class HordeGame extends FlameGame {
   double _accumulator = 0;
   late final PlayerState _playerState;
   late final PlayerComponent _playerComponent;
+  final SpritePipeline _spritePipeline = SpritePipeline();
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+    final sprites = await _spritePipeline.loadAndGenerateFromAsset(
+      'assets/sprites/recipes.json',
+    );
+    final playerSprite = sprites
+        .where((sprite) => sprite.id == 'player_base')
+        .map((sprite) => sprite.image)
+        .fold<Image?>(null, (previous, image) => previous ?? image);
     _playerState = PlayerState(
       position: size / 2,
       velocity: Vector2(_playerSpeed, _playerSpeed * 0.6),
@@ -27,6 +36,7 @@ class HordeGame extends FlameGame {
     _playerComponent = PlayerComponent(
       state: _playerState,
       radius: _playerRadius,
+      spriteImage: playerSprite,
     );
     _playerComponent.syncWithState();
     await add(_playerComponent);
