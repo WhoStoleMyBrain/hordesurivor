@@ -15,7 +15,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - Verify `pubspec.yaml` includes Flame and test/lint dependencies.
 - Confirm directory structure: `lib/game`, `lib/render`, `lib/ui`, `lib/data`, `assets`, `test`.
 - [x] Implement the entry point in `lib/main.dart` with a fixed timestep game runner.
-- Add a HUD overlay stub in `lib/ui/`.
+- [x] Add a HUD overlay stub in `lib/ui/`.
 - Ensure `flutter analyze`, `flutter test`, and `dart format .` are part of the default workflow.
 
 ## Phase 1 — Core simulation loop & player movement
