@@ -94,6 +94,12 @@ A pixel-style horde survivor focused on **readable combat**, **enemy role variet
 - Pattern: Sentinel (patrol arcs/lines; minimal tracking)
 - Elite: Archon Lancer (telegraphed charge; wind trail hazard)
 
+#### Implemented data structures (V0.1)
+- [x] Tags (elements, effects, delivery/geometry)
+- [x] Skill definitions
+- [x] Item definitions + stat modifiers
+- [x] Enemy definitions (factions + roles)
+
 ### 1.5 Guardrails for skills/upgrades
 - **No archetype betrayal**: projectile stays a projectile-style damage delivery; buff stays buff; etc.
 - Prefer **tag synergies** over hard evolutions:
