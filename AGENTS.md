@@ -115,6 +115,7 @@ V0.1 aims to be a playable skeleton with at least:
 - A minimal skill system (at least Fireball + Sword Cut) with leveling
 - Basic item selection UI (tradeoff items can be zero-number tuned but functional)
 - At least 3 enemy roles (Chaser, Ranged, Spawner) with clear visuals
+- A lightweight in-project sprite generation pipeline for V0.1 sprites (pixel-wise image generation at runtime or build-time), even if generated outputs are later cached to assets
 - A performance “stress scene” (see Technical section) for early validation
 
 ---
@@ -157,6 +158,7 @@ V0.1 content should be definable as data objects, not hard-coded behavior:
   - `id`, `name`, `tags`, `rarity/weight`, `params`
 - Tag system is a first-class concept:
   - Implement tags as enums or interned strings, but keep them consistent.
+ - Sprite generation inputs/recipes should be data-driven (e.g., palettes, shapes, seeds) and decoupled from rendering code.
 
 ### 2.5 Performance validation: “Stress Scene” requirement
 Add a dedicated debug scene to spawn large counts and measure FPS/frame time.
