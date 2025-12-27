@@ -1,1 +1,157 @@
-Initial empty plan. 
+# V0.1 Prototype Plan — HordeSurvivor
+
+This plan takes the project from initial scaffolding to a fully working V0.1 prototype, aligned with AGENTS.md (design pillars, data-driven content, fixed timestep, pooling, and stress scene requirements). Each phase includes implementation context and decisions.
+
+## Phase 0 — Project readiness & foundations
+**Goal:** Establish the project scaffolding, architectural boundaries, and quality gates.
+
+**Decisions/constraints:**
+- Enforce a fixed timestep core loop.
+- Separate model (`lib/game/`) from view (`lib/render/`).
+- Keep content data-driven (`lib/data/`).
+- Use pooling from the start for performance-sensitive entities.
+
+**Implementation notes:**
+- Verify `pubspec.yaml` includes Flame and test/lint dependencies.
+- Confirm directory structure: `lib/game`, `lib/render`, `lib/ui`, `lib/data`, `assets`, `test`.
+- Implement the entry point in `lib/main.dart` with a fixed timestep game runner.
+- Add a HUD overlay stub in `lib/ui/`.
+- Ensure `flutter analyze`, `flutter test`, and `dart format .` are part of the default workflow.
+
+## Phase 1 — Core simulation loop & player movement
+**Goal:** Build the minimal playable loop with player movement, camera, and HUD.
+
+**Decisions/constraints:**
+- Simulation logic uses fixed timestep and is testable without rendering.
+- No per-frame allocations in movement logic.
+
+**Implementation notes:**
+- `lib/game/`: Add `PlayerState` (position, velocity, HP, base stats).
+- `lib/game/`: Add fixed-step update with accumulator.
+- `lib/render/`: Add `PlayerComponent` to render the player from `PlayerState`.
+- `lib/ui/`: Add basic HUD (HP bar).
+- Input handling: map keyboard/touch to movement intent.
+- Tests in `test/` for player movement and bounds handling.
+
+## Phase 2 — Spawn system & enemy chaser role
+**Goal:** Add wave-based spawning and a basic chaser enemy using pooling.
+
+**Decisions/constraints:**
+- Spawns are time-based and data-driven.
+- Enemy entities use pooling; no per-entity allocations during updates.
+
+**Implementation notes:**
+- `lib/game/`: Implement `SpawnerSystem` (wave timings, compositions).
+- `lib/game/`: Add `EnemyState` and a pooled `EnemyPool`.
+- `lib/game/`: Implement chaser AI.
+- `lib/render/`: Render enemy sprite placeholders.
+- Tests for spawn timing and chaser movement.
+
+## Phase 3 — Skills system & Fireball + Sword Cut
+**Goal:** Implement skill casting and two baseline skills to meet V0.1 scope.
+
+**Decisions/constraints:**
+- Data-driven definitions for `SkillDef`.
+- Tag system is consistent and central to synergy.
+- Projectile and melee deliveries remain true to archetype.
+
+**Implementation notes:**
+- `lib/data/`: Define `SkillDef` (id, name, tags, params, rarity/weight).
+- `lib/game/`: Add `SkillSystem` with cooldowns and level hooks.
+- `lib/game/`: Add `ProjectileState` and pooled projectile system.
+- Fireball: projectile delivery with base damage.
+- Sword Cut: melee arc with hit detection.
+- Spatial partitioning (grid/buckets) for hit detection.
+- Tests for cooldowns, skill triggers, and hit detection.
+
+## Phase 4 — Damage, HP, death, despawn
+**Goal:** Complete survivability loop with damage processing and despawn logic.
+
+**Decisions/constraints:**
+- Damage pipeline is event-based and pooled.
+- Death/despawn returns entities to pools cleanly.
+
+**Implementation notes:**
+- `lib/game/`: Add damage events (source, target, amount, tags).
+- `lib/game/`: Add HP management for player/enemies.
+- `lib/game/`: Add despawn/cleanup with pool return.
+- `lib/render/`: Optional damage number visuals using pooling.
+- Tests for death and despawn behavior.
+
+## Phase 5 — Level-up and selection UI (skills/items)
+**Goal:** Implement the selection loop for skills/items with tradeoffs.
+
+**Decisions/constraints:**
+- Items are data-driven and have clear upside/downside.
+- No permanent stat meta-progression.
+
+**Implementation notes:**
+- `lib/data/`: Define `ItemDef` (id, name, tags, modifiers).
+- `lib/game/`: Implement XP/level system and selection triggers.
+- `lib/ui/`: Build selection overlay with skill/item cards.
+- `lib/game/`: Apply modifiers to player stats.
+- Tests for modifier application and selection handling.
+
+## Phase 6 — Additional enemy roles (ranged, spawner)
+**Goal:** Reach V0.1 minimum of 3 roles: Chaser, Ranged, Spawner.
+
+**Decisions/constraints:**
+- Roles must be readable and telegraphed.
+- Role definitions remain data-driven.
+
+**Implementation notes:**
+- Ranged enemy: imperfect aim with projectile pattern.
+- Spawner enemy: Portal Keeper that spawns imps until killed.
+- Render distinct telegraphs and silhouettes.
+- Update `SpawnerSystem` to include role weighting.
+- Tests for ranged fire cadence and spawner behavior.
+
+## Phase 7 — Sprite generation pipeline (data-driven)
+**Goal:** Create a lightweight, in-project pixel sprite generation pipeline.
+
+**Decisions/constraints:**
+- Generation inputs are data-driven (palette, seed, shapes).
+- Pipeline is decoupled from gameplay logic.
+
+**Implementation notes:**
+- Define sprite recipe data objects in `lib/data/`.
+- Build generator module in `lib/render/` or a shared utility.
+- Cache generated sprites for reuse.
+- Document recipe usage and constraints in code comments.
+
+## Phase 8 — Stress scene (performance validation)
+**Goal:** Validate 60 FPS target with high entity counts.
+
+**Decisions/constraints:**
+- Stress scene must be toggled via a single debug route or flag.
+- Pooling and spatial partitioning required.
+
+**Implementation notes:**
+- Create debug route to spawn 500+ enemies and 1000+ projectiles.
+- Add FPS/frame time overlay.
+- Add qualitative benchmark notes in code comments or logs.
+
+## Phase 9 — Cross-platform run readiness
+**Goal:** Ensure the game runs on core platforms (Android + Windows debug).
+
+**Decisions/constraints:**
+- Desktop and mobile input supported.
+- Avoid platform-specific assumptions in rendering or assets.
+
+**Implementation notes:**
+- Validate input mapping for keyboard + touch.
+- Ensure sprite generation works on target platforms.
+- Update `README.md` only if new platform-specific steps are required.
+
+## Phase 10 — V0.1 polish & validation
+**Goal:** Deliver a stable, playable V0.1 prototype.
+
+**Decisions/constraints:**
+- Must meet V0.1 checklist and quality gates.
+- No new TODOs without issue/task references.
+
+**Implementation notes:**
+- Verify skills (Fireball + Sword Cut) and 3 enemy roles.
+- Ensure selection UI and progression loop are functional.
+- Run `dart format .`, `flutter analyze`, `flutter test`.
+- Confirm stress scene performance qualitatively and document results.
