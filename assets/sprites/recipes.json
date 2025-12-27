@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "sprites": [
+    {
+      "id": "player_base",
+      "kind": "player",
+      "outputName": "player_base.png",
+      "size": 16,
+      "seed": 23,
+      "palette": {
+        "primary": "#7BD389",
+        "shadow": "#4D8B5C",
+        "accent": "#F4E06D"
+      },
+      "shapes": [
+        { "type": "circle", "color": "primary", "radius": 7, "offset": [0, 0] },
+        { "type": "circle", "color": "shadow", "radius": 4, "offset": [-2, 2] },
+        { "type": "pixels", "color": "accent", "points": [[-2, -2], [2, -2]] }
+      ]
+    },
+    {
+      "id": "enemy_imp",
+      "kind": "enemy",
+      "outputName": "enemy_imp.png",
+      "size": 16,
+      "seed": 41,
+      "palette": {
+        "primary": "#D96C6C",
+        "shadow": "#8C3E3E",
+        "accent": "#F2C94C"
+      },
+      "shapes": [
+        { "type": "circle", "color": "primary", "radius": 6, "offset": [0, 1] },
+        { "type": "circle", "color": "shadow", "radius": 3, "offset": [2, 3] },
+        { "type": "rect", "color": "accent", "size": [2, 2], "offset": [-4, -6] },
+        { "type": "rect", "color": "accent", "size": [2, 2], "offset": [4, -6] }
+      ]
+    },
+    {
+      "id": "item_glass_catalyst",
+      "kind": "item",
+      "outputName": "item_glass_catalyst.png",
+      "size": 16,
+      "seed": 7,
+      "palette": {
+        "primary": "#9DD9D2",
+        "shadow": "#4A9C8E",
+        "accent": "#E8F3F1"
+      },
+      "shapes": [
+        { "type": "rect", "color": "primary", "size": [6, 8], "offset": [0, 0] },
+        { "type": "rect", "color": "shadow", "size": [2, 8], "offset": [-2, 0] },
+        { "type": "rect", "color": "accent", "size": [2, 2], "offset": [2, -2] }
+      ]
+    },
+    {
+      "id": "skill_fireball",
+      "kind": "skill",
+      "outputName": "skill_fireball.png",
+      "size": 16,
+      "seed": 99,
+      "palette": {
+        "primary": "#F2994A",
+        "shadow": "#C65A14",
+        "accent": "#F2C94C"
+      },
+      "shapes": [
+        { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 1] },
+        { "type": "circle", "color": "accent", "radius": 2, "offset": [-2, -2] },
+        { "type": "pixels", "color": "shadow", "points": [[-4, 4], [-3, 5], [-2, 6]] }
+      ]
+    },
+    {
+      "id": "ground_burn_patch",
+      "kind": "ground",
+      "outputName": "ground_burn_patch.png",
+      "size": 16,
+      "seed": 12,
+      "palette": {
+        "primary": "#5C3B23",
+        "shadow": "#3A2416",
+        "accent": "#C65A14"
+      },
+      "shapes": [
+        { "type": "rect", "color": "primary", "size": [10, 6], "offset": [0, 2] },
+        { "type": "rect", "color": "shadow", "size": [6, 4], "offset": [2, 3] },
+        { "type": "pixels", "color": "accent", "points": [[-3, 0], [0, 1], [3, 0]] }
+      ]
+    },
+    {
+      "id": "projectile_firebolt",
+      "kind": "projectile",
+      "outputName": "projectile_firebolt.png",
+      "size": 12,
+      "seed": 5,
+      "palette": {
+        "primary": "#F2994A",
+        "shadow": "#C65A14",
+        "accent": "#F2C94C"
+      },
+      "shapes": [
+        { "type": "rect", "color": "primary", "size": [4, 6], "offset": [0, 0] },
+        { "type": "rect", "color": "shadow", "size": [2, 6], "offset": [-1, 1] },
+        { "type": "pixels", "color": "accent", "points": [[0, -4]] }
+      ]
+    },
+    {
+      "id": "pickup_xp_orb",
+      "kind": "pickup",
+      "outputName": "pickup_xp_orb.png",
+      "size": 12,
+      "seed": 33,
+      "palette": {
+        "primary": "#56CCF2",
+        "shadow": "#2F80ED",
+        "accent": "#E0F7FF"
+      },
+      "shapes": [
+        { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 0] },
+        { "type": "circle", "color": "shadow", "radius": 3, "offset": [2, 2] },
+        { "type": "pixels", "color": "accent", "points": [[-2, -2]] }
+      ]
+    }
+  ]
+}
