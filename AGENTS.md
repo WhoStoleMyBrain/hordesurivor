@@ -135,7 +135,7 @@ V0.1 aims to be a playable skeleton with at least:
 - Separate “model” from “view”:
   - Game state / systems (pure-ish Dart) should be testable without rendering.
 
-### 2.3 Suggested repository structure (agents should follow)
+### 2.3 Repository structure (implemented)
 - `lib/game/` — simulation + systems (movement, combat, spawns, tags, items)
 - `lib/render/` — Flame components and render adapters
 - `lib/ui/` — menus, selection screens, overlays, HUD
