@@ -93,10 +93,12 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 **Decisions/constraints:**
 - Items are data-driven and have clear upside/downside.
 - No permanent stat meta-progression.
+- XP curve is linear (base 20 XP, +10 XP per level).
+- Enemy XP rewards are defined in `lib/data/enemy_defs.dart` and granted on defeat.
 
 **Implementation notes:**
 - `lib/data/`: Define `ItemDef` (id, name, tags, modifiers).
-- `lib/game/`: Implement XP/level system and selection triggers.
+- [x] `lib/game/`: Implement XP/level system and enemy defeat XP rewards.
 - `lib/ui/`: Build selection overlay with skill/item cards.
 - `lib/game/`: Apply modifiers to player stats.
 - Tests for modifier application and selection handling.

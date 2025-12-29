@@ -18,7 +18,8 @@ class HordeSurvivorApp extends StatelessWidget {
       home: GameWidget(
         game: HordeGame(),
         overlayBuilderMap: {
-          HudOverlay.overlayKey: (_, __) => const HudOverlay(),
+          HudOverlay.overlayKey: (_, game) =>
+              HudOverlay(hudState: (game as HordeGame).hudState),
         },
         initialActiveOverlays: const [HudOverlay.overlayKey],
       ),

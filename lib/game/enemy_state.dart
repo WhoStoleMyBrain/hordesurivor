@@ -14,6 +14,7 @@ class EnemyState {
   double maxHp = 1;
   double hp = 1;
   double moveSpeed = 20;
+  int xpReward = 0;
   bool active = false;
 
   void reset({
@@ -21,6 +22,7 @@ class EnemyState {
     required Vector2 spawnPosition,
     required double maxHp,
     required double moveSpeed,
+    required int xpReward,
   }) {
     this.id = id;
     position.setFrom(spawnPosition);
@@ -28,6 +30,7 @@ class EnemyState {
     this.maxHp = maxHp;
     hp = maxHp;
     this.moveSpeed = moveSpeed;
+    this.xpReward = xpReward;
     active = true;
   }
 }
