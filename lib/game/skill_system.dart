@@ -3,11 +3,15 @@ import 'dart:math' as math;
 import 'package:flame/extensions.dart';
 
 import '../data/ids.dart';
+import '../data/skill_defs.dart';
+import '../data/stat_defs.dart';
+import '../data/tags.dart';
 import 'enemy_pool.dart';
 import 'enemy_state.dart';
 import 'projectile_pool.dart';
 import 'projectile_state.dart';
 import 'spatial_grid.dart';
+import 'stat_sheet.dart';
 
 class SkillSystem {
   SkillSystem({
@@ -54,19 +58,23 @@ class SkillSystem {
     required double dt,
     required Vector2 playerPosition,
     required Vector2 aimDirection,
+    required StatSheet stats,
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
     required void Function(ProjectileState) onProjectileSpawn,
     required void Function(EnemyState, double) onEnemyDamaged,
   }) {
+    final cooldownSpeed = _cooldownSpeed(stats);
+    final adjustedDt = dt * cooldownSpeed;
     for (final skill in _skills) {
-      skill.cooldownRemaining -= dt;
+      skill.cooldownRemaining -= adjustedDt;
       while (skill.cooldownRemaining <= 0) {
         switch (skill.id) {
           case SkillId.fireball:
             _castFireball(
               playerPosition: playerPosition,
               aimDirection: aimDirection,
+              stats: stats,
               enemyPool: enemyPool,
               onProjectileSpawn: onProjectileSpawn,
             );
@@ -74,6 +82,7 @@ class SkillSystem {
             _castSwordCut(
               playerPosition: playerPosition,
               aimDirection: aimDirection,
+              stats: stats,
               enemyPool: enemyPool,
               enemyGrid: enemyGrid,
               onEnemyDamaged: onEnemyDamaged,
@@ -95,6 +104,7 @@ class SkillSystem {
   void _castFireball({
     required Vector2 playerPosition,
     required Vector2 aimDirection,
+    required StatSheet stats,
     required EnemyPool enemyPool,
     required void Function(ProjectileState) onProjectileSpawn,
   }) {
@@ -103,11 +113,12 @@ class SkillSystem {
       aimDirection: aimDirection,
       enemyPool: enemyPool,
     );
+    final damage = 8 * _damageMultiplierFor(SkillId.fireball, stats);
     final projectile = _projectilePool.acquire();
     projectile.reset(
       position: playerPosition,
       velocity: direction..scale(220),
-      damage: 8,
+      damage: damage,
       radius: 4,
       lifespan: 2.0,
       fromEnemy: false,
@@ -118,14 +129,17 @@ class SkillSystem {
   void _castSwordCut({
     required Vector2 playerPosition,
     required Vector2 aimDirection,
+    required StatSheet stats,
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
     required void Function(EnemyState, double) onEnemyDamaged,
   }) {
-    const range = 46.0;
+    const baseRange = 46.0;
     const arcDegrees = 90.0;
-    const damage = 12.0;
     final arcCosine = math.cos((arcDegrees * 0.5) * (math.pi / 180));
+    final aoeScale = _aoeScale(stats);
+    final range = baseRange * aoeScale;
+    final damage = 12 * _damageMultiplierFor(SkillId.swordCut, stats);
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
@@ -187,6 +201,44 @@ class SkillSystem {
 
     _aimBuffer.normalize();
     return _aimBuffer;
+  }
+
+  double _cooldownSpeed(StatSheet stats) {
+    final attackSpeed = stats.value(StatId.attackSpeed);
+    final cooldownRecovery = stats.value(StatId.cooldownRecovery);
+    return math.max(0.1, 1 + attackSpeed + cooldownRecovery);
+  }
+
+  double _aoeScale(StatSheet stats) {
+    return math.max(0.25, 1 + stats.value(StatId.aoeSize));
+  }
+
+  double _damageMultiplierFor(SkillId id, StatSheet stats) {
+    final def = skillDefsById[id];
+    final tags = def?.tags;
+    var multiplier = 1 +
+        stats.value(StatId.damage) +
+        stats.value(StatId.directHitDamage);
+
+    if (tags != null) {
+      if (tags.hasDelivery(DeliveryTag.projectile)) {
+        multiplier += stats.value(StatId.projectileDamage);
+      }
+      if (tags.hasDelivery(DeliveryTag.melee)) {
+        multiplier += stats.value(StatId.meleeDamage);
+      }
+      if (tags.hasDelivery(DeliveryTag.beam)) {
+        multiplier += stats.value(StatId.beamDamage);
+      }
+      if (tags.hasElement(ElementTag.fire)) {
+        multiplier += stats.value(StatId.fireDamage);
+      }
+      if (tags.hasElement(ElementTag.water)) {
+        multiplier += stats.value(StatId.waterDamage);
+      }
+    }
+
+    return math.max(0.1, multiplier);
   }
 }
 

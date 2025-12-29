@@ -261,6 +261,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       dt: dt,
       playerPosition: _playerState.position,
       aimDirection: _playerState.movementIntent,
+      stats: _playerState.stats,
       enemyPool: _enemyPool,
       enemyGrid: _enemyGrid,
       onProjectileSpawn: _handleProjectileSpawn,
