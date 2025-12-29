@@ -122,14 +122,23 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 **Goal:** Create a lightweight, in-project pixel sprite generation pipeline.
 
 **Decisions/constraints:**
-- Generation inputs are data-driven (palette, seed, shapes).
-- Pipeline is decoupled from gameplay logic.
+- Generation inputs are data-driven (palette, seed, shapes) and live in JSON assets.
+- Pipeline is decoupled from gameplay logic and uses a cache for reuse.
+- Shape rendering supports simple primitives (circle/rect/pixels) with optional seeded jitter for pixel noise.
 
 **Implementation notes:**
-- Define sprite recipe data objects in `lib/data/`.
-- Build generator module in `lib/render/` or a shared utility.
-- Cache generated sprites for reuse.
-- Document recipe usage and constraints in code comments.
+- [x] Define sprite recipe data objects in `lib/data/sprite_recipes.dart` and load from JSON.
+- [x] Add a recipe loader (`lib/render/sprite_recipe_loader.dart`) that reads assets.
+- [x] Build generator module (`lib/render/sprite_generator.dart`) that renders circles/rects/pixels.
+- [x] Add a cached pipeline (`lib/render/sprite_pipeline.dart`) plus `SpriteCache`.
+- [x] Provide a demo renderer/export helper in `lib/render/sprite_gen_demo.dart`.
+- [x] Ship baseline recipes in `assets/sprites/recipes.json` (player, enemy, item, skill, ground, projectile, pickup).
+- [x] Wire runtime generation for the player sprite in `lib/game/horde_game.dart`.
+- [ ] Add recipe validation (required keys, bounds checking, palette references) with clear error logging.
+- [ ] Expand the generator with additional primitives (lines, arcs, layered masks) for more readable silhouettes.
+- [ ] Map generated sprites to all runtime components (enemies, projectiles, pickups, items/skills UI).
+- [ ] Add tests for recipe loading + deterministic generation (seeded output).
+- [ ] Decide on runtime vs build-time export workflow and document in code comments or README.
 
 ## Phase 8 — Stress scene (performance validation)
 **Goal:** Validate 60 FPS target with high entity counts.
