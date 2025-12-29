@@ -1,0 +1,117 @@
+import 'package:flame/extensions.dart';
+
+import '../data/ids.dart';
+import 'enemy_pool.dart';
+import 'projectile_pool.dart';
+import 'projectile_state.dart';
+
+class SkillSystem {
+  SkillSystem({
+    required ProjectilePool projectilePool,
+  })  : _projectilePool = projectilePool,
+        _skills = [
+          SkillSlot(id: SkillId.fireball, cooldown: 0.6),
+        ];
+
+  final ProjectilePool _projectilePool;
+  final List<SkillSlot> _skills;
+  final Vector2 _aimBuffer = Vector2.zero();
+  final Vector2 _fallbackDirection = Vector2(1, 0);
+
+  void update({
+    required double dt,
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required EnemyPool enemyPool,
+    required void Function(ProjectileState) onProjectileSpawn,
+  }) {
+    for (final skill in _skills) {
+      skill.cooldownRemaining -= dt;
+      while (skill.cooldownRemaining <= 0) {
+        switch (skill.id) {
+          case SkillId.fireball:
+            _castFireball(
+              playerPosition: playerPosition,
+              aimDirection: aimDirection,
+              enemyPool: enemyPool,
+              onProjectileSpawn: onProjectileSpawn,
+            );
+          case SkillId.waterjet:
+          case SkillId.oilBombs:
+          case SkillId.swordThrust:
+          case SkillId.swordCut:
+          case SkillId.swordSwing:
+          case SkillId.swordDeflect:
+          case SkillId.poisonGas:
+          case SkillId.roots:
+            break;
+        }
+        skill.cooldownRemaining += skill.cooldown;
+      }
+    }
+  }
+
+  void _castFireball({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required EnemyPool enemyPool,
+    required void Function(ProjectileState) onProjectileSpawn,
+  }) {
+    final direction = _resolveAim(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: enemyPool,
+    );
+    final projectile = _projectilePool.acquire();
+    projectile.reset(
+      position: playerPosition,
+      velocity: direction..scale(220),
+      damage: 8,
+      radius: 4,
+      lifespan: 2.0,
+    );
+    onProjectileSpawn(projectile);
+  }
+
+  Vector2 _resolveAim({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required EnemyPool enemyPool,
+  }) {
+    var closestDistance = double.infinity;
+    var closestDx = 0.0;
+    var closestDy = 0.0;
+    var hasTarget = false;
+    for (final enemy in enemyPool.active) {
+      final dx = enemy.position.x - playerPosition.x;
+      final dy = enemy.position.y - playerPosition.y;
+      final distance = dx * dx + dy * dy;
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestDx = dx;
+        closestDy = dy;
+        hasTarget = true;
+      }
+    }
+
+    if (hasTarget) {
+      _aimBuffer.setValues(closestDx, closestDy);
+    } else if (aimDirection.length2 > 0) {
+      _aimBuffer.setFrom(aimDirection);
+    } else {
+      _aimBuffer.setFrom(_fallbackDirection);
+    }
+
+    _aimBuffer.normalize();
+    return _aimBuffer;
+  }
+}
+
+class SkillSlot {
+  SkillSlot({required this.id, required this.cooldown})
+      : cooldownRemaining = cooldown;
+
+  final SkillId id;
+  final double cooldown;
+  double cooldownRemaining;
+}
