@@ -213,7 +213,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - **Render layer (`lib/render/`)**
   - **Current:** Component adapters for player/enemy/projectile, sprite generation pipeline with caching.
   - **Best-practice alignment:** ✅ Decoupled from simulation; cached sprite generation; placeholder-friendly pipeline.
-  - **Follow-ups:** Add a texture atlas or SpriteBatch strategy for lower draw calls on mobile; ✅ sprite cache pre-warm is now handled at scene start.
+  - **Follow-ups:** ✅ Added a SpriteBatch-backed renderer for friendly projectiles to reduce draw calls; ✅ sprite cache pre-warm is now handled at scene start.
 - **UI/Overlays (`lib/ui/`)**
   - **Current:** HUD and selection overlays.
   - **Best-practice alignment:** ✅ UI separated from sim, overlays are explicit.
