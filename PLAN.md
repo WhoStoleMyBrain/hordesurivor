@@ -10,6 +10,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - Separate model (`lib/game/`) from view (`lib/render/`).
 - Keep content data-driven (`lib/data/`).
 - Use pooling from the start for performance-sensitive entities.
+- Startup data validation logs warnings and asserts on errors in debug builds.
 
 **Implementation notes:**
 - Verify `pubspec.yaml` includes Flame and test/lint dependencies.
@@ -17,6 +18,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - [x] Implement the entry point in `lib/main.dart` with a fixed timestep game runner.
 - [x] Add a HUD overlay stub in `lib/ui/`.
 - [x] Clamp the fixed timestep accumulator to a max number of steps per frame to avoid spiral-of-death.
+- [x] Add startup data validation to catch invalid ids/tags/weights early.
 - Ensure `flutter analyze`, `flutter test`, and `dart format .` are part of the default workflow.
 
 ## Phase 1 — Core simulation loop & player movement
@@ -213,7 +215,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - **Data definitions (`lib/data/`)**
   - **Current:** Tags, ids, skill/item/enemy defs, stat defs, sprite recipes.
   - **Best-practice alignment:** ✅ Data-driven content with consistent tagging and weights.
-  - **Follow-ups:** Add validation pass at startup to catch invalid ids/tags/weights early; emit readable errors for content designers.
+  - **Follow-ups:** ✅ Added a startup validation pass that logs warnings/errors and asserts on invalid data.
 - **Assets & sprite recipes (`assets/`)**
   - **Current:** JSON recipes for sprite generation.
   - **Best-practice alignment:** ✅ Data-driven sprite pipeline; no external asset license risk.
