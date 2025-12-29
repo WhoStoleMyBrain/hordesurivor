@@ -10,6 +10,7 @@ import '../render/player_component.dart';
 import '../render/projectile_component.dart';
 import '../render/sprite_pipeline.dart';
 import 'enemy_pool.dart';
+import 'enemy_state.dart';
 import 'enemy_system.dart';
 import 'player_state.dart';
 import 'projectile_pool.dart';
@@ -44,6 +45,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final ProjectileSystem _projectileSystem;
   late final SkillSystem _skillSystem;
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
+  final Map<EnemyState, EnemyComponent> _enemyComponents = {};
 
   @override
   Future<void> onLoad() async {
@@ -83,7 +85,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         SpawnWave(time: 5, enemyId: EnemyId.imp, count: 5),
       ],
       onSpawn: (enemy) {
-        add(EnemyComponent(state: enemy, radius: _enemyRadius));
+        final component = EnemyComponent(state: enemy, radius: _enemyRadius);
+        _enemyComponents[enemy] = component;
+        add(component);
       },
     );
     _spawnerReady = true;
@@ -114,6 +118,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       aimDirection: _playerState.movementIntent,
       enemyPool: _enemyPool,
       onProjectileSpawn: _handleProjectileSpawn,
+      onEnemyDefeated: _handleEnemyDefeated,
     );
     _projectileSystem.update(
       dt,
@@ -208,5 +213,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _handleProjectileDespawn(ProjectileState projectile) {
     final component = _projectileComponents.remove(projectile);
     component?.removeFromParent();
+  }
+
+  void _handleEnemyDefeated(EnemyState enemy) {
+    final component = _enemyComponents.remove(enemy);
+    component?.removeFromParent();
+    _enemyPool.release(enemy);
   }
 }

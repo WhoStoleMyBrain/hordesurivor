@@ -57,15 +57,17 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - Projectile and melee deliveries remain true to archetype.
  - Fireball targeting picks the nearest active enemy and falls back to player aim if no target exists.
  - Projectile lifetimes are bounded to avoid unbounded pooling growth in early loops.
+ - Sword Cut uses a 90° melee arc at ~46 units, centered on the current aim/nearest target.
 
 **Implementation notes:**
 - [x] `lib/data/`: Define `SkillDef` (id, name, tags, params, rarity/weight).
 - [x] `lib/game/`: Add `SkillSystem` with cooldowns and basic casting loop.
 - [x] `lib/game/`: Add `ProjectileState` and pooled projectile system.
 - [x] Fireball: projectile delivery with base damage, lifespan, and speed.
-- [ ] Sword Cut: melee arc with hit detection.
+- [x] Sword Cut: melee arc with hit detection.
 - [ ] Spatial partitioning (grid/buckets) for hit detection.
-- [ ] Tests for cooldowns, skill triggers, and hit detection.
+- [x] Tests for melee hit detection.
+- [ ] Tests for cooldowns and skill triggers.
 
 ## Phase 4 — Damage, HP, death, despawn
 **Goal:** Complete survivability loop with damage processing and despawn logic.
