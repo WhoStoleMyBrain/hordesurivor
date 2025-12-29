@@ -43,6 +43,14 @@ class HudOverlay extends StatelessWidget {
                         'XP ${hudState.xp}/${hudState.xpToNext}',
                         style: const TextStyle(letterSpacing: 0.5),
                       ),
+                      if (hudState.showPerformance) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'FPS ${hudState.fps.toStringAsFixed(1)} '
+                          '(${hudState.frameTimeMs.toStringAsFixed(1)} ms)',
+                          style: const TextStyle(letterSpacing: 0.5),
+                        ),
+                      ],
                     ],
                   ),
                 );

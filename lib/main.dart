@@ -14,20 +14,29 @@ class HordeSurvivorApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const stressScene = bool.fromEnvironment('STRESS_SCENE');
     return MaterialApp(
       theme: ThemeData.dark(),
-      home: GameWidget(
-        game: HordeGame(),
-        overlayBuilderMap: {
-          HudOverlay.overlayKey: (_, game) =>
-              HudOverlay(hudState: (game as HordeGame).hudState),
-          SelectionOverlay.overlayKey: (_, game) => SelectionOverlay(
-                selectionState: (game as HordeGame).selectionState,
-                onSelected: game.selectChoice,
-              ),
-        },
-        initialActiveOverlays: const [HudOverlay.overlayKey],
-      ),
+      initialRoute: stressScene ? '/stress' : '/',
+      routes: {
+        '/': (_) => _buildGame(stressTest: false),
+        '/stress': (_) => _buildGame(stressTest: true),
+      },
+    );
+  }
+
+  GameWidget _buildGame({required bool stressTest}) {
+    return GameWidget(
+      game: HordeGame(stressTest: stressTest),
+      overlayBuilderMap: {
+        HudOverlay.overlayKey: (_, game) =>
+            HudOverlay(hudState: (game as HordeGame).hudState),
+        SelectionOverlay.overlayKey: (_, game) => SelectionOverlay(
+              selectionState: (game as HordeGame).selectionState,
+              onSelected: game.selectChoice,
+            ),
+      },
+      initialActiveOverlays: const [HudOverlay.overlayKey],
     );
   }
 }

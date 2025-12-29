@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flame/game.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../data/ids.dart';
@@ -27,7 +28,8 @@ import 'spatial_grid.dart';
 import 'spawner_system.dart';
 
 class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
-  HordeGame() : super(backgroundColor: const Color(0xFF0F1117));
+  HordeGame({this.stressTest = false})
+      : super(backgroundColor: const Color(0xFF0F1117));
 
   static const double _fixedDelta = 1 / 60;
   static const double _playerRadius = 16;
@@ -35,8 +37,15 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _playerMaxHp = 100;
   static const double _enemyRadius = 14;
   static const double _enemyContactDamagePerSecond = 12;
+  static const int _stressEnemyCount = 550;
+  static const int _stressProjectileBurstCount = 1100;
+  static const double _stressProjectileInterval = 4;
 
   double _accumulator = 0;
+  double _frameTimeMs = 0;
+  double _fps = 0;
+  double _stressProjectileTimer = 0;
+  final bool stressTest;
   late final PlayerState _playerState;
   late final PlayerComponent _playerComponent;
   final SpritePipeline _spritePipeline = SpritePipeline();
@@ -62,6 +71,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final SelectionState _selectionState = SelectionState();
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
+  final math.Random _stressRandom = math.Random(41);
+  final Vector2 _stressPosition = Vector2.zero();
+  final Vector2 _stressVelocity = Vector2.zero();
 
   PlayerHudState get hudState => _hudState;
   SelectionState get selectionState => _selectionState;
@@ -99,8 +111,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _playerComponent.syncWithState();
     await add(_playerComponent);
 
-    _enemyPool = EnemyPool(initialCapacity: 48);
-    _projectilePool = ProjectilePool(initialCapacity: 64);
+    _enemyPool = EnemyPool(initialCapacity: stressTest ? 600 : 48);
+    _projectilePool = ProjectilePool(initialCapacity: stressTest ? 1400 : 64);
     _enemySystem = EnemySystem(
       pool: _enemyPool,
       projectilePool: _projectilePool,
@@ -116,20 +128,37 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       pool: _enemyPool,
       random: math.Random(7),
       arenaSize: size,
-      waves: const [
-        SpawnWave(time: 0, enemyId: EnemyId.imp, count: 4),
-        SpawnWave(time: 2, enemyId: EnemyId.imp, count: 3),
-        SpawnWave(time: 5, enemyId: EnemyId.imp, count: 5),
-      ],
+      waves: stressTest
+          ? const [
+              SpawnWave(
+                time: 0,
+                enemyId: EnemyId.imp,
+                count: _stressEnemyCount,
+              ),
+            ]
+          : const [
+              SpawnWave(time: 0, enemyId: EnemyId.imp, count: 4),
+              SpawnWave(time: 2, enemyId: EnemyId.imp, count: 3),
+              SpawnWave(time: 5, enemyId: EnemyId.imp, count: 5),
+            ],
       onSpawn: _registerEnemyComponent,
     );
     _spawnerReady = true;
+    if (stressTest) {
+      _stressProjectileTimer = _stressProjectileInterval;
+      debugPrint(
+        'Stress scene active: spawning $_stressEnemyCount enemies and '
+        '$_stressProjectileBurstCount-projectile bursts.',
+      );
+    }
     _syncHudState();
   }
 
   @override
   void update(double dt) {
     final clampedDt = math.min(dt, 0.25);
+    _frameTimeMs = clampedDt * 1000;
+    _fps = clampedDt > 0 ? 1 / clampedDt : 0;
     _accumulator += clampedDt;
     while (_accumulator >= _fixedDelta) {
       _step(_fixedDelta);
@@ -162,6 +191,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       onProjectileSpawn: _handleProjectileSpawn,
       onEnemyDamaged: _damageSystem.queueEnemyDamage,
     );
+    if (stressTest) {
+      _spawnStressProjectiles(dt);
+    }
     final contactRadius = _playerRadius + _enemyRadius;
     final contactRadiusSquared = contactRadius * contactRadius;
     for (final enemy in _enemyPool.active) {
@@ -290,10 +322,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _handleEnemyDefeated(EnemyState enemy) {
-    final levelsGained = _experienceSystem.addExperience(enemy.xpReward);
-    if (levelsGained > 0) {
-      _levelUpSystem.queueLevels(levelsGained);
-      _offerSelectionIfNeeded();
+    if (!stressTest) {
+      final levelsGained = _experienceSystem.addExperience(enemy.xpReward);
+      if (levelsGained > 0) {
+        _levelUpSystem.queueLevels(levelsGained);
+        _offerSelectionIfNeeded();
+      }
     }
     final component = _enemyComponents.remove(enemy);
     component?.removeFromParent();
@@ -340,6 +374,42 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       level: _experienceSystem.level,
       xp: _experienceSystem.currentXp,
       xpToNext: _experienceSystem.xpToNext,
+      showPerformance: stressTest,
+      fps: _fps,
+      frameTimeMs: _frameTimeMs,
     );
+  }
+
+  void _spawnStressProjectiles(double dt) {
+    _stressProjectileTimer -= dt;
+    if (_stressProjectileTimer > 0) {
+      return;
+    }
+    _stressProjectileTimer = _stressProjectileInterval;
+
+    for (var i = 0; i < _stressProjectileBurstCount; i++) {
+      final angle = _stressRandom.nextDouble() * math.pi * 2;
+      final radius = _stressRandom.nextDouble() * 240;
+      _stressPosition
+        ..setValues(math.cos(angle) * radius, math.sin(angle) * radius)
+        ..add(_playerState.position);
+      _stressPosition.x = _stressPosition.x.clamp(0.0, size.x);
+      _stressPosition.y = _stressPosition.y.clamp(0.0, size.y);
+      _stressVelocity.setValues(
+        math.cos(angle) * 180,
+        math.sin(angle) * 180,
+      );
+
+      final projectile = _projectilePool.acquire();
+      projectile.reset(
+        position: _stressPosition,
+        velocity: _stressVelocity,
+        damage: 0.5,
+        radius: 3,
+        lifespan: 1.8,
+        fromEnemy: true,
+      );
+      _handleProjectileSpawn(projectile);
+    }
   }
 }
