@@ -42,6 +42,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const int _stressProjectileBurstCount = 1100;
   static const double _stressProjectileInterval = 4;
   static const int _maxFixedStepsPerFrame = 5;
+  static const double _panDeadZone = 8;
+  static const double _panMaxRadius = 72;
 
   double _accumulator = 0;
   double _frameTimeMs = 0;
@@ -271,7 +273,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _applyInput() {
     if (_isPanning) {
-      _playerState.movementIntent.setFrom(_panDirection);
+      final length = _panDirection.length;
+      if (length <= _panDeadZone) {
+        _playerState.movementIntent.setZero();
+        return;
+      }
+      final clampedLength = length.clamp(_panDeadZone, _panMaxRadius);
+      final scaledMagnitude =
+          (clampedLength - _panDeadZone) / (_panMaxRadius - _panDeadZone);
+      _playerState.movementIntent
+        ..setFrom(_panDirection)
+        ..normalize()
+        ..scale(scaledMagnitude);
       return;
     }
 

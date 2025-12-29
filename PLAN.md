@@ -175,9 +175,12 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 **Decisions/constraints:**
 - Desktop and mobile input supported.
 - Avoid platform-specific assumptions in rendering or assets.
+ - Touch movement uses an analog pan vector with a dead-zone and max radius so
+   small drags do not trigger full-speed movement; keyboard input remains digital.
 
 **Implementation notes:**
-- Validate input mapping for keyboard + touch.
+- [x] Validate input mapping for keyboard + touch by adding analog pan scaling and
+  allowing sub-unit movement intent in `PlayerState`.
 - Ensure sprite generation works on target platforms.
 - Update `README.md` only if new platform-specific steps are required.
 

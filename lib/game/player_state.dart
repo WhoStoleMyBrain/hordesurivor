@@ -37,8 +37,11 @@ class PlayerState {
 
   void step(double dt) {
     velocity.setFrom(movementIntent);
-    if (velocity.length2 > 0) {
+    final lengthSquared = velocity.length2;
+    if (lengthSquared > 1) {
       velocity.normalize();
+    }
+    if (lengthSquared > 0) {
       velocity.scale(moveSpeed);
       position.addScaled(velocity, dt);
     }
