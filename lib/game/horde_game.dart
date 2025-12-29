@@ -17,6 +17,7 @@ import 'projectile_pool.dart';
 import 'projectile_state.dart';
 import 'projectile_system.dart';
 import 'skill_system.dart';
+import 'spatial_grid.dart';
 import 'spawner_system.dart';
 
 class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
@@ -44,6 +45,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final ProjectilePool _projectilePool;
   late final ProjectileSystem _projectileSystem;
   late final SkillSystem _skillSystem;
+  late final SpatialGrid _enemyGrid;
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
 
@@ -72,6 +74,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
     _enemyPool = EnemyPool(initialCapacity: 48);
     _enemySystem = EnemySystem(_enemyPool);
+    _enemyGrid = SpatialGrid(cellSize: 64);
     _projectilePool = ProjectilePool(initialCapacity: 64);
     _projectileSystem = ProjectileSystem(_projectilePool);
     _skillSystem = SkillSystem(projectilePool: _projectilePool);
@@ -112,11 +115,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _playerState.step(dt);
     _spawnerSystem.update(dt, _playerState.position);
     _enemySystem.update(dt, _playerState.position);
+    _enemyGrid.rebuild(_enemyPool.active);
     _skillSystem.update(
       dt: dt,
       playerPosition: _playerState.position,
       aimDirection: _playerState.movementIntent,
       enemyPool: _enemyPool,
+      enemyGrid: _enemyGrid,
       onProjectileSpawn: _handleProjectileSpawn,
       onEnemyDefeated: _handleEnemyDefeated,
     );
