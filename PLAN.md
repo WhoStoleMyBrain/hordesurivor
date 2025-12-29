@@ -226,7 +226,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - **Tests (`test/`)**
   - **Current:** System-level tests for core game systems and sprite recipe loading.
   - **Best-practice alignment:** ✅ Core logic is testable without rendering.
-  - **Follow-ups:** Add a minimal performance sanity test (non-benchmark) to ensure pooling and grid lookups are exercised without allocations in debug.
+  - **Follow-ups:** ✅ Added a minimal performance sanity test to exercise pooling reuse and spatial grid queries in debug.
 - **Platform runners (`android/`, `ios/`, `windows/`, `macos/`, `linux/`, `web/`)**
   - **Current:** Standard Flutter runner scaffolds.
   - **Best-practice alignment:** ✅ No platform-specific assumptions in core code.
