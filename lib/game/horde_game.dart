@@ -9,10 +9,12 @@ import '../render/enemy_component.dart';
 import '../render/player_component.dart';
 import '../render/projectile_component.dart';
 import '../render/sprite_pipeline.dart';
+import '../ui/hud_state.dart';
 import 'damage_system.dart';
 import 'enemy_pool.dart';
 import 'enemy_state.dart';
 import 'enemy_system.dart';
+import 'experience_system.dart';
 import 'player_state.dart';
 import 'projectile_pool.dart';
 import 'projectile_state.dart';
@@ -49,8 +51,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final SkillSystem _skillSystem;
   late final SpatialGrid _enemyGrid;
   late final DamageSystem _damageSystem;
+  late final ExperienceSystem _experienceSystem;
+  final PlayerHudState _hudState = PlayerHudState();
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
+
+  PlayerHudState get hudState => _hudState;
 
   @override
   Future<void> onLoad() async {
@@ -67,6 +73,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       maxHp: _playerMaxHp,
       moveSpeed: _playerSpeed,
     );
+    _experienceSystem = ExperienceSystem();
     _playerComponent = PlayerComponent(
       state: _playerState,
       radius: _playerRadius,
@@ -98,6 +105,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       },
     );
     _spawnerReady = true;
+    _syncHudState();
   }
 
   @override
@@ -154,6 +162,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       enemyRadius: _enemyRadius,
     );
     _damageSystem.resolve(onEnemyDefeated: _handleEnemyDefeated);
+    _syncHudState();
 
     _playerState.clampToBounds(
       min: Vector2(_playerRadius, _playerRadius),
@@ -245,8 +254,19 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _handleEnemyDefeated(EnemyState enemy) {
+    _experienceSystem.addExperience(enemy.xpReward);
     final component = _enemyComponents.remove(enemy);
     component?.removeFromParent();
     _enemyPool.release(enemy);
+  }
+
+  void _syncHudState() {
+    _hudState.update(
+      hp: _playerState.hp,
+      maxHp: _playerState.maxHp,
+      level: _experienceSystem.level,
+      xp: _experienceSystem.currentXp,
+      xpToNext: _experienceSystem.xpToNext,
+    );
   }
 }

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flame/extensions.dart';
 
 import '../data/ids.dart';
+import '../data/enemy_defs.dart';
 import 'enemy_pool.dart';
 import 'enemy_state.dart';
 
@@ -62,6 +63,10 @@ class SpawnerSystem {
   }
 
   void _spawnEnemy(EnemyId id, Vector2 playerPosition) {
+    final def = enemyDefsById[id];
+    if (def == null) {
+      return;
+    }
     final angle = _random.nextDouble() * math.pi * 2;
     final radius = _spawnMinRadius +
         _random.nextDouble() * (_spawnMaxRadius - _spawnMinRadius);
@@ -77,6 +82,7 @@ class SpawnerSystem {
       spawnPosition: _spawnPosition,
       maxHp: 15,
       moveSpeed: 28,
+      xpReward: def.xpReward,
     );
     _onSpawn(enemy);
   }

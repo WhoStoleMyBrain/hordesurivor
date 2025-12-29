@@ -8,6 +8,7 @@ class EnemyDef {
     required this.description,
     required this.faction,
     required this.role,
+    required this.xpReward,
     this.weight = 1,
   });
 
@@ -16,6 +17,7 @@ class EnemyDef {
   final String description;
   final Faction faction;
   final EnemyRole role;
+  final int xpReward;
   final int weight;
 }
 
@@ -26,6 +28,7 @@ const List<EnemyDef> enemyDefs = [
     description: 'Fast chaser with low health.',
     faction: Faction.demons,
     role: EnemyRole.chaser,
+    xpReward: 5,
   ),
   EnemyDef(
     id: EnemyId.spitter,
@@ -33,6 +36,7 @@ const List<EnemyDef> enemyDefs = [
     description: 'Ranged attacker with imperfect aim.',
     faction: Faction.demons,
     role: EnemyRole.ranged,
+    xpReward: 6,
   ),
   EnemyDef(
     id: EnemyId.portalKeeper,
@@ -40,6 +44,7 @@ const List<EnemyDef> enemyDefs = [
     description: 'Summons imps until destroyed.',
     faction: Faction.demons,
     role: EnemyRole.spawner,
+    xpReward: 10,
   ),
   EnemyDef(
     id: EnemyId.hexer,
@@ -47,6 +52,7 @@ const List<EnemyDef> enemyDefs = [
     description: 'Projects weakening curses and auras.',
     faction: Faction.demons,
     role: EnemyRole.disruptor,
+    xpReward: 8,
   ),
   EnemyDef(
     id: EnemyId.brimstoneBrander,
@@ -54,6 +60,7 @@ const List<EnemyDef> enemyDefs = [
     description: 'Controls space with burning ground.',
     faction: Faction.demons,
     role: EnemyRole.zoner,
+    xpReward: 8,
   ),
   EnemyDef(
     id: EnemyId.hellknight,
@@ -61,6 +68,7 @@ const List<EnemyDef> enemyDefs = [
     description: 'Telegraphed dash with slam AOE.',
     faction: Faction.demons,
     role: EnemyRole.elite,
+    xpReward: 16,
   ),
   EnemyDef(
     id: EnemyId.cinderling,
@@ -68,6 +76,7 @@ const List<EnemyDef> enemyDefs = [
     description: 'Explodes on a timer or on death.',
     faction: Faction.demons,
     role: EnemyRole.exploder,
+    xpReward: 7,
   ),
   EnemyDef(
     id: EnemyId.zealot,
@@ -75,6 +84,7 @@ const List<EnemyDef> enemyDefs = [
     description: 'Steady chaser with higher durability.',
     faction: Faction.angels,
     role: EnemyRole.chaser,
+    xpReward: 6,
   ),
   EnemyDef(
     id: EnemyId.cherubArcher,
@@ -82,6 +92,7 @@ const List<EnemyDef> enemyDefs = [
     description: 'Telegraphed volley pattern.',
     faction: Faction.angels,
     role: EnemyRole.ranged,
+    xpReward: 7,
   ),
   EnemyDef(
     id: EnemyId.seraphMedic,
@@ -89,6 +100,7 @@ const List<EnemyDef> enemyDefs = [
     description: 'Heals nearby allies with a beam.',
     faction: Faction.angels,
     role: EnemyRole.supportHealer,
+    xpReward: 9,
   ),
   EnemyDef(
     id: EnemyId.herald,
@@ -96,6 +108,7 @@ const List<EnemyDef> enemyDefs = [
     description: 'Buff aura for nearby allies.',
     faction: Faction.angels,
     role: EnemyRole.supportBuffer,
+    xpReward: 9,
   ),
   EnemyDef(
     id: EnemyId.warden,
@@ -103,6 +116,7 @@ const List<EnemyDef> enemyDefs = [
     description: 'Stationary hazard zones that deny space.',
     faction: Faction.angels,
     role: EnemyRole.zoner,
+    xpReward: 8,
   ),
   EnemyDef(
     id: EnemyId.sentinel,
@@ -110,6 +124,7 @@ const List<EnemyDef> enemyDefs = [
     description: 'Patrols in arcs with minimal tracking.',
     faction: Faction.angels,
     role: EnemyRole.pattern,
+    xpReward: 8,
   ),
   EnemyDef(
     id: EnemyId.archonLancer,
@@ -117,6 +132,7 @@ const List<EnemyDef> enemyDefs = [
     description: 'Telegraphed charge leaves a wind trail.',
     faction: Faction.angels,
     role: EnemyRole.elite,
+    xpReward: 16,
   ),
 ];
 
