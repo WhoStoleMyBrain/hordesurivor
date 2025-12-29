@@ -59,6 +59,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
  - Projectile lifetimes are bounded to avoid unbounded pooling growth in early loops.
  - Sword Cut uses a 90° melee arc at ~46 units, centered on the current aim/nearest target.
  - Spatial grid buckets use 64-unit cells and are rebuilt each fixed step for hit queries.
+ - Cooldown timers are validated to support multi-cast bursts when large `dt` steps occur.
 
 **Implementation notes:**
 - [x] `lib/data/`: Define `SkillDef` (id, name, tags, params, rarity/weight).
@@ -68,7 +69,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - [x] Sword Cut: melee arc with hit detection.
 - [x] Spatial partitioning (grid/buckets) for hit detection.
 - [x] Tests for melee hit detection.
-- [ ] Tests for cooldowns and skill triggers.
+- [x] Tests for cooldowns and skill triggers.
 
 ## Phase 4 — Damage, HP, death, despawn
 **Goal:** Complete survivability loop with damage processing and despawn logic.
