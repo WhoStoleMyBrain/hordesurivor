@@ -141,7 +141,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - [x] Add recipe validation (required keys, bounds checking, palette references) with clear error logging.
 - [ ] Expand the generator with additional primitives (lines, arcs, layered masks) for more readable silhouettes.
 - [x] Map generated sprites to runtime components for player, enemies, and projectiles (items/UI TBD).
-- [ ] Add tests for recipe loading + deterministic generation (seeded output).
+- [x] Add tests for recipe loading + deterministic generation (seeded output).
 - [ ] Decide on runtime vs build-time export workflow and document in code comments or README.
 
 ## Phase 8 — Stress scene (performance validation)
