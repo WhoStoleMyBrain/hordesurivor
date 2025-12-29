@@ -1,6 +1,7 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
+import 'sprite_exporter.dart';
 import 'sprite_pipeline.dart';
 
 class SpriteGenDemo extends FlameGame {
@@ -15,6 +16,7 @@ class SpriteGenDemo extends FlameGame {
 
   final String? exportDirectory;
   final SpritePipeline _pipeline = SpritePipeline();
+  final SpriteExporter _exporter = SpriteExporter();
   final List<SpriteComponent> _components = [];
 
   @override
@@ -24,7 +26,7 @@ class SpriteGenDemo extends FlameGame {
       'assets/sprites/recipes.json',
     );
     if (exportDirectory != null) {
-      await _pipeline.exportToDirectory(
+      await _exporter.exportToDirectory(
         sprites: sprites,
         directoryPath: exportDirectory!,
       );
@@ -39,7 +41,10 @@ class SpriteGenDemo extends FlameGame {
     for (final sprite in sprites) {
       final component = SpriteComponent(
         sprite: Sprite(sprite.image),
-        size: Vector2(sprite.image.width.toDouble(), sprite.image.height.toDouble()),
+        size: Vector2(
+          sprite.image.width.toDouble(),
+          sprite.image.height.toDouble(),
+        ),
         position: Vector2(x, y),
       )..anchor = Anchor.topLeft;
       await add(component);
