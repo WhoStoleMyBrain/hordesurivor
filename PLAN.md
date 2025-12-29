@@ -95,13 +95,14 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - No permanent stat meta-progression.
 - XP curve is linear (base 20 XP, +10 XP per level).
 - Enemy XP rewards are defined in `lib/data/enemy_defs.dart` and granted on defeat.
+ - Level-up choices draw from skill + item definitions without duplicates, using base choice count plus `choiceCount` stat modifiers.
 
 **Implementation notes:**
-- `lib/data/`: Define `ItemDef` (id, name, tags, modifiers).
+- [x] `lib/data/`: Define `ItemDef` (id, name, tags, modifiers).
 - [x] `lib/game/`: Implement XP/level system and enemy defeat XP rewards.
-- `lib/ui/`: Build selection overlay with skill/item cards.
-- `lib/game/`: Apply modifiers to player stats.
-- Tests for modifier application and selection handling.
+- [x] `lib/ui/`: Build selection overlay with skill/item cards.
+- [x] `lib/game/`: Apply modifiers to player stats.
+- [x] Tests for modifier application and selection handling.
 
 ## Phase 6 — Additional enemy roles (ranged, spawner)
 **Goal:** Reach V0.1 minimum of 3 roles: Chaser, Ranged, Spawner.

@@ -1,0 +1,114 @@
+import 'dart:math' as math;
+
+import '../data/ids.dart';
+import '../data/item_defs.dart';
+import '../data/skill_defs.dart';
+import '../data/stat_defs.dart';
+import 'player_state.dart';
+import 'skill_system.dart';
+
+enum SelectionType { skill, item }
+
+class SelectionChoice {
+  const SelectionChoice({
+    required this.type,
+    required this.title,
+    required this.description,
+    this.skillId,
+    this.itemId,
+  });
+
+  final SelectionType type;
+  final String title;
+  final String description;
+  final SkillId? skillId;
+  final ItemId? itemId;
+}
+
+class LevelUpSystem {
+  LevelUpSystem({
+    required math.Random random,
+    int baseChoiceCount = 3,
+  })  : _random = random,
+        _baseChoiceCount = baseChoiceCount;
+
+  final math.Random _random;
+  final int _baseChoiceCount;
+  final List<SelectionChoice> _choices = [];
+  int _pendingLevels = 0;
+
+  List<SelectionChoice> get choices => List.unmodifiable(_choices);
+  int get pendingLevels => _pendingLevels;
+  bool get hasChoices => _choices.isNotEmpty;
+
+  void queueLevels(int levelsGained) {
+    if (levelsGained <= 0) {
+      return;
+    }
+    _pendingLevels += levelsGained;
+  }
+
+  void buildChoices({
+    required PlayerState playerState,
+    required SkillSystem skillSystem,
+  }) {
+    if (_pendingLevels <= 0 || _choices.isNotEmpty) {
+      return;
+    }
+    final extraChoices = playerState.stats.value(StatId.choiceCount).round();
+    final choiceCount = math.max(1, _baseChoiceCount + extraChoices);
+    final candidates = _buildCandidates(skillSystem);
+    candidates.shuffle(_random);
+    _choices
+      ..clear()
+      ..addAll(candidates.take(choiceCount));
+    if (_choices.isEmpty) {
+      _pendingLevels = 0;
+    }
+  }
+
+  void applyChoice({
+    required SelectionChoice choice,
+    required PlayerState playerState,
+    required SkillSystem skillSystem,
+  }) {
+    switch (choice.type) {
+      case SelectionType.item:
+        final itemId = choice.itemId;
+        if (itemId != null) {
+          final item = itemDefsById[itemId];
+          if (item != null) {
+            playerState.applyModifiers(item.modifiers);
+          }
+        }
+      case SelectionType.skill:
+        final skillId = choice.skillId;
+        if (skillId != null) {
+          skillSystem.addSkill(skillId);
+        }
+    }
+    _pendingLevels = math.max(0, _pendingLevels - 1);
+    _choices.clear();
+  }
+
+  List<SelectionChoice> _buildCandidates(SkillSystem skillSystem) {
+    final candidates = <SelectionChoice>[
+      for (final skill in skillDefs)
+        if (!skillSystem.hasSkill(skill.id))
+          SelectionChoice(
+            type: SelectionType.skill,
+            title: skill.name,
+            description: skill.description,
+            skillId: skill.id,
+          ),
+      for (final item in itemDefs)
+        SelectionChoice(
+          type: SelectionType.item,
+          title: item.name,
+          description: item.description,
+          itemId: item.id,
+        ),
+    ];
+    return candidates;
+  }
+}

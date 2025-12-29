@@ -10,11 +10,14 @@ import '../render/player_component.dart';
 import '../render/projectile_component.dart';
 import '../render/sprite_pipeline.dart';
 import '../ui/hud_state.dart';
+import '../ui/selection_overlay.dart';
+import '../ui/selection_state.dart';
 import 'damage_system.dart';
 import 'enemy_pool.dart';
 import 'enemy_state.dart';
 import 'enemy_system.dart';
 import 'experience_system.dart';
+import 'level_up_system.dart';
 import 'player_state.dart';
 import 'projectile_pool.dart';
 import 'projectile_state.dart';
@@ -52,11 +55,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final SpatialGrid _enemyGrid;
   late final DamageSystem _damageSystem;
   late final ExperienceSystem _experienceSystem;
+  late final LevelUpSystem _levelUpSystem;
   final PlayerHudState _hudState = PlayerHudState();
+  final SelectionState _selectionState = SelectionState();
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
 
   PlayerHudState get hudState => _hudState;
+  SelectionState get selectionState => _selectionState;
 
   @override
   Future<void> onLoad() async {
@@ -74,6 +80,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       moveSpeed: _playerSpeed,
     );
     _experienceSystem = ExperienceSystem();
+    _levelUpSystem = LevelUpSystem(random: math.Random(11));
     _playerComponent = PlayerComponent(
       state: _playerState,
       radius: _playerRadius,
@@ -121,6 +128,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _step(double dt) {
     if (!_spawnerReady) {
+      return;
+    }
+    if (_selectionState.active) {
+      _playerState.movementIntent.setZero();
+      _playerComponent.syncWithState();
+      _syncHudState();
       return;
     }
     _applyInput();
@@ -254,10 +267,37 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _handleEnemyDefeated(EnemyState enemy) {
-    _experienceSystem.addExperience(enemy.xpReward);
+    final levelsGained = _experienceSystem.addExperience(enemy.xpReward);
+    if (levelsGained > 0) {
+      _levelUpSystem.queueLevels(levelsGained);
+      _offerSelectionIfNeeded();
+    }
     final component = _enemyComponents.remove(enemy);
     component?.removeFromParent();
     _enemyPool.release(enemy);
+  }
+
+  void selectChoice(SelectionChoice choice) {
+    _levelUpSystem.applyChoice(
+      choice: choice,
+      playerState: _playerState,
+      skillSystem: _skillSystem,
+    );
+    _offerSelectionIfNeeded();
+  }
+
+  void _offerSelectionIfNeeded() {
+    _levelUpSystem.buildChoices(
+      playerState: _playerState,
+      skillSystem: _skillSystem,
+    );
+    if (_levelUpSystem.hasChoices) {
+      _selectionState.showChoices(_levelUpSystem.choices);
+      overlays.add(SelectionOverlay.overlayKey);
+    } else {
+      _selectionState.clear();
+      overlays.remove(SelectionOverlay.overlayKey);
+    }
   }
 
   void _syncHudState() {

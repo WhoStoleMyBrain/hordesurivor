@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'game/horde_game.dart';
 import 'ui/hud_overlay.dart';
+import 'ui/selection_overlay.dart';
 
 void main() {
   runApp(const HordeSurvivorApp());
@@ -20,6 +21,10 @@ class HordeSurvivorApp extends StatelessWidget {
         overlayBuilderMap: {
           HudOverlay.overlayKey: (_, game) =>
               HudOverlay(hudState: (game as HordeGame).hudState),
+          SelectionOverlay.overlayKey: (_, game) => SelectionOverlay(
+                selectionState: (game as HordeGame).selectionState,
+                onSelected: game.selectChoice,
+              ),
         },
         initialActiveOverlays: const [HudOverlay.overlayKey],
       ),
