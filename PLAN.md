@@ -58,6 +58,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
  - Fireball targeting picks the nearest active enemy and falls back to player aim if no target exists.
  - Projectile lifetimes are bounded to avoid unbounded pooling growth in early loops.
  - Sword Cut uses a 90° melee arc at ~46 units, centered on the current aim/nearest target.
+ - Spatial grid buckets use 64-unit cells and are rebuilt each fixed step for hit queries.
 
 **Implementation notes:**
 - [x] `lib/data/`: Define `SkillDef` (id, name, tags, params, rarity/weight).
@@ -65,7 +66,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - [x] `lib/game/`: Add `ProjectileState` and pooled projectile system.
 - [x] Fireball: projectile delivery with base damage, lifespan, and speed.
 - [x] Sword Cut: melee arc with hit detection.
-- [ ] Spatial partitioning (grid/buckets) for hit detection.
+- [x] Spatial partitioning (grid/buckets) for hit detection.
 - [x] Tests for melee hit detection.
 - [ ] Tests for cooldowns and skill triggers.
 

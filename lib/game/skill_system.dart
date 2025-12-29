@@ -7,6 +7,7 @@ import 'enemy_pool.dart';
 import 'enemy_state.dart';
 import 'projectile_pool.dart';
 import 'projectile_state.dart';
+import 'spatial_grid.dart';
 
 class SkillSystem {
   SkillSystem({
@@ -24,12 +25,14 @@ class SkillSystem {
   final Vector2 _aimBuffer = Vector2.zero();
   final Vector2 _fallbackDirection = Vector2(1, 0);
   final List<EnemyState> _defeatedBuffer = [];
+  final List<EnemyState> _queryBuffer = [];
 
   void update({
     required double dt,
     required Vector2 playerPosition,
     required Vector2 aimDirection,
     required EnemyPool enemyPool,
+    SpatialGrid? enemyGrid,
     required void Function(ProjectileState) onProjectileSpawn,
     required void Function(EnemyState) onEnemyDefeated,
   }) {
@@ -49,6 +52,7 @@ class SkillSystem {
               playerPosition: playerPosition,
               aimDirection: aimDirection,
               enemyPool: enemyPool,
+              enemyGrid: enemyGrid,
               onEnemyDefeated: onEnemyDefeated,
             );
           case SkillId.waterjet:
@@ -91,6 +95,7 @@ class SkillSystem {
     required Vector2 playerPosition,
     required Vector2 aimDirection,
     required EnemyPool enemyPool,
+    SpatialGrid? enemyGrid,
     required void Function(EnemyState) onEnemyDefeated,
   }) {
     const range = 46.0;
@@ -105,7 +110,10 @@ class SkillSystem {
 
     _defeatedBuffer.clear();
     final rangeSquared = range * range;
-    for (final enemy in enemyPool.active) {
+    final candidates = enemyGrid == null
+        ? enemyPool.active
+        : enemyGrid.queryCircle(playerPosition, range, _queryBuffer);
+    for (final enemy in candidates) {
       final dx = enemy.position.x - playerPosition.x;
       final dy = enemy.position.y - playerPosition.y;
       final distanceSquared = dx * dx + dy * dy;
