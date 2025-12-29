@@ -41,6 +41,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const int _stressEnemyCount = 550;
   static const int _stressProjectileBurstCount = 1100;
   static const double _stressProjectileInterval = 4;
+  static const int _maxFixedStepsPerFrame = 5;
 
   double _accumulator = 0;
   double _frameTimeMs = 0;
@@ -182,7 +183,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final clampedDt = math.min(dt, 0.25);
     _frameTimeMs = clampedDt * 1000;
     _fps = clampedDt > 0 ? 1 / clampedDt : 0;
-    _accumulator += clampedDt;
+    _accumulator = math.min(
+      _accumulator + clampedDt,
+      _fixedDelta * _maxFixedStepsPerFrame,
+    );
     while (_accumulator >= _fixedDelta) {
       _step(_fixedDelta);
       _accumulator -= _fixedDelta;
