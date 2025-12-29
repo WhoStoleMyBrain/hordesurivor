@@ -136,6 +136,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
  - Additional primitives use a single saved layer and BlendMode.dstIn masks for in-order masking.
  - Recipe validation logs errors and skips invalid recipes; out-of-bounds shapes emit warnings.
  - Runtime sprite wiring should reuse generated images loaded at game start (no per-frame allocations).
+ - Enemy definitions can optionally declare a `spriteId` to bind generated sprites to data.
 
 **Implementation notes:**
 - [x] Define sprite recipe data objects in `lib/data/sprite_recipes.dart` and load from JSON.
@@ -148,6 +149,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - [x] Add recipe validation (required keys, bounds checking, palette references) with clear error logging.
 - [x] Expand the generator with additional primitives (lines, arcs, layered masks) for more readable silhouettes.
 - [x] Map generated sprites to runtime components for player, enemies, and projectiles (items/UI TBD).
+- [x] Resolve sprites by `spriteId` at startup and log missing ids for quick validation.
 - [x] Add tests for recipe loading + deterministic generation (seeded output).
 - [x] Decide on runtime vs build-time export workflow and document in code comments or README.
   - Decision: runtime sprite generation is the default; optional export via
@@ -211,7 +213,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - **Render layer (`lib/render/`)**
   - **Current:** Component adapters for player/enemy/projectile, sprite generation pipeline with caching.
   - **Best-practice alignment:** ✅ Decoupled from simulation; cached sprite generation; placeholder-friendly pipeline.
-  - **Follow-ups:** Add a texture atlas or SpriteBatch strategy for lower draw calls on mobile; ensure sprite cache pre-warm at scene start to avoid runtime hitches.
+  - **Follow-ups:** Add a texture atlas or SpriteBatch strategy for lower draw calls on mobile; ✅ sprite cache pre-warm is now handled at scene start.
 - **UI/Overlays (`lib/ui/`)**
   - **Current:** HUD and selection overlays.
   - **Best-practice alignment:** ✅ UI separated from sim, overlays are explicit.

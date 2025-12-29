@@ -9,6 +9,7 @@ class EnemyDef {
     required this.faction,
     required this.role,
     required this.xpReward,
+    this.spriteId,
     this.maxHp = 15,
     this.moveSpeed = 28,
     this.attackCooldown = 1.6,
@@ -29,6 +30,7 @@ class EnemyDef {
   final Faction faction;
   final EnemyRole role;
   final int xpReward;
+  final String? spriteId;
   final double maxHp;
   final double moveSpeed;
   final double attackCooldown;
@@ -51,6 +53,7 @@ const List<EnemyDef> enemyDefs = [
     faction: Faction.demons,
     role: EnemyRole.chaser,
     xpReward: 5,
+    spriteId: 'enemy_imp',
     maxHp: 12,
     moveSpeed: 36,
   ),
