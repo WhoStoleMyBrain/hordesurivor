@@ -38,6 +38,12 @@ class SpriteGenerator {
       Rect.fromCenter(center: Offset.zero, width: size, height: size),
       Paint()..color = const Color(0x00000000),
     );
+    final layerBounds = Rect.fromCenter(
+      center: Offset.zero,
+      width: size,
+      height: size,
+    );
+    canvas.saveLayer(layerBounds, Paint());
 
     final palette = _paletteToColors(recipe.palette);
     final random = math.Random(recipe.seed);
@@ -61,6 +67,58 @@ class SpriteGenerator {
             height: rectSize[1].toDouble(),
           );
           canvas.drawRect(rect, Paint()..color = color);
+          break;
+        case 'line':
+          final start = shape.start;
+          final end = shape.end;
+          if (start == null || end == null) {
+            break;
+          }
+          final paint = Paint()
+            ..color = color
+            ..strokeWidth = (shape.thickness ?? 1).toDouble()
+            ..style = PaintingStyle.stroke;
+          canvas.drawLine(_offsetFromList(start), _offsetFromList(end), paint);
+          break;
+        case 'arc':
+          final radius = shape.radius?.toDouble() ?? 0;
+          if (radius <= 0) {
+            break;
+          }
+          final rect = Rect.fromCircle(center: offset, radius: radius);
+          final startAngle = (shape.startAngle ?? 0) * math.pi / 180;
+          final sweepAngle = (shape.sweepAngle ?? 0) * math.pi / 180;
+          final isFilled = shape.filled ?? false;
+          final paint = Paint()
+            ..color = color
+            ..style = isFilled ? PaintingStyle.fill : PaintingStyle.stroke
+            ..strokeWidth = (shape.thickness ?? 1).toDouble();
+          canvas.drawArc(rect, startAngle, sweepAngle, isFilled, paint);
+          break;
+        case 'maskCircle':
+          final radius = shape.radius?.toDouble() ?? 0;
+          if (radius <= 0) {
+            break;
+          }
+          final maskPaint = Paint()
+            ..color = color.withAlpha(0xFF)
+            ..blendMode = BlendMode.dstIn;
+          canvas.drawCircle(offset, radius, maskPaint);
+          break;
+        case 'maskRect':
+          final rectSize = shape.size ?? [0, 0];
+          if (rectSize.length < 2 || rectSize[0] <= 0 || rectSize[1] <= 0) {
+            break;
+          }
+          final rect = Rect.fromCenter(
+            center: offset,
+            width: rectSize[0].toDouble(),
+            height: rectSize[1].toDouble(),
+          );
+          final maskPaint = Paint()
+            ..color = color.withAlpha(0xFF)
+            ..blendMode = BlendMode.dstIn;
+          canvas.drawRect(rect, maskPaint);
           break;
         case 'pixels':
           final points = shape.points ?? [];
@@ -86,6 +144,7 @@ class SpriteGenerator {
       }
     }
 
+    canvas.restore();
     final picture = recorder.endRecording();
     final image = await picture.toImage(recipe.size, recipe.size);
     return GeneratedSprite(
@@ -97,6 +156,13 @@ class SpriteGenerator {
 
   Map<String, Color> _paletteToColors(Map<String, String> palette) {
     return palette.map((key, value) => MapEntry(key, _parseColor(value)));
+  }
+
+  Offset _offsetFromList(List<int> value) {
+    if (value.length < 2) {
+      return Offset.zero;
+    }
+    return Offset(value[0].toDouble(), value[1].toDouble());
   }
 
   Color _parseColor(String value) {
