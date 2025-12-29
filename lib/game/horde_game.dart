@@ -7,10 +7,15 @@ import 'package:flutter/services.dart';
 import '../data/ids.dart';
 import '../render/enemy_component.dart';
 import '../render/player_component.dart';
+import '../render/projectile_component.dart';
 import '../render/sprite_pipeline.dart';
 import 'enemy_pool.dart';
 import 'enemy_system.dart';
 import 'player_state.dart';
+import 'projectile_pool.dart';
+import 'projectile_state.dart';
+import 'projectile_system.dart';
+import 'skill_system.dart';
 import 'spawner_system.dart';
 
 class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
@@ -35,6 +40,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final EnemySystem _enemySystem;
   late final SpawnerSystem _spawnerSystem;
   bool _spawnerReady = false;
+  late final ProjectilePool _projectilePool;
+  late final ProjectileSystem _projectileSystem;
+  late final SkillSystem _skillSystem;
+  final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
 
   @override
   Future<void> onLoad() async {
@@ -61,6 +70,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
     _enemyPool = EnemyPool(initialCapacity: 48);
     _enemySystem = EnemySystem(_enemyPool);
+    _projectilePool = ProjectilePool(initialCapacity: 64);
+    _projectileSystem = ProjectileSystem(_projectilePool);
+    _skillSystem = SkillSystem(projectilePool: _projectilePool);
     _spawnerSystem = SpawnerSystem(
       pool: _enemyPool,
       random: math.Random(7),
@@ -96,6 +108,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _playerState.step(dt);
     _spawnerSystem.update(dt, _playerState.position);
     _enemySystem.update(dt, _playerState.position);
+    _skillSystem.update(
+      dt: dt,
+      playerPosition: _playerState.position,
+      aimDirection: _playerState.movementIntent,
+      enemyPool: _enemyPool,
+      onProjectileSpawn: _handleProjectileSpawn,
+    );
+    _projectileSystem.update(
+      dt,
+      size,
+      onDespawn: _handleProjectileDespawn,
+    );
 
     _playerState.clampToBounds(
       min: Vector2(_playerRadius, _playerRadius),
@@ -173,5 +197,16 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _isPanning = false;
     _panStart = null;
     _panDirection.setZero();
+  }
+
+  void _handleProjectileSpawn(ProjectileState projectile) {
+    final component = ProjectileComponent(state: projectile);
+    _projectileComponents[projectile] = component;
+    add(component);
+  }
+
+  void _handleProjectileDespawn(ProjectileState projectile) {
+    final component = _projectileComponents.remove(projectile);
+    component?.removeFromParent();
   }
 }
