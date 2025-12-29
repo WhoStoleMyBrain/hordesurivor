@@ -36,6 +36,7 @@ class DamageSystem {
 
   void resolve({
     required void Function(EnemyState) onEnemyDefeated,
+    void Function(EnemyState, double)? onEnemyDamaged,
     void Function()? onPlayerDefeated,
   }) {
     for (final event in _active) {
@@ -45,6 +46,7 @@ class DamageSystem {
           continue;
         }
         enemy.hp -= event.amount;
+        onEnemyDamaged?.call(enemy, event.amount);
         if (enemy.hp <= 0) {
           enemy.hp = 0;
           enemy.active = false;
