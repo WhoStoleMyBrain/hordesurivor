@@ -2,11 +2,13 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flame/game.dart';
+import 'package:flame/text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../data/ids.dart';
 import '../data/tags.dart';
+import '../render/damage_number_component.dart';
 import '../render/enemy_component.dart';
 import '../render/player_component.dart';
 import '../render/projectile_component.dart';
@@ -75,9 +77,21 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final SelectionState _selectionState = SelectionState();
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
+  final List<DamageNumberComponent> _damageNumberPool = [];
+  final TextPaint _enemyDamagePaint = TextPaint(
+    style: const TextStyle(
+      color: Color(0xFFFFD166),
+      fontSize: 10,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 0.4,
+    ),
+  );
   final math.Random _stressRandom = math.Random(41);
   final Vector2 _stressPosition = Vector2.zero();
   final Vector2 _stressVelocity = Vector2.zero();
+  final math.Random _damageNumberRandom = math.Random(29);
+  final Vector2 _damageNumberPosition = Vector2.zero();
+  final Vector2 _damageNumberVelocity = Vector2.zero();
 
   PlayerHudState get hudState => _hudState;
   SelectionState get selectionState => _selectionState;
@@ -129,6 +143,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _projectileSystem = ProjectileSystem(_projectilePool);
     _skillSystem = SkillSystem(projectilePool: _projectilePool);
     _damageSystem = DamageSystem(DamageEventPool(initialCapacity: 64));
+    for (var i = 0; i < 32; i++) {
+      _damageNumberPool.add(
+        DamageNumberComponent(
+          textPaint: _enemyDamagePaint,
+          onComplete: _releaseDamageNumber,
+        ),
+      );
+    }
     _spawnerSystem = SpawnerSystem(
       pool: _enemyPool,
       random: math.Random(7),
@@ -252,7 +274,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         _damageSystem.queuePlayerDamage(_playerState, damage);
       },
     );
-    _damageSystem.resolve(onEnemyDefeated: _handleEnemyDefeated);
+    _damageSystem.resolve(
+      onEnemyDefeated: _handleEnemyDefeated,
+      onEnemyDamaged: _handleEnemyDamaged,
+    );
     _syncHudState();
 
     _playerState.clampToBounds(
@@ -382,6 +407,47 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
     _enemyComponents[enemy] = component;
     add(component);
+  }
+
+  void _handleEnemyDamaged(EnemyState enemy, double amount) {
+    if (amount <= 0) {
+      return;
+    }
+    final component = _acquireDamageNumber();
+    final jitterX = (_damageNumberRandom.nextDouble() - 0.5) * 10;
+    final jitterY = (_damageNumberRandom.nextDouble() - 0.5) * 6;
+    _damageNumberPosition.setValues(
+      enemy.position.x + jitterX,
+      enemy.position.y + jitterY,
+    );
+    _damageNumberVelocity.setValues(
+      0,
+      -18 - _damageNumberRandom.nextDouble() * 8,
+    );
+    component.reset(
+      position: _damageNumberPosition,
+      amount: amount,
+      textPaint: _enemyDamagePaint,
+      velocity: _damageNumberVelocity,
+    );
+    if (!component.isMounted) {
+      add(component);
+    }
+  }
+
+  DamageNumberComponent _acquireDamageNumber() {
+    if (_damageNumberPool.isNotEmpty) {
+      return _damageNumberPool.removeLast();
+    }
+    return DamageNumberComponent(
+      textPaint: _enemyDamagePaint,
+      onComplete: _releaseDamageNumber,
+    );
+  }
+
+  void _releaseDamageNumber(DamageNumberComponent component) {
+    component.removeFromParent();
+    _damageNumberPool.add(component);
   }
 
   void selectChoice(SelectionChoice choice) {

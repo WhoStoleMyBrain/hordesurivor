@@ -82,12 +82,13 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - Death/despawn returns entities to pools cleanly.
  - Contact damage ticks each fixed step at a small DPS value while enemies overlap the player.
  - Projectile hits resolve via spatial grid queries and stop at the first collision.
+ - Damage number visuals are render-only, pooled components and shown for enemy hits to avoid player-contact spam.
 
 **Implementation notes:**
 - [x] `lib/game/`: Add damage events (source, target, amount, tags).
 - [x] `lib/game/`: Add HP management for player/enemies.
 - [x] `lib/game/`: Add despawn/cleanup with pool return.
-- `lib/render/`: Optional damage number visuals using pooling.
+- [x] `lib/render/`: Optional damage number visuals using pooled components.
 - [x] Tests for death and despawn behavior.
 
 ## Phase 5 — Level-up and selection UI (skills/items)
