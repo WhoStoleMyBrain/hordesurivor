@@ -125,6 +125,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - Generation inputs are data-driven (palette, seed, shapes) and live in JSON assets.
 - Pipeline is decoupled from gameplay logic and uses a cache for reuse.
 - Shape rendering supports simple primitives (circle/rect/pixels) with optional seeded jitter for pixel noise.
+ - Recipe validation logs errors and skips invalid recipes; out-of-bounds shapes emit warnings.
 
 **Implementation notes:**
 - [x] Define sprite recipe data objects in `lib/data/sprite_recipes.dart` and load from JSON.
@@ -134,7 +135,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - [x] Provide a demo renderer/export helper in `lib/render/sprite_gen_demo.dart`.
 - [x] Ship baseline recipes in `assets/sprites/recipes.json` (player, enemy, item, skill, ground, projectile, pickup).
 - [x] Wire runtime generation for the player sprite in `lib/game/horde_game.dart`.
-- [ ] Add recipe validation (required keys, bounds checking, palette references) with clear error logging.
+- [x] Add recipe validation (required keys, bounds checking, palette references) with clear error logging.
 - [ ] Expand the generator with additional primitives (lines, arcs, layered masks) for more readable silhouettes.
 - [ ] Map generated sprites to all runtime components (enemies, projectiles, pickups, items/skills UI).
 - [ ] Add tests for recipe loading + deterministic generation (seeded output).
