@@ -143,7 +143,9 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - [x] Expand the generator with additional primitives (lines, arcs, layered masks) for more readable silhouettes.
 - [x] Map generated sprites to runtime components for player, enemies, and projectiles (items/UI TBD).
 - [x] Add tests for recipe loading + deterministic generation (seeded output).
-- [ ] Decide on runtime vs build-time export workflow and document in code comments or README.
+- [x] Decide on runtime vs build-time export workflow and document in code comments or README.
+  - Decision: runtime sprite generation is the default; optional export via
+    `SpriteGenDemo` is available for development inspection or asset baking.
 
 ## Phase 8 — Stress scene (performance validation)
 **Goal:** Validate 60 FPS target with high entity counts.
