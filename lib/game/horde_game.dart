@@ -12,6 +12,7 @@ import '../data/tags.dart';
 import '../render/damage_number_component.dart';
 import '../render/enemy_component.dart';
 import '../render/player_component.dart';
+import '../render/projectile_batch_component.dart';
 import '../render/projectile_component.dart';
 import '../render/sprite_pipeline.dart';
 import '../ui/hud_state.dart';
@@ -60,6 +61,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final SpritePipeline _spritePipeline = SpritePipeline();
   final Map<EnemyId, Image> _enemySprites = {};
   Image? _projectileSprite;
+  ProjectileBatchComponent? _projectileBatchComponent;
   final Set<LogicalKeyboardKey> _keysPressed = {};
   final Vector2 _keyboardDirection = Vector2.zero();
   final Vector2 _panDirection = Vector2.zero();
@@ -142,6 +144,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
     _enemyPool = EnemyPool(initialCapacity: stressTest ? 600 : 48);
     _projectilePool = ProjectilePool(initialCapacity: stressTest ? 1400 : 64);
+    if (_projectileSprite != null) {
+      _projectileBatchComponent = ProjectileBatchComponent(
+        pool: _projectilePool,
+        spriteImage: _projectileSprite!,
+        color: const Color(0xFFFF8C3B),
+      );
+      await add(_projectileBatchComponent!);
+    }
     _enemySystem = EnemySystem(
       pool: _enemyPool,
       projectilePool: _projectilePool,
@@ -380,6 +390,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _handleProjectileSpawn(ProjectileState projectile) {
+    if (_projectileBatchComponent != null && !projectile.fromEnemy) {
+      return;
+    }
     final component = ProjectileComponent(
       state: projectile,
       color: projectile.fromEnemy
