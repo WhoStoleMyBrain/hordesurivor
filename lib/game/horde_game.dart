@@ -6,6 +6,7 @@ import 'package:flame/text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import '../data/enemy_defs.dart';
 import '../data/ids.dart';
 import '../data/tags.dart';
 import '../render/damage_number_component.dart';
@@ -46,6 +47,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const int _maxFixedStepsPerFrame = 5;
   static const double _panDeadZone = 8;
   static const double _panMaxRadius = 72;
+  static const String _playerSpriteId = 'player_base';
+  static const String _projectileSpriteId = 'projectile_firebolt';
 
   double _accumulator = 0;
   double _frameTimeMs = 0;
@@ -99,22 +102,29 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    final sprites = await _spritePipeline.loadAndGenerateFromAsset(
+    await _spritePipeline.loadAndGenerateFromAsset(
       'assets/sprites/recipes.json',
     );
-    final playerSprite = sprites
-        .where((sprite) => sprite.id == 'player_base')
-        .map((sprite) => sprite.image)
-        .fold<Image?>(null, (previous, image) => previous ?? image);
-    for (final sprite in sprites) {
-      if (sprite.id == 'enemy_imp') {
-        _enemySprites[EnemyId.imp] = sprite.image;
-      }
+    final playerSprite = _spritePipeline.lookup(_playerSpriteId);
+    if (playerSprite == null) {
+      debugPrint('Sprite cache missing $_playerSpriteId.');
     }
-    _projectileSprite = sprites
-        .where((sprite) => sprite.id == 'projectile_firebolt')
-        .map((sprite) => sprite.image)
-        .fold<Image?>(null, (previous, image) => previous ?? image);
+    for (final def in enemyDefs) {
+      final spriteId = def.spriteId;
+      if (spriteId == null) {
+        continue;
+      }
+      final spriteImage = _spritePipeline.lookup(spriteId);
+      if (spriteImage == null) {
+        debugPrint('Sprite cache missing $spriteId for ${def.id}.');
+        continue;
+      }
+      _enemySprites[def.id] = spriteImage;
+    }
+    _projectileSprite = _spritePipeline.lookup(_projectileSpriteId);
+    if (_projectileSprite == null) {
+      debugPrint('Sprite cache missing $_projectileSpriteId.');
+    }
     _playerState = PlayerState(
       position: size / 2,
       maxHp: _playerMaxHp,

@@ -64,6 +64,9 @@ DataValidationResult validateGameData() {
   }
 
   for (final def in enemyDefs) {
+    if (def.spriteId != null && def.spriteId!.trim().isEmpty) {
+      result.errors.add('EnemyDef ${def.id} has an empty spriteId.');
+    }
     if (def.maxHp <= 0) {
       result.errors.add('EnemyDef ${def.id} has non-positive maxHp.');
     }
