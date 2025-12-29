@@ -113,11 +113,12 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
  - Ranged enemies kite between 55–90% of their attack range and fire imperfect shots based on their projectile spread.
  - Spawners emit configured minions on a cooldown, clamped to arena bounds, with spawn stats taken from enemy definitions.
  - Spawn waves can request weighted role mixes; role weights select a role first, then pick an enemy within that role using per-enemy weights.
+ - Ranged/spawner telegraphs use cooldown arc overlays; silhouettes fall back to role-tinted shapes when sprites are unavailable.
 
 **Implementation notes:**
 - [x] Ranged enemy: imperfect aim projectile pattern using enemy-defined cooldowns and spread.
 - [x] Spawner enemy: Portal Keeper spawns data-driven minions until killed.
-- Render distinct telegraphs and silhouettes.
+- [x] Render distinct telegraphs and silhouettes.
 - [x] Update `SpawnerSystem` to include role weighting.
 - [x] Tests for ranged fire cadence and spawner behavior.
 

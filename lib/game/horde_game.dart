@@ -50,7 +50,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final PlayerState _playerState;
   late final PlayerComponent _playerComponent;
   final SpritePipeline _spritePipeline = SpritePipeline();
-  Image? _enemySprite;
+  final Map<EnemyId, Image> _enemySprites = {};
   Image? _projectileSprite;
   final Set<LogicalKeyboardKey> _keysPressed = {};
   final Vector2 _keyboardDirection = Vector2.zero();
@@ -89,10 +89,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         .where((sprite) => sprite.id == 'player_base')
         .map((sprite) => sprite.image)
         .fold<Image?>(null, (previous, image) => previous ?? image);
-    _enemySprite = sprites
-        .where((sprite) => sprite.id == 'enemy_imp')
-        .map((sprite) => sprite.image)
-        .fold<Image?>(null, (previous, image) => previous ?? image);
+    for (final sprite in sprites) {
+      if (sprite.id == 'enemy_imp') {
+        _enemySprites[EnemyId.imp] = sprite.image;
+      }
+    }
     _projectileSprite = sprites
         .where((sprite) => sprite.id == 'projectile_firebolt')
         .map((sprite) => sprite.image)
@@ -360,7 +361,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final component = EnemyComponent(
       state: enemy,
       radius: _enemyRadius,
-      spriteImage: _enemySprite,
+      spriteImage: _enemySprites[enemy.id],
     );
     _enemyComponents[enemy] = component;
     add(component);
