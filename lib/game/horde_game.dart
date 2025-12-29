@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../data/ids.dart';
+import '../data/tags.dart';
 import '../render/enemy_component.dart';
 import '../render/player_component.dart';
 import '../render/projectile_component.dart';
@@ -137,9 +138,30 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
               ),
             ]
           : const [
-              SpawnWave(time: 0, enemyId: EnemyId.imp, count: 4),
-              SpawnWave(time: 2, enemyId: EnemyId.imp, count: 3),
-              SpawnWave(time: 5, enemyId: EnemyId.imp, count: 5),
+              SpawnWave(
+                time: 0,
+                count: 4,
+                roleWeights: {
+                  EnemyRole.chaser: 3,
+                },
+              ),
+              SpawnWave(
+                time: 2,
+                count: 3,
+                roleWeights: {
+                  EnemyRole.chaser: 2,
+                  EnemyRole.ranged: 1,
+                },
+              ),
+              SpawnWave(
+                time: 5,
+                count: 5,
+                roleWeights: {
+                  EnemyRole.chaser: 3,
+                  EnemyRole.ranged: 2,
+                  EnemyRole.spawner: 1,
+                },
+              ),
             ],
       onSpawn: _registerEnemyComponent,
     );
