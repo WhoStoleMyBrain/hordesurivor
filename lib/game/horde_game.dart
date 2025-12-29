@@ -97,6 +97,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final math.Random _damageNumberRandom = math.Random(29);
   final Vector2 _damageNumberPosition = Vector2.zero();
   final Vector2 _damageNumberVelocity = Vector2.zero();
+  bool _inputLocked = false;
+  VoidCallback? _selectionListener;
 
   PlayerHudState get hudState => _hudState;
   SelectionState get selectionState => _selectionState;
@@ -104,6 +106,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+    _selectionListener = _handleSelectionStateChanged;
+    _selectionState.addListener(_selectionListener!);
     await _spritePipeline.loadAndGenerateFromAsset(
       'assets/sprites/recipes.json',
     );
@@ -317,6 +321,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _applyInput() {
+    if (_inputLocked) {
+      _playerState.movementIntent.setZero();
+      return;
+    }
     if (_isPanning) {
       final length = _panDirection.length;
       if (length <= _panDeadZone) {
@@ -368,6 +376,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   @override
   void onPanStart(DragStartInfo info) {
+    if (_inputLocked) {
+      return;
+    }
     _isPanning = true;
     _panStart = info.eventPosition.game.clone();
     _panDirection.setZero();
@@ -375,6 +386,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   @override
   void onPanUpdate(DragUpdateInfo info) {
+    if (_inputLocked) {
+      return;
+    }
     final start = _panStart;
     if (start == null) {
       return;
@@ -384,6 +398,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   @override
   void onPanEnd(DragEndInfo info) {
+    if (_inputLocked) {
+      return;
+    }
     _isPanning = false;
     _panStart = null;
     _panDirection.setZero();
@@ -509,6 +526,24 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
   }
 
+  void _handleSelectionStateChanged() {
+    final locked = _selectionState.active;
+    if (_inputLocked == locked) {
+      return;
+    }
+    _inputLocked = locked;
+    if (_inputLocked) {
+      _resetPointerInput();
+    }
+  }
+
+  void _resetPointerInput() {
+    _isPanning = false;
+    _panStart = null;
+    _panDirection.setZero();
+    _playerState.movementIntent.setZero();
+  }
+
   void _spawnStressProjectiles(double dt) {
     _stressProjectileTimer -= dt;
     if (_stressProjectileTimer > 0) {
@@ -540,5 +575,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       );
       _handleProjectileSpawn(projectile);
     }
+  }
+
+  @override
+  void onRemove() {
+    if (_selectionListener != null) {
+      _selectionState.removeListener(_selectionListener!);
+    }
+    super.onRemove();
   }
 }

@@ -217,7 +217,9 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - **UI/Overlays (`lib/ui/`)**
   - **Current:** HUD and selection overlays.
   - **Best-practice alignment:** ✅ UI separated from sim, overlays are explicit.
-  - **Follow-ups:** Ensure input focus routing (gameplay vs selection) is centralized; avoid rebuild-heavy widgets in hot paths.
+  - **Follow-ups:** ✅ Centralized input focus routing (gameplay vs selection) by
+    locking pointer input when selection overlays are active; avoid rebuild-heavy
+    widgets in hot paths.
 - **Data definitions (`lib/data/`)**
   - **Current:** Tags, ids, skill/item/enemy defs, stat defs, sprite recipes.
   - **Best-practice alignment:** ✅ Data-driven content with consistent tagging and weights.
