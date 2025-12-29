@@ -190,3 +190,47 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - Ensure selection UI and progression loop are functional.
 - Run `dart format .`, `flutter analyze`, `flutter test`.
 - Confirm stress scene performance qualitatively and document results.
+
+---
+
+## Component inventory & best-practice cross-check (cross-platform + constrained hardware)
+**Goal:** Enumerate the main project components and validate them against common game-dev best practices for cross-platform targets (mobile + desktop, with web as optional).
+
+### Components & status
+- **Core simulation systems (`lib/game/`)**
+  - **Current:** Fixed timestep, pooling, spatial grid, event-style damage, data-driven stats.
+  - **Best-practice alignment:** ✅ Deterministic updates, minimal per-frame allocations, separation from render layer, data-driven content.
+  - **Follow-ups:** Add explicit accumulator clamp (max steps per frame) to avoid spiral-of-death on slow frames; document in `horde_game.dart`.
+- **Render layer (`lib/render/`)**
+  - **Current:** Component adapters for player/enemy/projectile, sprite generation pipeline with caching.
+  - **Best-practice alignment:** ✅ Decoupled from simulation; cached sprite generation; placeholder-friendly pipeline.
+  - **Follow-ups:** Add a texture atlas or SpriteBatch strategy for lower draw calls on mobile; ensure sprite cache pre-warm at scene start to avoid runtime hitches.
+- **UI/Overlays (`lib/ui/`)**
+  - **Current:** HUD and selection overlays.
+  - **Best-practice alignment:** ✅ UI separated from sim, overlays are explicit.
+  - **Follow-ups:** Ensure input focus routing (gameplay vs selection) is centralized; avoid rebuild-heavy widgets in hot paths.
+- **Data definitions (`lib/data/`)**
+  - **Current:** Tags, ids, skill/item/enemy defs, stat defs, sprite recipes.
+  - **Best-practice alignment:** ✅ Data-driven content with consistent tagging and weights.
+  - **Follow-ups:** Add validation pass at startup to catch invalid ids/tags/weights early; emit readable errors for content designers.
+- **Assets & sprite recipes (`assets/`)**
+  - **Current:** JSON recipes for sprite generation.
+  - **Best-practice alignment:** ✅ Data-driven sprite pipeline; no external asset license risk.
+  - **Follow-ups:** Define a lightweight export path for baked sprites if runtime generation cost is too high on low-end phones.
+- **Tests (`test/`)**
+  - **Current:** System-level tests for core game systems and sprite recipe loading.
+  - **Best-practice alignment:** ✅ Core logic is testable without rendering.
+  - **Follow-ups:** Add a minimal performance sanity test (non-benchmark) to ensure pooling and grid lookups are exercised without allocations in debug.
+- **Platform runners (`android/`, `ios/`, `windows/`, `macos/`, `linux/`, `web/`)**
+  - **Current:** Standard Flutter runner scaffolds.
+  - **Best-practice alignment:** ✅ No platform-specific assumptions in core code.
+  - **Follow-ups:** Keep platform-specific configs minimal; do not fork gameplay logic by platform. For web, document any limitations (if enabled later).
+
+### Cross-platform performance checklist (to keep current plan aligned)
+- **Frame pacing & time-step safety:** clamp accumulated time and limit max fixed steps per frame.
+- **Allocation discipline:** maintain pooling for enemies/projectiles/damage numbers/particles.
+- **Spatial queries:** keep bucket/grid sizes explicit and validated against projectile speeds.
+- **Render batching:** favor SpriteBatch/atlas where possible, pre-warm caches.
+- **Asset pipeline:** keep sprite generation data-driven; offer optional bake/export for low-end devices.
+- **Input abstraction:** unify keyboard, touch, and controller paths through a single intent layer.
+- **Diagnostics:** ensure stress scene can be toggled in all target platforms (mobile + desktop).
