@@ -9,6 +9,7 @@ import '../render/enemy_component.dart';
 import '../render/player_component.dart';
 import '../render/projectile_component.dart';
 import '../render/sprite_pipeline.dart';
+import 'damage_system.dart';
 import 'enemy_pool.dart';
 import 'enemy_state.dart';
 import 'enemy_system.dart';
@@ -28,6 +29,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _playerSpeed = 80;
   static const double _playerMaxHp = 100;
   static const double _enemyRadius = 14;
+  static const double _enemyContactDamagePerSecond = 12;
 
   double _accumulator = 0;
   late final PlayerState _playerState;
@@ -46,6 +48,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final ProjectileSystem _projectileSystem;
   late final SkillSystem _skillSystem;
   late final SpatialGrid _enemyGrid;
+  late final DamageSystem _damageSystem;
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
 
@@ -78,6 +81,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _projectilePool = ProjectilePool(initialCapacity: 64);
     _projectileSystem = ProjectileSystem(_projectilePool);
     _skillSystem = SkillSystem(projectilePool: _projectilePool);
+    _damageSystem = DamageSystem(DamageEventPool(initialCapacity: 64));
     _spawnerSystem = SpawnerSystem(
       pool: _enemyPool,
       random: math.Random(7),
@@ -123,13 +127,33 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       enemyPool: _enemyPool,
       enemyGrid: _enemyGrid,
       onProjectileSpawn: _handleProjectileSpawn,
-      onEnemyDefeated: _handleEnemyDefeated,
+      onEnemyDamaged: _damageSystem.queueEnemyDamage,
     );
+    final contactRadius = _playerRadius + _enemyRadius;
+    final contactRadiusSquared = contactRadius * contactRadius;
+    for (final enemy in _enemyPool.active) {
+      if (!enemy.active) {
+        continue;
+      }
+      final dx = enemy.position.x - _playerState.position.x;
+      final dy = enemy.position.y - _playerState.position.y;
+      final distanceSquared = dx * dx + dy * dy;
+      if (distanceSquared <= contactRadiusSquared) {
+        _damageSystem.queuePlayerDamage(
+          _playerState,
+          _enemyContactDamagePerSecond * dt,
+        );
+      }
+    }
     _projectileSystem.update(
       dt,
       size,
       onDespawn: _handleProjectileDespawn,
+      onEnemyHit: _damageSystem.queueEnemyDamage,
+      enemyGrid: _enemyGrid,
+      enemyRadius: _enemyRadius,
     );
+    _damageSystem.resolve(onEnemyDefeated: _handleEnemyDefeated);
 
     _playerState.clampToBounds(
       min: Vector2(_playerRadius, _playerRadius),

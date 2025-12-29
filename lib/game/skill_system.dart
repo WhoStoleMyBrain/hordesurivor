@@ -24,7 +24,6 @@ class SkillSystem {
   final List<SkillSlot> _skills;
   final Vector2 _aimBuffer = Vector2.zero();
   final Vector2 _fallbackDirection = Vector2(1, 0);
-  final List<EnemyState> _defeatedBuffer = [];
   final List<EnemyState> _queryBuffer = [];
 
   void update({
@@ -34,7 +33,7 @@ class SkillSystem {
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
     required void Function(ProjectileState) onProjectileSpawn,
-    required void Function(EnemyState) onEnemyDefeated,
+    required void Function(EnemyState, double) onEnemyDamaged,
   }) {
     for (final skill in _skills) {
       skill.cooldownRemaining -= dt;
@@ -53,7 +52,7 @@ class SkillSystem {
               aimDirection: aimDirection,
               enemyPool: enemyPool,
               enemyGrid: enemyGrid,
-              onEnemyDefeated: onEnemyDefeated,
+              onEnemyDamaged: onEnemyDamaged,
             );
           case SkillId.waterjet:
           case SkillId.oilBombs:
@@ -96,7 +95,7 @@ class SkillSystem {
     required Vector2 aimDirection,
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
-    required void Function(EnemyState) onEnemyDefeated,
+    required void Function(EnemyState, double) onEnemyDamaged,
   }) {
     const range = 46.0;
     const arcDegrees = 90.0;
@@ -108,7 +107,6 @@ class SkillSystem {
       enemyPool: enemyPool,
     );
 
-    _defeatedBuffer.clear();
     final rangeSquared = range * range;
     final candidates = enemyGrid == null
         ? enemyPool.active
@@ -129,14 +127,7 @@ class SkillSystem {
         continue;
       }
 
-      enemy.hp -= damage;
-      if (enemy.hp <= 0) {
-        _defeatedBuffer.add(enemy);
-      }
-    }
-
-    for (final enemy in _defeatedBuffer) {
-      onEnemyDefeated(enemy);
+      onEnemyDamaged(enemy, damage);
     }
   }
 

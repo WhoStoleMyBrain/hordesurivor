@@ -77,13 +77,15 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 **Decisions/constraints:**
 - Damage pipeline is event-based and pooled.
 - Death/despawn returns entities to pools cleanly.
+ - Contact damage ticks each fixed step at a small DPS value while enemies overlap the player.
+ - Projectile hits resolve via spatial grid queries and stop at the first collision.
 
 **Implementation notes:**
-- `lib/game/`: Add damage events (source, target, amount, tags).
-- `lib/game/`: Add HP management for player/enemies.
-- `lib/game/`: Add despawn/cleanup with pool return.
+- [x] `lib/game/`: Add damage events (source, target, amount, tags).
+- [x] `lib/game/`: Add HP management for player/enemies.
+- [x] `lib/game/`: Add despawn/cleanup with pool return.
 - `lib/render/`: Optional damage number visuals using pooling.
-- Tests for death and despawn behavior.
+- [x] Tests for death and despawn behavior.
 
 ## Phase 5 — Level-up and selection UI (skills/items)
 **Goal:** Implement the selection loop for skills/items with tradeoffs.
