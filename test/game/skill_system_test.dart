@@ -2,6 +2,7 @@ import 'package:flame/extensions.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:hordesurivor/data/ids.dart';
+import 'package:hordesurivor/game/damage_system.dart';
 import 'package:hordesurivor/game/enemy_pool.dart';
 import 'package:hordesurivor/game/projectile_pool.dart';
 import 'package:hordesurivor/game/skill_system.dart';
@@ -23,7 +24,7 @@ void main() {
       aimDirection: Vector2.zero(),
       enemyPool: EnemyPool(initialCapacity: 0),
       onProjectileSpawn: (_) => spawnCount++,
-      onEnemyDefeated: (_) {},
+      onEnemyDamaged: (_, __) {},
     );
 
     expect(spawnCount, 0);
@@ -34,7 +35,7 @@ void main() {
       aimDirection: Vector2.zero(),
       enemyPool: EnemyPool(initialCapacity: 0),
       onProjectileSpawn: (_) => spawnCount++,
-      onEnemyDefeated: (_) {},
+      onEnemyDamaged: (_, __) {},
     );
 
     expect(spawnCount, 3);
@@ -58,14 +59,16 @@ void main() {
       ],
     );
 
+    final damageSystem = DamageSystem(DamageEventPool(initialCapacity: 4));
     system.update(
       dt: 0.2,
       playerPosition: Vector2.zero(),
       aimDirection: Vector2(1, 0),
       enemyPool: enemyPool,
       onProjectileSpawn: (_) {},
-      onEnemyDefeated: (_) {},
+      onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
+    damageSystem.resolve(onEnemyDefeated: (_) {});
 
     expect(enemy.hp, 20);
 
@@ -75,8 +78,9 @@ void main() {
       aimDirection: Vector2(1, 0),
       enemyPool: enemyPool,
       onProjectileSpawn: (_) {},
-      onEnemyDefeated: (_) {},
+      onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
+    damageSystem.resolve(onEnemyDefeated: (_) {});
 
     expect(enemy.hp, lessThan(20));
   });
@@ -107,12 +111,16 @@ void main() {
     );
 
     var defeatedCount = 0;
+    final damageSystem = DamageSystem(DamageEventPool(initialCapacity: 4));
     system.update(
       dt: 0.2,
       playerPosition: Vector2.zero(),
       aimDirection: Vector2(1, 0),
       enemyPool: enemyPool,
       onProjectileSpawn: (_) {},
+      onEnemyDamaged: damageSystem.queueEnemyDamage,
+    );
+    damageSystem.resolve(
       onEnemyDefeated: (_) {
         defeatedCount++;
       },
