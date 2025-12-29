@@ -91,6 +91,12 @@ class SpriteShape {
     this.radius,
     this.size,
     this.points,
+    this.start,
+    this.end,
+    this.thickness,
+    this.startAngle,
+    this.sweepAngle,
+    this.filled,
   });
 
   final String type;
@@ -99,6 +105,12 @@ class SpriteShape {
   final int? radius;
   final List<int>? size;
   final List<List<int>>? points;
+  final List<int>? start;
+  final List<int>? end;
+  final int? thickness;
+  final double? startAngle;
+  final double? sweepAngle;
+  final bool? filled;
 
   factory SpriteShape.fromJson(Map<String, dynamic> json) {
     return SpriteShape(
@@ -118,6 +130,15 @@ class SpriteShape {
                 .toList(),
           )
           .toList(),
+      start: (json['start'] as List<dynamic>?)
+          ?.map((value) => value as int)
+          .toList(),
+      end:
+          (json['end'] as List<dynamic>?)?.map((value) => value as int).toList(),
+      thickness: json['thickness'] as int?,
+      startAngle: (json['startAngle'] as num?)?.toDouble(),
+      sweepAngle: (json['sweepAngle'] as num?)?.toDouble(),
+      filled: json['filled'] as bool?,
     );
   }
 }

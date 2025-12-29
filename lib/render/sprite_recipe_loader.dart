@@ -141,6 +141,18 @@ class SpriteRecipeValidator {
         case 'rect':
           _validateRect(shape, halfSize, prefix, errors, warnings);
           break;
+        case 'line':
+          _validateLine(shape, halfSize, prefix, errors, warnings);
+          break;
+        case 'arc':
+          _validateArc(shape, halfSize, prefix, errors, warnings);
+          break;
+        case 'maskCircle':
+          _validateMaskCircle(shape, halfSize, prefix, errors, warnings);
+          break;
+        case 'maskRect':
+          _validateMaskRect(shape, halfSize, prefix, errors, warnings);
+          break;
         case 'pixels':
           _validatePixels(shape, halfSize, prefix, errors, warnings);
           break;
@@ -220,6 +232,105 @@ class SpriteRecipeValidator {
     }
   }
 
+  void _validateLine(
+    SpriteShape shape,
+    double halfSize,
+    String prefix,
+    List<String> errors,
+    List<String> warnings,
+  ) {
+    final start = shape.start;
+    final end = shape.end;
+    if (start == null || start.length < 2) {
+      errors.add('$prefix line requires a start [x, y].');
+      return;
+    }
+    if (end == null || end.length < 2) {
+      errors.add('$prefix line requires an end [x, y].');
+      return;
+    }
+    final thickness = shape.thickness;
+    if (thickness != null && thickness <= 0) {
+      errors.add('$prefix line thickness must be greater than zero.');
+    }
+    if (start[0].abs() > halfSize ||
+        start[1].abs() > halfSize ||
+        end[0].abs() > halfSize ||
+        end[1].abs() > halfSize) {
+      warnings.add('$prefix line exceeds canvas bounds.');
+    }
+  }
+
+  void _validateArc(
+    SpriteShape shape,
+    double halfSize,
+    String prefix,
+    List<String> errors,
+    List<String> warnings,
+  ) {
+    final radius = shape.radius;
+    if (radius == null || radius <= 0) {
+      errors.add('$prefix arc requires a radius greater than zero.');
+    }
+    if (shape.startAngle == null || shape.sweepAngle == null) {
+      errors.add('$prefix arc requires startAngle and sweepAngle.');
+    }
+    final thickness = shape.thickness;
+    if (thickness != null && thickness <= 0) {
+      errors.add('$prefix arc thickness must be greater than zero.');
+    }
+    final offsetX = shape.offset.isNotEmpty ? shape.offset[0] : 0;
+    final offsetY = shape.offset.length > 1 ? shape.offset[1] : 0;
+    if (radius != null &&
+        _isOutOfBounds(offsetX, offsetY, radius.toDouble(), halfSize)) {
+      warnings.add('$prefix arc exceeds canvas bounds.');
+    }
+  }
+
+  void _validateMaskCircle(
+    SpriteShape shape,
+    double halfSize,
+    String prefix,
+    List<String> errors,
+    List<String> warnings,
+  ) {
+    final radius = shape.radius;
+    if (radius == null || radius <= 0) {
+      errors.add('$prefix maskCircle requires a radius greater than zero.');
+      return;
+    }
+    final offsetX = shape.offset.isNotEmpty ? shape.offset[0] : 0;
+    final offsetY = shape.offset.length > 1 ? shape.offset[1] : 0;
+    if (_isOutOfBounds(offsetX, offsetY, radius.toDouble(), halfSize)) {
+      warnings.add('$prefix maskCircle exceeds canvas bounds.');
+    }
+  }
+
+  void _validateMaskRect(
+    SpriteShape shape,
+    double halfSize,
+    String prefix,
+    List<String> errors,
+    List<String> warnings,
+  ) {
+    final rectSize = shape.size;
+    if (rectSize == null || rectSize.length < 2) {
+      errors.add('$prefix maskRect requires a size [width, height].');
+      return;
+    }
+    if (rectSize[0] <= 0 || rectSize[1] <= 0) {
+      errors.add('$prefix maskRect size must be greater than zero.');
+    }
+    final offsetX = shape.offset.isNotEmpty ? shape.offset[0] : 0;
+    final offsetY = shape.offset.length > 1 ? shape.offset[1] : 0;
+    final halfWidth = rectSize[0] / 2;
+    final halfHeight = rectSize[1] / 2;
+    if (offsetX.abs() + halfWidth > halfSize ||
+        offsetY.abs() + halfHeight > halfSize) {
+      warnings.add('$prefix maskRect exceeds canvas bounds.');
+    }
+  }
+
   bool _isOutOfBounds(
     int offsetX,
     int offsetY,
@@ -230,7 +341,15 @@ class SpriteRecipeValidator {
         offsetY.abs() + radius > halfSize;
   }
 
-  static const Set<String> _allowedTypes = {'circle', 'rect', 'pixels'};
+  static const Set<String> _allowedTypes = {
+    'circle',
+    'rect',
+    'line',
+    'arc',
+    'maskCircle',
+    'maskRect',
+    'pixels',
+  };
 }
 
 final SpriteRecipeValidator _validator = SpriteRecipeValidator();
