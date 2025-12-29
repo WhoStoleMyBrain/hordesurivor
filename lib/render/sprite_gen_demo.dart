@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 import 'sprite_pipeline.dart';
 
 class SpriteGenDemo extends FlameGame {
+  /// Demo game for previewing runtime-generated sprites.
+  ///
+  /// The default workflow generates sprites at runtime and caches them via
+  /// [SpritePipeline]. Provide [exportDirectory] to optionally export the
+  /// generated images during development for inspection or asset baking.
   SpriteGenDemo({
     this.exportDirectory,
   }) : super(backgroundColor: const Color(0xFF0B0D12));
