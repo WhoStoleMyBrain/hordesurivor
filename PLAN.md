@@ -26,12 +26,12 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - No per-frame allocations in movement logic.
 
 **Implementation notes:**
-- `lib/game/`: Add `PlayerState` (position, velocity, HP, base stats).
-- `lib/game/`: Add fixed-step update with accumulator.
-- `lib/render/`: Add `PlayerComponent` to render the player from `PlayerState`.
-- `lib/ui/`: Add basic HUD (HP bar).
-- Input handling: map keyboard/touch to movement intent.
-- Tests in `test/` for player movement and bounds handling.
+- [x] `lib/game/`: Add `PlayerState` (position, velocity, HP, base stats).
+- [x] `lib/game/`: Add fixed-step update with accumulator.
+- [x] `lib/render/`: Add `PlayerComponent` to render the player from `PlayerState`.
+- [x] `lib/ui/`: Add basic HUD (HP bar).
+- [x] Input handling: map keyboard/touch to movement intent.
+- [x] Tests in `test/` for player movement and bounds handling.
 
 ## Phase 2 — Spawn system & enemy chaser role
 **Goal:** Add wave-based spawning and a basic chaser enemy using pooling.
