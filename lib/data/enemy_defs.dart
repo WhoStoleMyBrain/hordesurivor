@@ -9,6 +9,17 @@ class EnemyDef {
     required this.faction,
     required this.role,
     required this.xpReward,
+    this.maxHp = 15,
+    this.moveSpeed = 28,
+    this.attackCooldown = 1.6,
+    this.attackRange = 160,
+    this.projectileSpeed = 140,
+    this.projectileDamage = 6,
+    this.projectileSpread = 0.3,
+    this.spawnCooldown = 3.5,
+    this.spawnCount = 1,
+    this.spawnRadius = 48,
+    this.spawnEnemyId,
     this.weight = 1,
   });
 
@@ -18,6 +29,17 @@ class EnemyDef {
   final Faction faction;
   final EnemyRole role;
   final int xpReward;
+  final double maxHp;
+  final double moveSpeed;
+  final double attackCooldown;
+  final double attackRange;
+  final double projectileSpeed;
+  final double projectileDamage;
+  final double projectileSpread;
+  final double spawnCooldown;
+  final int spawnCount;
+  final double spawnRadius;
+  final EnemyId? spawnEnemyId;
   final int weight;
 }
 
@@ -29,6 +51,8 @@ const List<EnemyDef> enemyDefs = [
     faction: Faction.demons,
     role: EnemyRole.chaser,
     xpReward: 5,
+    maxHp: 12,
+    moveSpeed: 36,
   ),
   EnemyDef(
     id: EnemyId.spitter,
@@ -37,6 +61,13 @@ const List<EnemyDef> enemyDefs = [
     faction: Faction.demons,
     role: EnemyRole.ranged,
     xpReward: 6,
+    maxHp: 14,
+    moveSpeed: 24,
+    attackCooldown: 1.4,
+    attackRange: 190,
+    projectileSpeed: 150,
+    projectileDamage: 6,
+    projectileSpread: 0.35,
   ),
   EnemyDef(
     id: EnemyId.portalKeeper,
@@ -45,6 +76,12 @@ const List<EnemyDef> enemyDefs = [
     faction: Faction.demons,
     role: EnemyRole.spawner,
     xpReward: 10,
+    maxHp: 45,
+    moveSpeed: 18,
+    spawnCooldown: 3.2,
+    spawnCount: 2,
+    spawnRadius: 52,
+    spawnEnemyId: EnemyId.imp,
   ),
   EnemyDef(
     id: EnemyId.hexer,
@@ -85,6 +122,8 @@ const List<EnemyDef> enemyDefs = [
     faction: Faction.angels,
     role: EnemyRole.chaser,
     xpReward: 6,
+    maxHp: 18,
+    moveSpeed: 26,
   ),
   EnemyDef(
     id: EnemyId.cherubArcher,
@@ -93,6 +132,13 @@ const List<EnemyDef> enemyDefs = [
     faction: Faction.angels,
     role: EnemyRole.ranged,
     xpReward: 7,
+    maxHp: 16,
+    moveSpeed: 26,
+    attackCooldown: 1.8,
+    attackRange: 210,
+    projectileSpeed: 170,
+    projectileDamage: 7,
+    projectileSpread: 0.25,
   ),
   EnemyDef(
     id: EnemyId.seraphMedic,

@@ -11,6 +11,7 @@ class ProjectileState {
   double radius = 3;
   double lifespan = 1;
   double age = 0;
+  bool fromEnemy = false;
   bool active = false;
 
   void reset({
@@ -19,12 +20,14 @@ class ProjectileState {
     required double damage,
     required double radius,
     required double lifespan,
+    required bool fromEnemy,
   }) {
     this.position.setFrom(position);
     this.velocity.setFrom(velocity);
     this.damage = damage;
     this.radius = radius;
     this.lifespan = lifespan;
+    this.fromEnemy = fromEnemy;
     age = 0;
     active = true;
   }

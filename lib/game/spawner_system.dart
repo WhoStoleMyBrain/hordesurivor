@@ -79,10 +79,20 @@ class SpawnerSystem {
     final enemy = _pool.acquire(id);
     enemy.reset(
       id: id,
+      role: def.role,
       spawnPosition: _spawnPosition,
-      maxHp: 15,
-      moveSpeed: 28,
+      maxHp: def.maxHp,
+      moveSpeed: def.moveSpeed,
       xpReward: def.xpReward,
+      attackCooldown: def.attackCooldown,
+      attackRange: def.attackRange,
+      projectileSpeed: def.projectileSpeed,
+      projectileDamage: def.projectileDamage,
+      projectileSpread: def.projectileSpread,
+      spawnCooldown: def.spawnCooldown,
+      spawnCount: def.spawnCount,
+      spawnRadius: def.spawnRadius,
+      spawnEnemyId: def.spawnEnemyId,
     );
     _onSpawn(enemy);
   }

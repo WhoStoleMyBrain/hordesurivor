@@ -110,13 +110,15 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 **Decisions/constraints:**
 - Roles must be readable and telegraphed.
 - Role definitions remain data-driven.
+ - Ranged enemies kite between 55–90% of their attack range and fire imperfect shots based on their projectile spread.
+ - Spawners emit configured minions on a cooldown, clamped to arena bounds, with spawn stats taken from enemy definitions.
 
 **Implementation notes:**
-- Ranged enemy: imperfect aim with projectile pattern.
-- Spawner enemy: Portal Keeper that spawns imps until killed.
+- [x] Ranged enemy: imperfect aim projectile pattern using enemy-defined cooldowns and spread.
+- [x] Spawner enemy: Portal Keeper spawns data-driven minions until killed.
 - Render distinct telegraphs and silhouettes.
 - Update `SpawnerSystem` to include role weighting.
-- Tests for ranged fire cadence and spawner behavior.
+- [x] Tests for ranged fire cadence and spawner behavior.
 
 ## Phase 7 — Sprite generation pipeline (data-driven)
 **Goal:** Create a lightweight, in-project pixel sprite generation pipeline.
