@@ -16,6 +16,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - Confirm directory structure: `lib/game`, `lib/render`, `lib/ui`, `lib/data`, `assets`, `test`.
 - [x] Implement the entry point in `lib/main.dart` with a fixed timestep game runner.
 - [x] Add a HUD overlay stub in `lib/ui/`.
+- [x] Clamp the fixed timestep accumulator to a max number of steps per frame to avoid spiral-of-death.
 - Ensure `flutter analyze`, `flutter test`, and `dart format .` are part of the default workflow.
 
 ## Phase 1 — Core simulation loop & player movement
@@ -200,7 +201,7 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 - **Core simulation systems (`lib/game/`)**
   - **Current:** Fixed timestep, pooling, spatial grid, event-style damage, data-driven stats.
   - **Best-practice alignment:** ✅ Deterministic updates, minimal per-frame allocations, separation from render layer, data-driven content.
-  - **Follow-ups:** Add explicit accumulator clamp (max steps per frame) to avoid spiral-of-death on slow frames; document in `horde_game.dart`.
+  - **Follow-ups:** ✅ Added explicit accumulator clamp (max steps per frame) to avoid spiral-of-death on slow frames.
 - **Render layer (`lib/render/`)**
   - **Current:** Component adapters for player/enemy/projectile, sprite generation pipeline with caching.
   - **Best-practice alignment:** ✅ Decoupled from simulation; cached sprite generation; placeholder-friendly pipeline.
