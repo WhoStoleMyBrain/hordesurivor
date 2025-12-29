@@ -1,11 +1,13 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
+import 'data/data_validation.dart';
 import 'game/horde_game.dart';
 import 'ui/hud_overlay.dart';
 import 'ui/selection_overlay.dart';
 
 void main() {
+  validateGameDataOrThrow();
   runApp(const HordeSurvivorApp());
 }
 
