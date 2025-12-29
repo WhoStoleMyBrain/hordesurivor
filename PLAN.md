@@ -39,13 +39,14 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 **Decisions/constraints:**
 - Spawns are time-based and data-driven.
 - Enemy entities use pooling; no per-entity allocations during updates.
+- Spawn positions use a ring around the player (120–200 units) and clamp to arena bounds.
 
 **Implementation notes:**
-- `lib/game/`: Implement `SpawnerSystem` (wave timings, compositions).
-- `lib/game/`: Add `EnemyState` and a pooled `EnemyPool`.
-- `lib/game/`: Implement chaser AI.
-- `lib/render/`: Render enemy sprite placeholders.
-- Tests for spawn timing and chaser movement.
+- [x] `lib/game/`: Implement `SpawnerSystem` (wave timings, compositions).
+- [x] `lib/game/`: Add `EnemyState` and a pooled `EnemyPool`.
+- [x] `lib/game/`: Implement chaser AI.
+- [x] `lib/render/`: Render enemy sprite placeholders.
+- [x] Tests for spawn timing and chaser movement.
 
 ## Phase 3 — Skills system & Fireball + Sword Cut
 **Goal:** Implement skill casting and two baseline skills to meet V0.1 scope.
