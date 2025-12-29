@@ -20,11 +20,35 @@ class SkillSystem {
               SkillSlot(id: SkillId.swordCut, cooldown: 0.9),
             ];
 
+  static const Map<SkillId, double> _baseCooldowns = {
+    SkillId.fireball: 0.6,
+    SkillId.swordCut: 0.9,
+    SkillId.waterjet: 0.7,
+    SkillId.oilBombs: 1.1,
+    SkillId.swordThrust: 0.8,
+    SkillId.swordSwing: 1.2,
+    SkillId.swordDeflect: 1.4,
+    SkillId.poisonGas: 1.3,
+    SkillId.roots: 1.2,
+  };
+
   final ProjectilePool _projectilePool;
   final List<SkillSlot> _skills;
   final Vector2 _aimBuffer = Vector2.zero();
   final Vector2 _fallbackDirection = Vector2(1, 0);
   final List<EnemyState> _queryBuffer = [];
+
+  bool hasSkill(SkillId id) {
+    return _skills.any((skill) => skill.id == id);
+  }
+
+  void addSkill(SkillId id) {
+    if (hasSkill(id)) {
+      return;
+    }
+    final cooldown = _baseCooldowns[id] ?? 1.0;
+    _skills.add(SkillSlot(id: id, cooldown: cooldown));
+  }
 
   void update({
     required double dt,
