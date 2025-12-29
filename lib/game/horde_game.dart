@@ -90,9 +90,15 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     await add(_playerComponent);
 
     _enemyPool = EnemyPool(initialCapacity: 48);
-    _enemySystem = EnemySystem(_enemyPool);
-    _enemyGrid = SpatialGrid(cellSize: 64);
     _projectilePool = ProjectilePool(initialCapacity: 64);
+    _enemySystem = EnemySystem(
+      pool: _enemyPool,
+      projectilePool: _projectilePool,
+      random: math.Random(19),
+      onProjectileSpawn: _handleProjectileSpawn,
+      onSpawn: _registerEnemyComponent,
+    );
+    _enemyGrid = SpatialGrid(cellSize: 64);
     _projectileSystem = ProjectileSystem(_projectilePool);
     _skillSystem = SkillSystem(projectilePool: _projectilePool);
     _damageSystem = DamageSystem(DamageEventPool(initialCapacity: 64));
@@ -105,11 +111,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         SpawnWave(time: 2, enemyId: EnemyId.imp, count: 3),
         SpawnWave(time: 5, enemyId: EnemyId.imp, count: 5),
       ],
-      onSpawn: (enemy) {
-        final component = EnemyComponent(state: enemy, radius: _enemyRadius);
-        _enemyComponents[enemy] = component;
-        add(component);
-      },
+      onSpawn: _registerEnemyComponent,
     );
     _spawnerReady = true;
     _syncHudState();
@@ -139,7 +141,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _applyInput();
     _playerState.step(dt);
     _spawnerSystem.update(dt, _playerState.position);
-    _enemySystem.update(dt, _playerState.position);
+    _enemySystem.update(dt, _playerState.position, size);
     _enemyGrid.rebuild(_enemyPool.active);
     _skillSystem.update(
       dt: dt,
@@ -173,6 +175,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       onEnemyHit: _damageSystem.queueEnemyDamage,
       enemyGrid: _enemyGrid,
       enemyRadius: _enemyRadius,
+      playerState: _playerState,
+      playerRadius: _playerRadius,
+      onPlayerHit: (damage) {
+        _damageSystem.queuePlayerDamage(_playerState, damage);
+      },
     );
     _damageSystem.resolve(onEnemyDefeated: _handleEnemyDefeated);
     _syncHudState();
@@ -256,7 +263,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _handleProjectileSpawn(ProjectileState projectile) {
-    final component = ProjectileComponent(state: projectile);
+    final component = ProjectileComponent(
+      state: projectile,
+      color: projectile.fromEnemy
+          ? const Color(0xFF7AA2F7)
+          : const Color(0xFFFF8C3B),
+    );
     _projectileComponents[projectile] = component;
     add(component);
   }
@@ -275,6 +287,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final component = _enemyComponents.remove(enemy);
     component?.removeFromParent();
     _enemyPool.release(enemy);
+  }
+
+  void _registerEnemyComponent(EnemyState enemy) {
+    final component = EnemyComponent(state: enemy, radius: _enemyRadius);
+    _enemyComponents[enemy] = component;
+    add(component);
   }
 
   void selectChoice(SelectionChoice choice) {

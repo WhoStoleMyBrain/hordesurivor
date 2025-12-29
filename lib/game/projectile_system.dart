@@ -1,6 +1,7 @@
 import 'package:flame/extensions.dart';
 
 import 'enemy_state.dart';
+import 'player_state.dart';
 import 'projectile_pool.dart';
 import 'projectile_state.dart';
 import 'spatial_grid.dart';
@@ -18,6 +19,9 @@ class ProjectileSystem {
     required void Function(EnemyState, double) onEnemyHit,
     SpatialGrid? enemyGrid,
     required double enemyRadius,
+    PlayerState? playerState,
+    double playerRadius = 0,
+    void Function(double)? onPlayerHit,
   }) {
     final active = _pool.active;
     for (var index = active.length - 1; index >= 0; index--) {
@@ -25,8 +29,20 @@ class ProjectileSystem {
       projectile.age += dt;
       projectile.position.addScaled(projectile.velocity, dt);
 
-      var hitEnemy = false;
-      if (enemyGrid != null) {
+      if (projectile.fromEnemy) {
+        final player = playerState;
+        if (player != null && onPlayerHit != null) {
+          final dx = player.position.x - projectile.position.x;
+          final dy = player.position.y - projectile.position.y;
+          final combinedRadius = projectile.radius + playerRadius;
+          if (dx * dx + dy * dy <= combinedRadius * combinedRadius) {
+            onPlayerHit(projectile.damage);
+            onDespawn(projectile);
+            _pool.release(projectile);
+            continue;
+          }
+        }
+      } else if (enemyGrid != null) {
         final combinedRadius = projectile.radius + enemyRadius;
         final combinedRadiusSquared = combinedRadius * combinedRadius;
         final candidates = enemyGrid.queryCircle(
@@ -45,14 +61,12 @@ class ProjectileSystem {
             onEnemyHit(enemy, projectile.damage);
             onDespawn(projectile);
             _pool.release(projectile);
-            hitEnemy = true;
             break;
           }
         }
-      }
-
-      if (hitEnemy) {
-        continue;
+        if (!projectile.active) {
+          continue;
+        }
       }
 
       final radius = projectile.radius;

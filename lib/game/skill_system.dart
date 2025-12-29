@@ -110,6 +110,7 @@ class SkillSystem {
       damage: 8,
       radius: 4,
       lifespan: 2.0,
+      fromEnemy: false,
     );
     onProjectileSpawn(projectile);
   }

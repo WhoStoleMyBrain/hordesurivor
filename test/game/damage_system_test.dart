@@ -1,6 +1,7 @@
 import 'package:flame/extensions.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:hordesurivor/data/enemy_defs.dart';
 import 'package:hordesurivor/data/ids.dart';
 import 'package:hordesurivor/game/damage_system.dart';
 import 'package:hordesurivor/game/enemy_pool.dart';
@@ -10,11 +11,23 @@ void main() {
   test('damage system applies enemy damage and signals defeat', () {
     final pool = EnemyPool(initialCapacity: 0);
     final enemy = pool.acquire(EnemyId.imp);
+    final def = enemyDefsById[EnemyId.imp]!;
     enemy.reset(
       id: EnemyId.imp,
+      role: def.role,
       spawnPosition: Vector2.zero(),
       maxHp: 10,
       moveSpeed: 0,
+      xpReward: def.xpReward,
+      attackCooldown: def.attackCooldown,
+      attackRange: def.attackRange,
+      projectileSpeed: def.projectileSpeed,
+      projectileDamage: def.projectileDamage,
+      projectileSpread: def.projectileSpread,
+      spawnCooldown: def.spawnCooldown,
+      spawnCount: def.spawnCount,
+      spawnRadius: def.spawnRadius,
+      spawnEnemyId: def.spawnEnemyId,
     );
 
     final damageSystem = DamageSystem(DamageEventPool(initialCapacity: 2));
