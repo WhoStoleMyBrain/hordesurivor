@@ -6,6 +6,9 @@ class PlayerHudState extends ChangeNotifier {
   int level = 1;
   int xp = 0;
   int xpToNext = 0;
+  bool showPerformance = false;
+  double fps = 0;
+  double frameTimeMs = 0;
 
   void update({
     required double hp,
@@ -13,12 +16,18 @@ class PlayerHudState extends ChangeNotifier {
     required int level,
     required int xp,
     required int xpToNext,
+    required bool showPerformance,
+    required double fps,
+    required double frameTimeMs,
   }) {
     if (this.hp == hp &&
         this.maxHp == maxHp &&
         this.level == level &&
         this.xp == xp &&
-        this.xpToNext == xpToNext) {
+        this.xpToNext == xpToNext &&
+        this.showPerformance == showPerformance &&
+        this.fps == fps &&
+        this.frameTimeMs == frameTimeMs) {
       return;
     }
 
@@ -27,6 +36,9 @@ class PlayerHudState extends ChangeNotifier {
     this.level = level;
     this.xp = xp;
     this.xpToNext = xpToNext;
+    this.showPerformance = showPerformance;
+    this.fps = fps;
+    this.frameTimeMs = frameTimeMs;
     notifyListeners();
   }
 }

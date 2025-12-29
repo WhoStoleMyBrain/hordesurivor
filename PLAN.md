@@ -153,11 +153,16 @@ This plan takes the project from initial scaffolding to a fully working V0.1 pro
 **Decisions/constraints:**
 - Stress scene must be toggled via a single debug route or flag.
 - Pooling and spatial partitioning required.
+ - Stress scene uses a `/stress` route (or `STRESS_SCENE=true` dart-define) and
+   reuses the main game loop with larger pooled counts.
+ - FPS + frame time are displayed in the HUD only during stress mode.
+ - Stress scene logs a single startup note to capture qualitative benchmark
+   context alongside HUD readings.
 
 **Implementation notes:**
-- Create debug route to spawn 500+ enemies and 1000+ projectiles.
-- Add FPS/frame time overlay.
-- Add qualitative benchmark notes in code comments or logs.
+- [x] Create debug route to spawn 500+ enemies and 1000+ projectiles.
+- [x] Add FPS/frame time overlay.
+- [x] Add qualitative benchmark notes in code comments or logs.
 
 ## Phase 9 — Cross-platform run readiness
 **Goal:** Ensure the game runs on core platforms (Android + Windows debug).
