@@ -1,3 +1,5 @@
+import 'dart:ui' show Canvas;
+
 import 'package:flame/components.dart';
 import 'package:flame/text.dart';
 

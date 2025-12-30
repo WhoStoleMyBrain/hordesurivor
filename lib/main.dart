@@ -1,5 +1,5 @@
 import 'package:flame/game.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SelectionOverlay;
 
 import 'data/data_validation.dart';
 import 'game/horde_game.dart';

@@ -1,9 +1,11 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
+import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/text.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' show KeyEventResult;
 import 'package:flutter/services.dart';
 
 import '../data/enemy_defs.dart';
@@ -34,7 +36,7 @@ import 'spawner_system.dart';
 
 class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   HordeGame({this.stressTest = false})
-    : super(backgroundColor: const Color(0xFF0F1117));
+    : super();
 
   static const double _fixedDelta = 1 / 60;
   static const double _playerRadius = 16;
@@ -102,6 +104,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   PlayerHudState get hudState => _hudState;
   SelectionState get selectionState => _selectionState;
+
+  @override
+  backgroundColor() => const Color(0xFF0F1117);
 
   @override
   Future<void> onLoad() async {
@@ -372,7 +377,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       return;
     }
     _isPanning = true;
-    _panStart = info.eventPosition.game.clone();
+    _panStart = info.eventPosition.widget.clone();
     _panDirection.setZero();
   }
 
@@ -385,7 +390,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (start == null) {
       return;
     }
-    _panDirection.setFrom(info.eventPosition.game - start);
+    _panDirection.setFrom(info.eventPosition.widget - start);
   }
 
   @override

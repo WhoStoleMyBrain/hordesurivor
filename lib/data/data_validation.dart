@@ -30,17 +30,17 @@ class DataValidationResult {
 DataValidationResult validateGameData() {
   final result = DataValidationResult();
   _checkUniqueIds(
-    skillDefs.map((def) => def.id),
+    ids: skillDefs.map((def) => def.id),
     label: 'SkillDef',
     result: result,
   );
   _checkUniqueIds(
-    itemDefs.map((def) => def.id),
+    ids: itemDefs.map((def) => def.id),
     label: 'ItemDef',
     result: result,
   );
   _checkUniqueIds(
-    enemyDefs.map((def) => def.id),
+    ids: enemyDefs.map((def) => def.id),
     label: 'EnemyDef',
     result: result,
   );
@@ -119,12 +119,13 @@ DataValidationResult validateGameData() {
   return result;
 }
 
-void validateGameDataOrThrow({DataLogFn logger = debugPrint}) {
+void validateGameDataOrThrow({DataLogFn? logger}) {
+  final log = logger ?? debugPrint;
   final result = validateGameData();
   if (result.errors.isEmpty && result.warnings.isEmpty) {
     return;
   }
-  result.log(logger);
+  result.log(log);
   assert(!result.hasErrors, 'Game data validation failed.');
 }
 

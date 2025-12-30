@@ -1,3 +1,4 @@
+import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
@@ -11,12 +12,17 @@ class SpriteGenDemo extends FlameGame {
   /// [SpritePipeline]. Provide [exportDirectory] to optionally export the
   /// generated images during development for inspection or asset baking.
   SpriteGenDemo({this.exportDirectory})
-    : super(backgroundColor: const Color(0xFF0B0D12));
+    : super();
 
   final String? exportDirectory;
   final SpritePipeline _pipeline = SpritePipeline();
   final SpriteExporter _exporter = SpriteExporter();
   final List<SpriteComponent> _components = [];
+
+  @override
+  Color backgroundColor() {
+    return const Color(0xFF0B0D12);
+  }
 
   @override
   Future<void> onLoad() async {

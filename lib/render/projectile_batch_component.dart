@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flame/components.dart';
-import 'package:flame/sprite_batch.dart';
+import 'package:flame/sprite.dart';
 
 import '../game/projectile_pool.dart';
 
@@ -44,6 +44,6 @@ class ProjectileBatchComponent extends Component {
         color: _color,
       );
     }
-    _spriteBatch.render(canvas);
+    _spriteBatch.render(canvas, blendMode: BlendMode.srcOver);
   }
 }

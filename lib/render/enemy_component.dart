@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flame/components.dart';
+import 'package:hordesurivor/data/tags.dart';
 
 import '../game/enemy_state.dart';
 
