@@ -36,7 +36,7 @@ class AreaSelectScreen extends StatelessWidget {
               Expanded(
                 child: ListView.separated(
                   itemCount: areaDefs.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final area = areaDefs[index];
                     return Container(
@@ -77,6 +77,17 @@ class AreaSelectScreen extends StatelessWidget {
                               ),
                               _InfoChip(label: 'Loot', value: area.lootProfile),
                             ],
+                          ),
+                          const SizedBox(height: 10),
+                          _InfoRow(
+                            label: 'Difficulty',
+                            value: area.difficultyTiers.join(' · '),
+                          ),
+                          const SizedBox(height: 6),
+                          _InfoRow(
+                            label: 'Contracts',
+                            value: 'Locked for V0.2',
+                            muted: true,
                           ),
                           const SizedBox(height: 12),
                           SizedBox(
@@ -127,6 +138,40 @@ class _InfoChip extends StatelessWidget {
           letterSpacing: 0.2,
         ),
       ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.label,
+    required this.value,
+    this.muted = false,
+  });
+
+  final String label;
+  final String value;
+  final bool muted;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textStyle = theme.textTheme.labelMedium?.copyWith(
+      color: muted ? Colors.white54 : Colors.white70,
+      letterSpacing: 0.3,
+    );
+    return Row(
+      children: [
+        SizedBox(
+          width: 92,
+          child: Text(
+            label.toUpperCase(),
+            style: textStyle?.copyWith(fontWeight: FontWeight.w600),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(child: Text(value, style: textStyle)),
+      ],
     );
   }
 }

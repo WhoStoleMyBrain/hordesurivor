@@ -31,26 +31,24 @@ class HordeSurvivorApp extends StatelessWidget {
     );
   }
 
-  GameWidget _buildGame({required bool stressTest}) {
-    return GameWidget(
+  GameWidget<HordeGame> _buildGame({required bool stressTest}) {
+    return GameWidget<HordeGame>(
       game: HordeGame(stressTest: stressTest),
       overlayBuilderMap: {
-        HudOverlay.overlayKey: (_, game) =>
-            HudOverlay(hudState: (game as HordeGame).hudState),
+        HudOverlay.overlayKey: (_, game) => HudOverlay(hudState: game.hudState),
         SelectionOverlay.overlayKey: (_, game) => SelectionOverlay(
-          selectionState: (game as HordeGame).selectionState,
+          selectionState: game.selectionState,
           onSelected: game.selectChoice,
         ),
         StartScreen.overlayKey: (_, game) => StartScreen(
-          onStart: (game as HordeGame).beginHomeBaseFromStartScreen,
-          onOptions: (game as HordeGame).openOptionsFromStartScreen,
+          onStart: game.beginHomeBaseFromStartScreen,
+          onOptions: game.openOptionsFromStartScreen,
         ),
-        OptionsScreen.overlayKey: (_, game) => OptionsScreen(
-          onClose: (game as HordeGame).closeOptionsFromStartScreen,
-        ),
-        HomeBaseOverlay.overlayKey: (_, __) => const HomeBaseOverlay(),
+        OptionsScreen.overlayKey: (_, game) =>
+            OptionsScreen(onClose: game.closeOptionsFromStartScreen),
+        HomeBaseOverlay.overlayKey: (_, _) => const HomeBaseOverlay(),
         AreaSelectScreen.overlayKey: (_, game) => AreaSelectScreen(
-          onAreaSelected: (game as HordeGame).beginStageFromAreaSelect,
+          onAreaSelected: game.beginStageFromAreaSelect,
           onReturn: game.returnToHomeBase,
         ),
       },

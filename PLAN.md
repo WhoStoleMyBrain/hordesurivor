@@ -87,6 +87,8 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - For each area, display: name, short description, stage duration, enemy themes, loot profile (stubbed), and difficulty tiers (stubbed).
 - Selecting an area triggers a run setup and transitions to the stage scene.
 - Add placeholder UI for “Contracts” and “Difficulty” (disabled in V0.2 but structured).
+**Completed:**
+- Extended area cards with difficulty tier display and a disabled contracts placeholder note.
 
 ---
 
