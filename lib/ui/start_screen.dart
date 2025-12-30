@@ -30,8 +30,8 @@ class StartScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Fight through the oncoming hordes. '
-                  'Start a run when you are ready.',
+                  'Prepare in the home base before choosing a stage. '
+                  'Enter when you are ready.',
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: Colors.white70,
                   ),
@@ -42,7 +42,7 @@ class StartScreen extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: onStart,
-                    child: const Text('Start Run'),
+                    child: const Text('Enter Home Base'),
                   ),
                 ),
               ],
