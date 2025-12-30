@@ -210,8 +210,10 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - If performance-sensitive code changes, add a short note on pooling/allocation impacts.
 **Completed:**
 - Added a flow debug overlay (toggle with F1) with quick jumps to each flow state.
+ - Added readable status rings for slowed/rooted enemies to improve combat clarity.
 **Decisions:**
 - Flow debug overlay uses the first `AreaDef` when jumping directly into stage.
+ - Status rings reuse skill effect colors (waterjet for slow, roots for snare) for quick recognition.
 
 ---
 
