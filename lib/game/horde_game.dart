@@ -20,6 +20,7 @@ import '../render/projectile_batch_component.dart';
 import '../render/projectile_component.dart';
 import '../render/sprite_pipeline.dart';
 import '../ui/area_select_screen.dart';
+import '../ui/death_screen.dart';
 import '../ui/hud_overlay.dart';
 import '../ui/hud_state.dart';
 import '../ui/home_base_overlay.dart';
@@ -41,6 +42,7 @@ import 'skill_system.dart';
 import 'spatial_grid.dart';
 import 'spawner_system.dart';
 import 'game_flow_state.dart';
+import 'run_summary.dart';
 import 'stage_timer.dart';
 
 class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
@@ -94,6 +96,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final PortalComponent _portalComponent;
   final PlayerHudState _hudState = PlayerHudState();
   final SelectionState _selectionState = SelectionState();
+  final RunSummary _runSummary = RunSummary();
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
   final List<DamageNumberComponent> _damageNumberPool = [];
@@ -118,10 +121,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   StageTimer? _stageTimer;
   AreaDef? _activeArea;
   int _currentSectionIndex = 0;
+  bool _runCompleted = false;
 
   PlayerHudState get hudState => _hudState;
   SelectionState get selectionState => _selectionState;
   GameFlowState get flowState => _flowState;
+  RunSummary get runSummary => _runSummary;
+  bool get runCompleted => _runCompleted;
 
   @override
   backgroundColor() => const Color(0xFF0F1117);
@@ -295,6 +301,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _syncHudState();
       return;
     }
+    _runSummary.timeAlive += dt;
     _applyInput();
     _playerState.step(dt);
     if (!stressTest && _stageTimer != null) {
@@ -355,6 +362,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _damageSystem.resolve(
       onEnemyDefeated: _handleEnemyDefeated,
       onEnemyDamaged: _handleEnemyDamaged,
+      onPlayerDamaged: _handlePlayerDamaged,
+      onPlayerDefeated: _handlePlayerDefeated,
     );
     _syncHudState();
 
@@ -404,10 +413,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
     _currentSectionIndex = 0;
     _applyStageSection(force: true);
+    _resetRunSummary();
+    _revivePlayer();
     _resetStageActors();
     _setFlowState(GameFlowState.stage);
     overlays.remove(AreaSelectScreen.overlayKey);
     overlays.remove(HomeBaseOverlay.overlayKey);
+    overlays.remove(DeathScreen.overlayKey);
     overlays.add(HudOverlay.overlayKey);
     _syncHudState();
   }
@@ -418,6 +430,27 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _stageTimer = null;
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(AreaSelectScreen.overlayKey);
+    overlays.remove(HudOverlay.overlayKey);
+    overlays.remove(DeathScreen.overlayKey);
+    overlays.add(HomeBaseOverlay.overlayKey);
+    _syncHudState();
+  }
+
+  void restartRunFromDeath() {
+    final area = _activeArea;
+    if (area == null) {
+      returnToHomeBaseFromDeath();
+      return;
+    }
+    beginStageFromAreaSelect(area);
+  }
+
+  void returnToHomeBaseFromDeath() {
+    _resetStageActors();
+    _activeArea = null;
+    _stageTimer = null;
+    _setFlowState(GameFlowState.homeBase);
+    overlays.remove(DeathScreen.overlayKey);
     overlays.remove(HudOverlay.overlayKey);
     overlays.add(HomeBaseOverlay.overlayKey);
     _syncHudState();
@@ -546,6 +579,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _handleEnemyDefeated(EnemyState enemy) {
     if (!stressTest) {
+      _runSummary.enemiesDefeated += 1;
+      _runSummary.xpGained += enemy.xpReward;
       final levelsGained = _experienceSystem.addExperience(enemy.xpReward);
       if (levelsGained > 0) {
         _levelUpSystem.queueLevels(levelsGained);
@@ -591,6 +626,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (!component.isMounted) {
       add(component);
     }
+  }
+
+  void _handlePlayerDamaged(double amount) {
+    if (_flowState != GameFlowState.stage) {
+      return;
+    }
+    _runSummary.damageTaken += amount;
   }
 
   DamageNumberComponent _acquireDamageNumber() {
@@ -802,13 +844,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _handleStageComplete() {
-    _resetStageActors();
-    _activeArea = null;
-    _stageTimer = null;
-    _setFlowState(GameFlowState.homeBase);
-    overlays.remove(HudOverlay.overlayKey);
-    overlays.add(HomeBaseOverlay.overlayKey);
-    _syncHudState();
+    _endRun(completed: true);
   }
 
   void _resetStageActors() {
@@ -828,6 +864,34 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       component.removeFromParent();
       _damageNumberPool.add(component);
     }
+  }
+
+  void _handlePlayerDefeated() {
+    _endRun(completed: false);
+  }
+
+  void _endRun({required bool completed}) {
+    _runCompleted = completed;
+    _resetStageActors();
+    _stageTimer = null;
+    _selectionState.clear();
+    overlays.remove(SelectionOverlay.overlayKey);
+    _setFlowState(GameFlowState.death);
+    overlays.remove(HudOverlay.overlayKey);
+    overlays.add(DeathScreen.overlayKey);
+    _syncHudState();
+  }
+
+  void _resetRunSummary() {
+    _runSummary.reset();
+    _runCompleted = false;
+  }
+
+  void _revivePlayer() {
+    _playerState.hp = _playerState.maxHp;
+    _playerState.movementIntent.setZero();
+    _playerState.position.setFrom(size / 2);
+    _playerComponent.syncWithState();
   }
 
   @override
