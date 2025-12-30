@@ -202,6 +202,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       random: math.Random(19),
       onProjectileSpawn: _handleProjectileSpawn,
       onSpawn: _registerEnemyComponent,
+      onSelfDestruct: _handleEnemySelfDestruct,
     );
     _enemyGrid = SpatialGrid(cellSize: 64);
     _projectileSystem = ProjectileSystem(_projectilePool);
@@ -591,6 +592,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final component = _enemyComponents.remove(enemy);
     component?.removeFromParent();
     _enemyPool.release(enemy);
+  }
+
+  void _handleEnemySelfDestruct(EnemyState enemy) {
+    if (!enemy.active) {
+      return;
+    }
+    final damage = enemy.hp > 1 ? enemy.hp : 1.0;
+    _damageSystem.queueEnemyDamage(enemy, damage);
   }
 
   void _registerEnemyComponent(EnemyState enemy) {
