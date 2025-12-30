@@ -603,6 +603,21 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _handleProjectileDespawn(ProjectileState projectile) {
+    if (projectile.spawnImpactEffect && projectile.impactEffectKind != null) {
+      final effect = _effectPool.acquire();
+      effect.reset(
+        kind: projectile.impactEffectKind!,
+        shape: projectile.impactEffectShape,
+        position: projectile.position,
+        direction: projectile.impactDirection,
+        radius: projectile.impactEffectRadius,
+        length: projectile.impactEffectLength,
+        width: projectile.impactEffectWidth,
+        duration: projectile.impactEffectDuration,
+        damagePerSecond: projectile.impactEffectDamagePerSecond,
+      );
+      _handleEffectSpawn(effect);
+    }
     final component = _projectileComponents.remove(projectile);
     component?.removeFromParent();
   }
