@@ -7,11 +7,10 @@ import 'stat_sheet.dart';
 
 class PlayerState {
   PlayerState({
-    required Vector2 position,
+    required this.position,
     required double maxHp,
     required double moveSpeed,
-  }) : position = position,
-       hp = maxHp,
+  }) : hp = maxHp,
        stats = StatSheet(
          baseValues: {StatId.maxHp: maxHp, StatId.moveSpeed: moveSpeed},
        ),

@@ -29,7 +29,7 @@ class SelectionOverlay extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 420),
               child: Card(
-                color: Colors.black.withOpacity(0.8),
+                color: Colors.black.withValues(alpha: 0.8),
                 margin: const EdgeInsets.all(16),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -48,8 +48,7 @@ class SelectionOverlay extends StatelessWidget {
                         child: ListView.separated(
                           shrinkWrap: true,
                           itemCount: choices.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 8),
+                          separatorBuilder: (_, _) => const SizedBox(height: 8),
                           itemBuilder: (context, index) {
                             final choice = choices[index];
                             return _ChoiceCard(

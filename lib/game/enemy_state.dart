@@ -4,9 +4,8 @@ import '../data/ids.dart';
 import '../data/tags.dart';
 
 class EnemyState {
-  EnemyState({required EnemyId id})
-    : id = id,
-      position = Vector2.zero(),
+  EnemyState({required this.id})
+    : position = Vector2.zero(),
       velocity = Vector2.zero();
 
   EnemyId id;

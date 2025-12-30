@@ -57,7 +57,7 @@ void main() {
       stats: playerState.stats,
       enemyPool: EnemyPool(initialCapacity: 0),
       onProjectileSpawn: (_) => spawnCount++,
-      onEnemyDamaged: (_, __) {},
+      onEnemyDamaged: (_, _) {},
     );
 
     expect(spawnCount, 0);
@@ -69,7 +69,7 @@ void main() {
       stats: playerState.stats,
       enemyPool: EnemyPool(initialCapacity: 0),
       onProjectileSpawn: (_) => spawnCount++,
-      onEnemyDamaged: (_, __) {},
+      onEnemyDamaged: (_, _) {},
     );
 
     expect(spawnCount, 3);
@@ -183,7 +183,7 @@ void main() {
       onProjectileSpawn: (projectile) {
         damage = projectile.damage;
       },
-      onEnemyDamaged: (_, __) {},
+      onEnemyDamaged: (_, _) {},
     );
 
     expect(damage, isNotNull);
