@@ -44,6 +44,16 @@ class DeathScreen extends StatelessWidget {
                     letterSpacing: 1.2,
                   ),
                 ),
+                if (summary.areaName != null) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    summary.areaName!,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      letterSpacing: 0.6,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 16),
                 _StatRow(label: 'Score', value: summary.score.toString()),
                 _StatRow(
