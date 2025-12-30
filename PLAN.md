@@ -40,11 +40,16 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 **Decisions/constraints:**
 - Start screen is a UI overlay; the simulation does not run until a new run is requested.
 - Keep UI routing centralized to avoid state leaks.
+- Stress scene bypasses the start screen and begins in the stage flow state.
 
 **Implementation notes:**
 - Add `StartScreen` widget in `lib/ui/` with “Start” (and optional “Options”) CTA.
 - Add a flow/router controller (e.g., `GameFlowController` in `lib/game/` or `lib/ui/`) to swap scenes/overlays.
 - Ensure input routing disables gameplay input when overlays are active.
+**Completed:**
+- Added `StartScreen` overlay with a “Start Run” CTA.
+- Gated simulation updates until the flow transitions to `GameFlowState.stage`, and lock input when not in stage.
+- Start action removes the start overlay and enables the HUD; stress scene starts in stage.
 
 ---
 

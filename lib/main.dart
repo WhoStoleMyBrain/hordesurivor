@@ -5,6 +5,7 @@ import 'data/data_validation.dart';
 import 'game/horde_game.dart';
 import 'ui/hud_overlay.dart';
 import 'ui/selection_overlay.dart';
+import 'ui/start_screen.dart';
 
 void main() {
   validateGameDataOrThrow();
@@ -37,8 +38,12 @@ class HordeSurvivorApp extends StatelessWidget {
           selectionState: (game as HordeGame).selectionState,
           onSelected: game.selectChoice,
         ),
+        StartScreen.overlayKey: (_, game) =>
+            StartScreen(onStart: (game as HordeGame).beginStageFromStartScreen),
       },
-      initialActiveOverlays: const [HudOverlay.overlayKey],
+      initialActiveOverlays: stressTest
+          ? const [HudOverlay.overlayKey]
+          : const [StartScreen.overlayKey],
     );
   }
 }
