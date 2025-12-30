@@ -23,6 +23,7 @@ import '../ui/area_select_screen.dart';
 import '../ui/hud_overlay.dart';
 import '../ui/hud_state.dart';
 import '../ui/home_base_overlay.dart';
+import '../ui/options_screen.dart';
 import '../ui/selection_overlay.dart';
 import '../ui/selection_state.dart';
 import '../ui/start_screen.dart';
@@ -355,8 +356,28 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(StartScreen.overlayKey);
+    overlays.remove(OptionsScreen.overlayKey);
     overlays.add(HomeBaseOverlay.overlayKey);
     _syncHudState();
+  }
+
+  void openOptionsFromStartScreen() {
+    if (_flowState != GameFlowState.start) {
+      return;
+    }
+    if (overlays.isActive(OptionsScreen.overlayKey)) {
+      return;
+    }
+    overlays.remove(StartScreen.overlayKey);
+    overlays.add(OptionsScreen.overlayKey);
+  }
+
+  void closeOptionsFromStartScreen() {
+    if (_flowState != GameFlowState.start) {
+      return;
+    }
+    overlays.remove(OptionsScreen.overlayKey);
+    overlays.add(StartScreen.overlayKey);
   }
 
   void beginStageFromAreaSelect(AreaDef area) {
