@@ -9,11 +9,10 @@ class PlayerComponent extends PositionComponent {
     required PlayerState state,
     required double radius,
     Image? spriteImage,
-  })
-      : _state = state,
-        _radius = radius,
-        _spriteImage = spriteImage,
-        _paint = Paint()..color = const Color(0xFF7BD389) {
+  }) : _state = state,
+       _radius = radius,
+       _spriteImage = spriteImage,
+       _paint = Paint()..color = const Color(0xFF7BD389) {
     anchor = Anchor.center;
     if (spriteImage != null) {
       size = Vector2(

@@ -10,16 +10,13 @@ class PlayerState {
     required Vector2 position,
     required double maxHp,
     required double moveSpeed,
-  })  : position = position,
-        hp = maxHp,
-        stats = StatSheet(
-          baseValues: {
-            StatId.maxHp: maxHp,
-            StatId.moveSpeed: moveSpeed,
-          },
-        ),
-        velocity = Vector2.zero(),
-        movementIntent = Vector2.zero();
+  }) : position = position,
+       hp = maxHp,
+       stats = StatSheet(
+         baseValues: {StatId.maxHp: maxHp, StatId.moveSpeed: moveSpeed},
+       ),
+       velocity = Vector2.zero(),
+       movementIntent = Vector2.zero();
 
   final Vector2 position;
   final Vector2 velocity;

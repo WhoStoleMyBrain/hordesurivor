@@ -3,11 +3,11 @@ import 'enemy_state.dart';
 
 class EnemyPool {
   EnemyPool({int initialCapacity = 32})
-      : _inactive = List.generate(
-          initialCapacity,
-          (_) => EnemyState(id: EnemyId.imp),
-        ),
-        _active = [];
+    : _inactive = List.generate(
+        initialCapacity,
+        (_) => EnemyState(id: EnemyId.imp),
+      ),
+      _active = [];
 
   final List<EnemyState> _inactive;
   final List<EnemyState> _active;

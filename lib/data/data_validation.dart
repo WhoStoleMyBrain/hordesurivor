@@ -9,8 +9,8 @@ typedef DataLogFn = void Function(String message);
 
 class DataValidationResult {
   DataValidationResult({List<String>? errors, List<String>? warnings})
-      : errors = errors ?? <String>[],
-        warnings = warnings ?? <String>[];
+    : errors = errors ?? <String>[],
+      warnings = warnings ?? <String>[];
 
   final List<String> errors;
   final List<String> warnings;
@@ -142,5 +142,7 @@ void _checkUniqueIds<T>({
 }
 
 bool _isTagSetEmpty(TagSet tags) {
-  return tags.elements.isEmpty && tags.effects.isEmpty && tags.deliveries.isEmpty;
+  return tags.elements.isEmpty &&
+      tags.effects.isEmpty &&
+      tags.deliveries.isEmpty;
 }

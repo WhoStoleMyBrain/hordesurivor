@@ -2,9 +2,9 @@ import '../data/stat_defs.dart';
 
 class StatSheet {
   StatSheet({Map<StatId, double>? baseValues})
-      : _baseValues = Map<StatId, double>.from(baseValues ?? {}),
-        _multipliers = <StatId, double>{},
-        _flatBonuses = <StatId, double>{};
+    : _baseValues = Map<StatId, double>.from(baseValues ?? {}),
+      _multipliers = <StatId, double>{},
+      _flatBonuses = <StatId, double>{};
 
   final Map<StatId, double> _baseValues;
   final Map<StatId, double> _multipliers;

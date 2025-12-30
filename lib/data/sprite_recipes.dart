@@ -29,15 +29,7 @@ class SpriteRecipeSet {
   }
 }
 
-enum SpriteKind {
-  player,
-  enemy,
-  item,
-  skill,
-  ground,
-  projectile,
-  pickup,
-}
+enum SpriteKind { player, enemy, item, skill, ground, projectile, pickup }
 
 SpriteKind spriteKindFromString(String value) {
   return SpriteKind.values.firstWhere(
@@ -73,9 +65,7 @@ class SpriteRecipe {
       outputName: json['outputName'] as String,
       size: json['size'] as int,
       seed: json['seed'] as int? ?? 0,
-      palette: paletteJson.map(
-        (key, value) => MapEntry(key, value as String),
-      ),
+      palette: paletteJson.map((key, value) => MapEntry(key, value as String)),
       shapes: (json['shapes'] as List<dynamic>? ?? [])
           .map((shape) => SpriteShape.fromJson(shape as Map<String, dynamic>))
           .toList(),
@@ -125,16 +115,16 @@ class SpriteShape {
           .toList(),
       points: (json['points'] as List<dynamic>?)
           ?.map(
-            (point) => (point as List<dynamic>)
-                .map((value) => value as int)
-                .toList(),
+            (point) =>
+                (point as List<dynamic>).map((value) => value as int).toList(),
           )
           .toList(),
       start: (json['start'] as List<dynamic>?)
           ?.map((value) => value as int)
           .toList(),
-      end:
-          (json['end'] as List<dynamic>?)?.map((value) => value as int).toList(),
+      end: (json['end'] as List<dynamic>?)
+          ?.map((value) => value as int)
+          .toList(),
       thickness: json['thickness'] as int?,
       startAngle: (json['startAngle'] as num?)?.toDouble(),
       sweepAngle: (json['sweepAngle'] as num?)?.toDouble(),

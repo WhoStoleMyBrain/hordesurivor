@@ -5,11 +5,9 @@ import 'sprite_generator.dart';
 import 'sprite_recipe_loader.dart';
 
 class SpritePipeline {
-  SpritePipeline({
-    SpriteRecipeLoader? loader,
-    SpriteGenerator? generator,
-  })  : _loader = loader ?? SpriteRecipeLoader(),
-        _generator = generator ?? SpriteGenerator();
+  SpritePipeline({SpriteRecipeLoader? loader, SpriteGenerator? generator})
+    : _loader = loader ?? SpriteRecipeLoader(),
+      _generator = generator ?? SpriteGenerator();
 
   final SpriteRecipeLoader _loader;
   final SpriteGenerator _generator;

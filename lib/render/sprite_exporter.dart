@@ -4,7 +4,7 @@ import 'sprite_generator.dart';
 
 class SpriteExporter {
   SpriteExporter({SpriteGenerator? generator})
-      : _generator = generator ?? SpriteGenerator();
+    : _generator = generator ?? SpriteGenerator();
 
   final SpriteGenerator _generator;
 

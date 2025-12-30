@@ -172,7 +172,11 @@ const List<ItemDef> itemDefs = [
     description: 'More rerolls but fewer choices at once.',
     modifiers: [
       StatModifier(stat: StatId.rerolls, amount: 1, kind: ModifierKind.flat),
-      StatModifier(stat: StatId.choiceCount, amount: -1, kind: ModifierKind.flat),
+      StatModifier(
+        stat: StatId.choiceCount,
+        amount: -1,
+        kind: ModifierKind.flat,
+      ),
     ],
   ),
   ItemDef(

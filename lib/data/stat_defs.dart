@@ -29,10 +29,7 @@ enum StatId {
   selfExplosionDamageTaken,
 }
 
-enum ModifierKind {
-  flat,
-  percent,
-}
+enum ModifierKind { flat, percent }
 
 class StatModifier {
   const StatModifier({

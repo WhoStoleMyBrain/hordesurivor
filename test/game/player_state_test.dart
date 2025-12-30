@@ -40,10 +40,7 @@ void main() {
       moveSpeed: 10,
     );
 
-    state.clampToBounds(
-      min: Vector2.zero(),
-      max: Vector2(10, 10),
-    );
+    state.clampToBounds(min: Vector2.zero(), max: Vector2(10, 10));
 
     expect(state.position.x, 10);
     expect(state.position.y, 0);

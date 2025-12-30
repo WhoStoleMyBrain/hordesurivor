@@ -34,7 +34,7 @@ import 'spawner_system.dart';
 
 class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   HordeGame({this.stressTest = false})
-      : super(backgroundColor: const Color(0xFF0F1117));
+    : super(backgroundColor: const Color(0xFF0F1117));
 
   static const double _fixedDelta = 1 / 60;
   static const double _playerRadius = 16;
@@ -188,20 +188,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
               ),
             ]
           : const [
-              SpawnWave(
-                time: 0,
-                count: 4,
-                roleWeights: {
-                  EnemyRole.chaser: 3,
-                },
-              ),
+              SpawnWave(time: 0, count: 4, roleWeights: {EnemyRole.chaser: 3}),
               SpawnWave(
                 time: 2,
                 count: 3,
-                roleWeights: {
-                  EnemyRole.chaser: 2,
-                  EnemyRole.ranged: 1,
-                },
+                roleWeights: {EnemyRole.chaser: 2, EnemyRole.ranged: 1},
               ),
               SpawnWave(
                 time: 5,
@@ -560,10 +551,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         ..add(_playerState.position);
       _stressPosition.x = _stressPosition.x.clamp(0.0, size.x);
       _stressPosition.y = _stressPosition.y.clamp(0.0, size.y);
-      _stressVelocity.setValues(
-        math.cos(angle) * 180,
-        math.sin(angle) * 180,
-      );
+      _stressVelocity.setValues(math.cos(angle) * 180, math.sin(angle) * 180);
 
       final projectile = _projectilePool.acquire();
       projectile.reset(

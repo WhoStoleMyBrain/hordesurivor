@@ -31,10 +31,7 @@ const List<SkillDef> skillDefs = [
     id: SkillId.waterjet,
     name: 'Waterjet',
     description: 'Channel a focused beam of water.',
-    tags: TagSet(
-      elements: {ElementTag.water},
-      deliveries: {DeliveryTag.beam},
-    ),
+    tags: TagSet(elements: {ElementTag.water}, deliveries: {DeliveryTag.beam}),
   ),
   SkillDef(
     id: SkillId.oilBombs,

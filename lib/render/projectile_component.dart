@@ -9,9 +9,9 @@ class ProjectileComponent extends PositionComponent {
     required ProjectileState state,
     Color color = const Color(0xFFFF8C3B),
     Image? spriteImage,
-  })  : _state = state,
-        _spriteImage = spriteImage,
-        _paint = Paint()..color = color {
+  }) : _state = state,
+       _spriteImage = spriteImage,
+       _paint = Paint()..color = color {
     anchor = Anchor.center;
     if (spriteImage != null) {
       size = Vector2(

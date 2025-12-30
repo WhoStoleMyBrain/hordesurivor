@@ -1,9 +1,7 @@
 import 'package:flame/extensions.dart';
 
 class ProjectileState {
-  ProjectileState()
-      : position = Vector2.zero(),
-        velocity = Vector2.zero();
+  ProjectileState() : position = Vector2.zero(), velocity = Vector2.zero();
 
   final Vector2 position;
   final Vector2 velocity;

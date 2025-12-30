@@ -1,33 +1,10 @@
-enum ElementTag {
-  fire,
-  water,
-  earth,
-  wind,
-  poison,
-  steel,
-  wood,
-}
+enum ElementTag { fire, water, earth, wind, poison, steel, wood }
 
-enum EffectTag {
-  aoe,
-  dot,
-  support,
-  debuff,
-  mobility,
-}
+enum EffectTag { aoe, dot, support, debuff, mobility }
 
-enum DeliveryTag {
-  projectile,
-  beam,
-  melee,
-  aura,
-  ground,
-}
+enum DeliveryTag { projectile, beam, melee, aura, ground }
 
-enum Faction {
-  demons,
-  angels,
-}
+enum Faction { demons, angels }
 
 enum EnemyRole {
   chaser,

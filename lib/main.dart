@@ -34,9 +34,9 @@ class HordeSurvivorApp extends StatelessWidget {
         HudOverlay.overlayKey: (_, game) =>
             HudOverlay(hudState: (game as HordeGame).hudState),
         SelectionOverlay.overlayKey: (_, game) => SelectionOverlay(
-              selectionState: (game as HordeGame).selectionState,
-              onSelected: game.selectChoice,
-            ),
+          selectionState: (game as HordeGame).selectionState,
+          onSelected: game.selectChoice,
+        ),
       },
       initialActiveOverlays: const [HudOverlay.overlayKey],
     );

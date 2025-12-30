@@ -72,10 +72,7 @@ class SelectionOverlay extends StatelessWidget {
 }
 
 class _ChoiceCard extends StatelessWidget {
-  const _ChoiceCard({
-    required this.choice,
-    required this.onPressed,
-  });
+  const _ChoiceCard({required this.choice, required this.onPressed});
 
   final SelectionChoice choice;
   final VoidCallback onPressed;
@@ -96,10 +93,7 @@ class _ChoiceCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  choice.title,
-                  style: theme.textTheme.titleMedium,
-                ),
+                child: Text(choice.title, style: theme.textTheme.titleMedium),
               ),
               Text(
                 choice.type == SelectionType.skill ? 'Skill' : 'Item',
@@ -112,9 +106,7 @@ class _ChoiceCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             choice.description,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: Colors.white70,
-            ),
+            style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
           ),
         ],
       ),

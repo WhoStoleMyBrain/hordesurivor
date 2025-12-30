@@ -33,9 +33,7 @@ void main() {
     final damageSystem = DamageSystem(DamageEventPool(initialCapacity: 2));
     var defeatedCount = 0;
     damageSystem.queueEnemyDamage(enemy, 12);
-    damageSystem.resolve(
-      onEnemyDefeated: (_) => defeatedCount++,
-    );
+    damageSystem.resolve(onEnemyDefeated: (_) => defeatedCount++);
 
     expect(enemy.hp, 0);
     expect(defeatedCount, 1);

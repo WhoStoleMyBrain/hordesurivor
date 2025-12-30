@@ -18,15 +18,13 @@ void main() {
       maxHp: 100,
       moveSpeed: 10,
     );
-    playerState.applyModifiers(
-      const [
-        StatModifier(
-          stat: StatId.choiceCount,
-          amount: 1,
-          kind: ModifierKind.flat,
-        ),
-      ],
-    );
+    playerState.applyModifiers(const [
+      StatModifier(
+        stat: StatId.choiceCount,
+        amount: 1,
+        kind: ModifierKind.flat,
+      ),
+    ]);
     final skillSystem = SkillSystem(projectilePool: ProjectilePool());
 
     system.queueLevels(1);

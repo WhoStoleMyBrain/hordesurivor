@@ -5,9 +5,9 @@ import '../data/tags.dart';
 
 class EnemyState {
   EnemyState({required EnemyId id})
-      : id = id,
-        position = Vector2.zero(),
-        velocity = Vector2.zero();
+    : id = id,
+      position = Vector2.zero(),
+      velocity = Vector2.zero();
 
   EnemyId id;
   EnemyRole role = EnemyRole.chaser;

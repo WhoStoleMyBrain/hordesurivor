@@ -17,9 +17,7 @@ class GeneratedSprite {
 }
 
 class SpriteGenerator {
-  Future<List<GeneratedSprite>> generateAll(
-    List<SpriteRecipe> recipes,
-  ) async {
+  Future<List<GeneratedSprite>> generateAll(List<SpriteRecipe> recipes) async {
     final results = <GeneratedSprite>[];
     for (final recipe in recipes) {
       results.add(await generate(recipe));

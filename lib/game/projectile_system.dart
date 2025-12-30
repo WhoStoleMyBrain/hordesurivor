@@ -70,7 +70,8 @@ class ProjectileSystem {
       }
 
       final radius = projectile.radius;
-      final outOfBounds = projectile.position.x < -radius ||
+      final outOfBounds =
+          projectile.position.x < -radius ||
           projectile.position.y < -radius ||
           projectile.position.x > arenaSize.x + radius ||
           projectile.position.y > arenaSize.y + radius;

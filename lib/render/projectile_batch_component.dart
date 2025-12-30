@@ -10,19 +10,19 @@ class ProjectileBatchComponent extends Component {
     required ProjectilePool pool,
     required Image spriteImage,
     required Color color,
-  })  : _pool = pool,
-        _spriteBatch = SpriteBatch(spriteImage),
-        _sourceRect = Rect.fromLTWH(
-          0,
-          0,
-          spriteImage.width.toDouble(),
-          spriteImage.height.toDouble(),
-        ),
-        _anchor = Vector2(
-          spriteImage.width.toDouble() / 2,
-          spriteImage.height.toDouble() / 2,
-        ),
-        _color = color;
+  }) : _pool = pool,
+       _spriteBatch = SpriteBatch(spriteImage),
+       _sourceRect = Rect.fromLTWH(
+         0,
+         0,
+         spriteImage.width.toDouble(),
+         spriteImage.height.toDouble(),
+       ),
+       _anchor = Vector2(
+         spriteImage.width.toDouble() / 2,
+         spriteImage.height.toDouble() / 2,
+       ),
+       _color = color;
 
   final ProjectilePool _pool;
   final SpriteBatch _spriteBatch;

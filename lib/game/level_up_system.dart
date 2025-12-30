@@ -26,11 +26,9 @@ class SelectionChoice {
 }
 
 class LevelUpSystem {
-  LevelUpSystem({
-    required math.Random random,
-    int baseChoiceCount = 3,
-  })  : _random = random,
-        _baseChoiceCount = baseChoiceCount;
+  LevelUpSystem({required math.Random random, int baseChoiceCount = 3})
+    : _random = random,
+      _baseChoiceCount = baseChoiceCount;
 
   final math.Random _random;
   final int _baseChoiceCount;

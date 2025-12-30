@@ -39,22 +39,13 @@ void main() {
       random: math.Random(4),
       arenaSize: Vector2(200, 200),
       waves: const [
-        SpawnWave(
-          time: 0,
-          count: 4,
-          roleWeights: {
-            EnemyRole.chaser: 2,
-          },
-        ),
+        SpawnWave(time: 0, count: 4, roleWeights: {EnemyRole.chaser: 2}),
       ],
       onSpawn: spawned.add,
     );
 
     spawner.update(0.1, Vector2(100, 100));
     expect(spawned.length, 4);
-    expect(
-      spawned.every((enemy) => enemy.role == EnemyRole.chaser),
-      isTrue,
-    );
+    expect(spawned.every((enemy) => enemy.role == EnemyRole.chaser), isTrue);
   });
 }

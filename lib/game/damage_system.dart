@@ -103,7 +103,7 @@ class DamageEvent {
 
 class DamageEventPool {
   DamageEventPool({int initialCapacity = 32})
-      : _inactive = List.generate(initialCapacity, (_) => DamageEvent());
+    : _inactive = List.generate(initialCapacity, (_) => DamageEvent());
 
   final List<DamageEvent> _inactive;
 

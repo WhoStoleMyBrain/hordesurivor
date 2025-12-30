@@ -80,9 +80,7 @@ class SpriteRecipeLoader {
       );
     }
     for (final error in validation.errors) {
-      debugPrint(
-        'Sprite recipes: error in ${recipe.id} ($assetPath): $error',
-      );
+      debugPrint('Sprite recipes: error in ${recipe.id} ($assetPath): $error');
     }
   }
 }
@@ -129,7 +127,9 @@ class SpriteRecipeValidator {
         continue;
       }
       if (!recipe.palette.containsKey(shape.colorKey)) {
-        errors.add('$prefix references missing palette color "${shape.colorKey}".');
+        errors.add(
+          '$prefix references missing palette color "${shape.colorKey}".',
+        );
       }
       if (shape.offset.length < 2) {
         errors.add('$prefix offset must include x/y values.');

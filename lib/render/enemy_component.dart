@@ -11,19 +11,19 @@ class EnemyComponent extends PositionComponent {
     required double radius,
     Color color = const Color(0xFFE07064),
     Image? spriteImage,
-  })  : _state = state,
-        _radius = radius,
-        _spriteImage = spriteImage,
-        _role = state.role,
-        _paint = Paint()..color = _roleColors[state.role] ?? color,
-        _outlinePaint = Paint()
-          ..color = (_roleColors[state.role] ?? color).withOpacity(0.9)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2,
-        _telegraphPaint = Paint()
-          ..color = (_roleColors[state.role] ?? color).withOpacity(0.5)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2 {
+  }) : _state = state,
+       _radius = radius,
+       _spriteImage = spriteImage,
+       _role = state.role,
+       _paint = Paint()..color = _roleColors[state.role] ?? color,
+       _outlinePaint = Paint()
+         ..color = (_roleColors[state.role] ?? color).withOpacity(0.9)
+         ..style = PaintingStyle.stroke
+         ..strokeWidth = 2,
+       _telegraphPaint = Paint()
+         ..color = (_roleColors[state.role] ?? color).withOpacity(0.5)
+         ..style = PaintingStyle.stroke
+         ..strokeWidth = 2 {
     anchor = Anchor.center;
     if (spriteImage != null) {
       size = Vector2(
@@ -123,14 +123,15 @@ class EnemyComponent extends PositionComponent {
         if (_state.attackCooldown <= 0) {
           return 0;
         }
-        return (1 - (_state.attackTimer / _state.attackCooldown))
-            .clamp(0.0, 1.0);
+        return (1 - (_state.attackTimer / _state.attackCooldown)).clamp(
+          0.0,
+          1.0,
+        );
       case EnemyRole.spawner:
         if (_state.spawnCooldown <= 0) {
           return 0;
         }
-        return (1 - (_state.spawnTimer / _state.spawnCooldown))
-            .clamp(0.0, 1.0);
+        return (1 - (_state.spawnTimer / _state.spawnCooldown)).clamp(0.0, 1.0);
       default:
         return 0;
     }

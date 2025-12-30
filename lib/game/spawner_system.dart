@@ -31,12 +31,12 @@ class SpawnerSystem {
     required void Function(EnemyState) onSpawn,
     double spawnMinRadius = 120,
     double spawnMaxRadius = 200,
-  })  : _pool = pool,
-        _random = random,
-        _arenaSize = arenaSize.clone(),
-        _onSpawn = onSpawn,
-        _spawnMinRadius = spawnMinRadius,
-        _spawnMaxRadius = spawnMaxRadius {
+  }) : _pool = pool,
+       _random = random,
+       _arenaSize = arenaSize.clone(),
+       _onSpawn = onSpawn,
+       _spawnMinRadius = spawnMinRadius,
+       _spawnMaxRadius = spawnMaxRadius {
     _rolePickers = _buildRolePickers();
     _resolvedWaves = _resolveWaves(waves);
   }
@@ -79,7 +79,8 @@ class SpawnerSystem {
       return;
     }
     final angle = _random.nextDouble() * math.pi * 2;
-    final radius = _spawnMinRadius +
+    final radius =
+        _spawnMinRadius +
         _random.nextDouble() * (_spawnMaxRadius - _spawnMinRadius);
     _spawnPosition
       ..setValues(math.cos(angle) * radius, math.sin(angle) * radius)
@@ -109,17 +110,20 @@ class SpawnerSystem {
   }
 
   List<_ResolvedWave> _resolveWaves(List<SpawnWave> waves) {
-    return waves.map((wave) {
-      final roleEntries = _buildRoleEntries(wave.roleWeights);
-      final rolePicker =
-          roleEntries.isEmpty ? null : _WeightedPicker(roleEntries);
-      return _ResolvedWave(
-        time: wave.time,
-        count: wave.count,
-        enemyId: wave.enemyId,
-        rolePicker: rolePicker,
-      );
-    }).toList(growable: false);
+    return waves
+        .map((wave) {
+          final roleEntries = _buildRoleEntries(wave.roleWeights);
+          final rolePicker = roleEntries.isEmpty
+              ? null
+              : _WeightedPicker(roleEntries);
+          return _ResolvedWave(
+            time: wave.time,
+            count: wave.count,
+            enemyId: wave.enemyId,
+            rolePicker: rolePicker,
+          );
+        })
+        .toList(growable: false);
   }
 
   Map<EnemyRole, _WeightedPicker<EnemyId>> _buildRolePickers() {
@@ -190,8 +194,8 @@ class _WeightedEntry<T> {
 
 class _WeightedPicker<T> {
   _WeightedPicker(List<_WeightedEntry<T>> entries)
-      : _entries = entries,
-        totalWeight = entries.fold<int>(0, (sum, entry) => sum + entry.weight);
+    : _entries = entries,
+      totalWeight = entries.fold<int>(0, (sum, entry) => sum + entry.weight);
 
   final List<_WeightedEntry<T>> _entries;
   final int totalWeight;

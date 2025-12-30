@@ -1,11 +1,8 @@
 class ExperienceSystem {
-  ExperienceSystem({
-    int startingLevel = 1,
-    int baseXp = 20,
-    int xpGrowth = 10,
-  })  : _baseXp = baseXp,
-        _xpGrowth = xpGrowth,
-        level = startingLevel {
+  ExperienceSystem({int startingLevel = 1, int baseXp = 20, int xpGrowth = 10})
+    : _baseXp = baseXp,
+      _xpGrowth = xpGrowth,
+      level = startingLevel {
     xpToNext = _xpForLevel(level);
   }
 

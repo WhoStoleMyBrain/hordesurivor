@@ -38,20 +38,14 @@ void main() {
   }
 
   PlayerState buildPlayer() {
-    return PlayerState(
-      position: Vector2.zero(),
-      maxHp: 100,
-      moveSpeed: 120,
-    );
+    return PlayerState(position: Vector2.zero(), maxHp: 100, moveSpeed: 120);
   }
 
   test('fireball casts on cooldown and supports burst updates', () {
     final projectilePool = ProjectilePool(initialCapacity: 0);
     final system = SkillSystem(
       projectilePool: projectilePool,
-      skillSlots: [
-        SkillSlot(id: SkillId.fireball, cooldown: 0.5),
-      ],
+      skillSlots: [SkillSlot(id: SkillId.fireball, cooldown: 0.5)],
     );
     final playerState = buildPlayer();
 
@@ -83,11 +77,7 @@ void main() {
 
   test('sword cut waits for cooldown before damaging', () {
     final enemyPool = EnemyPool(initialCapacity: 0);
-    resetEnemy(
-      pool: enemyPool,
-      id: EnemyId.imp,
-      position: Vector2(18, 0),
-    );
+    resetEnemy(pool: enemyPool, id: EnemyId.imp, position: Vector2(18, 0));
     final enemy = enemyPool.active.first;
     enemy.hp = 20;
     enemy.maxHp = 20;
@@ -96,9 +86,7 @@ void main() {
     final projectilePool = ProjectilePool(initialCapacity: 0);
     final system = SkillSystem(
       projectilePool: projectilePool,
-      skillSlots: [
-        SkillSlot(id: SkillId.swordCut, cooldown: 0.3),
-      ],
+      skillSlots: [SkillSlot(id: SkillId.swordCut, cooldown: 0.3)],
     );
     final playerState = buildPlayer();
 
@@ -132,16 +120,8 @@ void main() {
 
   test('sword cut damages enemies in arc only', () {
     final enemyPool = EnemyPool(initialCapacity: 0);
-    resetEnemy(
-      pool: enemyPool,
-      id: EnemyId.imp,
-      position: Vector2(12, 0),
-    );
-    resetEnemy(
-      pool: enemyPool,
-      id: EnemyId.imp,
-      position: Vector2(-18, 0),
-    );
+    resetEnemy(pool: enemyPool, id: EnemyId.imp, position: Vector2(12, 0));
+    resetEnemy(pool: enemyPool, id: EnemyId.imp, position: Vector2(-18, 0));
     final frontEnemy = enemyPool.active.first;
     final backEnemy = enemyPool.active.last;
     frontEnemy.hp = 20;
@@ -154,9 +134,7 @@ void main() {
     final projectilePool = ProjectilePool(initialCapacity: 0);
     final system = SkillSystem(
       projectilePool: projectilePool,
-      skillSlots: [
-        SkillSlot(id: SkillId.swordCut, cooldown: 0.1),
-      ],
+      skillSlots: [SkillSlot(id: SkillId.swordCut, cooldown: 0.1)],
     );
     final playerState = buildPlayer();
 
@@ -186,9 +164,7 @@ void main() {
     final projectilePool = ProjectilePool(initialCapacity: 0);
     final system = SkillSystem(
       projectilePool: projectilePool,
-      skillSlots: [
-        SkillSlot(id: SkillId.fireball, cooldown: 0.2),
-      ],
+      skillSlots: [SkillSlot(id: SkillId.fireball, cooldown: 0.2)],
     );
     final playerState = buildPlayer();
     playerState.applyModifiers(const [

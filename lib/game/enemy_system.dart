@@ -17,11 +17,11 @@ class EnemySystem {
     required math.Random random,
     required void Function(ProjectileState) onProjectileSpawn,
     required void Function(EnemyState) onSpawn,
-  })  : _pool = pool,
-        _projectilePool = projectilePool,
-        _random = random,
-        _onProjectileSpawn = onProjectileSpawn,
-        _onSpawn = onSpawn;
+  }) : _pool = pool,
+       _projectilePool = projectilePool,
+       _random = random,
+       _onProjectileSpawn = onProjectileSpawn,
+       _onSpawn = onSpawn;
 
   final EnemyPool _pool;
   final ProjectilePool _projectilePool;

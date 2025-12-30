@@ -17,12 +17,13 @@ class SkillSystem {
   SkillSystem({
     required ProjectilePool projectilePool,
     List<SkillSlot>? skillSlots,
-  })  : _projectilePool = projectilePool,
-        _skills = skillSlots ??
-            [
-              SkillSlot(id: SkillId.fireball, cooldown: 0.6),
-              SkillSlot(id: SkillId.swordCut, cooldown: 0.9),
-            ];
+  }) : _projectilePool = projectilePool,
+       _skills =
+           skillSlots ??
+           [
+             SkillSlot(id: SkillId.fireball, cooldown: 0.6),
+             SkillSlot(id: SkillId.swordCut, cooldown: 0.9),
+           ];
 
   static const Map<SkillId, double> _baseCooldowns = {
     SkillId.fireball: 0.6,
@@ -160,8 +161,7 @@ class SkillSystem {
 
       final dotThreshold = distanceSquared == 0
           ? 1.0
-          : (dx * direction.x + dy * direction.y) /
-              math.sqrt(distanceSquared);
+          : (dx * direction.x + dy * direction.y) / math.sqrt(distanceSquared);
       if (dotThreshold < arcCosine) {
         continue;
       }
@@ -216,9 +216,8 @@ class SkillSystem {
   double _damageMultiplierFor(SkillId id, StatSheet stats) {
     final def = skillDefsById[id];
     final tags = def?.tags;
-    var multiplier = 1 +
-        stats.value(StatId.damage) +
-        stats.value(StatId.directHitDamage);
+    var multiplier =
+        1 + stats.value(StatId.damage) + stats.value(StatId.directHitDamage);
 
     if (tags != null) {
       if (tags.hasDelivery(DeliveryTag.projectile)) {
@@ -244,7 +243,7 @@ class SkillSystem {
 
 class SkillSlot {
   SkillSlot({required this.id, required this.cooldown})
-      : cooldownRemaining = cooldown;
+    : cooldownRemaining = cooldown;
 
   final SkillId id;
   final double cooldown;
