@@ -41,6 +41,7 @@ class EnemySystem {
       if (!enemy.active) {
         continue;
       }
+      enemy.updateDebuffs(dt);
       _initializeBehavior(enemy);
       _directionBuffer
         ..setFrom(playerPosition)
@@ -109,7 +110,7 @@ class EnemySystem {
         ..setFrom(_directionBuffer)
         ..scale(-1);
       enemy.velocity.normalize();
-      enemy.velocity.scale(enemy.moveSpeed);
+      enemy.velocity.scale(enemy.effectiveMoveSpeed);
       enemy.position.addScaled(enemy.velocity, dt);
     } else {
       enemy.velocity.setZero();
@@ -253,7 +254,7 @@ class EnemySystem {
     velocity
       ..addScaled(_perpBuffer, 0.9)
       ..normalize()
-      ..scale(enemy.moveSpeed);
+      ..scale(enemy.effectiveMoveSpeed);
     enemy.velocity.setFrom(velocity);
     enemy.position.addScaled(enemy.velocity, dt);
     enemy.specialTimer -= dt;
@@ -274,7 +275,7 @@ class EnemySystem {
       enemy.dashTimer -= dt;
       enemy.velocity
         ..setFrom(enemy.dashDirection)
-        ..scale(enemy.moveSpeed * 2.6);
+        ..scale(enemy.effectiveMoveSpeed * 2.6);
       enemy.position.addScaled(enemy.velocity, dt);
       return;
     }
@@ -297,7 +298,7 @@ class EnemySystem {
     enemy.velocity.setFrom(_directionBuffer);
     if (enemy.velocity.length2 > 0) {
       enemy.velocity.normalize();
-      enemy.velocity.scale(enemy.moveSpeed);
+      enemy.velocity.scale(enemy.effectiveMoveSpeed);
       enemy.position.addScaled(enemy.velocity, dt);
     }
   }
@@ -318,7 +319,7 @@ class EnemySystem {
         ..setFrom(_directionBuffer)
         ..scale(-1);
       enemy.velocity.normalize();
-      enemy.velocity.scale(enemy.moveSpeed);
+      enemy.velocity.scale(enemy.effectiveMoveSpeed);
       enemy.position.addScaled(enemy.velocity, dt);
     } else {
       enemy.velocity.setZero();

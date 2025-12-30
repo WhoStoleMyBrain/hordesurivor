@@ -615,6 +615,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         width: projectile.impactEffectWidth,
         duration: projectile.impactEffectDuration,
         damagePerSecond: projectile.impactEffectDamagePerSecond,
+        slowMultiplier: projectile.impactEffectSlowMultiplier,
+        slowDuration: projectile.impactEffectSlowDuration,
       );
       _handleEffectSpawn(effect);
     }
