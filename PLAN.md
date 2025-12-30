@@ -104,6 +104,14 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - Add section-based spawn selection in `SpawnerSystem` using `StageSection`.
 - Emit “run ended” when duration is complete; transition to death screen with success state.
 - Update HUD to display stage timer and current section indicator (e.g., “Section 2/4”).
+**Completed:**
+- Added `StageTimer` and HUD readouts for stage time + section index.
+- Switched stage spawns to section-driven wave generation on section change.
+- Stage completion currently returns the player to home base and clears enemies/projectiles.
+**Decisions:**
+- Section spawns are generated with a fixed wave interval and a small per-section count bump.
+**Follow-ups:**
+- Swap the stage completion return-to-base flow for the upcoming death/run summary screen.
 
 ---
 

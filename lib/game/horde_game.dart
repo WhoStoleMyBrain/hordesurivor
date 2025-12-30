@@ -41,6 +41,7 @@ import 'skill_system.dart';
 import 'spatial_grid.dart';
 import 'spawner_system.dart';
 import 'game_flow_state.dart';
+import 'stage_timer.dart';
 
 class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   HordeGame({this.stressTest = false}) : super();
@@ -60,6 +61,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const String _playerSpriteId = 'player_base';
   static const String _projectileSpriteId = 'projectile_firebolt';
   static const double _portalRadius = 26;
+  static const double _stageWaveInterval = 3.0;
+  static const int _baseStageWaveCount = 4;
 
   double _accumulator = 0;
   double _frameTimeMs = 0;
@@ -112,6 +115,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   GameFlowState _flowState = GameFlowState.start;
   bool _inputLocked = false;
   VoidCallback? _selectionListener;
+  StageTimer? _stageTimer;
+  AreaDef? _activeArea;
+  int _currentSectionIndex = 0;
 
   PlayerHudState get hudState => _hudState;
   SelectionState get selectionState => _selectionState;
@@ -291,6 +297,16 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     _applyInput();
     _playerState.step(dt);
+    if (!stressTest && _stageTimer != null) {
+      final sectionChanged = _stageTimer!.update(dt);
+      if (sectionChanged) {
+        _applyStageSection();
+      }
+      if (_stageTimer!.isComplete) {
+        _handleStageComplete();
+        return;
+      }
+    }
     _spawnerSystem.update(dt, _playerState.position);
     _enemySystem.update(dt, _playerState.position, size);
     _enemyGrid.rebuild(_enemyPool.active);
@@ -381,6 +397,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void beginStageFromAreaSelect(AreaDef area) {
+    _activeArea = area;
+    _stageTimer = StageTimer(
+      duration: area.stageDuration,
+      sections: area.sections,
+    );
+    _currentSectionIndex = 0;
+    _applyStageSection(force: true);
+    _resetStageActors();
     _setFlowState(GameFlowState.stage);
     overlays.remove(AreaSelectScreen.overlayKey);
     overlays.remove(HomeBaseOverlay.overlayKey);
@@ -389,6 +413,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void returnToHomeBase() {
+    _resetStageActors();
+    _activeArea = null;
+    _stageTimer = null;
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(AreaSelectScreen.overlayKey);
     overlays.remove(HudOverlay.overlayKey);
@@ -600,6 +627,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _syncHudState() {
+    final stageTimer = _stageTimer;
+    final inStage = _flowState == GameFlowState.stage && stageTimer != null;
     _hudState.update(
       hp: _playerState.hp,
       maxHp: _playerState.maxHp,
@@ -609,6 +638,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       showPerformance: stressTest,
       fps: _fps,
       frameTimeMs: _frameTimeMs,
+      stageElapsed: inStage ? stageTimer.elapsed : 0,
+      stageDuration: inStage ? stageTimer.duration : 0,
+      sectionIndex: inStage ? stageTimer.currentSectionIndex : 0,
+      sectionCount: inStage ? stageTimer.sectionCount : 0,
     );
   }
 
@@ -710,6 +743,84 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _syncPortalVisibility() {
     _portalComponent.visible = _flowState == GameFlowState.homeBase;
+  }
+
+  void _applyStageSection({bool force = false}) {
+    final timer = _stageTimer;
+    final area = _activeArea;
+    if (timer == null || area == null) {
+      return;
+    }
+    final sectionIndex = timer.currentSectionIndex;
+    if (!force && sectionIndex == _currentSectionIndex) {
+      return;
+    }
+    _currentSectionIndex = sectionIndex;
+    final section = area.sections[sectionIndex];
+    final sectionDuration = section.endTime - section.startTime;
+    _spawnerSystem.resetWaves(
+      _buildSectionWaves(
+        section: section,
+        sectionDuration: sectionDuration,
+        sectionIndex: sectionIndex,
+      ),
+    );
+  }
+
+  List<SpawnWave> _buildSectionWaves({
+    required StageSection section,
+    required double sectionDuration,
+    required int sectionIndex,
+  }) {
+    if (section.roleWeights.isEmpty && section.enemyWeights.isEmpty) {
+      return const [];
+    }
+    final waves = <SpawnWave>[];
+    final count = _baseStageWaveCount + sectionIndex;
+    var time = 0.0;
+    while (time < sectionDuration) {
+      waves.add(
+        SpawnWave(
+          time: time,
+          count: count,
+          roleWeights: section.roleWeights.isEmpty ? null : section.roleWeights,
+          enemyWeights: section.enemyWeights.isEmpty
+              ? null
+              : section.enemyWeights,
+        ),
+      );
+      time += _stageWaveInterval;
+    }
+    return waves;
+  }
+
+  void _handleStageComplete() {
+    _resetStageActors();
+    _activeArea = null;
+    _stageTimer = null;
+    _setFlowState(GameFlowState.homeBase);
+    overlays.remove(HudOverlay.overlayKey);
+    overlays.add(HomeBaseOverlay.overlayKey);
+    _syncHudState();
+  }
+
+  void _resetStageActors() {
+    for (final projectile in List<ProjectileState>.from(
+      _projectilePool.active,
+    )) {
+      _handleProjectileDespawn(projectile);
+      _projectilePool.release(projectile);
+    }
+    for (final enemy in List<EnemyState>.from(_enemyPool.active)) {
+      final component = _enemyComponents.remove(enemy);
+      component?.removeFromParent();
+      _enemyPool.release(enemy);
+    }
+    for (final component
+        in children.whereType<DamageNumberComponent>().toList()) {
+      component.removeFromParent();
+      _damageNumberPool.add(component);
+    }
   }
 
   @override

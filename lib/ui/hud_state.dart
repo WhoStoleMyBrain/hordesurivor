@@ -9,6 +9,10 @@ class PlayerHudState extends ChangeNotifier {
   bool showPerformance = false;
   double fps = 0;
   double frameTimeMs = 0;
+  double stageElapsed = 0;
+  double stageDuration = 0;
+  int sectionIndex = 0;
+  int sectionCount = 0;
 
   void update({
     required double hp,
@@ -19,6 +23,10 @@ class PlayerHudState extends ChangeNotifier {
     required bool showPerformance,
     required double fps,
     required double frameTimeMs,
+    required double stageElapsed,
+    required double stageDuration,
+    required int sectionIndex,
+    required int sectionCount,
   }) {
     if (this.hp == hp &&
         this.maxHp == maxHp &&
@@ -27,7 +35,11 @@ class PlayerHudState extends ChangeNotifier {
         this.xpToNext == xpToNext &&
         this.showPerformance == showPerformance &&
         this.fps == fps &&
-        this.frameTimeMs == frameTimeMs) {
+        this.frameTimeMs == frameTimeMs &&
+        this.stageElapsed == stageElapsed &&
+        this.stageDuration == stageDuration &&
+        this.sectionIndex == sectionIndex &&
+        this.sectionCount == sectionCount) {
       return;
     }
 
@@ -39,6 +51,10 @@ class PlayerHudState extends ChangeNotifier {
     this.showPerformance = showPerformance;
     this.fps = fps;
     this.frameTimeMs = frameTimeMs;
+    this.stageElapsed = stageElapsed;
+    this.stageDuration = stageDuration;
+    this.sectionIndex = sectionIndex;
+    this.sectionCount = sectionCount;
     notifyListeners();
   }
 }

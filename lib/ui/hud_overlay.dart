@@ -45,6 +45,19 @@ class HudOverlay extends StatelessWidget {
                         'XP ${hudState.xp}/${hudState.xpToNext}',
                         style: const TextStyle(letterSpacing: 0.5),
                       ),
+                      if (hudState.stageDuration > 0) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'TIME ${_formatTimer(hudState.stageElapsed)}'
+                          ' / ${_formatTimer(hudState.stageDuration)}',
+                          style: const TextStyle(letterSpacing: 0.5),
+                        ),
+                        Text(
+                          'SECTION ${hudState.sectionIndex + 1}'
+                          '/${hudState.sectionCount}',
+                          style: const TextStyle(letterSpacing: 0.5),
+                        ),
+                      ],
                       if (hudState.showPerformance) ...[
                         const SizedBox(height: 4),
                         Text(
@@ -62,5 +75,12 @@ class HudOverlay extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatTimer(double seconds) {
+    final clamped = seconds.clamp(0, 24 * 60 * 60).toInt();
+    final minutes = clamped ~/ 60;
+    final secs = clamped % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 }
