@@ -21,6 +21,7 @@ import '../render/projectile_component.dart';
 import '../render/sprite_pipeline.dart';
 import '../ui/area_select_screen.dart';
 import '../ui/death_screen.dart';
+import '../ui/flow_debug_overlay.dart';
 import '../ui/hud_overlay.dart';
 import '../ui/hud_state.dart';
 import '../ui/home_base_overlay.dart';
@@ -516,6 +517,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     KeyEvent event,
     Set<LogicalKeyboardKey> keysPressed,
   ) {
+    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.f1) {
+      toggleFlowDebugOverlay();
+      return KeyEventResult.handled;
+    }
     if (_inputLocked) {
       _keysPressed.clear();
       _keyboardDirection.setZero();
@@ -736,6 +741,65 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _keyboardDirection.setZero();
       _resetPointerInput();
     }
+  }
+
+  void toggleFlowDebugOverlay() {
+    if (overlays.isActive(FlowDebugOverlay.overlayKey)) {
+      overlays.remove(FlowDebugOverlay.overlayKey);
+      return;
+    }
+    overlays.add(FlowDebugOverlay.overlayKey);
+  }
+
+  void debugJumpToState(GameFlowState state) {
+    switch (state) {
+      case GameFlowState.start:
+        _resetToStart();
+        _refreshFlowDebugOverlay();
+        return;
+      case GameFlowState.homeBase:
+        beginHomeBaseFromStartScreen();
+        _refreshFlowDebugOverlay();
+        return;
+      case GameFlowState.areaSelect:
+        beginHomeBaseFromStartScreen();
+        _enterAreaSelect();
+        _refreshFlowDebugOverlay();
+        return;
+      case GameFlowState.stage:
+        beginStageFromAreaSelect(areaDefs.first);
+        _refreshFlowDebugOverlay();
+        return;
+      case GameFlowState.death:
+        _endRun(completed: false);
+        _refreshFlowDebugOverlay();
+        return;
+    }
+  }
+
+  void _resetToStart() {
+    _resetStageActors();
+    _selectionState.clear();
+    _activeArea = null;
+    _stageTimer = null;
+    _runCompleted = false;
+    _setFlowState(GameFlowState.start);
+    overlays.remove(HudOverlay.overlayKey);
+    overlays.remove(HomeBaseOverlay.overlayKey);
+    overlays.remove(AreaSelectScreen.overlayKey);
+    overlays.remove(DeathScreen.overlayKey);
+    overlays.remove(SelectionOverlay.overlayKey);
+    overlays.remove(OptionsScreen.overlayKey);
+    overlays.add(StartScreen.overlayKey);
+    _syncHudState();
+  }
+
+  void _refreshFlowDebugOverlay() {
+    if (!overlays.isActive(FlowDebugOverlay.overlayKey)) {
+      return;
+    }
+    overlays.remove(FlowDebugOverlay.overlayKey);
+    overlays.add(FlowDebugOverlay.overlayKey);
   }
 
   void _spawnStressProjectiles(double dt) {

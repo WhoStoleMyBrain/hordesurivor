@@ -200,6 +200,10 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - Add a “flow debug” overlay toggle for quick testing of states.
 - Run `dart format .`, `flutter analyze`, `flutter test` after updates.
 - If performance-sensitive code changes, add a short note on pooling/allocation impacts.
+**Completed:**
+- Added a flow debug overlay (toggle with F1) with quick jumps to each flow state.
+**Decisions:**
+- Flow debug overlay uses the first `AreaDef` when jumping directly into stage.
 
 ---
 
