@@ -1,6 +1,6 @@
-import 'dart:ui';
-
 import 'package:flame/components.dart';
+import 'package:flame/text.dart';
+import 'package:flutter/painting.dart';
 
 class PortalComponent extends PositionComponent {
   PortalComponent({required this.radius, required this.label})
@@ -8,6 +8,7 @@ class PortalComponent extends PositionComponent {
 
   final double radius;
   final String label;
+  bool visible = true;
   final Paint _fillPaint = Paint()..color = const Color(0xFF7DD3FC);
   final Paint _ringPaint = Paint()
     ..color = const Color(0xFF0EA5E9)
@@ -24,6 +25,9 @@ class PortalComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
+    if (!visible) {
+      return;
+    }
     super.render(canvas);
     canvas.drawCircle(Offset.zero, radius, _fillPaint);
     canvas.drawCircle(Offset.zero, radius + 4, _ringPaint);
