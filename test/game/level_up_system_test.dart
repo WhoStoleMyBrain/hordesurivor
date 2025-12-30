@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:hordesurivor/data/ids.dart';
 import 'package:hordesurivor/data/stat_defs.dart';
+import 'package:hordesurivor/game/effect_pool.dart';
 import 'package:hordesurivor/game/level_up_system.dart';
 import 'package:hordesurivor/game/player_state.dart';
 import 'package:hordesurivor/game/projectile_pool.dart';
@@ -25,7 +26,10 @@ void main() {
         kind: ModifierKind.flat,
       ),
     ]);
-    final skillSystem = SkillSystem(projectilePool: ProjectilePool());
+    final skillSystem = SkillSystem(
+      projectilePool: ProjectilePool(),
+      effectPool: EffectPool(),
+    );
 
     system.queueLevels(1);
     system.buildChoices(playerState: playerState, skillSystem: skillSystem);
@@ -40,7 +44,10 @@ void main() {
       maxHp: 100,
       moveSpeed: 10,
     );
-    final skillSystem = SkillSystem(projectilePool: ProjectilePool());
+    final skillSystem = SkillSystem(
+      projectilePool: ProjectilePool(),
+      effectPool: EffectPool(),
+    );
     const choice = SelectionChoice(
       type: SelectionType.item,
       title: 'Glass Catalyst',

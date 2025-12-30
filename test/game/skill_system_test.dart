@@ -5,6 +5,7 @@ import 'package:hordesurivor/data/enemy_defs.dart';
 import 'package:hordesurivor/data/ids.dart';
 import 'package:hordesurivor/data/stat_defs.dart';
 import 'package:hordesurivor/game/damage_system.dart';
+import 'package:hordesurivor/game/effect_pool.dart';
 import 'package:hordesurivor/game/enemy_pool.dart';
 import 'package:hordesurivor/game/player_state.dart';
 import 'package:hordesurivor/game/projectile_pool.dart';
@@ -43,7 +44,9 @@ void main() {
 
   test('fireball casts on cooldown and supports burst updates', () {
     final projectilePool = ProjectilePool(initialCapacity: 0);
+    final effectPool = EffectPool(initialCapacity: 0);
     final system = SkillSystem(
+      effectPool: effectPool,
       projectilePool: projectilePool,
       skillSlots: [SkillSlot(id: SkillId.fireball, cooldown: 0.5)],
     );
@@ -57,6 +60,7 @@ void main() {
       stats: playerState.stats,
       enemyPool: EnemyPool(initialCapacity: 0),
       onProjectileSpawn: (_) => spawnCount++,
+      onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onEnemyDamaged: (_, _) {},
     );
@@ -70,6 +74,7 @@ void main() {
       stats: playerState.stats,
       enemyPool: EnemyPool(initialCapacity: 0),
       onProjectileSpawn: (_) => spawnCount++,
+      onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onEnemyDamaged: (_, _) {},
     );
@@ -86,7 +91,9 @@ void main() {
     enemy.moveSpeed = 0;
 
     final projectilePool = ProjectilePool(initialCapacity: 0);
+    final effectPool = EffectPool(initialCapacity: 0);
     final system = SkillSystem(
+      effectPool: effectPool,
       projectilePool: projectilePool,
       skillSlots: [SkillSlot(id: SkillId.swordCut, cooldown: 0.3)],
     );
@@ -100,6 +107,7 @@ void main() {
       stats: playerState.stats,
       enemyPool: enemyPool,
       onProjectileSpawn: (_) {},
+      onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
@@ -114,6 +122,7 @@ void main() {
       stats: playerState.stats,
       enemyPool: enemyPool,
       onProjectileSpawn: (_) {},
+      onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
@@ -136,7 +145,9 @@ void main() {
     backEnemy.moveSpeed = 0;
 
     final projectilePool = ProjectilePool(initialCapacity: 0);
+    final effectPool = EffectPool(initialCapacity: 0);
     final system = SkillSystem(
+      effectPool: effectPool,
       projectilePool: projectilePool,
       skillSlots: [SkillSlot(id: SkillId.swordCut, cooldown: 0.1)],
     );
@@ -151,6 +162,7 @@ void main() {
       stats: playerState.stats,
       enemyPool: enemyPool,
       onProjectileSpawn: (_) {},
+      onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
@@ -167,7 +179,9 @@ void main() {
 
   test('fireball damage scales with player stats', () {
     final projectilePool = ProjectilePool(initialCapacity: 0);
+    final effectPool = EffectPool(initialCapacity: 0);
     final system = SkillSystem(
+      effectPool: effectPool,
       projectilePool: projectilePool,
       skillSlots: [SkillSlot(id: SkillId.fireball, cooldown: 0.2)],
     );
@@ -188,6 +202,7 @@ void main() {
       onProjectileSpawn: (projectile) {
         damage = projectile.damage;
       },
+      onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onEnemyDamaged: (_, _) {},
     );

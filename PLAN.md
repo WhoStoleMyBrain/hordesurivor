@@ -156,11 +156,13 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - Added baseline casting logic for the remaining V0.1 skills (waterjet, oil bombs, sword thrust/swing/deflect, poison gas, roots) using simple projectile/arc/area bursts.
 - Sword deflect now clears nearby enemy projectiles on cast.
 - DOT-tagged skills now factor in `StatId.dotDamage` in the damage multiplier.
+- Added waterjet beam effects plus lingering oil/roots ground zones with DOT-style damage ticks.
 **Decisions:**
 - Placeholder implementations favor readable hitboxes over bespoke status effects for V0.2.
+- Ground effects apply damage over their full duration instead of a one-time burst.
 **Follow-ups:**
-- Add true beam rendering for Waterjet and lingering ground effects for Oil Bombs/Roots.
 - Introduce slow/snare/status-effect hooks to replace placeholder direct damage.
+- Consider syncing oil slick placement to the projectile impact rather than fixed range.
 
 ---
 
