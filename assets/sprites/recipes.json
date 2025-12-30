@@ -37,6 +37,227 @@
       ]
     },
     {
+      "id": "enemy_spitter",
+      "kind": "enemy",
+      "outputName": "enemy_spitter.png",
+      "size": 16,
+      "seed": 44,
+      "palette": {
+        "primary": "#B85C6E",
+        "shadow": "#6E2F3C",
+        "accent": "#F2994A"
+      },
+      "shapes": [
+        { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 1] },
+        { "type": "rect", "color": "shadow", "size": [3, 4], "offset": [-4, -2] },
+        { "type": "rect", "color": "accent", "size": [2, 2], "offset": [4, -1] }
+      ]
+    },
+    {
+      "id": "enemy_portal_keeper",
+      "kind": "enemy",
+      "outputName": "enemy_portal_keeper.png",
+      "size": 16,
+      "seed": 52,
+      "palette": {
+        "primary": "#7A3E55",
+        "shadow": "#4A1F2B",
+        "accent": "#F2C94C"
+      },
+      "shapes": [
+        { "type": "rect", "color": "primary", "size": [10, 8], "offset": [0, 1] },
+        { "type": "rect", "color": "shadow", "size": [6, 4], "offset": [0, 2] },
+        { "type": "pixels", "color": "accent", "points": [[-3, -3], [3, -3]] }
+      ]
+    },
+    {
+      "id": "enemy_hexer",
+      "kind": "enemy",
+      "outputName": "enemy_hexer.png",
+      "size": 16,
+      "seed": 61,
+      "palette": {
+        "primary": "#9250A4",
+        "shadow": "#5A2D6B",
+        "accent": "#D4A6FF"
+      },
+      "shapes": [
+        { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 0] },
+        { "type": "pixels", "color": "shadow", "points": [[-4, -4], [4, -4], [0, 4]] },
+        { "type": "rect", "color": "accent", "size": [2, 4], "offset": [0, -2] }
+      ]
+    },
+    {
+      "id": "enemy_brimstone_brander",
+      "kind": "enemy",
+      "outputName": "enemy_brimstone_brander.png",
+      "size": 16,
+      "seed": 73,
+      "palette": {
+        "primary": "#C8643C",
+        "shadow": "#7A3924",
+        "accent": "#F2C94C"
+      },
+      "shapes": [
+        { "type": "rect", "color": "primary", "size": [8, 6], "offset": [0, 1] },
+        { "type": "rect", "color": "shadow", "size": [6, 3], "offset": [0, 3] },
+        { "type": "pixels", "color": "accent", "points": [[-4, -2], [0, -4], [4, -2]] }
+      ]
+    },
+    {
+      "id": "enemy_hellknight",
+      "kind": "enemy",
+      "outputName": "enemy_hellknight.png",
+      "size": 16,
+      "seed": 84,
+      "palette": {
+        "primary": "#8C2F39",
+        "shadow": "#4A131A",
+        "accent": "#D96C6C"
+      },
+      "shapes": [
+        { "type": "rect", "color": "primary", "size": [10, 10], "offset": [0, 0] },
+        { "type": "rect", "color": "shadow", "size": [6, 8], "offset": [-2, 2] },
+        { "type": "rect", "color": "accent", "size": [2, 6], "offset": [4, -2] }
+      ]
+    },
+    {
+      "id": "enemy_cinderling",
+      "kind": "enemy",
+      "outputName": "enemy_cinderling.png",
+      "size": 16,
+      "seed": 96,
+      "palette": {
+        "primary": "#D76A3B",
+        "shadow": "#8C3E2A",
+        "accent": "#F2C94C"
+      },
+      "shapes": [
+        { "type": "circle", "color": "primary", "radius": 4, "offset": [0, 1] },
+        { "type": "pixels", "color": "shadow", "points": [[-3, 3], [3, 3]] },
+        { "type": "pixels", "color": "accent", "points": [[0, -4], [-2, -2], [2, -2]] }
+      ]
+    },
+    {
+      "id": "enemy_zealot",
+      "kind": "enemy",
+      "outputName": "enemy_zealot.png",
+      "size": 16,
+      "seed": 101,
+      "palette": {
+        "primary": "#8FB3FF",
+        "shadow": "#4D6BA3",
+        "accent": "#E0F7FF"
+      },
+      "shapes": [
+        { "type": "circle", "color": "primary", "radius": 6, "offset": [0, 1] },
+        { "type": "circle", "color": "shadow", "radius": 3, "offset": [2, 2] },
+        { "type": "pixels", "color": "accent", "points": [[-2, -3], [2, -3]] }
+      ]
+    },
+    {
+      "id": "enemy_cherub_archer",
+      "kind": "enemy",
+      "outputName": "enemy_cherub_archer.png",
+      "size": 16,
+      "seed": 112,
+      "palette": {
+        "primary": "#7FD0FF",
+        "shadow": "#3E78A8",
+        "accent": "#F4E06D"
+      },
+      "shapes": [
+        { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 0] },
+        { "type": "rect", "color": "shadow", "size": [6, 2], "offset": [0, 4] },
+        { "type": "pixels", "color": "accent", "points": [[-4, -2], [4, -2]] }
+      ]
+    },
+    {
+      "id": "enemy_seraph_medic",
+      "kind": "enemy",
+      "outputName": "enemy_seraph_medic.png",
+      "size": 16,
+      "seed": 121,
+      "palette": {
+        "primary": "#9BD9C7",
+        "shadow": "#4E8B78",
+        "accent": "#E8F3F1"
+      },
+      "shapes": [
+        { "type": "rect", "color": "primary", "size": [8, 8], "offset": [0, 0] },
+        { "type": "rect", "color": "shadow", "size": [4, 6], "offset": [-2, 2] },
+        { "type": "pixels", "color": "accent", "points": [[0, -4], [0, 4]] }
+      ]
+    },
+    {
+      "id": "enemy_herald",
+      "kind": "enemy",
+      "outputName": "enemy_herald.png",
+      "size": 16,
+      "seed": 132,
+      "palette": {
+        "primary": "#B9A3F8",
+        "shadow": "#6A5AA6",
+        "accent": "#F4E06D"
+      },
+      "shapes": [
+        { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 1] },
+        { "type": "rect", "color": "shadow", "size": [2, 6], "offset": [-4, 1] },
+        { "type": "pixels", "color": "accent", "points": [[0, -4], [-2, -2], [2, -2]] }
+      ]
+    },
+    {
+      "id": "enemy_warden",
+      "kind": "enemy",
+      "outputName": "enemy_warden.png",
+      "size": 16,
+      "seed": 141,
+      "palette": {
+        "primary": "#6EC6FF",
+        "shadow": "#2F6B9E",
+        "accent": "#E0F7FF"
+      },
+      "shapes": [
+        { "type": "rect", "color": "primary", "size": [8, 10], "offset": [0, 1] },
+        { "type": "rect", "color": "shadow", "size": [6, 6], "offset": [0, 3] },
+        { "type": "pixels", "color": "accent", "points": [[-3, -4], [3, -4]] }
+      ]
+    },
+    {
+      "id": "enemy_sentinel",
+      "kind": "enemy",
+      "outputName": "enemy_sentinel.png",
+      "size": 16,
+      "seed": 153,
+      "palette": {
+        "primary": "#7FB8D9",
+        "shadow": "#3E6A82",
+        "accent": "#C9E8FF"
+      },
+      "shapes": [
+        { "type": "rect", "color": "primary", "size": [6, 10], "offset": [0, 0] },
+        { "type": "rect", "color": "shadow", "size": [2, 8], "offset": [-2, 2] },
+        { "type": "pixels", "color": "accent", "points": [[-4, 0], [4, 0]] }
+      ]
+    },
+    {
+      "id": "enemy_archon_lancer",
+      "kind": "enemy",
+      "outputName": "enemy_archon_lancer.png",
+      "size": 16,
+      "seed": 164,
+      "palette": {
+        "primary": "#9BC3FF",
+        "shadow": "#4E6FA8",
+        "accent": "#F4E06D"
+      },
+      "shapes": [
+        { "type": "rect", "color": "primary", "size": [8, 10], "offset": [0, 0] },
+        { "type": "rect", "color": "shadow", "size": [4, 8], "offset": [-2, 2] },
+        { "type": "rect", "color": "accent", "size": [2, 6], "offset": [4, -2] }
+      ]
+    },
+    {
       "id": "item_glass_catalyst",
       "kind": "item",
       "outputName": "item_glass_catalyst.png",
