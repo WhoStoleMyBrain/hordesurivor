@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 
 class StartScreen extends StatelessWidget {
-  const StartScreen({super.key, required this.onStart});
+  const StartScreen({
+    super.key,
+    required this.onStart,
+    required this.onOptions,
+  });
 
   static const String overlayKey = 'start_screen';
 
   final VoidCallback onStart;
+  final VoidCallback onOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +48,14 @@ class StartScreen extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: onStart,
                     child: const Text('Enter Home Base'),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: onOptions,
+                    child: const Text('Options'),
                   ),
                 ),
               ],

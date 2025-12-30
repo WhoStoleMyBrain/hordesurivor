@@ -6,6 +6,7 @@ import 'game/horde_game.dart';
 import 'ui/area_select_screen.dart';
 import 'ui/hud_overlay.dart';
 import 'ui/home_base_overlay.dart';
+import 'ui/options_screen.dart';
 import 'ui/selection_overlay.dart';
 import 'ui/start_screen.dart';
 
@@ -42,6 +43,10 @@ class HordeSurvivorApp extends StatelessWidget {
         ),
         StartScreen.overlayKey: (_, game) => StartScreen(
           onStart: (game as HordeGame).beginHomeBaseFromStartScreen,
+          onOptions: (game as HordeGame).openOptionsFromStartScreen,
+        ),
+        OptionsScreen.overlayKey: (_, game) => OptionsScreen(
+          onClose: (game as HordeGame).closeOptionsFromStartScreen,
         ),
         HomeBaseOverlay.overlayKey: (_, __) => const HomeBaseOverlay(),
         AreaSelectScreen.overlayKey: (_, game) => AreaSelectScreen(
