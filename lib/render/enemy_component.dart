@@ -18,11 +18,11 @@ class EnemyComponent extends PositionComponent {
        _role = state.role,
        _paint = Paint()..color = _roleColors[state.role] ?? color,
        _outlinePaint = Paint()
-         ..color = (_roleColors[state.role] ?? color).withOpacity(0.9)
+         ..color = (_roleColors[state.role] ?? color).withValues(alpha: 0.9)
          ..style = PaintingStyle.stroke
          ..strokeWidth = 2,
        _telegraphPaint = Paint()
-         ..color = (_roleColors[state.role] ?? color).withOpacity(0.5)
+         ..color = (_roleColors[state.role] ?? color).withValues(alpha: 0.5)
          ..style = PaintingStyle.stroke
          ..strokeWidth = 2 {
     anchor = Anchor.center;

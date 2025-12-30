@@ -1,7 +1,6 @@
 import 'dart:ui' show Canvas;
 
 import 'package:flame/components.dart';
-import 'package:flame/text.dart';
 
 class DamageNumberComponent extends PositionComponent {
   static final Vector2 _zero = Vector2.zero();
