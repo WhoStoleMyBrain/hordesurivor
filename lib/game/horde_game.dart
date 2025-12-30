@@ -35,8 +35,7 @@ import 'spatial_grid.dart';
 import 'spawner_system.dart';
 
 class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
-  HordeGame({this.stressTest = false})
-    : super();
+  HordeGame({this.stressTest = false}) : super();
 
   static const double _fixedDelta = 1 / 60;
   static const double _playerRadius = 16;

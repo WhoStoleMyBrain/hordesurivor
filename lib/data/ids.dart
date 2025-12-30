@@ -49,3 +49,5 @@ enum EnemyId {
   sentinel,
   archonLancer,
 }
+
+enum AreaId { ashenOutskirts, haloBreach }

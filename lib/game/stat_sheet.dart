@@ -14,6 +14,9 @@ class StatSheet {
     final base = _baseValues[id] ?? 0;
     final multiplier = _multipliers[id] ?? 0;
     final flat = _flatBonuses[id] ?? 0;
+    if (base == 0) {
+      return multiplier + flat;
+    }
     return base * (1 + multiplier) + flat;
   }
 
