@@ -24,7 +24,11 @@ class EnemyComponent extends PositionComponent {
        _telegraphPaint = Paint()
          ..color = (_roleColors[state.role] ?? color).withValues(alpha: 0.5)
          ..style = PaintingStyle.stroke
-         ..strokeWidth = 2 {
+         ..strokeWidth = 2,
+       _auraFillPaint = _createAuraFillPaint(state.role),
+       _auraStrokePaint = _createAuraStrokePaint(state.role),
+       _zoneFillPaint = _createZoneFillPaint(state.role),
+       _zoneStrokePaint = _createZoneStrokePaint(state.role) {
     anchor = Anchor.center;
     if (spriteImage != null) {
       size = Vector2(
@@ -60,6 +64,10 @@ class EnemyComponent extends PositionComponent {
   final Paint _paint;
   final Paint _outlinePaint;
   final Paint _telegraphPaint;
+  final Paint? _auraFillPaint;
+  final Paint? _auraStrokePaint;
+  final Paint? _zoneFillPaint;
+  final Paint? _zoneStrokePaint;
   late final double _shapeRadius;
   late final Rect _squareRect;
   late final Path _diamondPath;
@@ -76,6 +84,7 @@ class EnemyComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
+    _renderRoleAuras(canvas);
     if (_role == EnemyRole.ranged ||
         _role == EnemyRole.spawner ||
         _role == EnemyRole.disruptor ||
@@ -126,6 +135,29 @@ class EnemyComponent extends PositionComponent {
     }
   }
 
+  void _renderRoleAuras(Canvas canvas) {
+    if (_role == EnemyRole.supportHealer || _role == EnemyRole.supportBuffer) {
+      final auraRadius =
+          _state.attackRange * (_role == EnemyRole.supportHealer ? 0.75 : 0.8);
+      final fillPaint = _auraFillPaint;
+      final strokePaint = _auraStrokePaint;
+      if (auraRadius > 0 && fillPaint != null && strokePaint != null) {
+        canvas.drawCircle(Offset.zero, auraRadius, fillPaint);
+        canvas.drawCircle(Offset.zero, auraRadius, strokePaint);
+      }
+    }
+
+    if (_role == EnemyRole.zoner) {
+      final zoneRadius = _state.attackRange * 0.75;
+      final fillPaint = _zoneFillPaint;
+      final strokePaint = _zoneStrokePaint;
+      if (zoneRadius > 0 && fillPaint != null && strokePaint != null) {
+        canvas.drawCircle(Offset.zero, zoneRadius, fillPaint);
+        canvas.drawCircle(Offset.zero, zoneRadius, strokePaint);
+      }
+    }
+  }
+
   double _telegraphProgress() {
     switch (_role) {
       case EnemyRole.ranged:
@@ -172,4 +204,50 @@ class EnemyComponent extends PositionComponent {
     EnemyRole.supportBuffer: Color(0xFF5BB7E3),
     EnemyRole.pattern: Color(0xFF80C86A),
   };
+
+  static Paint? _createAuraFillPaint(EnemyRole role) {
+    if (role != EnemyRole.supportHealer && role != EnemyRole.supportBuffer) {
+      return null;
+    }
+    return Paint()
+      ..color = (_roleColors[role] ?? const Color(0xFF6ED9C0)).withValues(
+        alpha: 0.12,
+      )
+      ..style = PaintingStyle.fill;
+  }
+
+  static Paint? _createAuraStrokePaint(EnemyRole role) {
+    if (role != EnemyRole.supportHealer && role != EnemyRole.supportBuffer) {
+      return null;
+    }
+    return Paint()
+      ..color = (_roleColors[role] ?? const Color(0xFF6ED9C0)).withValues(
+        alpha: 0.35,
+      )
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+  }
+
+  static Paint? _createZoneFillPaint(EnemyRole role) {
+    if (role != EnemyRole.zoner) {
+      return null;
+    }
+    return Paint()
+      ..color = (_roleColors[role] ?? const Color(0xFFD95A6F)).withValues(
+        alpha: 0.08,
+      )
+      ..style = PaintingStyle.fill;
+  }
+
+  static Paint? _createZoneStrokePaint(EnemyRole role) {
+    if (role != EnemyRole.zoner) {
+      return null;
+    }
+    return Paint()
+      ..color = (_roleColors[role] ?? const Color(0xFFD95A6F)).withValues(
+        alpha: 0.28,
+      )
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+  }
 }
