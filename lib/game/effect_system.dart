@@ -78,6 +78,7 @@ class EffectSystem {
       final dx = enemy.position.x - effect.position.x;
       final dy = enemy.position.y - effect.position.y;
       if (dx * dx + dy * dy <= radiusSquared) {
+        _applyStatus(effect, enemy);
         onEnemyDamaged(enemy, damage);
       }
     }
@@ -112,8 +113,26 @@ class EffectSystem {
       }
       final perpendicular = (dx * dir.y - dy * dir.x).abs();
       if (perpendicular <= halfWidth) {
+        _applyStatus(effect, enemy);
         onEnemyDamaged(enemy, damage);
       }
+    }
+  }
+
+  void _applyStatus(EffectState effect, EnemyState enemy) {
+    if (effect.slowDuration <= 0 || effect.slowMultiplier >= 1) {
+      return;
+    }
+    if (effect.kind == EffectKind.rootsGround) {
+      enemy.applyRoot(
+        duration: effect.slowDuration,
+        strength: 1 - effect.slowMultiplier,
+      );
+    } else {
+      enemy.applySlow(
+        duration: effect.slowDuration,
+        multiplier: effect.slowMultiplier,
+      );
     }
   }
 }

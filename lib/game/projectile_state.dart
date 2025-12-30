@@ -25,6 +25,8 @@ class ProjectileState {
   double impactEffectWidth = 0;
   double impactEffectDuration = 0;
   double impactEffectDamagePerSecond = 0;
+  double impactEffectSlowMultiplier = 1;
+  double impactEffectSlowDuration = 0;
 
   void reset({
     required Vector2 position,
@@ -50,6 +52,8 @@ class ProjectileState {
     impactEffectWidth = 0;
     impactEffectDuration = 0;
     impactEffectDamagePerSecond = 0;
+    impactEffectSlowMultiplier = 1;
+    impactEffectSlowDuration = 0;
     impactDirection.setValues(1, 0);
   }
 
@@ -62,6 +66,8 @@ class ProjectileState {
     required double width,
     required double duration,
     required double damagePerSecond,
+    double slowMultiplier = 1,
+    double slowDuration = 0,
   }) {
     spawnImpactEffect = true;
     impactEffectKind = kind;
@@ -77,5 +83,7 @@ class ProjectileState {
     impactEffectWidth = width;
     impactEffectDuration = duration;
     impactEffectDamagePerSecond = damagePerSecond;
+    impactEffectSlowMultiplier = slowMultiplier;
+    impactEffectSlowDuration = slowDuration;
   }
 }

@@ -160,11 +160,13 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - DOT-tagged skills now factor in `StatId.dotDamage` in the damage multiplier.
 - Added waterjet beam effects plus lingering oil/roots ground zones with DOT-style damage ticks.
 - Oil bomb ground effects now spawn at the projectile impact location.
+- Added slow/root debuffs for waterjet, oil, and roots that scale with root stats and refresh while enemies remain in the effect.
 **Decisions:**
 - Placeholder implementations favor readable hitboxes over bespoke status effects for V0.2.
 - Ground effects apply damage over their full duration instead of a one-time burst.
+- Roots apply a movement snare using the root strength/duration stats rather than a full immobilize.
 **Follow-ups:**
-- Introduce slow/snare/status-effect hooks to replace placeholder direct damage.
+- Add status VFX/telegraphs for slowed or rooted enemies.
 
 ---
 

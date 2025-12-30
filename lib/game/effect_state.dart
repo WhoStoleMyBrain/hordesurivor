@@ -17,6 +17,8 @@ class EffectState {
   double duration = 0;
   double age = 0;
   double damagePerSecond = 0;
+  double slowMultiplier = 1;
+  double slowDuration = 0;
   bool active = false;
 
   void reset({
@@ -29,6 +31,8 @@ class EffectState {
     required double width,
     required double duration,
     required double damagePerSecond,
+    double slowMultiplier = 1,
+    double slowDuration = 0,
   }) {
     this.kind = kind;
     this.shape = shape;
@@ -44,6 +48,8 @@ class EffectState {
     this.width = width;
     this.duration = duration;
     this.damagePerSecond = damagePerSecond;
+    this.slowMultiplier = slowMultiplier;
+    this.slowDuration = slowDuration;
     age = 0;
     active = true;
   }

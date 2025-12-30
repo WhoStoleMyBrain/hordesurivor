@@ -227,6 +227,8 @@ class SkillSystem {
       width: 10,
       duration: duration,
       damagePerSecond: damage / duration,
+      slowMultiplier: 0.7,
+      slowDuration: duration * 0.9,
     );
     onEffectSpawn(effect);
   }
@@ -269,6 +271,8 @@ class SkillSystem {
       width: 0,
       duration: duration,
       damagePerSecond: groundDamage,
+      slowMultiplier: 0.8,
+      slowDuration: 0.6,
     );
   }
 
@@ -403,7 +407,14 @@ class SkillSystem {
     ).clone();
     final aoeScale = _aoeScale(stats);
     final radius = 54 * aoeScale;
-    const duration = 1.8;
+    const baseDuration = 1.8;
+    final rootDuration =
+        baseDuration * math.max(0.1, 1 + stats.value(StatId.rootDuration));
+    final rootStrength = (0.6 + stats.value(StatId.rootStrength)).clamp(
+      0.2,
+      0.9,
+    );
+    final rootSlowMultiplier = (1 - rootStrength).clamp(0.05, 1.0);
     final damage = 7 * _damageMultiplierFor(SkillId.roots, stats);
     final target = Vector2(
       playerPosition.x + direction.x * 60,
@@ -418,8 +429,10 @@ class SkillSystem {
       radius: radius,
       length: 0,
       width: 0,
-      duration: duration,
-      damagePerSecond: damage / duration,
+      duration: rootDuration,
+      damagePerSecond: damage / rootDuration,
+      slowMultiplier: rootSlowMultiplier,
+      slowDuration: rootDuration,
     );
     onEffectSpawn(effect);
   }
