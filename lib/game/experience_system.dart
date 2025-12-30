@@ -1,11 +1,13 @@
 class ExperienceSystem {
   ExperienceSystem({int startingLevel = 1, int baseXp = 20, int xpGrowth = 10})
-    : _baseXp = baseXp,
+    : _startingLevel = startingLevel,
+      _baseXp = baseXp,
       _xpGrowth = xpGrowth,
       level = startingLevel {
     xpToNext = _xpForLevel(level);
   }
 
+  final int _startingLevel;
   final int _baseXp;
   final int _xpGrowth;
 
@@ -26,6 +28,12 @@ class ExperienceSystem {
       levelsGained += 1;
     }
     return levelsGained;
+  }
+
+  void reset() {
+    level = _startingLevel;
+    currentXp = 0;
+    xpToNext = _xpForLevel(level);
   }
 
   int _xpForLevel(int level) {

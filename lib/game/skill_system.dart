@@ -22,12 +22,7 @@ class SkillSystem {
     List<SkillSlot>? skillSlots,
   }) : _effectPool = effectPool,
        _projectilePool = projectilePool,
-       _skills =
-           skillSlots ??
-           [
-             SkillSlot(id: SkillId.fireball, cooldown: 0.6),
-             SkillSlot(id: SkillId.swordCut, cooldown: 0.9),
-           ];
+       _skills = skillSlots ?? _defaultSkillSlots();
 
   static const Map<SkillId, double> _baseCooldowns = {
     SkillId.fireball: 0.6,
@@ -49,6 +44,19 @@ class SkillSystem {
   final List<EnemyState> _queryBuffer = [];
   final List<ProjectileState> _projectileQueryBuffer = [];
 
+  static List<SkillSlot> _defaultSkillSlots() {
+    return [
+      SkillSlot(
+        id: SkillId.fireball,
+        cooldown: _baseCooldowns[SkillId.fireball] ?? 0.6,
+      ),
+      SkillSlot(
+        id: SkillId.swordCut,
+        cooldown: _baseCooldowns[SkillId.swordCut] ?? 0.9,
+      ),
+    ];
+  }
+
   bool hasSkill(SkillId id) {
     return _skills.any((skill) => skill.id == id);
   }
@@ -59,6 +67,12 @@ class SkillSystem {
     }
     final cooldown = _baseCooldowns[id] ?? 1.0;
     _skills.add(SkillSlot(id: id, cooldown: cooldown));
+  }
+
+  void resetToDefaults() {
+    _skills
+      ..clear()
+      ..addAll(_defaultSkillSlots());
   }
 
   void update({

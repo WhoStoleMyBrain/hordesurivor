@@ -46,6 +46,11 @@ class LevelUpSystem {
     _pendingLevels += levelsGained;
   }
 
+  void reset() {
+    _pendingLevels = 0;
+    _choices.clear();
+  }
+
   void buildChoices({
     required PlayerState playerState,
     required SkillSystem skillSystem,

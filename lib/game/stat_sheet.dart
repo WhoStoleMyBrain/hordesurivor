@@ -38,4 +38,9 @@ class StatSheet {
       }
     }
   }
+
+  void resetModifiers() {
+    _multipliers.clear();
+    _flatBonuses.clear();
+  }
 }

@@ -131,10 +131,12 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - Added a `DeathScreen` overlay with score and run stats plus restart/return actions.
 - Tracked run summary metrics (time alive, kills, XP gained, damage taken) during stage flow.
 - Routed stage completion and player death into the death screen flow with reset handling.
+- Restart now resets player XP/level, skill loadout, and item modifiers to baseline.
 **Decisions:**
 - Restart uses the last selected area and revives the player at center.
+- Restarts reset run progression (XP, skills, item modifiers) to keep runs discrete.
 **Follow-ups:**
-- Decide whether run restarts should reset level/XP or keep progression between runs.
+- Consider whether any meta-layer should carry progression between runs later.
 
 ---
 
