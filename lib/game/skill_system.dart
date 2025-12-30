@@ -69,7 +69,7 @@ class SkillSystem {
     final adjustedDt = dt * cooldownSpeed;
     for (final skill in _skills) {
       skill.cooldownRemaining -= adjustedDt;
-      while (skill.cooldownRemaining <= 0) {
+      while (skill.cooldownRemaining < 0) {
         switch (skill.id) {
           case SkillId.fireball:
             _castFireball(

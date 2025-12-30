@@ -11,8 +11,7 @@ class SpriteGenDemo extends FlameGame {
   /// The default workflow generates sprites at runtime and caches them via
   /// [SpritePipeline]. Provide [exportDirectory] to optionally export the
   /// generated images during development for inspection or asset baking.
-  SpriteGenDemo({this.exportDirectory})
-    : super();
+  SpriteGenDemo({this.exportDirectory}) : super();
 
   final String? exportDirectory;
   final SpritePipeline _pipeline = SpritePipeline();

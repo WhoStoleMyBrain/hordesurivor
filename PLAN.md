@@ -18,6 +18,8 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - Keep **model vs view** separation: game state stays in `lib/game/`, UI/overlays in `lib/ui/`.
 - Extend data definitions rather than hard-coding logic.
 - No new TODOs without issue/task references.
+- Area definitions include both role-level and enemy-specific weight maps for spawn tuning.
+- Stage sections must be ordered, non-overlapping, and fit within the stage duration.
 
 **Implementation notes:**
 - Add `AreaDef` data objects in `lib/data/` (id, name, description, spriteId, recommendedLevel, lootProfile, difficultyTiers, stageDuration, sectionTimeline).
@@ -25,6 +27,10 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - Add `RunSummary` structure in `lib/game/` (timeAlive, enemiesDefeated, xpGained, damageTaken, score).
 - Add a lightweight `GameFlowState` enum to represent Start → HomeBase → AreaSelect → Stage → Death.
 - Ensure data validation includes new `AreaDef` and `StageSection` references.
+**Completed:**
+- Added `AreaDef`/`StageSection` data definitions with sample areas and sections.
+- Added `RunSummary` and `GameFlowState` scaffolding.
+- Extended data validation for new area data structures.
 
 ---
 

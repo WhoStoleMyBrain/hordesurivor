@@ -1,5 +1,6 @@
-export 'enemy_defs.dart';
+export 'area_defs.dart';
 export 'data_validation.dart';
+export 'enemy_defs.dart';
 export 'ids.dart';
 export 'item_defs.dart';
 export 'skill_defs.dart';

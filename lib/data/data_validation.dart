@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import 'area_defs.dart';
 import 'enemy_defs.dart';
 import 'item_defs.dart';
 import 'skill_defs.dart';
@@ -42,6 +43,11 @@ DataValidationResult validateGameData() {
   _checkUniqueIds(
     ids: enemyDefs.map((def) => def.id),
     label: 'EnemyDef',
+    result: result,
+  );
+  _checkUniqueIds(
+    ids: areaDefs.map((def) => def.id),
+    label: 'AreaDef',
     result: result,
   );
 
@@ -113,6 +119,74 @@ DataValidationResult validateGameData() {
           'EnemyDef ${def.id} spawnEnemyId ${def.spawnEnemyId} not found.',
         );
       }
+    }
+  }
+
+  for (final def in areaDefs) {
+    if (def.stageDuration <= 0) {
+      result.errors.add('AreaDef ${def.id} has non-positive stageDuration.');
+    }
+    if (def.recommendedLevel < 0) {
+      result.errors.add('AreaDef ${def.id} has negative recommendedLevel.');
+    }
+    if (def.sections.isEmpty) {
+      result.errors.add('AreaDef ${def.id} has no stage sections.');
+    }
+    if (def.difficultyTiers.isEmpty) {
+      result.warnings.add('AreaDef ${def.id} has no difficulty tiers.');
+    }
+
+    var lastEnd = 0.0;
+    for (var i = 0; i < def.sections.length; i++) {
+      final section = def.sections[i];
+      if (section.startTime < 0) {
+        result.errors.add(
+          'AreaDef ${def.id} section $i has negative startTime.',
+        );
+      }
+      if (section.endTime <= section.startTime) {
+        result.errors.add('AreaDef ${def.id} section $i has invalid endTime.');
+      }
+      if (section.startTime < lastEnd) {
+        result.errors.add(
+          'AreaDef ${def.id} section $i overlaps previous section.',
+        );
+      }
+      if (section.endTime > def.stageDuration) {
+        result.errors.add(
+          'AreaDef ${def.id} section $i exceeds stageDuration.',
+        );
+      }
+      if (section.roleWeights.isEmpty && section.enemyWeights.isEmpty) {
+        result.warnings.add(
+          'AreaDef ${def.id} section $i has no spawn weights.',
+        );
+      }
+      for (final entry in section.roleWeights.entries) {
+        if (entry.value <= 0) {
+          result.errors.add(
+            'AreaDef ${def.id} section $i has non-positive role weight.',
+          );
+        }
+      }
+      for (final entry in section.enemyWeights.entries) {
+        if (entry.value <= 0) {
+          result.errors.add(
+            'AreaDef ${def.id} section $i has non-positive enemy weight.',
+          );
+        }
+        if (!enemyDefsById.containsKey(entry.key)) {
+          result.errors.add(
+            'AreaDef ${def.id} section $i references missing enemy ${entry.key}.',
+          );
+        }
+      }
+      lastEnd = section.endTime;
+    }
+    if (lastEnd < def.stageDuration) {
+      result.warnings.add(
+        'AreaDef ${def.id} timeline ends before stageDuration.',
+      );
     }
   }
 
