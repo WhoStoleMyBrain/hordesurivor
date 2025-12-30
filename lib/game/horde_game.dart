@@ -481,6 +481,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     KeyEvent event,
     Set<LogicalKeyboardKey> keysPressed,
   ) {
+    if (_inputLocked) {
+      _keysPressed.clear();
+      _keyboardDirection.setZero();
+      return KeyEventResult.handled;
+    }
     _keysPressed
       ..clear()
       ..addAll(keysPressed);
@@ -675,6 +680,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     _inputLocked = locked;
     if (_inputLocked) {
+      _keysPressed.clear();
+      _keyboardDirection.setZero();
       _resetPointerInput();
     }
   }
