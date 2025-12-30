@@ -1,0 +1,71 @@
+import 'dart:math' as math;
+import 'dart:ui';
+
+import 'package:flame/components.dart';
+
+import '../game/effect_state.dart';
+
+class EffectComponent extends PositionComponent {
+  EffectComponent({required EffectState state})
+    : _state = state,
+      _paint = Paint()..color = _colorForKind(state.kind) {
+    anchor = Anchor.center;
+    priority = _priorityForShape(state.shape);
+  }
+
+  final EffectState _state;
+  final Paint _paint;
+
+  @override
+  void update(double dt) {
+    if (_state.shape == EffectShape.beam) {
+      final center = _state.position + _state.direction * (_state.length * 0.5);
+      position.setFrom(center);
+      size.setValues(_state.length, _state.width);
+      angle = math.atan2(_state.direction.y, _state.direction.x);
+    } else {
+      position.setFrom(_state.position);
+      size.setValues(_state.radius * 2, _state.radius * 2);
+      angle = 0;
+    }
+    super.update(dt);
+  }
+
+  @override
+  void render(Canvas canvas) {
+    switch (_state.shape) {
+      case EffectShape.ground:
+        canvas.drawCircle(Offset.zero, _state.radius, _paint);
+      case EffectShape.beam:
+        final rect = Rect.fromCenter(
+          center: Offset.zero,
+          width: size.x,
+          height: size.y,
+        );
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(rect, const Radius.circular(4)),
+          _paint,
+        );
+    }
+  }
+
+  static Color _colorForKind(EffectKind kind) {
+    switch (kind) {
+      case EffectKind.waterjetBeam:
+        return const Color(0xFF6EC7FF).withValues(alpha: 0.7);
+      case EffectKind.oilGround:
+        return const Color(0xFF2B2D42).withValues(alpha: 0.5);
+      case EffectKind.rootsGround:
+        return const Color(0xFF3E7C3E).withValues(alpha: 0.45);
+    }
+  }
+
+  static int _priorityForShape(EffectShape shape) {
+    switch (shape) {
+      case EffectShape.ground:
+        return -2;
+      case EffectShape.beam:
+        return 1;
+    }
+  }
+}

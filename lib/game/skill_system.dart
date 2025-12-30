@@ -6,6 +6,8 @@ import '../data/ids.dart';
 import '../data/skill_defs.dart';
 import '../data/stat_defs.dart';
 import '../data/tags.dart';
+import 'effect_pool.dart';
+import 'effect_state.dart';
 import 'enemy_pool.dart';
 import 'enemy_state.dart';
 import 'projectile_pool.dart';
@@ -15,9 +17,11 @@ import 'stat_sheet.dart';
 
 class SkillSystem {
   SkillSystem({
+    required EffectPool effectPool,
     required ProjectilePool projectilePool,
     List<SkillSlot>? skillSlots,
-  }) : _projectilePool = projectilePool,
+  }) : _effectPool = effectPool,
+       _projectilePool = projectilePool,
        _skills =
            skillSlots ??
            [
@@ -37,6 +41,7 @@ class SkillSystem {
     SkillId.roots: 1.2,
   };
 
+  final EffectPool _effectPool;
   final ProjectilePool _projectilePool;
   final List<SkillSlot> _skills;
   final Vector2 _aimBuffer = Vector2.zero();
@@ -64,6 +69,7 @@ class SkillSystem {
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
     required void Function(ProjectileState) onProjectileSpawn,
+    required void Function(EffectState) onEffectSpawn,
     required void Function(ProjectileState) onProjectileDespawn,
     required void Function(EnemyState, double) onEnemyDamaged,
   }) {
@@ -96,7 +102,7 @@ class SkillSystem {
               aimDirection: aimDirection,
               stats: stats,
               enemyPool: enemyPool,
-              onProjectileSpawn: onProjectileSpawn,
+              onEffectSpawn: onEffectSpawn,
             );
           case SkillId.oilBombs:
             _castOilBombs(
@@ -105,6 +111,7 @@ class SkillSystem {
               stats: stats,
               enemyPool: enemyPool,
               onProjectileSpawn: onProjectileSpawn,
+              onEffectSpawn: onEffectSpawn,
             );
           case SkillId.swordThrust:
             _castSwordThrust(
@@ -148,8 +155,7 @@ class SkillSystem {
               aimDirection: aimDirection,
               stats: stats,
               enemyPool: enemyPool,
-              enemyGrid: enemyGrid,
-              onEnemyDamaged: onEnemyDamaged,
+              onEffectSpawn: onEffectSpawn,
             );
             break;
         }
@@ -188,24 +194,28 @@ class SkillSystem {
     required Vector2 aimDirection,
     required StatSheet stats,
     required EnemyPool enemyPool,
-    required void Function(ProjectileState) onProjectileSpawn,
+    required void Function(EffectState) onEffectSpawn,
   }) {
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
       enemyPool: enemyPool,
     );
+    const duration = 0.35;
     final damage = 6 * _damageMultiplierFor(SkillId.waterjet, stats);
-    final projectile = _projectilePool.acquire();
-    projectile.reset(
+    final effect = _effectPool.acquire();
+    effect.reset(
+      kind: EffectKind.waterjetBeam,
+      shape: EffectShape.beam,
       position: playerPosition,
-      velocity: direction..scale(320),
-      damage: damage,
-      radius: 3,
-      lifespan: 0.6,
-      fromEnemy: false,
+      direction: direction,
+      radius: 0,
+      length: 140,
+      width: 10,
+      duration: duration,
+      damagePerSecond: damage / duration,
     );
-    onProjectileSpawn(projectile);
+    onEffectSpawn(effect);
   }
 
   void _castOilBombs({
@@ -214,23 +224,47 @@ class SkillSystem {
     required StatSheet stats,
     required EnemyPool enemyPool,
     required void Function(ProjectileState) onProjectileSpawn,
+    required void Function(EffectState) onEffectSpawn,
   }) {
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
       enemyPool: enemyPool,
-    );
-    final damage = 6 * _damageMultiplierFor(SkillId.oilBombs, stats);
+    ).clone();
+    final damage = 4 * _damageMultiplierFor(SkillId.oilBombs, stats);
     final projectile = _projectilePool.acquire();
     projectile.reset(
       position: playerPosition,
-      velocity: direction..scale(160),
+      velocity: direction.clone()..scale(160),
       damage: damage,
       radius: 6,
       lifespan: 1.4,
       fromEnemy: false,
     );
     onProjectileSpawn(projectile);
+
+    const duration = 2.0;
+    final aoeScale = _aoeScale(stats);
+    final radius = 46 * aoeScale;
+    final target = Vector2(
+      playerPosition.x + direction.x * 90,
+      playerPosition.y + direction.y * 90,
+    );
+    final groundDamage =
+        (4 * _damageMultiplierFor(SkillId.oilBombs, stats)) / duration;
+    final effect = _effectPool.acquire();
+    effect.reset(
+      kind: EffectKind.oilGround,
+      shape: EffectShape.ground,
+      position: target,
+      direction: direction,
+      radius: radius,
+      length: 0,
+      width: 0,
+      duration: duration,
+      damagePerSecond: groundDamage,
+    );
+    onEffectSpawn(effect);
   }
 
   void _castSwordCut({
@@ -355,26 +389,34 @@ class SkillSystem {
     required Vector2 aimDirection,
     required StatSheet stats,
     required EnemyPool enemyPool,
-    SpatialGrid? enemyGrid,
-    required void Function(EnemyState, double) onEnemyDamaged,
+    required void Function(EffectState) onEffectSpawn,
   }) {
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
       enemyPool: enemyPool,
-    );
+    ).clone();
     final aoeScale = _aoeScale(stats);
-    final radius = 50 * aoeScale;
+    final radius = 54 * aoeScale;
+    const duration = 1.8;
     final damage = 7 * _damageMultiplierFor(SkillId.roots, stats);
-    _castAreaBurst(
-      center: playerPosition + direction
-        ..scale(60),
-      radius: radius,
-      damage: damage,
-      enemyPool: enemyPool,
-      enemyGrid: enemyGrid,
-      onEnemyDamaged: onEnemyDamaged,
+    final target = Vector2(
+      playerPosition.x + direction.x * 60,
+      playerPosition.y + direction.y * 60,
     );
+    final effect = _effectPool.acquire();
+    effect.reset(
+      kind: EffectKind.rootsGround,
+      shape: EffectShape.ground,
+      position: target,
+      direction: direction,
+      radius: radius,
+      length: 0,
+      width: 0,
+      duration: duration,
+      damagePerSecond: damage / duration,
+    );
+    onEffectSpawn(effect);
   }
 
   void _castMeleeArc({
@@ -417,27 +459,6 @@ class SkillSystem {
       }
 
       onEnemyDamaged(enemy, damage);
-    }
-  }
-
-  void _castAreaBurst({
-    required Vector2 center,
-    required double radius,
-    required double damage,
-    required EnemyPool enemyPool,
-    required SpatialGrid? enemyGrid,
-    required void Function(EnemyState, double) onEnemyDamaged,
-  }) {
-    final radiusSquared = radius * radius;
-    final candidates = enemyGrid == null
-        ? enemyPool.active
-        : enemyGrid.queryCircle(center, radius, _queryBuffer);
-    for (final enemy in candidates) {
-      final dx = enemy.position.x - center.x;
-      final dy = enemy.position.y - center.y;
-      if (dx * dx + dy * dy <= radiusSquared) {
-        onEnemyDamaged(enemy, damage);
-      }
     }
   }
 

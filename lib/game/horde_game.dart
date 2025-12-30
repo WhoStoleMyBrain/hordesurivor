@@ -14,6 +14,7 @@ import '../data/tags.dart';
 import '../data/area_defs.dart';
 import '../render/damage_number_component.dart';
 import '../render/enemy_component.dart';
+import '../render/effect_component.dart';
 import '../render/player_component.dart';
 import '../render/portal_component.dart';
 import '../render/projectile_batch_component.dart';
@@ -30,6 +31,9 @@ import '../ui/selection_overlay.dart';
 import '../ui/selection_state.dart';
 import '../ui/start_screen.dart';
 import 'damage_system.dart';
+import 'effect_pool.dart';
+import 'effect_state.dart';
+import 'effect_system.dart';
 import 'enemy_pool.dart';
 import 'enemy_state.dart';
 import 'enemy_system.dart';
@@ -89,6 +93,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   bool _spawnerReady = false;
   late final ProjectilePool _projectilePool;
   late final ProjectileSystem _projectileSystem;
+  late final EffectPool _effectPool;
+  late final EffectSystem _effectSystem;
   late final SkillSystem _skillSystem;
   late final SpatialGrid _enemyGrid;
   late final DamageSystem _damageSystem;
@@ -100,6 +106,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final RunSummary _runSummary = RunSummary();
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
+  final Map<EffectState, EffectComponent> _effectComponents = {};
   final List<DamageNumberComponent> _damageNumberPool = [];
   final TextPaint _enemyDamagePaint = TextPaint(
     style: const TextStyle(
@@ -189,6 +196,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
     _enemyPool = EnemyPool(initialCapacity: stressTest ? 600 : 48);
     _projectilePool = ProjectilePool(initialCapacity: stressTest ? 1400 : 64);
+    _effectPool = EffectPool(initialCapacity: stressTest ? 180 : 32);
     if (_projectileSprite != null) {
       _projectileBatchComponent = ProjectileBatchComponent(
         pool: _projectilePool,
@@ -207,7 +215,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
     _enemyGrid = SpatialGrid(cellSize: 64);
     _projectileSystem = ProjectileSystem(_projectilePool);
-    _skillSystem = SkillSystem(projectilePool: _projectilePool);
+    _effectSystem = EffectSystem(_effectPool);
+    _skillSystem = SkillSystem(
+      projectilePool: _projectilePool,
+      effectPool: _effectPool,
+    );
     _damageSystem = DamageSystem(DamageEventPool(initialCapacity: 64));
     for (var i = 0; i < 32; i++) {
       _damageNumberPool.add(
@@ -327,6 +339,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       enemyPool: _enemyPool,
       enemyGrid: _enemyGrid,
       onProjectileSpawn: _handleProjectileSpawn,
+      onEffectSpawn: _handleEffectSpawn,
       onProjectileDespawn: _handleProjectileDespawn,
       onEnemyDamaged: _damageSystem.queueEnemyDamage,
     );
@@ -361,6 +374,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       onPlayerHit: (damage) {
         _damageSystem.queuePlayerDamage(_playerState, damage);
       },
+    );
+    _effectSystem.update(
+      dt,
+      enemyPool: _enemyPool,
+      enemyGrid: _enemyGrid,
+      onDespawn: _handleEffectDespawn,
+      onEnemyDamaged: _damageSystem.queueEnemyDamage,
     );
     _damageSystem.resolve(
       onEnemyDefeated: _handleEnemyDefeated,
@@ -581,6 +601,17 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _handleProjectileDespawn(ProjectileState projectile) {
     final component = _projectileComponents.remove(projectile);
+    component?.removeFromParent();
+  }
+
+  void _handleEffectSpawn(EffectState effect) {
+    final component = EffectComponent(state: effect);
+    _effectComponents[effect] = component;
+    add(component);
+  }
+
+  void _handleEffectDespawn(EffectState effect) {
+    final component = _effectComponents.remove(effect);
     component?.removeFromParent();
   }
 
@@ -927,6 +958,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     )) {
       _handleProjectileDespawn(projectile);
       _projectilePool.release(projectile);
+    }
+    for (final effect in List<EffectState>.from(_effectPool.active)) {
+      _handleEffectDespawn(effect);
+      _effectPool.release(effect);
     }
     for (final enemy in List<EnemyState>.from(_enemyPool.active)) {
       final component = _enemyComponents.remove(enemy);
