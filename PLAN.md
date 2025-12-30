@@ -52,6 +52,7 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - Gated simulation updates until the flow transitions to `GameFlowState.stage`, and lock input when not in stage.
 - Start action removes the start overlay and enables the HUD; stress scene starts in stage.
 - Added an options overlay stub reachable from the start screen and returning to it.
+- Clear keyboard movement input when the flow locks/unlocks to prevent stuck movement after overlays.
 
 ---
 
