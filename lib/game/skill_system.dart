@@ -42,6 +42,7 @@ class SkillSystem {
   final Vector2 _aimBuffer = Vector2.zero();
   final Vector2 _fallbackDirection = Vector2(1, 0);
   final List<EnemyState> _queryBuffer = [];
+  final List<ProjectileState> _projectileQueryBuffer = [];
 
   bool hasSkill(SkillId id) {
     return _skills.any((skill) => skill.id == id);
@@ -63,6 +64,7 @@ class SkillSystem {
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
     required void Function(ProjectileState) onProjectileSpawn,
+    required void Function(ProjectileState) onProjectileDespawn,
     required void Function(EnemyState, double) onEnemyDamaged,
   }) {
     final cooldownSpeed = _cooldownSpeed(stats);
@@ -89,12 +91,66 @@ class SkillSystem {
               onEnemyDamaged: onEnemyDamaged,
             );
           case SkillId.waterjet:
+            _castWaterjet(
+              playerPosition: playerPosition,
+              aimDirection: aimDirection,
+              stats: stats,
+              enemyPool: enemyPool,
+              onProjectileSpawn: onProjectileSpawn,
+            );
           case SkillId.oilBombs:
+            _castOilBombs(
+              playerPosition: playerPosition,
+              aimDirection: aimDirection,
+              stats: stats,
+              enemyPool: enemyPool,
+              onProjectileSpawn: onProjectileSpawn,
+            );
           case SkillId.swordThrust:
+            _castSwordThrust(
+              playerPosition: playerPosition,
+              aimDirection: aimDirection,
+              stats: stats,
+              enemyPool: enemyPool,
+              enemyGrid: enemyGrid,
+              onEnemyDamaged: onEnemyDamaged,
+            );
           case SkillId.swordSwing:
+            _castSwordSwing(
+              playerPosition: playerPosition,
+              aimDirection: aimDirection,
+              stats: stats,
+              enemyPool: enemyPool,
+              enemyGrid: enemyGrid,
+              onEnemyDamaged: onEnemyDamaged,
+            );
           case SkillId.swordDeflect:
+            _castSwordDeflect(
+              playerPosition: playerPosition,
+              aimDirection: aimDirection,
+              stats: stats,
+              enemyPool: enemyPool,
+              enemyGrid: enemyGrid,
+              onEnemyDamaged: onEnemyDamaged,
+              onProjectileDespawn: onProjectileDespawn,
+            );
           case SkillId.poisonGas:
+            _castPoisonGas(
+              playerPosition: playerPosition,
+              stats: stats,
+              enemyPool: enemyPool,
+              enemyGrid: enemyGrid,
+              onEnemyDamaged: onEnemyDamaged,
+            );
           case SkillId.roots:
+            _castRoots(
+              playerPosition: playerPosition,
+              aimDirection: aimDirection,
+              stats: stats,
+              enemyPool: enemyPool,
+              enemyGrid: enemyGrid,
+              onEnemyDamaged: onEnemyDamaged,
+            );
             break;
         }
         skill.cooldownRemaining += skill.cooldown;
@@ -127,6 +183,56 @@ class SkillSystem {
     onProjectileSpawn(projectile);
   }
 
+  void _castWaterjet({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required StatSheet stats,
+    required EnemyPool enemyPool,
+    required void Function(ProjectileState) onProjectileSpawn,
+  }) {
+    final direction = _resolveAim(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: enemyPool,
+    );
+    final damage = 6 * _damageMultiplierFor(SkillId.waterjet, stats);
+    final projectile = _projectilePool.acquire();
+    projectile.reset(
+      position: playerPosition,
+      velocity: direction..scale(320),
+      damage: damage,
+      radius: 3,
+      lifespan: 0.6,
+      fromEnemy: false,
+    );
+    onProjectileSpawn(projectile);
+  }
+
+  void _castOilBombs({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required StatSheet stats,
+    required EnemyPool enemyPool,
+    required void Function(ProjectileState) onProjectileSpawn,
+  }) {
+    final direction = _resolveAim(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: enemyPool,
+    );
+    final damage = 6 * _damageMultiplierFor(SkillId.oilBombs, stats);
+    final projectile = _projectilePool.acquire();
+    projectile.reset(
+      position: playerPosition,
+      velocity: direction..scale(160),
+      damage: damage,
+      radius: 6,
+      lifespan: 1.4,
+      fromEnemy: false,
+    );
+    onProjectileSpawn(projectile);
+  }
+
   void _castSwordCut({
     required Vector2 playerPosition,
     required Vector2 aimDirection,
@@ -135,12 +241,156 @@ class SkillSystem {
     SpatialGrid? enemyGrid,
     required void Function(EnemyState, double) onEnemyDamaged,
   }) {
-    const baseRange = 46.0;
-    const arcDegrees = 90.0;
+    final damage = 12 * _damageMultiplierFor(SkillId.swordCut, stats);
+    _castMeleeArc(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: enemyPool,
+      enemyGrid: enemyGrid,
+      stats: stats,
+      baseRange: 46,
+      arcDegrees: 90,
+      damage: damage,
+      onEnemyDamaged: onEnemyDamaged,
+    );
+  }
+
+  void _castSwordThrust({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required StatSheet stats,
+    required EnemyPool enemyPool,
+    SpatialGrid? enemyGrid,
+    required void Function(EnemyState, double) onEnemyDamaged,
+  }) {
+    final damage = 10 * _damageMultiplierFor(SkillId.swordThrust, stats);
+    _castMeleeArc(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: enemyPool,
+      enemyGrid: enemyGrid,
+      stats: stats,
+      baseRange: 58,
+      arcDegrees: 30,
+      damage: damage,
+      onEnemyDamaged: onEnemyDamaged,
+    );
+  }
+
+  void _castSwordSwing({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required StatSheet stats,
+    required EnemyPool enemyPool,
+    SpatialGrid? enemyGrid,
+    required void Function(EnemyState, double) onEnemyDamaged,
+  }) {
+    final damage = 14 * _damageMultiplierFor(SkillId.swordSwing, stats);
+    _castMeleeArc(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: enemyPool,
+      enemyGrid: enemyGrid,
+      stats: stats,
+      baseRange: 52,
+      arcDegrees: 140,
+      damage: damage,
+      onEnemyDamaged: onEnemyDamaged,
+    );
+  }
+
+  void _castSwordDeflect({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required StatSheet stats,
+    required EnemyPool enemyPool,
+    SpatialGrid? enemyGrid,
+    required void Function(EnemyState, double) onEnemyDamaged,
+    required void Function(ProjectileState) onProjectileDespawn,
+  }) {
+    final damage = 8 * _damageMultiplierFor(SkillId.swordDeflect, stats);
+    _castMeleeArc(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: enemyPool,
+      enemyGrid: enemyGrid,
+      stats: stats,
+      baseRange: 42,
+      arcDegrees: 100,
+      damage: damage,
+      onEnemyDamaged: onEnemyDamaged,
+    );
+    _deflectProjectiles(
+      playerPosition: playerPosition,
+      stats: stats,
+      onProjectileDespawn: onProjectileDespawn,
+    );
+  }
+
+  void _castPoisonGas({
+    required Vector2 playerPosition,
+    required StatSheet stats,
+    required EnemyPool enemyPool,
+    SpatialGrid? enemyGrid,
+    required void Function(EnemyState, double) onEnemyDamaged,
+  }) {
+    final aoeScale = _aoeScale(stats);
+    final radius = 70 * aoeScale;
+    final damage = 4 * _damageMultiplierFor(SkillId.poisonGas, stats);
+    final radiusSquared = radius * radius;
+    final candidates = enemyGrid == null
+        ? enemyPool.active
+        : enemyGrid.queryCircle(playerPosition, radius, _queryBuffer);
+    for (final enemy in candidates) {
+      final dx = enemy.position.x - playerPosition.x;
+      final dy = enemy.position.y - playerPosition.y;
+      if (dx * dx + dy * dy <= radiusSquared) {
+        onEnemyDamaged(enemy, damage);
+      }
+    }
+  }
+
+  void _castRoots({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required StatSheet stats,
+    required EnemyPool enemyPool,
+    SpatialGrid? enemyGrid,
+    required void Function(EnemyState, double) onEnemyDamaged,
+  }) {
+    final direction = _resolveAim(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: enemyPool,
+    );
+    final aoeScale = _aoeScale(stats);
+    final radius = 50 * aoeScale;
+    final damage = 7 * _damageMultiplierFor(SkillId.roots, stats);
+    _castAreaBurst(
+      center: playerPosition + direction
+        ..scale(60),
+      radius: radius,
+      damage: damage,
+      enemyPool: enemyPool,
+      enemyGrid: enemyGrid,
+      onEnemyDamaged: onEnemyDamaged,
+    );
+  }
+
+  void _castMeleeArc({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required EnemyPool enemyPool,
+    required SpatialGrid? enemyGrid,
+    required StatSheet stats,
+    required double baseRange,
+    required double arcDegrees,
+    required double damage,
+    required void Function(EnemyState, double) onEnemyDamaged,
+  }) {
     final arcCosine = math.cos((arcDegrees * 0.5) * (math.pi / 180));
     final aoeScale = _aoeScale(stats);
     final range = baseRange * aoeScale;
-    final damage = 12 * _damageMultiplierFor(SkillId.swordCut, stats);
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
@@ -167,6 +417,50 @@ class SkillSystem {
       }
 
       onEnemyDamaged(enemy, damage);
+    }
+  }
+
+  void _castAreaBurst({
+    required Vector2 center,
+    required double radius,
+    required double damage,
+    required EnemyPool enemyPool,
+    required SpatialGrid? enemyGrid,
+    required void Function(EnemyState, double) onEnemyDamaged,
+  }) {
+    final radiusSquared = radius * radius;
+    final candidates = enemyGrid == null
+        ? enemyPool.active
+        : enemyGrid.queryCircle(center, radius, _queryBuffer);
+    for (final enemy in candidates) {
+      final dx = enemy.position.x - center.x;
+      final dy = enemy.position.y - center.y;
+      if (dx * dx + dy * dy <= radiusSquared) {
+        onEnemyDamaged(enemy, damage);
+      }
+    }
+  }
+
+  void _deflectProjectiles({
+    required Vector2 playerPosition,
+    required StatSheet stats,
+    required void Function(ProjectileState) onProjectileDespawn,
+  }) {
+    final radius = 55 * _aoeScale(stats);
+    final radiusSquared = radius * radius;
+    _projectileQueryBuffer
+      ..clear()
+      ..addAll(_projectilePool.active);
+    for (final projectile in _projectileQueryBuffer) {
+      if (!projectile.active || !projectile.fromEnemy) {
+        continue;
+      }
+      final dx = projectile.position.x - playerPosition.x;
+      final dy = projectile.position.y - playerPosition.y;
+      if (dx * dx + dy * dy <= radiusSquared) {
+        onProjectileDespawn(projectile);
+        _projectilePool.release(projectile);
+      }
     }
   }
 
@@ -228,6 +522,9 @@ class SkillSystem {
       }
       if (tags.hasDelivery(DeliveryTag.beam)) {
         multiplier += stats.value(StatId.beamDamage);
+      }
+      if (tags.hasEffect(EffectTag.dot)) {
+        multiplier += stats.value(StatId.dotDamage);
       }
       if (tags.hasElement(ElementTag.fire)) {
         multiplier += stats.value(StatId.fireDamage);
