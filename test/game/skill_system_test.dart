@@ -57,6 +57,7 @@ void main() {
       stats: playerState.stats,
       enemyPool: EnemyPool(initialCapacity: 0),
       onProjectileSpawn: (_) => spawnCount++,
+      onProjectileDespawn: (_) {},
       onEnemyDamaged: (_, _) {},
     );
 
@@ -69,6 +70,7 @@ void main() {
       stats: playerState.stats,
       enemyPool: EnemyPool(initialCapacity: 0),
       onProjectileSpawn: (_) => spawnCount++,
+      onProjectileDespawn: (_) {},
       onEnemyDamaged: (_, _) {},
     );
 
@@ -98,6 +100,7 @@ void main() {
       stats: playerState.stats,
       enemyPool: enemyPool,
       onProjectileSpawn: (_) {},
+      onProjectileDespawn: (_) {},
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
     damageSystem.resolve(onEnemyDefeated: (_) {});
@@ -111,6 +114,7 @@ void main() {
       stats: playerState.stats,
       enemyPool: enemyPool,
       onProjectileSpawn: (_) {},
+      onProjectileDespawn: (_) {},
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
     damageSystem.resolve(onEnemyDefeated: (_) {});
@@ -147,6 +151,7 @@ void main() {
       stats: playerState.stats,
       enemyPool: enemyPool,
       onProjectileSpawn: (_) {},
+      onProjectileDespawn: (_) {},
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
     damageSystem.resolve(
@@ -183,6 +188,7 @@ void main() {
       onProjectileSpawn: (projectile) {
         damage = projectile.damage;
       },
+      onProjectileDespawn: (_) {},
       onEnemyDamaged: (_, _) {},
     );
 

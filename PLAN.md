@@ -152,6 +152,15 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - Add a minimal stat modifier pipeline for items if not already exposed in UI.
 - Update `lib/data/skill_defs.dart` and `lib/data/item_defs.dart` with playtest numbers.
 - Ensure UI labels show clear tradeoff text for items.
+**Completed:**
+- Added baseline casting logic for the remaining V0.1 skills (waterjet, oil bombs, sword thrust/swing/deflect, poison gas, roots) using simple projectile/arc/area bursts.
+- Sword deflect now clears nearby enemy projectiles on cast.
+- DOT-tagged skills now factor in `StatId.dotDamage` in the damage multiplier.
+**Decisions:**
+- Placeholder implementations favor readable hitboxes over bespoke status effects for V0.2.
+**Follow-ups:**
+- Add true beam rendering for Waterjet and lingering ground effects for Oil Bombs/Roots.
+- Introduce slow/snare/status-effect hooks to replace placeholder direct damage.
 
 ---
 
