@@ -436,6 +436,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
     _currentSectionIndex = 0;
     _applyStageSection(force: true);
+    _selectionState.clear();
+    overlays.remove(SelectionOverlay.overlayKey);
+    _resetPlayerProgression();
     _resetRunSummary();
     _revivePlayer();
     _resetStageActors();
@@ -994,6 +997,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _resetRunSummary() {
     _runSummary.reset();
     _runCompleted = false;
+  }
+
+  void _resetPlayerProgression() {
+    _experienceSystem.reset();
+    _levelUpSystem.reset();
+    _skillSystem.resetToDefaults();
+    _playerState.resetForRun();
   }
 
   void _revivePlayer() {

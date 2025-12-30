@@ -31,6 +31,13 @@ class PlayerState {
     hp = hp.clamp(0, maxHp);
   }
 
+  void resetForRun() {
+    stats.resetModifiers();
+    hp = maxHp;
+    velocity.setZero();
+    movementIntent.setZero();
+  }
+
   void step(double dt) {
     velocity.setFrom(movementIntent);
     final lengthSquared = velocity.length2;
