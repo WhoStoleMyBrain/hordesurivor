@@ -1,252 +1,166 @@
-# V0.1 Prototype Plan — HordeSurvivor
+# V0.2 Plan — HordeSurvivor
 
-This plan takes the project from initial scaffolding to a fully working V0.1 prototype, aligned with AGENTS.md (design pillars, data-driven content, fixed timestep, pooling, and stress scene requirements). Each phase includes implementation context and decisions.
+This plan advances the project from the completed V0.1 prototype into V0.2. It focuses on run flow (start → home base → area select → stage → death), stage timing, content expansion, and extensibility hooks for future systems (contracts/heat, map modifiers, loot tables). It stays aligned with AGENTS.md: fixed timestep, pooling, data-driven content, and readability over complexity.
 
-## Phase 0 — Project readiness & foundations
-**Goal:** Establish the project scaffolding, architectural boundaries, and quality gates.
-
-**Decisions/constraints:**
-- Enforce a fixed timestep core loop.
-- Separate model (`lib/game/`) from view (`lib/render/`).
-- Keep content data-driven (`lib/data/`).
-- Use pooling from the start for performance-sensitive entities.
-- Startup data validation logs warnings and asserts on errors in debug builds.
-
-**Implementation notes:**
-- Verify `pubspec.yaml` includes Flame and test/lint dependencies.
-- Confirm directory structure: `lib/game`, `lib/render`, `lib/ui`, `lib/data`, `assets`, `test`.
-- [x] Implement the entry point in `lib/main.dart` with a fixed timestep game runner.
-- [x] Add a HUD overlay stub in `lib/ui/`.
-- [x] Clamp the fixed timestep accumulator to a max number of steps per frame to avoid spiral-of-death.
-- [x] Add startup data validation to catch invalid ids/tags/weights early.
-- Ensure `flutter analyze`, `flutter test`, and `dart format .` are part of the default workflow.
-
-## Phase 1 — Core simulation loop & player movement
-**Goal:** Build the minimal playable loop with player movement, camera, and HUD.
-
-**Decisions/constraints:**
-- Simulation logic uses fixed timestep and is testable without rendering.
-- No per-frame allocations in movement logic.
-
-**Implementation notes:**
-- [x] `lib/game/`: Add `PlayerState` (position, velocity, HP, base stats).
-- [x] `lib/game/`: Add fixed-step update with accumulator.
-- [x] `lib/render/`: Add `PlayerComponent` to render the player from `PlayerState`.
-- [x] `lib/ui/`: Add basic HUD (HP bar).
-- [x] Input handling: map keyboard/touch to movement intent.
-- [x] Tests in `test/` for player movement and bounds handling.
-
-## Phase 2 — Spawn system & enemy chaser role
-**Goal:** Add wave-based spawning and a basic chaser enemy using pooling.
-
-**Decisions/constraints:**
-- Spawns are time-based and data-driven.
-- Enemy entities use pooling; no per-entity allocations during updates.
-- Spawn positions use a ring around the player (120–200 units) and clamp to arena bounds.
-
-**Implementation notes:**
-- [x] `lib/game/`: Implement `SpawnerSystem` (wave timings, compositions).
-- [x] `lib/game/`: Add `EnemyState` and a pooled `EnemyPool`.
-- [x] `lib/game/`: Implement chaser AI.
-- [x] `lib/render/`: Render enemy sprite placeholders.
-- [x] Tests for spawn timing and chaser movement.
-
-## Phase 3 — Skills system & Fireball + Sword Cut
-**Goal:** Implement skill casting and two baseline skills to meet V0.1 scope.
-
-**Decisions/constraints:**
-- Data-driven definitions for `SkillDef`.
-- Tag system is consistent and central to synergy.
-- Projectile and melee deliveries remain true to archetype.
- - Fireball targeting picks the nearest active enemy and falls back to player aim if no target exists.
- - Projectile lifetimes are bounded to avoid unbounded pooling growth in early loops.
- - Sword Cut uses a 90° melee arc at ~46 units, centered on the current aim/nearest target.
- - Skill cooldown speed scales with `attackSpeed` and `cooldownRecovery`; skill damage scales with
-   global, delivery, and element stat modifiers (plus `directHitDamage`).
- - Spatial grid buckets use 64-unit cells and are rebuilt each fixed step for hit queries.
- - Cooldown timers are validated to support multi-cast bursts when large `dt` steps occur.
-
-**Implementation notes:**
-- [x] `lib/data/`: Define `SkillDef` (id, name, tags, params, rarity/weight).
-- [x] `lib/game/`: Add `SkillSystem` with cooldowns and basic casting loop.
-- [x] `lib/game/`: Add `ProjectileState` and pooled projectile system.
-- [x] Fireball: projectile delivery with base damage, lifespan, and speed.
-- [x] Sword Cut: melee arc with hit detection.
-- [x] Apply player stat modifiers to skill damage, AOE size, and cooldown speed.
-- [x] Spatial partitioning (grid/buckets) for hit detection.
-- [x] Tests for melee hit detection.
-- [x] Tests for cooldowns and skill triggers.
-
-## Phase 4 — Damage, HP, death, despawn
-**Goal:** Complete survivability loop with damage processing and despawn logic.
-
-**Decisions/constraints:**
-- Damage pipeline is event-based and pooled.
-- Death/despawn returns entities to pools cleanly.
- - Contact damage ticks each fixed step at a small DPS value while enemies overlap the player.
- - Projectile hits resolve via spatial grid queries and stop at the first collision.
- - Damage number visuals are render-only, pooled components and shown for enemy hits to avoid player-contact spam.
-
-**Implementation notes:**
-- [x] `lib/game/`: Add damage events (source, target, amount, tags).
-- [x] `lib/game/`: Add HP management for player/enemies.
-- [x] `lib/game/`: Add despawn/cleanup with pool return.
-- [x] `lib/render/`: Optional damage number visuals using pooled components.
-- [x] Tests for death and despawn behavior.
-
-## Phase 5 — Level-up and selection UI (skills/items)
-**Goal:** Implement the selection loop for skills/items with tradeoffs.
-
-**Decisions/constraints:**
-- Items are data-driven and have clear upside/downside.
-- No permanent stat meta-progression.
-- XP curve is linear (base 20 XP, +10 XP per level).
-- Enemy XP rewards are defined in `lib/data/enemy_defs.dart` and granted on defeat.
- - Level-up choices draw from skill + item definitions without duplicates, using base choice count plus `choiceCount` stat modifiers.
-
-**Implementation notes:**
-- [x] `lib/data/`: Define `ItemDef` (id, name, tags, modifiers).
-- [x] `lib/game/`: Implement XP/level system and enemy defeat XP rewards.
-- [x] `lib/ui/`: Build selection overlay with skill/item cards.
-- [x] `lib/game/`: Apply modifiers to player stats.
-- [x] Tests for modifier application and selection handling.
-
-## Phase 6 — Additional enemy roles (ranged, spawner)
-**Goal:** Reach V0.1 minimum of 3 roles: Chaser, Ranged, Spawner.
-
-**Decisions/constraints:**
-- Roles must be readable and telegraphed.
-- Role definitions remain data-driven.
- - Ranged enemies kite between 55–90% of their attack range and fire imperfect shots based on their projectile spread.
- - Spawners emit configured minions on a cooldown, clamped to arena bounds, with spawn stats taken from enemy definitions.
- - Spawn waves can request weighted role mixes; role weights select a role first, then pick an enemy within that role using per-enemy weights.
- - Ranged/spawner telegraphs use cooldown arc overlays; silhouettes fall back to role-tinted shapes when sprites are unavailable.
-
-**Implementation notes:**
-- [x] Ranged enemy: imperfect aim projectile pattern using enemy-defined cooldowns and spread.
-- [x] Spawner enemy: Portal Keeper spawns data-driven minions until killed.
-- [x] Render distinct telegraphs and silhouettes.
-- [x] Update `SpawnerSystem` to include role weighting.
-- [x] Tests for ranged fire cadence and spawner behavior.
-
-## Phase 7 — Sprite generation pipeline (data-driven)
-**Goal:** Create a lightweight, in-project pixel sprite generation pipeline.
-
-**Decisions/constraints:**
-- Generation inputs are data-driven (palette, seed, shapes) and live in JSON assets.
-- Pipeline is decoupled from gameplay logic and uses a cache for reuse.
-- Shape rendering supports simple primitives (circle/rect/pixels) with optional seeded jitter for pixel noise.
- - Additional primitives use a single saved layer and BlendMode.dstIn masks for in-order masking.
- - Recipe validation logs errors and skips invalid recipes; out-of-bounds shapes emit warnings.
- - Runtime sprite wiring should reuse generated images loaded at game start (no per-frame allocations).
- - Enemy definitions can optionally declare a `spriteId` to bind generated sprites to data.
-
-**Implementation notes:**
-- [x] Define sprite recipe data objects in `lib/data/sprite_recipes.dart` and load from JSON.
-- [x] Add a recipe loader (`lib/render/sprite_recipe_loader.dart`) that reads assets.
-- [x] Build generator module (`lib/render/sprite_generator.dart`) that renders circles/rects/pixels.
-- [x] Add a cached pipeline (`lib/render/sprite_pipeline.dart`) plus `SpriteCache`.
-- [x] Provide a demo renderer/export helper in `lib/render/sprite_gen_demo.dart`.
-- [x] Ship baseline recipes in `assets/sprites/recipes.json` (player, enemy, item, skill, ground, projectile, pickup).
-- [x] Wire runtime generation for the player sprite in `lib/game/horde_game.dart`.
-- [x] Add recipe validation (required keys, bounds checking, palette references) with clear error logging.
-- [x] Expand the generator with additional primitives (lines, arcs, layered masks) for more readable silhouettes.
-- [x] Map generated sprites to runtime components for player, enemies, and projectiles (items/UI TBD).
-- [x] Resolve sprites by `spriteId` at startup and log missing ids for quick validation.
-- [x] Add tests for recipe loading + deterministic generation (seeded output).
-- [x] Decide on runtime vs build-time export workflow and document in code comments or README.
-  - Decision: runtime sprite generation is the default; optional export via
-    `SpriteGenDemo` is available for development inspection or asset baking.
-
-## Phase 8 — Stress scene (performance validation)
-**Goal:** Validate 60 FPS target with high entity counts.
-
-**Decisions/constraints:**
-- Stress scene must be toggled via a single debug route or flag.
-- Pooling and spatial partitioning required.
- - Stress scene uses a `/stress` route (or `STRESS_SCENE=true` dart-define) and
-   reuses the main game loop with larger pooled counts.
- - FPS + frame time are displayed in the HUD only during stress mode.
- - Stress scene logs a single startup note to capture qualitative benchmark
-   context alongside HUD readings.
-
-**Implementation notes:**
-- [x] Create debug route to spawn 500+ enemies and 1000+ projectiles.
-- [x] Add FPS/frame time overlay.
-- [x] Add qualitative benchmark notes in code comments or logs.
-
-## Phase 9 — Cross-platform run readiness
-**Goal:** Ensure the game runs on core platforms (Android + Windows debug).
-
-**Decisions/constraints:**
-- Desktop and mobile input supported.
-- Avoid platform-specific assumptions in rendering or assets.
- - Runtime sprite generation stays free of `dart:io` dependencies; optional export is a dev-only helper.
- - Touch movement uses an analog pan vector with a dead-zone and max radius so
-   small drags do not trigger full-speed movement; keyboard input remains digital.
-
-**Implementation notes:**
-- [x] Validate input mapping for keyboard + touch by adding analog pan scaling and
-  allowing sub-unit movement intent in `PlayerState`.
-- [x] Ensure sprite generation works on target platforms by moving export helpers into a
-  dev-only `SpriteExporter` and keeping runtime `SpritePipeline` free of `dart:io`.
-- Update `README.md` only if new platform-specific steps are required.
-
-## Phase 10 — V0.1 polish & validation
-**Goal:** Deliver a stable, playable V0.1 prototype.
-
-**Decisions/constraints:**
-- Must meet V0.1 checklist and quality gates.
-- No new TODOs without issue/task references.
-
-**Implementation notes:**
-- Verify skills (Fireball + Sword Cut) and 3 enemy roles.
-- Ensure selection UI and progression loop are functional.
-- Run `dart format .`, `flutter analyze`, `flutter test`.
-- Confirm stress scene performance qualitatively and document results.
+## V0.2 Objectives (summary)
+- **New run flow:** start screen, home base, area selection, stage start, death screen.
+- **Stage lifecycle:** stage timer, sectioned spawn distributions, run end conditions.
+- **Content expansion:** more skills, items, and enemy roles/behaviors with sprite updates.
+- **Extensibility:** data-driven areas, future modifiers, difficulty selection, loot info.
+- **UX polish:** simple score display, restart/return paths, clear transitions.
 
 ---
 
-## Component inventory & best-practice cross-check (cross-platform + constrained hardware)
-**Goal:** Enumerate the main project components and validate them against common game-dev best practices for cross-platform targets (mobile + desktop, with web as optional).
+## Phase 0 — Baseline alignment & new data definitions
+**Goal:** Lay the groundwork for V0.2 data-driven content and flow without disrupting V0.1 systems.
 
-### Components & status
-- **Core simulation systems (`lib/game/`)**
-  - **Current:** Fixed timestep, pooling, spatial grid, event-style damage, data-driven stats.
-  - **Best-practice alignment:** ✅ Deterministic updates, minimal per-frame allocations, separation from render layer, data-driven content.
-  - **Follow-ups:** ✅ Added explicit accumulator clamp (max steps per frame) to avoid spiral-of-death on slow frames.
-- **Render layer (`lib/render/`)**
-  - **Current:** Component adapters for player/enemy/projectile, sprite generation pipeline with caching.
-  - **Best-practice alignment:** ✅ Decoupled from simulation; cached sprite generation; placeholder-friendly pipeline.
-  - **Follow-ups:** ✅ Added a SpriteBatch-backed renderer for friendly projectiles to reduce draw calls; ✅ sprite cache pre-warm is now handled at scene start.
-- **UI/Overlays (`lib/ui/`)**
-  - **Current:** HUD and selection overlays.
-  - **Best-practice alignment:** ✅ UI separated from sim, overlays are explicit.
-  - **Follow-ups:** ✅ Centralized input focus routing (gameplay vs selection) by
-    locking pointer input when selection overlays are active; avoid rebuild-heavy
-    widgets in hot paths.
-- **Data definitions (`lib/data/`)**
-  - **Current:** Tags, ids, skill/item/enemy defs, stat defs, sprite recipes.
-  - **Best-practice alignment:** ✅ Data-driven content with consistent tagging and weights.
-  - **Follow-ups:** ✅ Added a startup validation pass that logs warnings/errors and asserts on invalid data.
-- **Assets & sprite recipes (`assets/`)**
-  - **Current:** JSON recipes for sprite generation.
-  - **Best-practice alignment:** ✅ Data-driven sprite pipeline; no external asset license risk.
-  - **Follow-ups:** Define a lightweight export path for baked sprites if runtime generation cost is too high on low-end phones.
-- **Tests (`test/`)**
-  - **Current:** System-level tests for core game systems and sprite recipe loading.
-  - **Best-practice alignment:** ✅ Core logic is testable without rendering.
-  - **Follow-ups:** ✅ Added a minimal performance sanity test to exercise pooling reuse and spatial grid queries in debug.
-- **Platform runners (`android/`, `ios/`, `windows/`, `macos/`, `linux/`, `web/`)**
-  - **Current:** Standard Flutter runner scaffolds.
-  - **Best-practice alignment:** ✅ No platform-specific assumptions in core code.
-  - **Follow-ups:** Keep platform-specific configs minimal; do not fork gameplay logic by platform. For web, document any limitations (if enabled later).
+**Decisions/constraints:**
+- Keep **model vs view** separation: game state stays in `lib/game/`, UI/overlays in `lib/ui/`.
+- Extend data definitions rather than hard-coding logic.
+- No new TODOs without issue/task references.
 
-### Cross-platform performance checklist (to keep current plan aligned)
-- **Frame pacing & time-step safety:** clamp accumulated time and limit max fixed steps per frame.
-- **Allocation discipline:** maintain pooling for enemies/projectiles/damage numbers/particles.
-- **Spatial queries:** keep bucket/grid sizes explicit and validated against projectile speeds.
-- **Render batching:** favor SpriteBatch/atlas where possible, pre-warm caches.
-- **Asset pipeline:** keep sprite generation data-driven; offer optional bake/export for low-end devices.
-- **Input abstraction:** unify keyboard, touch, and controller paths through a single intent layer.
-- **Diagnostics:** ensure stress scene can be toggled in all target platforms (mobile + desktop).
+**Implementation notes:**
+- Add `AreaDef` data objects in `lib/data/` (id, name, description, spriteId, recommendedLevel, lootProfile, difficultyTiers, stageDuration, sectionTimeline).
+- Add `StageSection` data (startTime, endTime, spawnWeights, enemyMix).
+- Add `RunSummary` structure in `lib/game/` (timeAlive, enemiesDefeated, xpGained, damageTaken, score).
+- Add a lightweight `GameFlowState` enum to represent Start → HomeBase → AreaSelect → Stage → Death.
+- Ensure data validation includes new `AreaDef` and `StageSection` references.
+
+---
+
+## Phase 1 — Start screen & game flow routing
+**Goal:** Provide an initial start screen and explicit game flow state transitions.
+
+**Decisions/constraints:**
+- Start screen is a UI overlay; the simulation does not run until a new run is requested.
+- Keep UI routing centralized to avoid state leaks.
+
+**Implementation notes:**
+- Add `StartScreen` widget in `lib/ui/` with “Start” (and optional “Options”) CTA.
+- Add a flow/router controller (e.g., `GameFlowController` in `lib/game/` or `lib/ui/`) to swap scenes/overlays.
+- Ensure input routing disables gameplay input when overlays are active.
+
+---
+
+## Phase 2 — Home base scene (non-combat)
+**Goal:** Introduce a home base area where the player can move but **auto-attack is disabled**, and a portal leads to the area select screen.
+
+**Decisions/constraints:**
+- Home base uses the same core simulation loop but with combat systems disabled.
+- Keep home base content minimal and readable; no enemies or combat.
+
+**Implementation notes:**
+- Add `HomeBaseScene` in `lib/render/` that reuses player movement + camera.
+- Gate skill casting and auto-attack logic with a `combatEnabled` flag on the scene or game state.
+- Add an interactable `PortalComponent` (collision or proximity) to open area selection.
+- Hook transition to `AreaSelect` via `GameFlowController`.
+
+---
+
+## Phase 3 — Area selection screen (extensible)
+**Goal:** Allow selection of a stage/area, with future hooks for difficulty modifiers and loot info.
+
+**Decisions/constraints:**
+- Area selection is data-driven via `AreaDef`.
+- UI should be extensible for later contracts/heat modifiers.
+
+**Implementation notes:**
+- Add `AreaSelectScreen` in `lib/ui/` listing all `AreaDef`s.
+- For each area, display: name, short description, stage duration, enemy themes, loot profile (stubbed), and difficulty tiers (stubbed).
+- Selecting an area triggers a run setup and transitions to the stage scene.
+- Add placeholder UI for “Contracts” and “Difficulty” (disabled in V0.2 but structured).
+
+---
+
+## Phase 4 — Stage lifecycle & timer sections
+**Goal:** Introduce stage timing, sectioned spawn distributions, and run end conditions.
+
+**Decisions/constraints:**
+- Stage timer drives spawn profiles and end-of-run transitions.
+- Spawn system remains pooled and data-driven.
+
+**Implementation notes:**
+- Add a `StageTimer` in `lib/game/` with elapsed time and max duration from `AreaDef`.
+- Add section-based spawn selection in `SpawnerSystem` using `StageSection`.
+- Emit “run ended” when duration is complete; transition to death screen with success state.
+- Update HUD to display stage timer and current section indicator (e.g., “Section 2/4”).
+
+---
+
+## Phase 5 — Death & run summary
+**Goal:** Add a death screen that shows a simple score and lets players restart or return to home base.
+
+**Decisions/constraints:**
+- Use a **simple score formula** for V0.2 (e.g., timeAlive + enemiesDefeated + xpGained).
+- Store metrics in `RunSummary` and reset cleanly on restart.
+
+**Implementation notes:**
+- Add `DeathScreen` overlay in `lib/ui/`.
+- Populate from `RunSummary` when player HP reaches 0 or stage duration ends.
+- Provide actions: “Restart Run” and “Return to Home Base.”
+
+---
+
+## Phase 6 — Skills & items expansion (simple playtest version)
+**Goal:** Expand skills/items with minimal complexity, keeping clear tradeoffs and easy tuning.
+
+**Decisions/constraints:**
+- Keep **data-driven** definitions; no new archetypes without data tags.
+- Focus on straightforward mechanics (e.g., simple DOT, knockback, slow).
+
+**Implementation notes:**
+- Implement additional skills from AGENTS.md list with basic behaviors:
+  - Waterjet (beam, slow), Oil Bombs (ground + debuff), Poison Gas (aura + DOT), Roots (snare).
+  - Sword variants (Thrust, Swing, Deflect) with clean telegraphs.
+- Add a minimal stat modifier pipeline for items if not already exposed in UI.
+- Update `lib/data/skill_defs.dart` and `lib/data/item_defs.dart` with playtest numbers.
+- Ensure UI labels show clear tradeoff text for items.
+
+---
+
+## Phase 7 — Enemy expansion (roles, behaviors, sprites)
+**Goal:** Add new enemy behaviors with readable telegraphs and sprite support.
+
+**Decisions/constraints:**
+- Maintain role clarity; every enemy should read quickly in crowds.
+- Behavior should be data-driven where possible.
+
+**Implementation notes:**
+- Add demon and angel roles as incremental behaviors:
+  - Debuffer (Hexer aura), Buffer (Herald aura), Healer (Seraph Medic beam), Zoner (Warden light zones), Exploder (Cinderling), Elite (Hellknight dash).
+- Update `lib/data/enemy_defs.dart` with role params and `spriteId` bindings.
+- Expand sprite recipe sets for new silhouettes, keeping palette contrast.
+- Add role telegraphs (aura/beam/charge) in `lib/render/`.
+
+---
+
+## Phase 8 — UX polish, analytics hooks, and QA gates
+**Goal:** Polish V0.2 flow and keep quality gates intact.
+
+**Decisions/constraints:**
+- No new TODOs without issue/task references.
+- Avoid drive-by refactors.
+
+**Implementation notes:**
+- Add minimal run summary stats (time alive, kills, XP, damage taken).
+- Add a “flow debug” overlay toggle for quick testing of states.
+- Run `dart format .`, `flutter analyze`, `flutter test` after updates.
+- If performance-sensitive code changes, add a short note on pooling/allocation impacts.
+
+---
+
+## Implementation ordering (recommended)
+1. **Flow & data scaffolding:** `AreaDef`, `StageSection`, `RunSummary`, `GameFlowState`.
+2. **Start screen → Home base → Area select** with routing.
+3. **Stage timer + section-based spawns + run end**.
+4. **Death screen with restart/return**.
+5. **Skills + items expansion** (basic behaviors, clear tradeoffs).
+6. **Enemy behaviors + sprites + telegraphs**.
+7. **Polish & QA gates**.
+
+---
+
+## Extensibility notes (future V0.3+ hooks)
+- Area UI already includes placeholders for contracts/heat and difficulty tiers.
+- `AreaDef` should allow optional loot modifiers and map mutators.
+- `RunSummary` can later include contracts, area, and build tags for meta tracking.
