@@ -127,6 +127,14 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - Add `DeathScreen` overlay in `lib/ui/`.
 - Populate from `RunSummary` when player HP reaches 0 or stage duration ends.
 - Provide actions: “Restart Run” and “Return to Home Base.”
+**Completed:**
+- Added a `DeathScreen` overlay with score and run stats plus restart/return actions.
+- Tracked run summary metrics (time alive, kills, XP gained, damage taken) during stage flow.
+- Routed stage completion and player death into the death screen flow with reset handling.
+**Decisions:**
+- Restart uses the last selected area and revives the player at center.
+**Follow-ups:**
+- Decide whether run restarts should reset level/XP or keep progression between runs.
 
 ---
 

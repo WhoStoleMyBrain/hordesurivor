@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide SelectionOverlay;
 import 'data/data_validation.dart';
 import 'game/horde_game.dart';
 import 'ui/area_select_screen.dart';
+import 'ui/death_screen.dart';
 import 'ui/hud_overlay.dart';
 import 'ui/home_base_overlay.dart';
 import 'ui/options_screen.dart';
@@ -50,6 +51,12 @@ class HordeSurvivorApp extends StatelessWidget {
         AreaSelectScreen.overlayKey: (_, game) => AreaSelectScreen(
           onAreaSelected: game.beginStageFromAreaSelect,
           onReturn: game.returnToHomeBase,
+        ),
+        DeathScreen.overlayKey: (_, game) => DeathScreen(
+          summary: game.runSummary,
+          completed: game.runCompleted,
+          onRestart: game.restartRunFromDeath,
+          onReturn: game.returnToHomeBaseFromDeath,
         ),
       },
       initialActiveOverlays: stressTest
