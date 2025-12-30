@@ -59,12 +59,17 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 **Decisions/constraints:**
 - Home base uses the same core simulation loop but with combat systems disabled.
 - Keep home base content minimal and readable; no enemies or combat.
+- Portal interaction uses proximity checks in the fixed-step loop (no new collision system).
 
 **Implementation notes:**
 - Add `HomeBaseScene` in `lib/render/` that reuses player movement + camera.
 - Gate skill casting and auto-attack logic with a `combatEnabled` flag on the scene or game state.
 - Add an interactable `PortalComponent` (collision or proximity) to open area selection.
 - Hook transition to `AreaSelect` via `GameFlowController`.
+**Completed:**
+- Added a home base flow state with movement-only stepping and combat/spawn systems disabled.
+- Added a portal render component that triggers the area select overlay on proximity.
+- Added a lightweight home base overlay instruction banner.
 
 ---
 

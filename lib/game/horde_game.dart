@@ -11,14 +11,18 @@ import 'package:flutter/services.dart';
 import '../data/enemy_defs.dart';
 import '../data/ids.dart';
 import '../data/tags.dart';
+import '../data/area_defs.dart';
 import '../render/damage_number_component.dart';
 import '../render/enemy_component.dart';
 import '../render/player_component.dart';
+import '../render/portal_component.dart';
 import '../render/projectile_batch_component.dart';
 import '../render/projectile_component.dart';
 import '../render/sprite_pipeline.dart';
+import '../ui/area_select_screen.dart';
 import '../ui/hud_overlay.dart';
 import '../ui/hud_state.dart';
+import '../ui/home_base_overlay.dart';
 import '../ui/selection_overlay.dart';
 import '../ui/selection_state.dart';
 import '../ui/start_screen.dart';
@@ -54,6 +58,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _panMaxRadius = 72;
   static const String _playerSpriteId = 'player_base';
   static const String _projectileSpriteId = 'projectile_firebolt';
+  static const double _portalRadius = 26;
 
   double _accumulator = 0;
   double _frameTimeMs = 0;
@@ -82,6 +87,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final DamageSystem _damageSystem;
   late final ExperienceSystem _experienceSystem;
   late final LevelUpSystem _levelUpSystem;
+  late final PortalComponent _portalComponent;
   final PlayerHudState _hudState = PlayerHudState();
   final SelectionState _selectionState = SelectionState();
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
@@ -101,6 +107,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final math.Random _damageNumberRandom = math.Random(29);
   final Vector2 _damageNumberPosition = Vector2.zero();
   final Vector2 _damageNumberVelocity = Vector2.zero();
+  final Vector2 _portalPosition = Vector2.zero();
   GameFlowState _flowState = GameFlowState.start;
   bool _inputLocked = false;
   VoidCallback? _selectionListener;
@@ -157,6 +164,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
     _playerComponent.syncWithState();
     await add(_playerComponent);
+
+    _portalComponent = PortalComponent(
+      radius: _portalRadius,
+      label: 'AREA PORTAL',
+    );
+    _updatePortalPosition();
+    _portalComponent.position.setFrom(_portalPosition);
+    await add(_portalComponent);
 
     _enemyPool = EnemyPool(initialCapacity: stressTest ? 600 : 48);
     _projectilePool = ProjectilePool(initialCapacity: stressTest ? 1400 : 64);
@@ -228,6 +243,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     _updateInputLock();
     _syncHudState();
+    _syncPortalVisibility();
   }
 
   @override
@@ -235,6 +251,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final clampedDt = math.min(dt, 0.25);
     _frameTimeMs = clampedDt * 1000;
     _fps = clampedDt > 0 ? 1 / clampedDt : 0;
+    if (_flowState == GameFlowState.homeBase) {
+      _accumulator = math.min(
+        _accumulator + clampedDt,
+        _fixedDelta * _maxFixedStepsPerFrame,
+      );
+      while (_accumulator >= _fixedDelta) {
+        _stepHomeBase(_fixedDelta);
+        _accumulator -= _fixedDelta;
+      }
+      super.update(dt);
+      return;
+    }
     if (_flowState != GameFlowState.stage) {
       super.update(dt);
       return;
@@ -321,13 +349,29 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _playerComponent.syncWithState();
   }
 
-  void beginStageFromStartScreen() {
-    if (_flowState == GameFlowState.stage) {
+  void beginHomeBaseFromStartScreen() {
+    if (_flowState == GameFlowState.homeBase) {
       return;
     }
-    _setFlowState(GameFlowState.stage);
+    _setFlowState(GameFlowState.homeBase);
     overlays.remove(StartScreen.overlayKey);
+    overlays.add(HomeBaseOverlay.overlayKey);
+    _syncHudState();
+  }
+
+  void beginStageFromAreaSelect(AreaDef area) {
+    _setFlowState(GameFlowState.stage);
+    overlays.remove(AreaSelectScreen.overlayKey);
+    overlays.remove(HomeBaseOverlay.overlayKey);
     overlays.add(HudOverlay.overlayKey);
+    _syncHudState();
+  }
+
+  void returnToHomeBase() {
+    _setFlowState(GameFlowState.homeBase);
+    overlays.remove(AreaSelectScreen.overlayKey);
+    overlays.remove(HudOverlay.overlayKey);
+    overlays.add(HomeBaseOverlay.overlayKey);
     _syncHudState();
   }
 
@@ -337,6 +381,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (_spawnerReady) {
       _spawnerSystem.updateArenaSize(size);
     }
+    _updatePortalPosition();
+    _portalComponent.position.setFrom(_portalPosition);
   }
 
   void _applyInput() {
@@ -561,11 +607,15 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       return;
     }
     _flowState = state;
+    _syncPortalVisibility();
     _updateInputLock();
   }
 
   void _updateInputLock() {
-    final locked = _selectionState.active || _flowState != GameFlowState.stage;
+    final locked =
+        _selectionState.active ||
+        !(_flowState == GameFlowState.stage ||
+            _flowState == GameFlowState.homeBase);
     if (_inputLocked == locked) {
       return;
     }
@@ -603,6 +653,42 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       );
       _handleProjectileSpawn(projectile);
     }
+  }
+
+  void _stepHomeBase(double dt) {
+    _applyInput();
+    _playerState.step(dt);
+    _playerState.clampToBounds(
+      min: Vector2(_playerRadius, _playerRadius),
+      max: Vector2(size.x - _playerRadius, size.y - _playerRadius),
+    );
+    _playerComponent.syncWithState();
+    _syncHudState();
+
+    final dx = _playerState.position.x - _portalPosition.x;
+    final dy = _playerState.position.y - _portalPosition.y;
+    final distanceSquared = dx * dx + dy * dy;
+    final triggerRadius = _portalRadius + _playerRadius;
+    if (distanceSquared <= triggerRadius * triggerRadius) {
+      _enterAreaSelect();
+    }
+  }
+
+  void _enterAreaSelect() {
+    if (_flowState == GameFlowState.areaSelect) {
+      return;
+    }
+    _setFlowState(GameFlowState.areaSelect);
+    overlays.remove(HomeBaseOverlay.overlayKey);
+    overlays.add(AreaSelectScreen.overlayKey);
+  }
+
+  void _updatePortalPosition() {
+    _portalPosition.setValues(size.x * 0.78, size.y * 0.25);
+  }
+
+  void _syncPortalVisibility() {
+    _portalComponent.visible = _flowState == GameFlowState.homeBase;
   }
 
   @override
