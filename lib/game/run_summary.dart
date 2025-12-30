@@ -4,12 +4,14 @@ class RunSummary {
     this.enemiesDefeated = 0,
     this.xpGained = 0,
     this.damageTaken = 0,
+    this.areaName,
   });
 
   double timeAlive;
   int enemiesDefeated;
   int xpGained;
   double damageTaken;
+  String? areaName;
 
   int get score =>
       timeAlive.round() + enemiesDefeated + xpGained - damageTaken.round();
@@ -19,5 +21,6 @@ class RunSummary {
     enemiesDefeated = 0;
     xpGained = 0;
     damageTaken = 0;
+    areaName = null;
   }
 }

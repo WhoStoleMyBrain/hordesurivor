@@ -440,6 +440,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(SelectionOverlay.overlayKey);
     _resetPlayerProgression();
     _resetRunSummary();
+    _runSummary.areaName = area.name;
     _revivePlayer();
     _resetStageActors();
     _setFlowState(GameFlowState.stage);
