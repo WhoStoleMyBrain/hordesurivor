@@ -125,7 +125,6 @@ class SkillSystem {
               stats: stats,
               enemyPool: enemyPool,
               onProjectileSpawn: onProjectileSpawn,
-              onEffectSpawn: onEffectSpawn,
             );
           case SkillId.swordThrust:
             _castSwordThrust(
@@ -238,7 +237,6 @@ class SkillSystem {
     required StatSheet stats,
     required EnemyPool enemyPool,
     required void Function(ProjectileState) onProjectileSpawn,
-    required void Function(EffectState) onEffectSpawn,
   }) {
     final direction = _resolveAim(
       playerPosition: playerPosition,
@@ -260,17 +258,11 @@ class SkillSystem {
     const duration = 2.0;
     final aoeScale = _aoeScale(stats);
     final radius = 46 * aoeScale;
-    final target = Vector2(
-      playerPosition.x + direction.x * 90,
-      playerPosition.y + direction.y * 90,
-    );
     final groundDamage =
         (4 * _damageMultiplierFor(SkillId.oilBombs, stats)) / duration;
-    final effect = _effectPool.acquire();
-    effect.reset(
+    projectile.setImpactEffect(
       kind: EffectKind.oilGround,
       shape: EffectShape.ground,
-      position: target,
       direction: direction,
       radius: radius,
       length: 0,
@@ -278,7 +270,6 @@ class SkillSystem {
       duration: duration,
       damagePerSecond: groundDamage,
     );
-    onEffectSpawn(effect);
   }
 
   void _castSwordCut({

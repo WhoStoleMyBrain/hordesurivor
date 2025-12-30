@@ -159,12 +159,12 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - Sword deflect now clears nearby enemy projectiles on cast.
 - DOT-tagged skills now factor in `StatId.dotDamage` in the damage multiplier.
 - Added waterjet beam effects plus lingering oil/roots ground zones with DOT-style damage ticks.
+- Oil bomb ground effects now spawn at the projectile impact location.
 **Decisions:**
 - Placeholder implementations favor readable hitboxes over bespoke status effects for V0.2.
 - Ground effects apply damage over their full duration instead of a one-time burst.
 **Follow-ups:**
 - Introduce slow/snare/status-effect hooks to replace placeholder direct damage.
-- Consider syncing oil slick placement to the projectile impact rather than fixed range.
 
 ---
 
