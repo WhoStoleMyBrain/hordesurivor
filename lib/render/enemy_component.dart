@@ -25,6 +25,14 @@ class EnemyComponent extends PositionComponent {
          ..color = (_roleColors[state.role] ?? color).withValues(alpha: 0.5)
          ..style = PaintingStyle.stroke
          ..strokeWidth = 2,
+       _slowPaint = Paint()
+         ..color = const Color(0xFF6EC7FF).withValues(alpha: 0.7)
+         ..style = PaintingStyle.stroke
+         ..strokeWidth = 2,
+       _rootPaint = Paint()
+         ..color = const Color(0xFF3E7C3E).withValues(alpha: 0.8)
+         ..style = PaintingStyle.stroke
+         ..strokeWidth = 3,
        _auraFillPaint = _createAuraFillPaint(state.role),
        _auraStrokePaint = _createAuraStrokePaint(state.role),
        _zoneFillPaint = _createZoneFillPaint(state.role),
@@ -64,6 +72,8 @@ class EnemyComponent extends PositionComponent {
   final Paint _paint;
   final Paint _outlinePaint;
   final Paint _telegraphPaint;
+  final Paint _slowPaint;
+  final Paint _rootPaint;
   final Paint? _auraFillPaint;
   final Paint? _auraStrokePaint;
   final Paint? _zoneFillPaint;
@@ -85,6 +95,7 @@ class EnemyComponent extends PositionComponent {
   @override
   void render(Canvas canvas) {
     _renderRoleAuras(canvas);
+    _renderStatusRings(canvas);
     if (_role == EnemyRole.ranged ||
         _role == EnemyRole.spawner ||
         _role == EnemyRole.disruptor ||
@@ -132,6 +143,15 @@ class EnemyComponent extends PositionComponent {
         break;
       default:
         canvas.drawCircle(Offset.zero, _shapeRadius, _paint);
+    }
+  }
+
+  void _renderStatusRings(Canvas canvas) {
+    if (_state.slowTimer > 0) {
+      canvas.drawCircle(Offset.zero, _shapeRadius + 3, _slowPaint);
+    }
+    if (_state.rootTimer > 0) {
+      canvas.drawCircle(Offset.zero, _shapeRadius + 6, _rootPaint);
     }
   }
 
