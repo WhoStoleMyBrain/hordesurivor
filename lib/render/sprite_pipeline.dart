@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import '../data/sprite_recipes.dart';
 import 'sprite_cache.dart';
 import 'sprite_generator.dart';
 import 'sprite_recipe_loader.dart';

@@ -96,10 +96,10 @@ class EnemyComponent extends PositionComponent {
       final srcRect = Rect.fromLTWH(
         0,
         0,
-        _spriteImage!.width.toDouble(),
-        _spriteImage!.height.toDouble(),
+        _spriteImage.width.toDouble(),
+        _spriteImage.height.toDouble(),
       );
-      canvas.drawImageRect(_spriteImage!, srcRect, destRect, _paint);
+      canvas.drawImageRect(_spriteImage, srcRect, destRect, _paint);
       return;
     }
 

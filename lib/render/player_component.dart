@@ -1,5 +1,4 @@
 import 'package:flame/components.dart';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
@@ -42,10 +41,10 @@ class PlayerComponent extends PositionComponent {
       final srcRect = Rect.fromLTWH(
         0,
         0,
-        _spriteImage!.width.toDouble(),
-        _spriteImage!.height.toDouble(),
+        _spriteImage.width.toDouble(),
+        _spriteImage.height.toDouble(),
       );
-      canvas.drawImageRect(_spriteImage!, srcRect, destRect, _paint);
+      canvas.drawImageRect(_spriteImage, srcRect, destRect, _paint);
     } else {
       canvas.drawCircle(Offset.zero, _radius, _paint);
     }
