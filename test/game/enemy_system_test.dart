@@ -47,6 +47,7 @@ void main() {
       random: math.Random(1),
       onProjectileSpawn: (_) {},
       onSpawn: (_) {},
+      onSelfDestruct: (_) {},
     );
     system.update(1, Vector2(10, 0), Vector2(200, 200));
 
@@ -65,6 +66,7 @@ void main() {
       random: math.Random(2),
       onProjectileSpawn: (_) => projectileCount++,
       onSpawn: (_) {},
+      onSelfDestruct: (_) {},
     );
 
     system.update(2, Vector2(120, 0), Vector2(200, 200));
@@ -83,6 +85,7 @@ void main() {
       random: math.Random(3),
       onProjectileSpawn: (_) {},
       onSpawn: (_) => spawnCount++,
+      onSelfDestruct: (_) {},
     );
 
     system.update(4, Vector2(120, 120), Vector2(200, 200));

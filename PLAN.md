@@ -177,6 +177,14 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - Update `lib/data/enemy_defs.dart` with role params and `spriteId` bindings.
 - Expand sprite recipe sets for new silhouettes, keeping palette contrast.
 - Add role telegraphs (aura/beam/charge) in `lib/render/`.
+**Completed:**
+- Added baseline behaviors for disruptor, zoner, exploder, support, pattern, and elite roles, including healing/rally pulses, ring attacks, and dashes.
+- Added special-action telegraphs for non-ranged roles and tuned enemy stat blocks for the new behaviors.
+**Decisions:**
+- Support healer pulses restore ally HP; support buffer pulses shorten nearby allies’ attack/spawn timers.
+- Exploders self-destruct by routing damage through the standard damage system for XP/cleanup consistency.
+**Follow-ups:**
+- Add dedicated beam/zone visuals for support and zoner roles plus unique sprite silhouettes for new enemies.
 
 ---
 

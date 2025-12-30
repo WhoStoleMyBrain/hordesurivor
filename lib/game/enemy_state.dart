@@ -6,7 +6,8 @@ import '../data/tags.dart';
 class EnemyState {
   EnemyState({required this.id})
     : position = Vector2.zero(),
-      velocity = Vector2.zero();
+      velocity = Vector2.zero(),
+      dashDirection = Vector2.zero();
 
   EnemyId id;
   EnemyRole role = EnemyRole.chaser;
@@ -27,6 +28,13 @@ class EnemyState {
   int spawnCount = 1;
   double spawnRadius = 48;
   int xpReward = 0;
+  double specialCooldown = 0;
+  double specialTimer = 0;
+  double dashCooldown = 0;
+  double dashTimer = 0;
+  double orbitDirection = 1;
+  bool behaviorInitialized = false;
+  final Vector2 dashDirection;
   bool active = false;
 
   void reset({
@@ -65,6 +73,13 @@ class EnemyState {
     this.spawnCount = spawnCount;
     this.spawnRadius = spawnRadius;
     this.xpReward = xpReward;
+    specialCooldown = 0;
+    specialTimer = 0;
+    dashCooldown = 0;
+    dashTimer = 0;
+    orbitDirection = 1;
+    behaviorInitialized = false;
+    dashDirection.setZero();
     active = true;
   }
 }

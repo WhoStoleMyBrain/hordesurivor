@@ -76,7 +76,15 @@ class EnemyComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
-    if (_role == EnemyRole.ranged || _role == EnemyRole.spawner) {
+    if (_role == EnemyRole.ranged ||
+        _role == EnemyRole.spawner ||
+        _role == EnemyRole.disruptor ||
+        _role == EnemyRole.zoner ||
+        _role == EnemyRole.exploder ||
+        _role == EnemyRole.supportHealer ||
+        _role == EnemyRole.supportBuffer ||
+        _role == EnemyRole.pattern ||
+        _role == EnemyRole.elite) {
       final progress = _telegraphProgress();
       if (progress > 0) {
         canvas.drawArc(
@@ -133,6 +141,20 @@ class EnemyComponent extends PositionComponent {
           return 0;
         }
         return (1 - (_state.spawnTimer / _state.spawnCooldown)).clamp(0.0, 1.0);
+      case EnemyRole.disruptor:
+      case EnemyRole.zoner:
+      case EnemyRole.exploder:
+      case EnemyRole.supportHealer:
+      case EnemyRole.supportBuffer:
+      case EnemyRole.pattern:
+      case EnemyRole.elite:
+        if (_state.specialCooldown <= 0) {
+          return 0;
+        }
+        return (1 - (_state.specialTimer / _state.specialCooldown)).clamp(
+          0.0,
+          1.0,
+        );
       default:
         return 0;
     }
