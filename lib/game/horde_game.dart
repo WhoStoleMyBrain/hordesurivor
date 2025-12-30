@@ -17,9 +17,11 @@ import '../render/player_component.dart';
 import '../render/projectile_batch_component.dart';
 import '../render/projectile_component.dart';
 import '../render/sprite_pipeline.dart';
+import '../ui/hud_overlay.dart';
 import '../ui/hud_state.dart';
 import '../ui/selection_overlay.dart';
 import '../ui/selection_state.dart';
+import '../ui/start_screen.dart';
 import 'damage_system.dart';
 import 'enemy_pool.dart';
 import 'enemy_state.dart';
@@ -33,6 +35,7 @@ import 'projectile_system.dart';
 import 'skill_system.dart';
 import 'spatial_grid.dart';
 import 'spawner_system.dart';
+import 'game_flow_state.dart';
 
 class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   HordeGame({this.stressTest = false}) : super();
@@ -98,11 +101,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final math.Random _damageNumberRandom = math.Random(29);
   final Vector2 _damageNumberPosition = Vector2.zero();
   final Vector2 _damageNumberVelocity = Vector2.zero();
+  GameFlowState _flowState = GameFlowState.start;
   bool _inputLocked = false;
   VoidCallback? _selectionListener;
 
   PlayerHudState get hudState => _hudState;
   SelectionState get selectionState => _selectionState;
+  GameFlowState get flowState => _flowState;
 
   @override
   backgroundColor() => const Color(0xFF0F1117);
@@ -112,6 +117,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     await super.onLoad();
     _selectionListener = _handleSelectionStateChanged;
     _selectionState.addListener(_selectionListener!);
+    if (stressTest) {
+      _flowState = GameFlowState.stage;
+    }
     await _spritePipeline.loadAndGenerateFromAsset(
       'assets/sprites/recipes.json',
     );
@@ -218,6 +226,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         '$_stressProjectileBurstCount-projectile bursts.',
       );
     }
+    _updateInputLock();
     _syncHudState();
   }
 
@@ -226,6 +235,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final clampedDt = math.min(dt, 0.25);
     _frameTimeMs = clampedDt * 1000;
     _fps = clampedDt > 0 ? 1 / clampedDt : 0;
+    if (_flowState != GameFlowState.stage) {
+      super.update(dt);
+      return;
+    }
     _accumulator = math.min(
       _accumulator + clampedDt,
       _fixedDelta * _maxFixedStepsPerFrame,
@@ -306,6 +319,16 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
 
     _playerComponent.syncWithState();
+  }
+
+  void beginStageFromStartScreen() {
+    if (_flowState == GameFlowState.stage) {
+      return;
+    }
+    _setFlowState(GameFlowState.stage);
+    overlays.remove(StartScreen.overlayKey);
+    overlays.add(HudOverlay.overlayKey);
+    _syncHudState();
   }
 
   @override
@@ -523,14 +546,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _handleSelectionStateChanged() {
-    final locked = _selectionState.active;
-    if (_inputLocked == locked) {
-      return;
-    }
-    _inputLocked = locked;
-    if (_inputLocked) {
-      _resetPointerInput();
-    }
+    _updateInputLock();
   }
 
   void _resetPointerInput() {
@@ -538,6 +554,25 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _panStart = null;
     _panDirection.setZero();
     _playerState.movementIntent.setZero();
+  }
+
+  void _setFlowState(GameFlowState state) {
+    if (_flowState == state) {
+      return;
+    }
+    _flowState = state;
+    _updateInputLock();
+  }
+
+  void _updateInputLock() {
+    final locked = _selectionState.active || _flowState != GameFlowState.stage;
+    if (_inputLocked == locked) {
+      return;
+    }
+    _inputLocked = locked;
+    if (_inputLocked) {
+      _resetPointerInput();
+    }
   }
 
   void _spawnStressProjectiles(double dt) {
