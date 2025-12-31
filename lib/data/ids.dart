@@ -10,6 +10,27 @@ enum SkillId {
   roots,
 }
 
+enum SkillUpgradeId {
+  fireballBlastCoating,
+  fireballQuickFuse,
+  waterjetPressureLine,
+  waterjetSteadyStream,
+  oilBombsExpandedPuddles,
+  oilBombsHeavyPayload,
+  swordThrustLongReach,
+  swordThrustQuickStep,
+  swordCutBroadArc,
+  swordCutSharpenedEdge,
+  swordSwingHeavyMomentum,
+  swordSwingFlowingStrike,
+  swordDeflectWiderParry,
+  swordDeflectCountercut,
+  poisonGasThickClouds,
+  poisonGasVirulentFumes,
+  rootsDeepBind,
+  rootsTighteningGrasp,
+}
+
 enum ItemId {
   glassCatalyst,
   heavyPlate,

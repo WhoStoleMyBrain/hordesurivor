@@ -4,6 +4,7 @@ import 'area_defs.dart';
 import 'enemy_defs.dart';
 import 'item_defs.dart';
 import 'skill_defs.dart';
+import 'skill_upgrade_defs.dart';
 import 'tags.dart';
 
 typedef DataLogFn = void Function(String message);
@@ -50,6 +51,11 @@ DataValidationResult validateGameData() {
     label: 'AreaDef',
     result: result,
   );
+  _checkUniqueIds(
+    ids: skillUpgradeDefs.map((def) => def.id),
+    label: 'SkillUpgradeDef',
+    result: result,
+  );
 
   for (final def in skillDefs) {
     if (_isTagSetEmpty(def.tags)) {
@@ -57,6 +63,23 @@ DataValidationResult validateGameData() {
     }
     if (def.weight <= 0) {
       result.errors.add('SkillDef ${def.id} has non-positive weight.');
+    }
+  }
+
+  for (final def in skillUpgradeDefs) {
+    if (!skillDefsById.containsKey(def.skillId)) {
+      result.errors.add(
+        'SkillUpgradeDef ${def.id} skillId ${def.skillId} not found.',
+      );
+    }
+    if (_isTagSetEmpty(def.tags)) {
+      result.errors.add('SkillUpgradeDef ${def.id} has no tags.');
+    }
+    if (def.modifiers.isEmpty) {
+      result.errors.add('SkillUpgradeDef ${def.id} has no modifiers.');
+    }
+    if (def.weight <= 0) {
+      result.errors.add('SkillUpgradeDef ${def.id} has non-positive weight.');
     }
   }
 
