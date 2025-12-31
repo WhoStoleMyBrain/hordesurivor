@@ -31,6 +31,7 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - Added `AreaDef`/`StageSection` data definitions with sample areas and sections.
 - Added `RunSummary` and `GameFlowState` scaffolding.
 - Extended data validation for new area data structures.
+- Warn when stage sections leave gaps in the area timeline.
 
 ---
 
