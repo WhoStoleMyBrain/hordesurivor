@@ -13,8 +13,11 @@ class RunSummary {
   double damageTaken;
   String? areaName;
 
-  int get score =>
-      timeAlive.round() + enemiesDefeated + xpGained - damageTaken.round();
+  int get score {
+    final raw =
+        timeAlive.round() + enemiesDefeated + xpGained - damageTaken.round();
+    return raw < 0 ? 0 : raw;
+  }
 
   void reset() {
     timeAlive = 0;
