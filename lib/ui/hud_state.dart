@@ -13,6 +13,7 @@ class PlayerHudState extends ChangeNotifier {
   double stageDuration = 0;
   int sectionIndex = 0;
   int sectionCount = 0;
+  String? sectionNote;
 
   void update({
     required double hp,
@@ -27,6 +28,7 @@ class PlayerHudState extends ChangeNotifier {
     required double stageDuration,
     required int sectionIndex,
     required int sectionCount,
+    required String? sectionNote,
   }) {
     if (this.hp == hp &&
         this.maxHp == maxHp &&
@@ -39,7 +41,8 @@ class PlayerHudState extends ChangeNotifier {
         this.stageElapsed == stageElapsed &&
         this.stageDuration == stageDuration &&
         this.sectionIndex == sectionIndex &&
-        this.sectionCount == sectionCount) {
+        this.sectionCount == sectionCount &&
+        this.sectionNote == sectionNote) {
       return;
     }
 
@@ -55,6 +58,7 @@ class PlayerHudState extends ChangeNotifier {
     this.stageDuration = stageDuration;
     this.sectionIndex = sectionIndex;
     this.sectionCount = sectionCount;
+    this.sectionNote = sectionNote;
     notifyListeners();
   }
 }

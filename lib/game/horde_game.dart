@@ -742,6 +742,16 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _syncHudState() {
     final stageTimer = _stageTimer;
+    String? sectionNote;
+    if (_flowState == GameFlowState.stage && stageTimer != null) {
+      final activeArea = _activeArea;
+      if (activeArea != null) {
+        final index = stageTimer.currentSectionIndex;
+        if (index >= 0 && index < activeArea.sections.length) {
+          sectionNote = activeArea.sections[index].note;
+        }
+      }
+    }
     final inStage = _flowState == GameFlowState.stage && stageTimer != null;
     _hudState.update(
       hp: _playerState.hp,
@@ -756,6 +766,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       stageDuration: inStage ? stageTimer.duration : 0,
       sectionIndex: inStage ? stageTimer.currentSectionIndex : 0,
       sectionCount: inStage ? stageTimer.sectionCount : 0,
+      sectionNote: inStage ? sectionNote : null,
     );
   }
 
