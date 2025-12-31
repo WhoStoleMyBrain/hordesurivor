@@ -64,7 +64,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _playerMaxHp = 100;
   static const double _enemyRadius = 14;
   static const double _enemyContactDamagePerSecond = 12;
-  static const int _stressEnemyCount = 550;
+  static const int _stressWaveFrontlineCount = 260;
+  static const int _stressWaveMixedCount = 200;
+  static const int _stressWaveEliteCount = 90;
+  static const int _stressEnemyCount =
+      _stressWaveFrontlineCount + _stressWaveMixedCount + _stressWaveEliteCount;
   static const int _stressProjectileBurstCount = 1100;
   static const double _stressProjectileInterval = 4;
   static const int _maxFixedStepsPerFrame = 5;
@@ -246,8 +250,46 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
           ? const [
               SpawnWave(
                 time: 0,
-                enemyId: EnemyId.imp,
-                count: _stressEnemyCount,
+                count: _stressWaveFrontlineCount,
+                roleWeights: {
+                  EnemyRole.chaser: 5,
+                  EnemyRole.ranged: 3,
+                  EnemyRole.spawner: 2,
+                },
+                variantWeights: {
+                  EnemyVariant.base: 6,
+                  EnemyVariant.champion: 1,
+                },
+              ),
+              SpawnWave(
+                time: 3,
+                count: _stressWaveMixedCount,
+                roleWeights: {
+                  EnemyRole.disruptor: 2,
+                  EnemyRole.zoner: 2,
+                  EnemyRole.supportHealer: 1,
+                  EnemyRole.supportBuffer: 1,
+                  EnemyRole.pattern: 1,
+                  EnemyRole.ranged: 2,
+                },
+                variantWeights: {
+                  EnemyVariant.base: 5,
+                  EnemyVariant.champion: 1,
+                },
+              ),
+              SpawnWave(
+                time: 6,
+                count: _stressWaveEliteCount,
+                enemyWeights: {
+                  EnemyId.hellknight: 2,
+                  EnemyId.archonLancer: 2,
+                  EnemyId.cinderling: 3,
+                  EnemyId.warden: 2,
+                },
+                variantWeights: {
+                  EnemyVariant.base: 4,
+                  EnemyVariant.champion: 1,
+                },
               ),
             ]
           : const [

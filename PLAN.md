@@ -138,11 +138,10 @@ This plan advances the project from the completed V0.2 foundation into V0.3. It 
 - Added tag badge rows to the HUD and selection overlay to surface skill/upgrade/item tags.
 - Added item inventory tracking to include item tags in the HUD build tag summary.
 - Added a read-only compendium overlay for skills and enemies, including tag badges and role/faction labels.
+- Updated the stress scene to spawn the newer enemy roles alongside champion variants.
 **Decisions:**
 - High-contrast telegraphs are a simple toggle that updates existing enemies immediately.
 - HUD tag badges summarize active skill/upgrade/item tags using inventory tracking for items.
-**Follow-ups:**
-- Extend the stress scene to include the newest enemy roles/variants.
 
 ---
 
