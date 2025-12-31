@@ -90,6 +90,9 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - Add placeholder UI for “Contracts” and “Difficulty” (disabled in V0.2 but structured).
 **Completed:**
 - Extended area cards with difficulty tier display and a disabled contracts placeholder note.
+- Added enemy theme labels to `AreaDef` and displayed them in the area selection UI.
+**Decisions:**
+- Enemy themes are stored as freeform labels on `AreaDef` for flexible UI copy.
 
 ---
 
