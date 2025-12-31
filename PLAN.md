@@ -70,10 +70,9 @@ This plan advances the project from the completed V0.2 foundation into V0.3. It 
 - Update `lib/render/` telegraphs and sprite recipes for new roles/variants.
 **Completed:**
 - Added champion variants as a modifier layer with stat multipliers, XP scaling, and a gold-tinted ring for readability.
+- Spawner enemies now roll champion variants when summoning minions, respecting the same cap.
 **Decisions:**
-- Champions spawn only from wave spawns for now, with a small chance and a max active cap to keep density readable.
-**Follow-ups:**
-- Allow spawner enemies (e.g., Portal Keeper) to optionally roll champion variants.
+- Champions spawn from wave spawns and spawner summons with a shared cap to keep density readable.
 
 ---
 
