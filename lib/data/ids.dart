@@ -52,6 +52,13 @@ enum ItemId {
   ritualCandle,
   slickSoles,
   backpackOfGlass,
+  thermalCoil,
+  hydraulicStabilizer,
+  sporeSatchel,
+  gravelBoots,
+  moltenBuckle,
+  serratedEdge,
+  mercyCharm,
 }
 
 enum EnemyId {

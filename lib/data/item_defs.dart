@@ -219,6 +219,80 @@ const List<ItemDef> itemDefs = [
       StatModifier(stat: StatId.maxHp, amount: -0.2),
     ],
   ),
+  ItemDef(
+    id: ItemId.thermalCoil,
+    name: 'Thermal Coil',
+    description: 'Ignitions burn longer, but shots hit softer.',
+    modifiers: [
+      StatModifier(stat: StatId.dotDuration, amount: 0.25),
+      StatModifier(stat: StatId.fireDamage, amount: 0.15),
+      StatModifier(stat: StatId.projectileDamage, amount: -0.15),
+    ],
+    tags: TagSet(elements: {ElementTag.fire}, effects: {EffectTag.dot}),
+  ),
+  ItemDef(
+    id: ItemId.hydraulicStabilizer,
+    name: 'Hydraulic Stabilizer',
+    description: 'Steadier beams widen impact, slowing your stride.',
+    modifiers: [
+      StatModifier(stat: StatId.beamDamage, amount: 0.25),
+      StatModifier(stat: StatId.aoeSize, amount: 0.15),
+      StatModifier(stat: StatId.moveSpeed, amount: -0.1),
+    ],
+    tags: TagSet(deliveries: {DeliveryTag.beam}),
+  ),
+  ItemDef(
+    id: ItemId.sporeSatchel,
+    name: 'Spore Satchel',
+    description: 'Poison blooms stronger, healing feels weaker.',
+    modifiers: [
+      StatModifier(stat: StatId.dotDamage, amount: 0.2),
+      StatModifier(stat: StatId.poisonResistance, amount: 0.2),
+      StatModifier(stat: StatId.healingReceived, amount: -0.2),
+    ],
+    tags: TagSet(elements: {ElementTag.poison}, effects: {EffectTag.dot}),
+  ),
+  ItemDef(
+    id: ItemId.gravelBoots,
+    name: 'Gravel Boots',
+    description: 'Heavier steps shove foes back, but slow your tempo.',
+    modifiers: [
+      StatModifier(stat: StatId.knockbackStrength, amount: 0.25),
+      StatModifier(stat: StatId.attackSpeed, amount: -0.15),
+    ],
+  ),
+  ItemDef(
+    id: ItemId.moltenBuckle,
+    name: 'Molten Buckle',
+    description: 'Volatile blasts surge, self-burn included.',
+    modifiers: [
+      StatModifier(stat: StatId.explosionDamage, amount: 0.25),
+      StatModifier(stat: StatId.fireDamage, amount: 0.2),
+      StatModifier(stat: StatId.selfExplosionDamageTaken, amount: 0.25),
+    ],
+    tags: TagSet(elements: {ElementTag.fire}),
+  ),
+  ItemDef(
+    id: ItemId.serratedEdge,
+    name: 'Serrated Edge',
+    description: 'Melee cuts linger, ranged force fades.',
+    modifiers: [
+      StatModifier(stat: StatId.meleeDamage, amount: 0.2),
+      StatModifier(stat: StatId.dotDamage, amount: 0.15),
+      StatModifier(stat: StatId.projectileDamage, amount: -0.2),
+    ],
+    tags: TagSet(effects: {EffectTag.dot}),
+  ),
+  ItemDef(
+    id: ItemId.mercyCharm,
+    name: 'Mercy Charm',
+    description: 'Healing strengthens, raw damage softens.',
+    modifiers: [
+      StatModifier(stat: StatId.healingReceived, amount: 0.25),
+      StatModifier(stat: StatId.damage, amount: -0.15),
+    ],
+    tags: TagSet(effects: {EffectTag.support}),
+  ),
 ];
 
 final Map<ItemId, ItemDef> itemDefsById = Map.unmodifiable({
