@@ -35,4 +35,27 @@ class TagSet {
   bool hasElement(ElementTag tag) => elements.contains(tag);
   bool hasEffect(EffectTag tag) => effects.contains(tag);
   bool hasDelivery(DeliveryTag tag) => deliveries.contains(tag);
+
+  bool get isEmpty => elements.isEmpty && effects.isEmpty && deliveries.isEmpty;
+  bool get isNotEmpty => !isEmpty;
+
+  bool equals(TagSet other) {
+    return elements.length == other.elements.length &&
+        effects.length == other.effects.length &&
+        deliveries.length == other.deliveries.length &&
+        elements.containsAll(other.elements) &&
+        effects.containsAll(other.effects) &&
+        deliveries.containsAll(other.deliveries);
+  }
+
+  TagSet merge(TagSet other) {
+    if (other.isEmpty) {
+      return this;
+    }
+    return TagSet(
+      elements: {...elements, ...other.elements},
+      effects: {...effects, ...other.effects},
+      deliveries: {...deliveries, ...other.deliveries},
+    );
+  }
 }

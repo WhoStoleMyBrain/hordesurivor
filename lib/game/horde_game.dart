@@ -10,6 +10,8 @@ import 'package:flutter/services.dart';
 
 import '../data/enemy_defs.dart';
 import '../data/ids.dart';
+import '../data/skill_defs.dart';
+import '../data/skill_upgrade_defs.dart';
 import '../data/tags.dart';
 import '../data/area_defs.dart';
 import '../render/damage_number_component.dart';
@@ -771,6 +773,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       }
     }
     final inStage = _flowState == GameFlowState.stage && stageTimer != null;
+    final buildTags = _collectBuildTags();
     _hudState.update(
       hp: _playerState.hp,
       maxHp: _playerState.maxHp,
@@ -787,7 +790,25 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       sectionCount: inStage ? stageTimer.sectionCount : 0,
       threatTier: inStage ? threatTier : 0,
       sectionNote: inStage ? sectionNote : null,
+      buildTags: buildTags,
     );
+  }
+
+  TagSet _collectBuildTags() {
+    var tags = const TagSet();
+    for (final skillId in _skillSystem.skillIds) {
+      final def = skillDefsById[skillId];
+      if (def != null) {
+        tags = tags.merge(def.tags);
+      }
+    }
+    for (final upgradeId in _levelUpSystem.appliedUpgrades) {
+      final def = skillUpgradeDefsById[upgradeId];
+      if (def != null) {
+        tags = tags.merge(def.tags);
+      }
+    }
+    return tags;
   }
 
   void _handleSelectionStateChanged() {

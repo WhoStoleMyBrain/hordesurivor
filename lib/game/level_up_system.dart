@@ -42,6 +42,8 @@ class LevelUpSystem {
   List<SelectionChoice> get choices => List.unmodifiable(_choices);
   int get pendingLevels => _pendingLevels;
   bool get hasChoices => _choices.isNotEmpty;
+  Set<SkillUpgradeId> get appliedUpgrades =>
+      Set<SkillUpgradeId>.unmodifiable(_appliedUpgrades);
 
   void queueLevels(int levelsGained) {
     if (levelsGained <= 0) {

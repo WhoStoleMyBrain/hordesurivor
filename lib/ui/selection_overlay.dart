@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../data/item_defs.dart';
+import '../data/skill_defs.dart';
+import '../data/skill_upgrade_defs.dart';
+import '../data/tags.dart';
 import '../game/level_up_system.dart';
 import 'selection_state.dart';
+import 'tag_badge.dart';
 
 class SelectionOverlay extends StatelessWidget {
   const SelectionOverlay({
@@ -79,6 +84,8 @@ class _ChoiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final tags = _tagsForChoice(choice);
+    final badges = tagBadgesForTags(tags);
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.all(12),
@@ -107,6 +114,14 @@ class _ChoiceCard extends StatelessWidget {
             choice.description,
             style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
           ),
+          if (badges.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [for (final badge in badges) TagBadge(data: badge)],
+            ),
+          ],
         ],
       ),
     );
@@ -121,5 +136,25 @@ String _labelForChoice(SelectionType type) {
       return 'Item';
     case SelectionType.skillUpgrade:
       return 'Upgrade';
+  }
+}
+
+TagSet _tagsForChoice(SelectionChoice choice) {
+  switch (choice.type) {
+    case SelectionType.skill:
+      final skillId = choice.skillId;
+      return skillId != null
+          ? skillDefsById[skillId]?.tags ?? const TagSet()
+          : const TagSet();
+    case SelectionType.item:
+      final itemId = choice.itemId;
+      return itemId != null
+          ? itemDefsById[itemId]?.tags ?? const TagSet()
+          : const TagSet();
+    case SelectionType.skillUpgrade:
+      final upgradeId = choice.skillUpgradeId;
+      return upgradeId != null
+          ? skillUpgradeDefsById[upgradeId]?.tags ?? const TagSet()
+          : const TagSet();
   }
 }
