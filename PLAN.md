@@ -215,6 +215,7 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - Added a flow debug overlay (toggle with F1) with quick jumps to each flow state.
  - Added readable status rings for slowed/rooted enemies to improve combat clarity.
  - Added area name display to the death screen run summary for quick context.
+ - Added HUD section notes to surface current stage beat descriptions during runs.
 **Decisions:**
 - Flow debug overlay uses the first `AreaDef` when jumping directly into stage.
  - Status rings reuse skill effect colors (waterjet for slow, roots for snare) for quick recognition.

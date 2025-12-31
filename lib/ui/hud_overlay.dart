@@ -57,6 +57,15 @@ class HudOverlay extends StatelessWidget {
                           '/${hudState.sectionCount}',
                           style: const TextStyle(letterSpacing: 0.5),
                         ),
+                        if (hudState.sectionNote != null &&
+                            hudState.sectionNote!.isNotEmpty)
+                          Text(
+                            hudState.sectionNote!,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
                       ],
                       if (hudState.showPerformance) ...[
                         const SizedBox(height: 4),
