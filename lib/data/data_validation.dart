@@ -135,6 +135,9 @@ DataValidationResult validateGameData() {
     if (def.difficultyTiers.isEmpty) {
       result.warnings.add('AreaDef ${def.id} has no difficulty tiers.');
     }
+    if (def.enemyThemes.isEmpty) {
+      result.warnings.add('AreaDef ${def.id} has no enemy themes.');
+    }
 
     var lastEnd = 0.0;
     for (var i = 0; i < def.sections.length; i++) {

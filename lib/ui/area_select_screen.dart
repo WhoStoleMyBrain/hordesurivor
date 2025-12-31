@@ -85,6 +85,13 @@ class AreaSelectScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 6),
                           _InfoRow(
+                            label: 'Enemies',
+                            value: area.enemyThemes.isEmpty
+                                ? 'Unknown'
+                                : area.enemyThemes.join(' · '),
+                          ),
+                          const SizedBox(height: 6),
+                          _InfoRow(
                             label: 'Contracts',
                             value: 'Locked for V0.2',
                             muted: true,

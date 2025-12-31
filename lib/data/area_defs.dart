@@ -27,6 +27,7 @@ class AreaDef {
     required this.stageDuration,
     required this.sections,
     this.spriteId,
+    this.enemyThemes = const [],
     this.difficultyTiers = const ['Standard'],
   });
 
@@ -36,6 +37,7 @@ class AreaDef {
   final String? spriteId;
   final int recommendedLevel;
   final String lootProfile;
+  final List<String> enemyThemes;
   final List<String> difficultyTiers;
   final double stageDuration;
   final List<StageSection> sections;
@@ -49,6 +51,7 @@ const List<AreaDef> areaDefs = [
     spriteId: 'area_ashen_outskirts',
     recommendedLevel: 1,
     lootProfile: 'embers',
+    enemyThemes: ['Demons'],
     stageDuration: 180,
     sections: [
       StageSection(
@@ -89,6 +92,7 @@ const List<AreaDef> areaDefs = [
     spriteId: 'area_halo_breach',
     recommendedLevel: 2,
     lootProfile: 'radiance',
+    enemyThemes: ['Angels'],
     stageDuration: 210,
     sections: [
       StageSection(
