@@ -95,7 +95,7 @@ class _ChoiceCard extends StatelessWidget {
                 child: Text(choice.title, style: theme.textTheme.titleMedium),
               ),
               Text(
-                choice.type == SelectionType.skill ? 'Skill' : 'Item',
+                _labelForChoice(choice.type),
                 style: theme.textTheme.labelMedium?.copyWith(
                   color: Colors.white70,
                 ),
@@ -110,5 +110,16 @@ class _ChoiceCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+String _labelForChoice(SelectionType type) {
+  switch (type) {
+    case SelectionType.skill:
+      return 'Skill';
+    case SelectionType.item:
+      return 'Item';
+    case SelectionType.skillUpgrade:
+      return 'Upgrade';
   }
 }

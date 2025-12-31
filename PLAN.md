@@ -45,6 +45,12 @@ This plan advances the project from the completed V0.2 foundation into V0.3. It 
   - Effects should apply via skill hit/area ticks and clear on duration expiry.
 - Update selection UI (`lib/ui/`) to surface upgrades with concise summaries and tag icons.
 - Add minimal VFX for new statuses using existing color palette and pooled ring/overlay components.
+**Completed:**
+- Added `SkillUpgradeDef` definitions with two upgrades per V0.1 skill and validation.
+- Level-up selection now offers skill upgrades for owned skills and prevents repeats.
+- Selection UI labels upgrades distinctly from skills/items.
+**Decisions:**
+- Skill upgrades currently apply stat modifiers only; future per-skill params can build on the data IDs.
 
 ---
 

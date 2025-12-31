@@ -3,11 +3,12 @@ import 'dart:math' as math;
 import '../data/ids.dart';
 import '../data/item_defs.dart';
 import '../data/skill_defs.dart';
+import '../data/skill_upgrade_defs.dart';
 import '../data/stat_defs.dart';
 import 'player_state.dart';
 import 'skill_system.dart';
 
-enum SelectionType { skill, item }
+enum SelectionType { skill, item, skillUpgrade }
 
 class SelectionChoice {
   const SelectionChoice({
@@ -16,6 +17,7 @@ class SelectionChoice {
     required this.description,
     this.skillId,
     this.itemId,
+    this.skillUpgradeId,
   });
 
   final SelectionType type;
@@ -23,6 +25,7 @@ class SelectionChoice {
   final String description;
   final SkillId? skillId;
   final ItemId? itemId;
+  final SkillUpgradeId? skillUpgradeId;
 }
 
 class LevelUpSystem {
@@ -33,6 +36,7 @@ class LevelUpSystem {
   final math.Random _random;
   final int _baseChoiceCount;
   final List<SelectionChoice> _choices = [];
+  final Set<SkillUpgradeId> _appliedUpgrades = {};
   int _pendingLevels = 0;
 
   List<SelectionChoice> get choices => List.unmodifiable(_choices);
@@ -49,6 +53,7 @@ class LevelUpSystem {
   void reset() {
     _pendingLevels = 0;
     _choices.clear();
+    _appliedUpgrades.clear();
   }
 
   void buildChoices({
@@ -84,6 +89,15 @@ class LevelUpSystem {
             playerState.applyModifiers(item.modifiers);
           }
         }
+      case SelectionType.skillUpgrade:
+        final upgradeId = choice.skillUpgradeId;
+        if (upgradeId != null) {
+          final upgrade = skillUpgradeDefsById[upgradeId];
+          if (upgrade != null) {
+            _appliedUpgrades.add(upgrade.id);
+            playerState.applyModifiers(upgrade.modifiers);
+          }
+        }
       case SelectionType.skill:
         final skillId = choice.skillId;
         if (skillId != null) {
@@ -103,6 +117,15 @@ class LevelUpSystem {
             title: skill.name,
             description: skill.description,
             skillId: skill.id,
+          ),
+      for (final upgrade in skillUpgradeDefs)
+        if (skillSystem.hasSkill(upgrade.skillId) &&
+            !_appliedUpgrades.contains(upgrade.id))
+          SelectionChoice(
+            type: SelectionType.skillUpgrade,
+            title: '${skillDefsById[upgrade.skillId]?.name}: ${upgrade.name}',
+            description: upgrade.summary,
+            skillUpgradeId: upgrade.id,
           ),
       for (final item in itemDefs)
         SelectionChoice(
