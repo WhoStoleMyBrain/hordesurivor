@@ -154,6 +154,10 @@ DataValidationResult validateGameData() {
         result.errors.add(
           'AreaDef ${def.id} section $i overlaps previous section.',
         );
+      } else if (section.startTime > lastEnd) {
+        result.warnings.add(
+          'AreaDef ${def.id} section $i has a gap before startTime.',
+        );
       }
       if (section.endTime > def.stageDuration) {
         result.errors.add(
