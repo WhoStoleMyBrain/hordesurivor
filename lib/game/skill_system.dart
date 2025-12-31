@@ -61,6 +61,9 @@ class SkillSystem {
     return _skills.any((skill) => skill.id == id);
   }
 
+  List<SkillId> get skillIds =>
+      _skills.map((skill) => skill.id).toList(growable: false);
+
   void addSkill(SkillId id) {
     if (hasSkill(id)) {
       return;

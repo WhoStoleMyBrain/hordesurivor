@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../data/tags.dart';
+
 class PlayerHudState extends ChangeNotifier {
   double hp = 0;
   double maxHp = 0;
@@ -16,6 +18,7 @@ class PlayerHudState extends ChangeNotifier {
   int sectionCount = 0;
   int threatTier = 0;
   String? sectionNote;
+  TagSet buildTags = const TagSet();
 
   void update({
     required double hp,
@@ -33,6 +36,7 @@ class PlayerHudState extends ChangeNotifier {
     required int sectionCount,
     required int threatTier,
     required String? sectionNote,
+    required TagSet buildTags,
   }) {
     if (this.hp == hp &&
         this.maxHp == maxHp &&
@@ -48,7 +52,8 @@ class PlayerHudState extends ChangeNotifier {
         this.sectionIndex == sectionIndex &&
         this.sectionCount == sectionCount &&
         this.threatTier == threatTier &&
-        this.sectionNote == sectionNote) {
+        this.sectionNote == sectionNote &&
+        this.buildTags.equals(buildTags)) {
       return;
     }
 
@@ -67,6 +72,7 @@ class PlayerHudState extends ChangeNotifier {
     this.sectionCount = sectionCount;
     this.threatTier = threatTier;
     this.sectionNote = sectionNote;
+    this.buildTags = buildTags;
     notifyListeners();
   }
 }

@@ -135,10 +135,12 @@ This plan advances the project from the completed V0.2 foundation into V0.3. It 
 - Extend stress scene to include new roles/variants and ensure pooling still holds.
 **Completed:**
 - Added a combat clarity option that boosts enemy telegraph/aura opacity via the options overlay.
+- Added tag badge rows to the HUD and selection overlay to surface skill/upgrade/item tags.
 **Decisions:**
 - High-contrast telegraphs are a simple toggle that updates existing enemies immediately.
+- HUD tag badges summarize active skill/upgrade tags; item tags remain selection-only until item inventory tracking is added.
 **Follow-ups:**
-- Surface tag/status icons in HUD and selection overlays.
+- Consider adding item tag summaries once item inventory tracking is exposed in the HUD state.
 
 ---
 

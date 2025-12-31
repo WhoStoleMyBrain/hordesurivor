@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'hud_state.dart';
+import 'tag_badge.dart';
 
 class HudOverlay extends StatelessWidget {
   const HudOverlay({super.key, required this.hudState});
@@ -34,6 +35,19 @@ class HudOverlay extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (hudState.buildTags.isNotEmpty) ...[
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            for (final badge in tagBadgesForTags(
+                              hudState.buildTags,
+                            ))
+                              TagBadge(data: badge),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                      ],
                       Text(
                         'HP ${hudState.hp.toStringAsFixed(0)}'
                         '/${hudState.maxHp.toStringAsFixed(0)}',
