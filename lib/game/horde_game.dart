@@ -1013,6 +1013,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _endRun({required bool completed}) {
     _runCompleted = completed;
+    _runSummary.completed = completed;
     _resetStageActors();
     _stageTimer = null;
     _selectionState.clear();

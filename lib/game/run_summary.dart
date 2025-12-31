@@ -5,6 +5,7 @@ class RunSummary {
     this.xpGained = 0,
     this.damageTaken = 0,
     this.areaName,
+    this.completed = false,
   });
 
   double timeAlive;
@@ -12,10 +13,16 @@ class RunSummary {
   int xpGained;
   double damageTaken;
   String? areaName;
+  bool completed;
 
   int get score {
+    final completionBonus = completed ? 100 : 0;
     final raw =
-        timeAlive.round() + enemiesDefeated + xpGained - damageTaken.round();
+        timeAlive.round() +
+        enemiesDefeated +
+        xpGained +
+        completionBonus -
+        damageTaken.round();
     return raw < 0 ? 0 : raw;
   }
 
@@ -25,5 +32,6 @@ class RunSummary {
     xpGained = 0;
     damageTaken = 0;
     areaName = null;
+    completed = false;
   }
 }
