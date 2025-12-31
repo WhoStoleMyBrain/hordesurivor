@@ -13,11 +13,16 @@ class EnemyComponent extends PositionComponent {
     required double radius,
     Color color = const Color(0xFFE07064),
     Image? spriteImage,
+    double telegraphOpacityMultiplier = 1.0,
   }) : _state = state,
        _radius = radius,
        _spriteImage = spriteImage,
        _role = state.role,
        _variant = state.variant,
+       _telegraphTintColor = _resolveVariantColor(
+         _roleColors[state.role] ?? color,
+         state.variant,
+       ),
        _paint = Paint()
          ..color = _resolveVariantColor(
            _roleColors[state.role] ?? color,
@@ -31,10 +36,6 @@ class EnemyComponent extends PositionComponent {
          ..style = PaintingStyle.stroke
          ..strokeWidth = 2,
        _telegraphPaint = Paint()
-         ..color = _resolveVariantColor(
-           (_roleColors[state.role] ?? color).withValues(alpha: 0.5),
-           state.variant,
-         )
          ..style = PaintingStyle.stroke
          ..strokeWidth = 2,
        _slowPaint = Paint()
@@ -76,6 +77,7 @@ class EnemyComponent extends PositionComponent {
       center: Offset.zero,
       radius: _shapeRadius + 6,
     );
+    applyTelegraphOpacity(telegraphOpacityMultiplier);
   }
 
   final EnemyState _state;
@@ -83,6 +85,7 @@ class EnemyComponent extends PositionComponent {
   final Image? _spriteImage;
   final EnemyRole _role;
   final EnemyVariant _variant;
+  final Color _telegraphTintColor;
   final Paint _paint;
   final Paint _outlinePaint;
   final Paint _telegraphPaint;
@@ -159,6 +162,38 @@ class EnemyComponent extends PositionComponent {
         break;
       default:
         canvas.drawCircle(Offset.zero, _shapeRadius, _paint);
+    }
+  }
+
+  void applyTelegraphOpacity(double multiplier) {
+    final clamped = multiplier.clamp(0.0, 2.0);
+    _telegraphPaint.color = _telegraphTintColor.withValues(
+      alpha: (_telegraphBaseAlpha * clamped).clamp(0.0, 1.0),
+    );
+
+    final auraFill = _auraFillPaint;
+    if (auraFill != null) {
+      auraFill.color = _telegraphTintColor.withValues(
+        alpha: (_auraFillBaseAlpha * clamped).clamp(0.0, 1.0),
+      );
+    }
+    final auraStroke = _auraStrokePaint;
+    if (auraStroke != null) {
+      auraStroke.color = _telegraphTintColor.withValues(
+        alpha: (_auraStrokeBaseAlpha * clamped).clamp(0.0, 1.0),
+      );
+    }
+    final zoneFill = _zoneFillPaint;
+    if (zoneFill != null) {
+      zoneFill.color = _telegraphTintColor.withValues(
+        alpha: (_zoneFillBaseAlpha * clamped).clamp(0.0, 1.0),
+      );
+    }
+    final zoneStroke = _zoneStrokePaint;
+    if (zoneStroke != null) {
+      zoneStroke.color = _telegraphTintColor.withValues(
+        alpha: (_zoneStrokeBaseAlpha * clamped).clamp(0.0, 1.0),
+      );
     }
   }
 
@@ -258,7 +293,7 @@ class EnemyComponent extends PositionComponent {
     }
     return Paint()
       ..color = (_roleColors[role] ?? const Color(0xFF6ED9C0)).withValues(
-        alpha: 0.12,
+        alpha: _auraFillBaseAlpha,
       )
       ..style = PaintingStyle.fill;
   }
@@ -269,7 +304,7 @@ class EnemyComponent extends PositionComponent {
     }
     return Paint()
       ..color = (_roleColors[role] ?? const Color(0xFF6ED9C0)).withValues(
-        alpha: 0.35,
+        alpha: _auraStrokeBaseAlpha,
       )
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
@@ -281,7 +316,7 @@ class EnemyComponent extends PositionComponent {
     }
     return Paint()
       ..color = (_roleColors[role] ?? const Color(0xFFD95A6F)).withValues(
-        alpha: 0.08,
+        alpha: _zoneFillBaseAlpha,
       )
       ..style = PaintingStyle.fill;
   }
@@ -292,7 +327,7 @@ class EnemyComponent extends PositionComponent {
     }
     return Paint()
       ..color = (_roleColors[role] ?? const Color(0xFFD95A6F)).withValues(
-        alpha: 0.28,
+        alpha: _zoneStrokeBaseAlpha,
       )
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
@@ -316,4 +351,10 @@ class EnemyComponent extends PositionComponent {
     final tint = enemyVariantDefsById[variant]?.tintColor ?? 0xFFFFD24A;
     return Color.lerp(base, Color(tint), 0.45) ?? base;
   }
+
+  static const double _telegraphBaseAlpha = 0.5;
+  static const double _auraFillBaseAlpha = 0.12;
+  static const double _auraStrokeBaseAlpha = 0.35;
+  static const double _zoneFillBaseAlpha = 0.08;
+  static const double _zoneStrokeBaseAlpha = 0.28;
 }

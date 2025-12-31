@@ -46,8 +46,11 @@ class HordeSurvivorApp extends StatelessWidget {
           onStart: game.beginHomeBaseFromStartScreen,
           onOptions: game.openOptionsFromStartScreen,
         ),
-        OptionsScreen.overlayKey: (_, game) =>
-            OptionsScreen(onClose: game.closeOptionsFromStartScreen),
+        OptionsScreen.overlayKey: (_, game) => OptionsScreen(
+          onClose: game.closeOptionsFromStartScreen,
+          highContrastTelegraphs: game.highContrastTelegraphs,
+          onHighContrastTelegraphsChanged: game.setHighContrastTelegraphs,
+        ),
         HomeBaseOverlay.overlayKey: (_, _) => const HomeBaseOverlay(),
         AreaSelectScreen.overlayKey: (_, game) => AreaSelectScreen(
           onAreaSelected: game.beginStageFromAreaSelect,

@@ -134,6 +134,12 @@ This plan advances the project from the completed V0.2 foundation into V0.3. It 
 - Add a lightweight bestiary/skill compendium overlay (read-only list of enemies/skills with tags).
 - Add a “combat clarity” toggle for telegraph opacity in settings (data-driven, no heavy UI).
 - Extend stress scene to include new roles/variants and ensure pooling still holds.
+**Completed:**
+- Added a combat clarity option that boosts enemy telegraph/aura opacity via the options overlay.
+**Decisions:**
+- High-contrast telegraphs are a simple toggle that updates existing enemies immediately.
+**Follow-ups:**
+- Surface tag/status icons in HUD and selection overlays.
 
 ---
 
