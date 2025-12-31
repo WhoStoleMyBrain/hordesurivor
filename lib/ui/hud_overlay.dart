@@ -48,6 +48,11 @@ class HudOverlay extends StatelessWidget {
                       if (hudState.stageDuration > 0) ...[
                         const SizedBox(height: 4),
                         Text(
+                          'SCORE ${hudState.score}',
+                          style: const TextStyle(letterSpacing: 0.5),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
                           'TIME ${_formatTimer(hudState.stageElapsed)}'
                           ' / ${_formatTimer(hudState.stageDuration)}',
                           style: const TextStyle(letterSpacing: 0.5),

@@ -759,6 +759,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       level: _experienceSystem.level,
       xp: _experienceSystem.currentXp,
       xpToNext: _experienceSystem.xpToNext,
+      score: inStage ? _runSummary.score : 0,
       showPerformance: stressTest,
       fps: _fps,
       frameTimeMs: _frameTimeMs,
