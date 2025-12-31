@@ -76,6 +76,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   double _frameTimeMs = 0;
   double _fps = 0;
   double _stressProjectileTimer = 0;
+  double _telegraphOpacityMultiplier = 1.0;
   final bool stressTest;
   late final PlayerState _playerState;
   late final PlayerComponent _playerComponent;
@@ -108,6 +109,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final RunSummary _runSummary = RunSummary();
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
+  final ValueNotifier<bool> highContrastTelegraphs = ValueNotifier(false);
   final Map<EffectState, EffectComponent> _effectComponents = {};
   final List<DamageNumberComponent> _damageNumberPool = [];
   final TextPaint _enemyDamagePaint = TextPaint(
@@ -271,6 +273,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         '$_stressProjectileBurstCount-projectile bursts.',
       );
     }
+    setHighContrastTelegraphs(highContrastTelegraphs.value);
     _updateInputLock();
     _syncHudState();
     _syncPortalVisibility();
@@ -429,6 +432,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     overlays.remove(OptionsScreen.overlayKey);
     overlays.add(StartScreen.overlayKey);
+  }
+
+  void setHighContrastTelegraphs(bool enabled) {
+    highContrastTelegraphs.value = enabled;
+    _telegraphOpacityMultiplier = enabled ? 1.4 : 1.0;
+    for (final component in _enemyComponents.values) {
+      component.applyTelegraphOpacity(_telegraphOpacityMultiplier);
+    }
   }
 
   void beginStageFromAreaSelect(AreaDef area) {
@@ -667,6 +678,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       state: enemy,
       radius: _enemyRadius,
       spriteImage: _enemySprites[enemy.id],
+      telegraphOpacityMultiplier: _telegraphOpacityMultiplier,
     );
     _enemyComponents[enemy] = component;
     add(component);

@@ -1,11 +1,19 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class OptionsScreen extends StatelessWidget {
-  const OptionsScreen({super.key, required this.onClose});
+  const OptionsScreen({
+    super.key,
+    required this.onClose,
+    required this.highContrastTelegraphs,
+    required this.onHighContrastTelegraphsChanged,
+  });
 
   static const String overlayKey = 'options_screen';
 
   final VoidCallback onClose;
+  final ValueListenable<bool> highContrastTelegraphs;
+  final ValueChanged<bool> onHighContrastTelegraphsChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +36,22 @@ class OptionsScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  'Options will be available in a future update.',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: Colors.white70,
-                  ),
-                  textAlign: TextAlign.center,
+                ValueListenableBuilder<bool>(
+                  valueListenable: highContrastTelegraphs,
+                  builder: (context, value, _) {
+                    return SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('High-contrast telegraphs'),
+                      subtitle: Text(
+                        'Boost enemy telegraph and aura opacity for readability.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.white70,
+                        ),
+                      ),
+                      value: value,
+                      onChanged: onHighContrastTelegraphsChanged,
+                    );
+                  },
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
