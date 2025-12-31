@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 
 import '../data/enemy_defs.dart';
 import '../data/ids.dart';
+import '../data/item_defs.dart';
 import '../data/skill_defs.dart';
 import '../data/skill_upgrade_defs.dart';
 import '../data/tags.dart';
@@ -804,6 +805,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     for (final upgradeId in _levelUpSystem.appliedUpgrades) {
       final def = skillUpgradeDefsById[upgradeId];
+      if (def != null) {
+        tags = tags.merge(def.tags);
+      }
+    }
+    for (final itemId in _levelUpSystem.appliedItems) {
+      final def = itemDefsById[itemId];
       if (def != null) {
         tags = tags.merge(def.tags);
       }

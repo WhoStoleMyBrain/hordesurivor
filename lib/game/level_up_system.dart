@@ -37,6 +37,7 @@ class LevelUpSystem {
   final int _baseChoiceCount;
   final List<SelectionChoice> _choices = [];
   final Set<SkillUpgradeId> _appliedUpgrades = {};
+  final Set<ItemId> _appliedItems = {};
   int _pendingLevels = 0;
 
   List<SelectionChoice> get choices => List.unmodifiable(_choices);
@@ -44,6 +45,7 @@ class LevelUpSystem {
   bool get hasChoices => _choices.isNotEmpty;
   Set<SkillUpgradeId> get appliedUpgrades =>
       Set<SkillUpgradeId>.unmodifiable(_appliedUpgrades);
+  Set<ItemId> get appliedItems => Set<ItemId>.unmodifiable(_appliedItems);
 
   void queueLevels(int levelsGained) {
     if (levelsGained <= 0) {
@@ -56,6 +58,7 @@ class LevelUpSystem {
     _pendingLevels = 0;
     _choices.clear();
     _appliedUpgrades.clear();
+    _appliedItems.clear();
   }
 
   void buildChoices({
@@ -88,6 +91,7 @@ class LevelUpSystem {
         if (itemId != null) {
           final item = itemDefsById[itemId];
           if (item != null) {
+            _appliedItems.add(item.id);
             playerState.applyModifiers(item.modifiers);
           }
         }
