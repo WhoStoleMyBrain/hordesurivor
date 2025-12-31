@@ -136,10 +136,12 @@ This plan advances the project from the completed V0.1 prototype into V0.2. It f
 - Routed stage completion and player death into the death screen flow with reset handling.
 - Restart now resets player XP/level, skill loadout, and item modifiers to baseline.
 - Clamped run score to a minimum of zero to avoid negative results on tough runs.
+- Added a flat completion bonus to the run score for finishing a stage.
 **Decisions:**
 - Restart uses the last selected area and revives the player at center.
 - Restarts reset run progression (XP, skills, item modifiers) to keep runs discrete.
 - Run score now floors at zero for readability.
+- Completion bonus is a flat +100 for quick tuning without tying to stage length.
 **Follow-ups:**
 - Consider whether any meta-layer should carry progression between runs later.
 
