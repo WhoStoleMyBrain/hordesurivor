@@ -119,6 +119,10 @@ This plan advances the project from the completed V0.2 foundation into V0.3. It 
   - **Wind Carver:** +Projectile speed, -Damage.
   - **Mercy Charm:** +Healing received, -Damage.
 - Ensure UI strings show the tradeoff clearly on selection and pause screens.
+**Completed:**
+- Added Thermal Coil, Hydraulic Stabilizer, Spore Satchel, Gravel Boots, Molten Buckle, Serrated Edge, and Mercy Charm with explicit tradeoffs and tags.
+**Decisions:**
+- Used existing stat modifiers (DOT duration, AOE size, beam damage, poison resistance) to keep item effects data-driven without adding new stats.
 
 ---
 
