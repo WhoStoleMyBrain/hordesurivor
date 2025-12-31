@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hordesurivor/data/enemy_defs.dart';
 import 'package:hordesurivor/data/ids.dart';
 import 'package:hordesurivor/data/stat_defs.dart';
+import 'package:hordesurivor/data/tags.dart';
 import 'package:hordesurivor/game/damage_system.dart';
 import 'package:hordesurivor/game/effect_pool.dart';
 import 'package:hordesurivor/game/enemy_pool.dart';
@@ -22,6 +23,7 @@ void main() {
     enemy.reset(
       id: id,
       role: def.role,
+      variant: EnemyVariant.base,
       spawnPosition: position,
       maxHp: def.maxHp,
       moveSpeed: def.moveSpeed,

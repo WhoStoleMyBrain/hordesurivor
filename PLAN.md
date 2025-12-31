@@ -68,6 +68,12 @@ This plan advances the project from the completed V0.2 foundation into V0.3. It 
   - **Angels:** Shieldbearer (projected shield cone), Sniper (long telegraphed shot), Tetherer (slow tether zone), Beacon (summons small orbiting sentries).
 - Add **Champion variants** as a modifier layer (e.g., +HP/+speed with distinct tint, limited count).
 - Update `lib/render/` telegraphs and sprite recipes for new roles/variants.
+**Completed:**
+- Added champion variants as a modifier layer with stat multipliers, XP scaling, and a gold-tinted ring for readability.
+**Decisions:**
+- Champions spawn only from wave spawns for now, with a small chance and a max active cap to keep density readable.
+**Follow-ups:**
+- Allow spawner enemies (e.g., Portal Keeper) to optionally roll champion variants.
 
 ---
 
