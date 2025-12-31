@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flame/extensions.dart';
 
 import '../data/enemy_defs.dart';
+import '../data/enemy_variants.dart';
 import '../data/ids.dart';
 import '../data/tags.dart';
 import 'enemy_pool.dart';
@@ -18,12 +19,16 @@ class EnemySystem {
     required void Function(ProjectileState) onProjectileSpawn,
     required void Function(EnemyState) onSpawn,
     required void Function(EnemyState) onSelfDestruct,
+    double championChance = 0.05,
+    int maxChampions = 2,
   }) : _pool = pool,
        _projectilePool = projectilePool,
        _random = random,
        _onProjectileSpawn = onProjectileSpawn,
        _onSpawn = onSpawn,
-       _onSelfDestruct = onSelfDestruct;
+       _onSelfDestruct = onSelfDestruct,
+       _championChance = championChance,
+       _maxChampions = maxChampions;
 
   final EnemyPool _pool;
   final ProjectilePool _projectilePool;
@@ -31,6 +36,8 @@ class EnemySystem {
   final void Function(ProjectileState) _onProjectileSpawn;
   final void Function(EnemyState) _onSpawn;
   final void Function(EnemyState) _onSelfDestruct;
+  final double _championChance;
+  final int _maxChampions;
   final List<_SpawnRequest> _spawnRequests = [];
   final Vector2 _directionBuffer = Vector2.zero();
   final Vector2 _perpBuffer = Vector2.zero();
@@ -141,6 +148,10 @@ class EnemySystem {
       return;
     }
     for (var i = 0; i < enemy.spawnCount; i++) {
+      final variant = _pickVariant();
+      final variantDef =
+          enemyVariantDefsById[variant] ??
+          enemyVariantDefsById[EnemyVariant.base]!;
       final angle = _random.nextDouble() * math.pi * 2;
       final radius = _random.nextDouble() * enemy.spawnRadius;
       final position = Vector2(
@@ -153,15 +164,17 @@ class EnemySystem {
         _SpawnRequest(
           id: spawnId,
           role: def.role,
-          variant: EnemyVariant.base,
+          variant: variant,
           position: position,
-          maxHp: def.maxHp,
-          moveSpeed: def.moveSpeed,
-          xpReward: def.xpReward,
-          attackCooldown: def.attackCooldown,
+          maxHp: def.maxHp * variantDef.maxHpMultiplier,
+          moveSpeed: def.moveSpeed * variantDef.moveSpeedMultiplier,
+          xpReward: (def.xpReward * variantDef.xpRewardMultiplier).round(),
+          attackCooldown:
+              def.attackCooldown * variantDef.attackCooldownMultiplier,
           attackRange: def.attackRange,
           projectileSpeed: def.projectileSpeed,
-          projectileDamage: def.projectileDamage,
+          projectileDamage:
+              def.projectileDamage * variantDef.projectileDamageMultiplier,
           projectileSpread: def.projectileSpread,
           spawnCooldown: def.spawnCooldown,
           spawnCount: def.spawnCount,
@@ -243,6 +256,22 @@ class EnemySystem {
       _pulseRallyAllies(enemy, radius: enemy.attackRange * 0.8);
       enemy.specialTimer = enemy.specialCooldown;
     }
+  }
+
+  EnemyVariant _pickVariant() {
+    if (_championChance <= 0 || _maxChampions <= 0) {
+      return EnemyVariant.base;
+    }
+    if (_random.nextDouble() > _championChance) {
+      return EnemyVariant.base;
+    }
+    final activeChampions = _pool.active.where(
+      (enemy) => enemy.variant == EnemyVariant.champion,
+    );
+    if (activeChampions.length >= _maxChampions) {
+      return EnemyVariant.base;
+    }
+    return EnemyVariant.champion;
   }
 
   void _handlePattern(EnemyState enemy, double dt, double distance) {
