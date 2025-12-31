@@ -5,12 +5,14 @@ class StartScreen extends StatelessWidget {
     super.key,
     required this.onStart,
     required this.onOptions,
+    required this.onCompendium,
   });
 
   static const String overlayKey = 'start_screen';
 
   final VoidCallback onStart;
   final VoidCallback onOptions;
+  final VoidCallback onCompendium;
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +58,14 @@ class StartScreen extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: onOptions,
                     child: const Text('Options'),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: onCompendium,
+                    child: const Text('Compendium'),
                   ),
                 ),
               ],

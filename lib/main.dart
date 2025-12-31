@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide SelectionOverlay;
 import 'data/data_validation.dart';
 import 'game/horde_game.dart';
 import 'ui/area_select_screen.dart';
+import 'ui/compendium_screen.dart';
 import 'ui/death_screen.dart';
 import 'ui/flow_debug_overlay.dart';
 import 'ui/hud_overlay.dart';
@@ -45,12 +46,15 @@ class HordeSurvivorApp extends StatelessWidget {
         StartScreen.overlayKey: (_, game) => StartScreen(
           onStart: game.beginHomeBaseFromStartScreen,
           onOptions: game.openOptionsFromStartScreen,
+          onCompendium: game.openCompendiumFromStartScreen,
         ),
         OptionsScreen.overlayKey: (_, game) => OptionsScreen(
           onClose: game.closeOptionsFromStartScreen,
           highContrastTelegraphs: game.highContrastTelegraphs,
           onHighContrastTelegraphsChanged: game.setHighContrastTelegraphs,
         ),
+        CompendiumScreen.overlayKey: (_, game) =>
+            CompendiumScreen(onClose: game.closeCompendiumFromStartScreen),
         HomeBaseOverlay.overlayKey: (_, _) => const HomeBaseOverlay(),
         AreaSelectScreen.overlayKey: (_, game) => AreaSelectScreen(
           onAreaSelected: game.beginStageFromAreaSelect,
