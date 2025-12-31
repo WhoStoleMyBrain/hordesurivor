@@ -24,6 +24,7 @@ import '../render/projectile_batch_component.dart';
 import '../render/projectile_component.dart';
 import '../render/sprite_pipeline.dart';
 import '../ui/area_select_screen.dart';
+import '../ui/compendium_screen.dart';
 import '../ui/death_screen.dart';
 import '../ui/flow_debug_overlay.dart';
 import '../ui/hud_overlay.dart';
@@ -414,6 +415,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(StartScreen.overlayKey);
     overlays.remove(OptionsScreen.overlayKey);
+    overlays.remove(CompendiumScreen.overlayKey);
     overlays.add(HomeBaseOverlay.overlayKey);
     _syncHudState();
   }
@@ -429,11 +431,30 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.add(OptionsScreen.overlayKey);
   }
 
+  void openCompendiumFromStartScreen() {
+    if (_flowState != GameFlowState.start) {
+      return;
+    }
+    if (overlays.isActive(CompendiumScreen.overlayKey)) {
+      return;
+    }
+    overlays.remove(StartScreen.overlayKey);
+    overlays.add(CompendiumScreen.overlayKey);
+  }
+
   void closeOptionsFromStartScreen() {
     if (_flowState != GameFlowState.start) {
       return;
     }
     overlays.remove(OptionsScreen.overlayKey);
+    overlays.add(StartScreen.overlayKey);
+  }
+
+  void closeCompendiumFromStartScreen() {
+    if (_flowState != GameFlowState.start) {
+      return;
+    }
+    overlays.remove(CompendiumScreen.overlayKey);
     overlays.add(StartScreen.overlayKey);
   }
 
@@ -901,6 +922,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(SelectionOverlay.overlayKey);
     overlays.remove(OptionsScreen.overlayKey);
+    overlays.remove(CompendiumScreen.overlayKey);
     overlays.add(StartScreen.overlayKey);
     _syncHudState();
   }
