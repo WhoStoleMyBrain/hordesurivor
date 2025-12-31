@@ -14,6 +14,7 @@ class PlayerHudState extends ChangeNotifier {
   double stageDuration = 0;
   int sectionIndex = 0;
   int sectionCount = 0;
+  int threatTier = 0;
   String? sectionNote;
 
   void update({
@@ -30,6 +31,7 @@ class PlayerHudState extends ChangeNotifier {
     required double stageDuration,
     required int sectionIndex,
     required int sectionCount,
+    required int threatTier,
     required String? sectionNote,
   }) {
     if (this.hp == hp &&
@@ -45,6 +47,7 @@ class PlayerHudState extends ChangeNotifier {
         this.stageDuration == stageDuration &&
         this.sectionIndex == sectionIndex &&
         this.sectionCount == sectionCount &&
+        this.threatTier == threatTier &&
         this.sectionNote == sectionNote) {
       return;
     }
@@ -62,6 +65,7 @@ class PlayerHudState extends ChangeNotifier {
     this.stageDuration = stageDuration;
     this.sectionIndex = sectionIndex;
     this.sectionCount = sectionCount;
+    this.threatTier = threatTier;
     this.sectionNote = sectionNote;
     notifyListeners();
   }

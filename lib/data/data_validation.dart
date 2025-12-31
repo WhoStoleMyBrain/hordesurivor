@@ -187,6 +187,16 @@ DataValidationResult validateGameData() {
           'AreaDef ${def.id} section $i exceeds stageDuration.',
         );
       }
+      if (section.threatTier <= 0) {
+        result.errors.add(
+          'AreaDef ${def.id} section $i has invalid threatTier.',
+        );
+      }
+      if (section.eliteChance < 0 || section.eliteChance > 1) {
+        result.errors.add(
+          'AreaDef ${def.id} section $i has invalid eliteChance.',
+        );
+      }
       if (section.roleWeights.isEmpty && section.enemyWeights.isEmpty) {
         result.warnings.add(
           'AreaDef ${def.id} section $i has no spawn weights.',
@@ -208,6 +218,13 @@ DataValidationResult validateGameData() {
         if (!enemyDefsById.containsKey(entry.key)) {
           result.errors.add(
             'AreaDef ${def.id} section $i references missing enemy ${entry.key}.',
+          );
+        }
+      }
+      for (final entry in section.variantWeights.entries) {
+        if (entry.value <= 0) {
+          result.errors.add(
+            'AreaDef ${def.id} section $i has non-positive variant weight.',
           );
         }
       }

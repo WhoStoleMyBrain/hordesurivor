@@ -7,6 +7,9 @@ class StageSection {
     required this.endTime,
     this.roleWeights = const {},
     this.enemyWeights = const {},
+    this.variantWeights = const {},
+    this.threatTier = 1,
+    this.eliteChance = 0,
     this.note,
   });
 
@@ -14,6 +17,9 @@ class StageSection {
   final double endTime;
   final Map<EnemyRole, int> roleWeights;
   final Map<EnemyId, int> enemyWeights;
+  final Map<EnemyVariant, int> variantWeights;
+  final int threatTier;
+  final double eliteChance;
   final String? note;
 }
 
@@ -59,6 +65,8 @@ const List<AreaDef> areaDefs = [
         endTime: 60,
         roleWeights: {EnemyRole.chaser: 6, EnemyRole.ranged: 2},
         enemyWeights: {EnemyId.imp: 3, EnemyId.spitter: 1},
+        threatTier: 1,
+        eliteChance: 0.01,
         note: 'Warm-up pressure from imps.',
       ),
       StageSection(
@@ -70,6 +78,8 @@ const List<AreaDef> areaDefs = [
           EnemyRole.spawner: 2,
         },
         enemyWeights: {EnemyId.portalKeeper: 2},
+        threatTier: 2,
+        eliteChance: 0.03,
         note: 'Portal keepers start leaking reinforcements.',
       ),
       StageSection(
@@ -81,6 +91,8 @@ const List<AreaDef> areaDefs = [
           EnemyRole.spawner: 3,
         },
         enemyWeights: {EnemyId.hexer: 2},
+        threatTier: 3,
+        eliteChance: 0.05,
         note: 'Curses intensify with hexers.',
       ),
     ],
@@ -100,6 +112,8 @@ const List<AreaDef> areaDefs = [
         endTime: 70,
         roleWeights: {EnemyRole.chaser: 5, EnemyRole.ranged: 3},
         enemyWeights: {EnemyId.zealot: 3, EnemyId.cherubArcher: 2},
+        threatTier: 1,
+        eliteChance: 0.01,
         note: 'Zealots advance in tight formation.',
       ),
       StageSection(
@@ -112,6 +126,8 @@ const List<AreaDef> areaDefs = [
           EnemyRole.supportBuffer: 1,
         },
         enemyWeights: {EnemyId.seraphMedic: 2, EnemyId.herald: 1},
+        threatTier: 2,
+        eliteChance: 0.03,
         note: 'Support angels bolster the frontline.',
       ),
       StageSection(
@@ -124,6 +140,8 @@ const List<AreaDef> areaDefs = [
           EnemyRole.elite: 1,
         },
         enemyWeights: {EnemyId.warden: 2, EnemyId.archonLancer: 1},
+        threatTier: 3,
+        eliteChance: 0.06,
         note: 'Light zones and elites control space.',
       ),
     ],
