@@ -81,6 +81,7 @@ class EnemySystem {
       spawned.reset(
         id: request.id,
         role: request.role,
+        variant: request.variant,
         spawnPosition: request.position,
         maxHp: request.maxHp,
         moveSpeed: request.moveSpeed,
@@ -152,6 +153,7 @@ class EnemySystem {
         _SpawnRequest(
           id: spawnId,
           role: def.role,
+          variant: EnemyVariant.base,
           position: position,
           maxHp: def.maxHp,
           moveSpeed: def.moveSpeed,
@@ -513,6 +515,7 @@ class _SpawnRequest {
   _SpawnRequest({
     required this.id,
     required this.role,
+    required this.variant,
     required this.position,
     required this.maxHp,
     required this.moveSpeed,
@@ -530,6 +533,7 @@ class _SpawnRequest {
 
   final EnemyId id;
   final EnemyRole role;
+  final EnemyVariant variant;
   final Vector2 position;
   final double maxHp;
   final double moveSpeed;

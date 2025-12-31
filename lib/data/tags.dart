@@ -19,6 +19,8 @@ enum EnemyRole {
   pattern,
 }
 
+enum EnemyVariant { base, champion }
+
 class TagSet {
   const TagSet({
     this.elements = const <ElementTag>{},

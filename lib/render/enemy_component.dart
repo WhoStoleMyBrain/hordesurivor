@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flame/components.dart';
+import 'package:hordesurivor/data/enemy_variants.dart';
 import 'package:hordesurivor/data/tags.dart';
 
 import '../game/enemy_state.dart';
@@ -16,13 +17,24 @@ class EnemyComponent extends PositionComponent {
        _radius = radius,
        _spriteImage = spriteImage,
        _role = state.role,
-       _paint = Paint()..color = _roleColors[state.role] ?? color,
+       _variant = state.variant,
+       _paint = Paint()
+         ..color = _resolveVariantColor(
+           _roleColors[state.role] ?? color,
+           state.variant,
+         ),
        _outlinePaint = Paint()
-         ..color = (_roleColors[state.role] ?? color).withValues(alpha: 0.9)
+         ..color = _resolveVariantColor(
+           (_roleColors[state.role] ?? color).withValues(alpha: 0.9),
+           state.variant,
+         )
          ..style = PaintingStyle.stroke
          ..strokeWidth = 2,
        _telegraphPaint = Paint()
-         ..color = (_roleColors[state.role] ?? color).withValues(alpha: 0.5)
+         ..color = _resolveVariantColor(
+           (_roleColors[state.role] ?? color).withValues(alpha: 0.5),
+           state.variant,
+         )
          ..style = PaintingStyle.stroke
          ..strokeWidth = 2,
        _slowPaint = Paint()
@@ -36,7 +48,8 @@ class EnemyComponent extends PositionComponent {
        _auraFillPaint = _createAuraFillPaint(state.role),
        _auraStrokePaint = _createAuraStrokePaint(state.role),
        _zoneFillPaint = _createZoneFillPaint(state.role),
-       _zoneStrokePaint = _createZoneStrokePaint(state.role) {
+       _zoneStrokePaint = _createZoneStrokePaint(state.role),
+       _variantRingPaint = _createVariantRingPaint(state.variant) {
     anchor = Anchor.center;
     if (spriteImage != null) {
       size = Vector2(
@@ -69,6 +82,7 @@ class EnemyComponent extends PositionComponent {
   final double _radius;
   final Image? _spriteImage;
   final EnemyRole _role;
+  final EnemyVariant _variant;
   final Paint _paint;
   final Paint _outlinePaint;
   final Paint _telegraphPaint;
@@ -78,6 +92,7 @@ class EnemyComponent extends PositionComponent {
   final Paint? _auraStrokePaint;
   final Paint? _zoneFillPaint;
   final Paint? _zoneStrokePaint;
+  final Paint? _variantRingPaint;
   late final double _shapeRadius;
   late final Rect _squareRect;
   late final Path _diamondPath;
@@ -96,6 +111,7 @@ class EnemyComponent extends PositionComponent {
   void render(Canvas canvas) {
     _renderRoleAuras(canvas);
     _renderStatusRings(canvas);
+    _renderVariantRing(canvas);
     if (_role == EnemyRole.ranged ||
         _role == EnemyRole.spawner ||
         _role == EnemyRole.disruptor ||
@@ -153,6 +169,17 @@ class EnemyComponent extends PositionComponent {
     if (_state.rootTimer > 0) {
       canvas.drawCircle(Offset.zero, _shapeRadius + 6, _rootPaint);
     }
+  }
+
+  void _renderVariantRing(Canvas canvas) {
+    if (_variant != EnemyVariant.champion) {
+      return;
+    }
+    final ringPaint = _variantRingPaint;
+    if (ringPaint == null) {
+      return;
+    }
+    canvas.drawCircle(Offset.zero, _shapeRadius + 8, ringPaint);
   }
 
   void _renderRoleAuras(Canvas canvas) {
@@ -269,5 +296,24 @@ class EnemyComponent extends PositionComponent {
       )
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
+  }
+
+  static Paint? _createVariantRingPaint(EnemyVariant variant) {
+    if (variant != EnemyVariant.champion) {
+      return null;
+    }
+    final tint = enemyVariantDefsById[variant]?.tintColor ?? 0xFFFFD24A;
+    return Paint()
+      ..color = Color(tint).withValues(alpha: 0.8)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+  }
+
+  static Color _resolveVariantColor(Color base, EnemyVariant variant) {
+    if (variant == EnemyVariant.base) {
+      return base;
+    }
+    final tint = enemyVariantDefsById[variant]?.tintColor ?? 0xFFFFD24A;
+    return Color.lerp(base, Color(tint), 0.45) ?? base;
   }
 }

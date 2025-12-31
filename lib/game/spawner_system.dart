@@ -4,6 +4,7 @@ import 'package:flame/extensions.dart';
 
 import '../data/ids.dart';
 import '../data/enemy_defs.dart';
+import '../data/enemy_variants.dart';
 import '../data/tags.dart';
 import 'enemy_pool.dart';
 import 'enemy_state.dart';
@@ -31,12 +32,16 @@ class SpawnerSystem {
     required Vector2 arenaSize,
     required List<SpawnWave> waves,
     required void Function(EnemyState) onSpawn,
+    double championChance = 0.05,
+    int maxChampions = 2,
     double spawnMinRadius = 120,
     double spawnMaxRadius = 200,
   }) : _pool = pool,
        _random = random,
        _arenaSize = arenaSize.clone(),
        _onSpawn = onSpawn,
+       _championChance = championChance,
+       _maxChampions = maxChampions,
        _spawnMinRadius = spawnMinRadius,
        _spawnMaxRadius = spawnMaxRadius {
     _rolePickers = _buildRolePickers();
@@ -48,6 +53,8 @@ class SpawnerSystem {
   late final Map<EnemyRole, _WeightedPicker<EnemyId>> _rolePickers;
   late List<_ResolvedWave> _resolvedWaves;
   final void Function(EnemyState) _onSpawn;
+  final double _championChance;
+  final int _maxChampions;
   final double _spawnMinRadius;
   final double _spawnMaxRadius;
   final Vector2 _arenaSize;
@@ -89,6 +96,10 @@ class SpawnerSystem {
     if (def == null) {
       return;
     }
+    final variant = _pickVariant();
+    final variantDef =
+        enemyVariantDefsById[variant] ??
+        enemyVariantDefsById[EnemyVariant.base]!;
     final angle = _random.nextDouble() * math.pi * 2;
     final radius =
         _spawnMinRadius +
@@ -103,14 +114,16 @@ class SpawnerSystem {
     enemy.reset(
       id: id,
       role: def.role,
+      variant: variant,
       spawnPosition: _spawnPosition,
-      maxHp: def.maxHp,
-      moveSpeed: def.moveSpeed,
-      xpReward: def.xpReward,
-      attackCooldown: def.attackCooldown,
+      maxHp: def.maxHp * variantDef.maxHpMultiplier,
+      moveSpeed: def.moveSpeed * variantDef.moveSpeedMultiplier,
+      xpReward: (def.xpReward * variantDef.xpRewardMultiplier).round(),
+      attackCooldown: def.attackCooldown * variantDef.attackCooldownMultiplier,
       attackRange: def.attackRange,
       projectileSpeed: def.projectileSpeed,
-      projectileDamage: def.projectileDamage,
+      projectileDamage:
+          def.projectileDamage * variantDef.projectileDamageMultiplier,
       projectileSpread: def.projectileSpread,
       spawnCooldown: def.spawnCooldown,
       spawnCount: def.spawnCount,
@@ -118,6 +131,22 @@ class SpawnerSystem {
       spawnEnemyId: def.spawnEnemyId,
     );
     _onSpawn(enemy);
+  }
+
+  EnemyVariant _pickVariant() {
+    if (_championChance <= 0 || _maxChampions <= 0) {
+      return EnemyVariant.base;
+    }
+    if (_random.nextDouble() > _championChance) {
+      return EnemyVariant.base;
+    }
+    final activeChampions = _pool.active.where(
+      (enemy) => enemy.variant == EnemyVariant.champion,
+    );
+    if (activeChampions.length >= _maxChampions) {
+      return EnemyVariant.base;
+    }
+    return EnemyVariant.champion;
   }
 
   List<_ResolvedWave> _resolveWaves(List<SpawnWave> waves) {

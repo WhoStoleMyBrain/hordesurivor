@@ -11,6 +11,7 @@ class EnemyState {
 
   EnemyId id;
   EnemyRole role = EnemyRole.chaser;
+  EnemyVariant variant = EnemyVariant.base;
   EnemyId? spawnEnemyId;
   final Vector2 position;
   final Vector2 velocity;
@@ -45,6 +46,7 @@ class EnemyState {
   void reset({
     required EnemyId id,
     required EnemyRole role,
+    required EnemyVariant variant,
     required Vector2 spawnPosition,
     required double maxHp,
     required double moveSpeed,
@@ -61,6 +63,7 @@ class EnemyState {
   }) {
     this.id = id;
     this.role = role;
+    this.variant = variant;
     this.spawnEnemyId = spawnEnemyId;
     position.setFrom(spawnPosition);
     velocity.setZero();
