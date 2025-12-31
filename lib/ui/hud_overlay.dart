@@ -62,6 +62,10 @@ class HudOverlay extends StatelessWidget {
                           '/${hudState.sectionCount}',
                           style: const TextStyle(letterSpacing: 0.5),
                         ),
+                        Text(
+                          'THREAT TIER ${hudState.threatTier}',
+                          style: const TextStyle(letterSpacing: 0.5),
+                        ),
                         if (hudState.sectionNote != null &&
                             hudState.sectionNote!.isNotEmpty)
                           Text(

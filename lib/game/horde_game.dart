@@ -45,6 +45,7 @@ import 'projectile_state.dart';
 import 'projectile_system.dart';
 import 'skill_system.dart';
 import 'spatial_grid.dart';
+import 'spawn_director.dart';
 import 'spawner_system.dart';
 import 'game_flow_state.dart';
 import 'run_summary.dart';
@@ -90,6 +91,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final EnemyPool _enemyPool;
   late final EnemySystem _enemySystem;
   late final SpawnerSystem _spawnerSystem;
+  late final SpawnDirector _spawnDirector;
   bool _spawnerReady = false;
   late final ProjectilePool _projectilePool;
   late final ProjectileSystem _projectileSystem;
@@ -177,6 +179,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       moveSpeed: _playerSpeed,
     );
     _experienceSystem = ExperienceSystem();
+    _spawnDirector = SpawnDirector(experienceSystem: _experienceSystem);
     _levelUpSystem = LevelUpSystem(random: math.Random(11));
     _playerComponent = PlayerComponent(
       state: _playerState,
@@ -743,12 +746,15 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _syncHudState() {
     final stageTimer = _stageTimer;
     String? sectionNote;
+    var threatTier = 0;
     if (_flowState == GameFlowState.stage && stageTimer != null) {
       final activeArea = _activeArea;
       if (activeArea != null) {
         final index = stageTimer.currentSectionIndex;
         if (index >= 0 && index < activeArea.sections.length) {
-          sectionNote = activeArea.sections[index].note;
+          final section = activeArea.sections[index];
+          sectionNote = section.note;
+          threatTier = section.threatTier;
         }
       }
     }
@@ -767,6 +773,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       stageDuration: inStage ? stageTimer.duration : 0,
       sectionIndex: inStage ? stageTimer.currentSectionIndex : 0,
       sectionCount: inStage ? stageTimer.sectionCount : 0,
+      threatTier: inStage ? threatTier : 0,
       sectionNote: inStage ? sectionNote : null,
     );
   }
@@ -942,12 +949,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (!force && sectionIndex == _currentSectionIndex) {
       return;
     }
+    final previousIndex = _currentSectionIndex;
     _currentSectionIndex = sectionIndex;
     final section = area.sections[sectionIndex];
+    final previousSection =
+        previousIndex >= 0 && previousIndex < area.sections.length
+        ? area.sections[previousIndex]
+        : null;
     final sectionDuration = section.endTime - section.startTime;
     _spawnerSystem.resetWaves(
       _buildSectionWaves(
         section: section,
+        previousSection: previousSection,
         sectionDuration: sectionDuration,
         sectionIndex: sectionIndex,
       ),
@@ -956,6 +969,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   List<SpawnWave> _buildSectionWaves({
     required StageSection section,
+    StageSection? previousSection,
     required double sectionDuration,
     required int sectionIndex,
   }) {
@@ -966,14 +980,23 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final count = _baseStageWaveCount + sectionIndex;
     var time = 0.0;
     while (time < sectionDuration) {
+      final tuning = _spawnDirector.tuneSection(
+        section: section,
+        previousSection: previousSection,
+        sectionDuration: sectionDuration,
+        timeIntoSection: time,
+      );
       waves.add(
         SpawnWave(
           time: time,
           count: count,
-          roleWeights: section.roleWeights.isEmpty ? null : section.roleWeights,
-          enemyWeights: section.enemyWeights.isEmpty
+          roleWeights: tuning.roleWeights.isEmpty ? null : tuning.roleWeights,
+          enemyWeights: tuning.enemyWeights.isEmpty
               ? null
-              : section.enemyWeights,
+              : tuning.enemyWeights,
+          variantWeights: tuning.variantWeights.isEmpty
+              ? null
+              : tuning.variantWeights,
         ),
       );
       time += _stageWaveInterval;

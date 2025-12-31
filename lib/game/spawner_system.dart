@@ -16,6 +16,7 @@ class SpawnWave {
     this.enemyId,
     this.roleWeights,
     this.enemyWeights,
+    this.variantWeights,
   });
 
   final double time;
@@ -23,6 +24,7 @@ class SpawnWave {
   final EnemyId? enemyId;
   final Map<EnemyRole, int>? roleWeights;
   final Map<EnemyId, int>? enemyWeights;
+  final Map<EnemyVariant, int>? variantWeights;
 }
 
 class SpawnerSystem {
@@ -81,7 +83,8 @@ class SpawnerSystem {
         if (enemyId == null) {
           continue;
         }
-        _spawnEnemy(enemyId, playerPosition);
+        final variant = _pickVariant(wave.variantPicker);
+        _spawnEnemy(enemyId, playerPosition, variant: variant);
       }
       _waveIndex++;
     }
@@ -91,12 +94,15 @@ class SpawnerSystem {
     _arenaSize.setFrom(size);
   }
 
-  void _spawnEnemy(EnemyId id, Vector2 playerPosition) {
+  void _spawnEnemy(
+    EnemyId id,
+    Vector2 playerPosition, {
+    required EnemyVariant variant,
+  }) {
     final def = enemyDefsById[id];
     if (def == null) {
       return;
     }
-    final variant = _pickVariant();
     final variantDef =
         enemyVariantDefsById[variant] ??
         enemyVariantDefsById[EnemyVariant.base]!;
@@ -133,7 +139,10 @@ class SpawnerSystem {
     _onSpawn(enemy);
   }
 
-  EnemyVariant _pickVariant() {
+  EnemyVariant _pickVariant(_WeightedPicker<EnemyVariant>? variantPicker) {
+    if (variantPicker != null && variantPicker.totalWeight > 0) {
+      return variantPicker.pick(_random);
+    }
     if (_championChance <= 0 || _maxChampions <= 0) {
       return EnemyVariant.base;
     }
@@ -160,12 +169,17 @@ class SpawnerSystem {
           final enemyPicker = enemyEntries.isEmpty
               ? null
               : _WeightedPicker(enemyEntries);
+          final variantEntries = _buildVariantEntries(wave.variantWeights);
+          final variantPicker = variantEntries.isEmpty
+              ? null
+              : _WeightedPicker(variantEntries);
           return _ResolvedWave(
             time: wave.time,
             count: wave.count,
             enemyId: wave.enemyId,
             rolePicker: rolePicker,
             enemyPicker: enemyPicker,
+            variantPicker: variantPicker,
           );
         })
         .toList(growable: false);
@@ -222,6 +236,22 @@ class SpawnerSystem {
     return entries;
   }
 
+  List<_WeightedEntry<EnemyVariant>> _buildVariantEntries(
+    Map<EnemyVariant, int>? variantWeights,
+  ) {
+    if (variantWeights == null || variantWeights.isEmpty) {
+      return const [];
+    }
+    final entries = <_WeightedEntry<EnemyVariant>>[];
+    variantWeights.forEach((variant, weight) {
+      if (weight <= 0) {
+        return;
+      }
+      entries.add(_WeightedEntry(variant, weight));
+    });
+    return entries;
+  }
+
   EnemyId? _pickEnemyFromRoles(_WeightedPicker<EnemyRole>? rolePicker) {
     if (rolePicker == null || rolePicker.totalWeight == 0) {
       return null;
@@ -249,6 +279,7 @@ class _ResolvedWave {
     this.enemyId,
     this.rolePicker,
     this.enemyPicker,
+    this.variantPicker,
   });
 
   final double time;
@@ -256,6 +287,7 @@ class _ResolvedWave {
   final EnemyId? enemyId;
   final _WeightedPicker<EnemyRole>? rolePicker;
   final _WeightedPicker<EnemyId>? enemyPicker;
+  final _WeightedPicker<EnemyVariant>? variantPicker;
 }
 
 class _WeightedEntry<T> {

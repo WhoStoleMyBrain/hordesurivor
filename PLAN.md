@@ -91,6 +91,11 @@ This plan advances the project from the completed V0.2 foundation into V0.3. It 
   - Introduces new roles/variants gradually (e.g., tier 1: chaser/ranged, tier 2: support/zoner, tier 3: elite/champions).
 - Add UI/HUD messaging for “Threat Tier” or section descriptors to keep pacing clear.
 - Ensure spawn transitions are smoothed (interpolate weights across section boundaries).
+**Completed:**
+- Added `SpawnDirector` tuning to blend section weights, apply threat tiers, and derive variant weights from elite chance plus player level.
+- Extended stage sections with threat tiers/elite chance and surfaced threat tier in the HUD.
+**Decisions:**
+- Threat tiers cap at 3 and scale up slightly with player level; elites remain weighted via section `eliteChance` for readability.
 
 ---
 
