@@ -42,10 +42,18 @@ class EnemyComponent extends PositionComponent {
          ..color = const Color(0xFF6EC7FF).withValues(alpha: 0.7)
          ..style = PaintingStyle.stroke
          ..strokeWidth = 2,
+       _oilPaint = Paint()
+         ..color = const Color(0xFF2B2D42).withValues(alpha: 0.75)
+         ..style = PaintingStyle.stroke
+         ..strokeWidth = 2,
        _rootPaint = Paint()
          ..color = const Color(0xFF3E7C3E).withValues(alpha: 0.8)
          ..style = PaintingStyle.stroke
          ..strokeWidth = 3,
+       _ignitePaint = Paint()
+         ..color = const Color(0xFFFF8C3B).withValues(alpha: 0.85)
+         ..style = PaintingStyle.stroke
+         ..strokeWidth = 2,
        _auraFillPaint = _createAuraFillPaint(state.role),
        _auraStrokePaint = _createAuraStrokePaint(state.role),
        _zoneFillPaint = _createZoneFillPaint(state.role),
@@ -90,7 +98,9 @@ class EnemyComponent extends PositionComponent {
   final Paint _outlinePaint;
   final Paint _telegraphPaint;
   final Paint _slowPaint;
+  final Paint _oilPaint;
   final Paint _rootPaint;
+  final Paint _ignitePaint;
   final Paint? _auraFillPaint;
   final Paint? _auraStrokePaint;
   final Paint? _zoneFillPaint;
@@ -201,8 +211,14 @@ class EnemyComponent extends PositionComponent {
     if (_state.slowTimer > 0) {
       canvas.drawCircle(Offset.zero, _shapeRadius + 3, _slowPaint);
     }
+    if (_state.oilTimer > 0) {
+      canvas.drawCircle(Offset.zero, _shapeRadius + 5, _oilPaint);
+    }
     if (_state.rootTimer > 0) {
-      canvas.drawCircle(Offset.zero, _shapeRadius + 6, _rootPaint);
+      canvas.drawCircle(Offset.zero, _shapeRadius + 7, _rootPaint);
+    }
+    if (_state.igniteTimer > 0) {
+      canvas.drawCircle(Offset.zero, _shapeRadius + 11, _ignitePaint);
     }
   }
 
