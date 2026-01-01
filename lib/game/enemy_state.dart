@@ -38,6 +38,9 @@ class EnemyState {
   double slowMultiplier = 1;
   double rootTimer = 0;
   double rootMultiplier = 1;
+  double oilTimer = 0;
+  double igniteTimer = 0;
+  double igniteDamagePerSecond = 0;
   double speedMultiplier = 1;
   bool behaviorInitialized = false;
   final Vector2 dashDirection;
@@ -90,6 +93,9 @@ class EnemyState {
     slowMultiplier = 1;
     rootTimer = 0;
     rootMultiplier = 1;
+    oilTimer = 0;
+    igniteTimer = 0;
+    igniteDamagePerSecond = 0;
     speedMultiplier = 1;
     behaviorInitialized = false;
     dashDirection.setZero();
@@ -123,6 +129,30 @@ class EnemyState {
     }
   }
 
+  void applyOil({required double duration}) {
+    if (duration <= 0) {
+      return;
+    }
+    if (duration > oilTimer) {
+      oilTimer = duration;
+    }
+  }
+
+  void applyIgnite({
+    required double duration,
+    required double damagePerSecond,
+  }) {
+    if (duration <= 0 || damagePerSecond <= 0) {
+      return;
+    }
+    if (igniteTimer <= 0 || damagePerSecond > igniteDamagePerSecond) {
+      igniteDamagePerSecond = damagePerSecond;
+    }
+    if (duration > igniteTimer) {
+      igniteTimer = duration;
+    }
+  }
+
   void updateDebuffs(double dt) {
     if (slowTimer > 0) {
       slowTimer -= dt;
@@ -141,6 +171,22 @@ class EnemyState {
     speedMultiplier = slowMultiplier < rootMultiplier
         ? slowMultiplier
         : rootMultiplier;
+  }
+
+  void updateStatusTimers(double dt) {
+    if (oilTimer > 0) {
+      oilTimer -= dt;
+      if (oilTimer <= 0) {
+        oilTimer = 0;
+      }
+    }
+    if (igniteTimer > 0) {
+      igniteTimer -= dt;
+      if (igniteTimer <= 0) {
+        igniteTimer = 0;
+        igniteDamagePerSecond = 0;
+      }
+    }
   }
 
   double get effectiveMoveSpeed => moveSpeed * speedMultiplier;

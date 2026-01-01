@@ -58,6 +58,12 @@ class ProjectileSystem {
           final dy = enemy.position.y - projectile.position.y;
           final distanceSquared = dx * dx + dy * dy;
           if (distanceSquared <= combinedRadiusSquared) {
+            if (projectile.ignitesOiledTargets && enemy.oilTimer > 0) {
+              enemy.applyIgnite(
+                duration: projectile.igniteDuration,
+                damagePerSecond: projectile.igniteDamagePerSecond,
+              );
+            }
             onEnemyHit(enemy, projectile.damage);
             onDespawn(projectile);
             _pool.release(projectile);

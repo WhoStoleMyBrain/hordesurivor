@@ -193,6 +193,14 @@ class SkillSystem {
       enemyPool: enemyPool,
     );
     final damage = 8 * _damageMultiplierFor(SkillId.fireball, stats);
+    const igniteDuration = 1.4;
+    final igniteMultiplier =
+        1 +
+        stats.value(StatId.damage) +
+        stats.value(StatId.dotDamage) +
+        stats.value(StatId.fireDamage);
+    final igniteDamagePerSecond =
+        3 * math.max(0.1, igniteMultiplier).toDouble();
     final projectile = _projectilePool.acquire();
     projectile.reset(
       position: playerPosition,
@@ -202,6 +210,10 @@ class SkillSystem {
       lifespan: 2.0,
       fromEnemy: false,
     );
+    projectile
+      ..ignitesOiledTargets = true
+      ..igniteDuration = igniteDuration
+      ..igniteDamagePerSecond = igniteDamagePerSecond;
     onProjectileSpawn(projectile);
   }
 
@@ -276,6 +288,7 @@ class SkillSystem {
       damagePerSecond: groundDamage,
       slowMultiplier: 0.8,
       slowDuration: 0.6,
+      oilDuration: duration * 0.6,
     );
   }
 

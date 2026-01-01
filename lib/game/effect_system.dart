@@ -120,6 +120,9 @@ class EffectSystem {
   }
 
   void _applyStatus(EffectState effect, EnemyState enemy) {
+    if (effect.oilDuration > 0 && effect.kind == EffectKind.oilGround) {
+      enemy.applyOil(duration: effect.oilDuration);
+    }
     if (effect.slowDuration <= 0 || effect.slowMultiplier >= 1) {
       return;
     }

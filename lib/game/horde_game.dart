@@ -79,6 +79,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _portalRadius = 26;
   static const double _stageWaveInterval = 3.0;
   static const int _baseStageWaveCount = 4;
+  static const TagSet _igniteDamageTags = TagSet(
+    elements: {ElementTag.fire},
+    effects: {EffectTag.dot},
+  );
 
   double _accumulator = 0;
   double _frameTimeMs = 0;
@@ -434,6 +438,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       onDespawn: _handleEffectDespawn,
       onEnemyDamaged: _damageSystem.queueEnemyDamage,
     );
+    _applyEnemyStatusDamage(dt);
     _damageSystem.resolve(
       onEnemyDefeated: _handleEnemyDefeated,
       onEnemyDamaged: _handleEnemyDamaged,
@@ -698,6 +703,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         damagePerSecond: projectile.impactEffectDamagePerSecond,
         slowMultiplier: projectile.impactEffectSlowMultiplier,
         slowDuration: projectile.impactEffectSlowDuration,
+        oilDuration: projectile.impactEffectOilDuration,
       );
       _handleEffectSpawn(effect);
     }
@@ -856,6 +862,25 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       sectionNote: inStage ? sectionNote : null,
       buildTags: buildTags,
     );
+  }
+
+  void _applyEnemyStatusDamage(double dt) {
+    for (final enemy in _enemyPool.active) {
+      if (!enemy.active) {
+        continue;
+      }
+      if (enemy.igniteTimer > 0 && enemy.igniteDamagePerSecond > 0) {
+        final tickDuration = math.min(dt, enemy.igniteTimer);
+        if (tickDuration > 0) {
+          _damageSystem.queueEnemyDamage(
+            enemy,
+            enemy.igniteDamagePerSecond * tickDuration,
+            tags: _igniteDamageTags,
+          );
+        }
+      }
+      enemy.updateStatusTimers(dt);
+    }
   }
 
   TagSet _collectBuildTags() {
