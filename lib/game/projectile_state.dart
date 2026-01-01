@@ -18,6 +18,9 @@ class ProjectileState {
   bool fromEnemy = false;
   bool active = false;
   bool spawnImpactEffect = false;
+  bool ignitesOiledTargets = false;
+  double igniteDuration = 0;
+  double igniteDamagePerSecond = 0;
   EffectKind? impactEffectKind;
   EffectShape impactEffectShape = EffectShape.ground;
   double impactEffectRadius = 0;
@@ -27,6 +30,7 @@ class ProjectileState {
   double impactEffectDamagePerSecond = 0;
   double impactEffectSlowMultiplier = 1;
   double impactEffectSlowDuration = 0;
+  double impactEffectOilDuration = 0;
 
   void reset({
     required Vector2 position,
@@ -45,6 +49,9 @@ class ProjectileState {
     age = 0;
     active = true;
     spawnImpactEffect = false;
+    ignitesOiledTargets = false;
+    igniteDuration = 0;
+    igniteDamagePerSecond = 0;
     impactEffectKind = null;
     impactEffectShape = EffectShape.ground;
     impactEffectRadius = 0;
@@ -54,6 +61,7 @@ class ProjectileState {
     impactEffectDamagePerSecond = 0;
     impactEffectSlowMultiplier = 1;
     impactEffectSlowDuration = 0;
+    impactEffectOilDuration = 0;
     impactDirection.setValues(1, 0);
   }
 
@@ -68,6 +76,7 @@ class ProjectileState {
     required double damagePerSecond,
     double slowMultiplier = 1,
     double slowDuration = 0,
+    double oilDuration = 0,
   }) {
     spawnImpactEffect = true;
     impactEffectKind = kind;
@@ -85,5 +94,6 @@ class ProjectileState {
     impactEffectDamagePerSecond = damagePerSecond;
     impactEffectSlowMultiplier = slowMultiplier;
     impactEffectSlowDuration = slowDuration;
+    impactEffectOilDuration = oilDuration;
   }
 }
