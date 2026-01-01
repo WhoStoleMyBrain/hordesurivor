@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/enemy_defs.dart';
 import '../data/skill_defs.dart';
+import '../data/status_effect_defs.dart';
 import '../data/tags.dart';
 import 'tag_badge.dart';
 
@@ -29,7 +30,7 @@ class CompendiumScreen extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: DefaultTabController(
-                length: 2,
+                length: 3,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -56,6 +57,7 @@ class CompendiumScreen extends StatelessWidget {
                       tabs: [
                         Tab(text: 'Skills'),
                         Tab(text: 'Enemies'),
+                        Tab(text: 'Statuses'),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -64,6 +66,7 @@ class CompendiumScreen extends StatelessWidget {
                         children: [
                           _SkillList(skills: skillDefs),
                           _EnemyList(enemies: enemyDefs),
+                          _StatusList(statusEffects: statusEffectDefs),
                         ],
                       ),
                     ),
@@ -119,6 +122,30 @@ class _EnemyList extends StatelessWidget {
         return _CompendiumCard(
           title: enemy.name,
           description: enemy.description,
+          badges: badges,
+        );
+      },
+    );
+  }
+}
+
+class _StatusList extends StatelessWidget {
+  const _StatusList({required this.statusEffects});
+
+  final List<StatusEffectDef> statusEffects;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: statusEffects.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final effect = statusEffects[index];
+        final badges = tagBadgesForTags(effect.tags);
+        return _CompendiumCard(
+          title: effect.name,
+          description: effect.description,
           badges: badges,
         );
       },
