@@ -5,6 +5,7 @@ import 'enemy_defs.dart';
 import 'item_defs.dart';
 import 'skill_defs.dart';
 import 'skill_upgrade_defs.dart';
+import 'status_effect_defs.dart';
 import 'tags.dart';
 
 typedef DataLogFn = void Function(String message);
@@ -56,6 +57,11 @@ DataValidationResult validateGameData() {
     label: 'SkillUpgradeDef',
     result: result,
   );
+  _checkUniqueIds(
+    ids: statusEffectDefs.map((def) => def.id),
+    label: 'StatusEffectDef',
+    result: result,
+  );
 
   for (final def in skillDefs) {
     if (_isTagSetEmpty(def.tags)) {
@@ -89,6 +95,12 @@ DataValidationResult validateGameData() {
     }
     if (def.weight <= 0) {
       result.errors.add('ItemDef ${def.id} has non-positive weight.');
+    }
+  }
+
+  for (final def in statusEffectDefs) {
+    if (_isTagSetEmpty(def.tags)) {
+      result.errors.add('StatusEffectDef ${def.id} has no tags.');
     }
   }
 

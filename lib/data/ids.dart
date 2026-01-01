@@ -31,6 +31,8 @@ enum SkillUpgradeId {
   rootsTighteningGrasp,
 }
 
+enum StatusEffectId { slow, root, ignite, oilSoaked, vulnerable }
+
 enum ItemId {
   glassCatalyst,
   heavyPlate,
