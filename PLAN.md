@@ -50,11 +50,12 @@ This plan advances the project from the completed V0.2 foundation into V0.3. It 
 - Level-up selection now offers skill upgrades for owned skills and prevents repeats.
 - Selection UI labels upgrades distinctly from skills/items.
 - Added oil-soaked tracking on oil ground effects and ignite DOT that triggers when fireball hits oiled enemies.
+- Added oil-soaked and ignite status rings to enemies for clearer debuff readability.
 **Decisions:**
 - Skill upgrades currently apply stat modifiers only; future per-skill params can build on the data IDs.
 - Ignite triggers only when enemies are oil-soaked, keeping the Fireball base hit as the primary damage.
 **Follow-ups:**
-- Add VFX/telegraph rings for oil-soaked and ignited targets to match slow/root readability.
+- Add VFX/telegraph rings for oil-soaked and ignited targets to match slow/root readability. (Completed.)
 
 ---
 
