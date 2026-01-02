@@ -35,6 +35,8 @@ class AreaDef {
     this.spriteId,
     this.enemyThemes = const [],
     this.difficultyTiers = const ['Standard'],
+    this.lootModifiers = const [],
+    this.mapMutators = const [],
   });
 
   final AreaId id;
@@ -45,6 +47,8 @@ class AreaDef {
   final String lootProfile;
   final List<String> enemyThemes;
   final List<String> difficultyTiers;
+  final List<String> lootModifiers;
+  final List<String> mapMutators;
   final double stageDuration;
   final List<StageSection> sections;
 }
@@ -58,6 +62,8 @@ const List<AreaDef> areaDefs = [
     recommendedLevel: 1,
     lootProfile: 'embers',
     enemyThemes: ['Demons'],
+    lootModifiers: ['+Ember shards'],
+    mapMutators: ['Falling embers'],
     stageDuration: 180,
     sections: [
       StageSection(
@@ -105,6 +111,8 @@ const List<AreaDef> areaDefs = [
     recommendedLevel: 2,
     lootProfile: 'radiance',
     enemyThemes: ['Angels'],
+    lootModifiers: ['+Radiant sigils'],
+    mapMutators: ['Unstable light zones'],
     stageDuration: 210,
     sections: [
       StageSection(

@@ -90,6 +90,20 @@ class AreaSelectScreen extends StatelessWidget {
                                 ? 'Unknown'
                                 : area.enemyThemes.join(' · '),
                           ),
+                          if (area.lootModifiers.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            _InfoRow(
+                              label: 'Loot Mods',
+                              value: area.lootModifiers.join(' · '),
+                            ),
+                          ],
+                          if (area.mapMutators.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            _InfoRow(
+                              label: 'Mutators',
+                              value: area.mapMutators.join(' · '),
+                            ),
+                          ],
                           const SizedBox(height: 6),
                           _InfoRow(
                             label: 'Contracts',
