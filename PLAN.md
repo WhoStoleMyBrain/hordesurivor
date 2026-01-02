@@ -25,6 +25,8 @@ This plan advances the project from the completed V0.2 foundation into V0.3. It 
 - Keep existing V0.2 flow (Start → Home Base → Area Select → Stage → Death).
 - Ensure new systems remain data-driven and pooled.
 - No new TODOs without an associated issue/task reference.
+**Completed:**
+- Added optional area loot modifiers and map mutators, surfaced on the area selection cards.
 
 ---
 
