@@ -77,6 +77,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const String _playerSpriteId = 'player_base';
   static const String _projectileSpriteId = 'projectile_firebolt';
   static const double _portalRadius = 26;
+  static const double _portalLockoutDuration = 0.75;
   static const double _stageWaveInterval = 3.0;
   static const int _baseStageWaveCount = 4;
   static const TagSet _igniteDamageTags = TagSet(
@@ -142,6 +143,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Vector2 _damageNumberPosition = Vector2.zero();
   final Vector2 _damageNumberVelocity = Vector2.zero();
   final Vector2 _portalPosition = Vector2.zero();
+  double _portalLockoutTimer = 0;
   GameFlowState _flowState = GameFlowState.start;
   bool _inputLocked = false;
   VoidCallback? _selectionListener;
@@ -539,6 +541,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _resetStageActors();
     _activeArea = null;
     _stageTimer = null;
+    _portalLockoutTimer = _portalLockoutDuration;
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(AreaSelectScreen.overlayKey);
     overlays.remove(HudOverlay.overlayKey);
@@ -1041,11 +1044,16 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _playerComponent.syncWithState();
     _syncHudState();
 
+    if (_portalLockoutTimer > 0) {
+      _portalLockoutTimer = math.max(0, _portalLockoutTimer - dt);
+    }
+
     final dx = _playerState.position.x - _portalPosition.x;
     final dy = _playerState.position.y - _portalPosition.y;
     final distanceSquared = dx * dx + dy * dy;
     final triggerRadius = _portalRadius + _playerRadius;
-    if (distanceSquared <= triggerRadius * triggerRadius) {
+    if (_portalLockoutTimer <= 0 &&
+        distanceSquared <= triggerRadius * triggerRadius) {
       _enterAreaSelect();
     }
   }
