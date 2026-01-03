@@ -115,7 +115,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final DamageSystem _damageSystem;
   late final ExperienceSystem _experienceSystem;
   late final LevelUpSystem _levelUpSystem;
-  late final PortalComponent _portalComponent;
+  late final PortalComponent _portalComponent = PortalComponent(
+    radius: _portalRadius,
+    label: 'AREA PORTAL',
+  );
   final PlayerHudState _hudState = PlayerHudState();
   final SelectionState _selectionState = SelectionState();
   final RunSummary _runSummary = RunSummary();
@@ -203,10 +206,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _playerComponent.syncWithState();
     await add(_playerComponent);
 
-    _portalComponent = PortalComponent(
-      radius: _portalRadius,
-      label: 'AREA PORTAL',
-    );
     _updatePortalPosition();
     _portalComponent.position.setFrom(_portalPosition);
     await add(_portalComponent);
