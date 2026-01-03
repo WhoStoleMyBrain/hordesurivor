@@ -7,6 +7,7 @@ import '../data/tags.dart';
 import '../game/level_up_system.dart';
 import 'selection_state.dart';
 import 'tag_badge.dart';
+import 'ui_scale.dart';
 
 class SelectionOverlay extends StatelessWidget {
   const SelectionOverlay({
@@ -41,10 +42,10 @@ class SelectionOverlay extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
+                      Text(
                         'Choose a reward',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 18 * UiScale.textScale,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

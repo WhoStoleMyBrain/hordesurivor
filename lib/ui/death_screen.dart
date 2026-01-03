@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../game/run_summary.dart';
+import 'ui_scale.dart';
 
 class DeathScreen extends StatelessWidget {
   const DeathScreen({
@@ -38,8 +39,8 @@ class DeathScreen extends StatelessWidget {
               children: [
                 Text(
                   completed ? 'RUN COMPLETE' : 'YOU DIED',
-                  style: const TextStyle(
-                    fontSize: 22,
+                  style: TextStyle(
+                    fontSize: 22 * UiScale.textScale,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.2,
                   ),
