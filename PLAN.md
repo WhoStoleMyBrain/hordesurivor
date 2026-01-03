@@ -12,6 +12,11 @@ This plan moves the project from V0.3 into V0.4 with a focus on **readability, f
 - **Stats screen:** a pause/frozen overlay listing current stats, items, and skills with hoverable tooltips.
 - **Sanity check:** project-wide QA pass to ensure V0.4 is stable and readable.
 
+## Progress update (latest)
+- **Done:** Phase 1 — added `UiScale.textScale` (0.9) and applied it to the app theme plus explicit UI font sizes (`lib/ui/`, `lib/main.dart`) to reduce debug/on-screen text sizing.
+- **Decision:** keep a single UI-scale constant in `lib/ui/ui_scale.dart` for consistent text tuning.
+- **Follow-up:** verify remaining overlays and in-world text sizing after later scale adjustments (Phases 2–3).
+
 ---
 
 ## V0.4 Phase 0 — Baseline review & issue inventory

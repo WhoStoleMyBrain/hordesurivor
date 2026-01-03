@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/tags.dart';
+import 'ui_scale.dart';
 
 class TagBadgeData {
   TagBadgeData({required this.label, required this.icon, required this.color});
@@ -32,7 +33,10 @@ class TagBadge extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               data.label,
-              style: const TextStyle(fontSize: 11, color: Colors.white70),
+              style: TextStyle(
+                fontSize: UiScale.fontSize(11),
+                color: Colors.white70,
+              ),
             ),
           ],
         ),

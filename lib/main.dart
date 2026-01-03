@@ -12,6 +12,7 @@ import 'ui/home_base_overlay.dart';
 import 'ui/options_screen.dart';
 import 'ui/selection_overlay.dart';
 import 'ui/start_screen.dart';
+import 'ui/ui_scale.dart';
 
 void main() {
   validateGameDataOrThrow();
@@ -24,8 +25,17 @@ class HordeSurvivorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const stressScene = bool.fromEnvironment('STRESS_SCENE');
+    final baseTheme = ThemeData.dark();
+    final scaledTextTheme = baseTheme.textTheme.apply(
+      fontSizeFactor: UiScale.textScale,
+    );
     return MaterialApp(
-      theme: ThemeData.dark(),
+      theme: baseTheme.copyWith(
+        textTheme: scaledTextTheme,
+        primaryTextTheme: baseTheme.primaryTextTheme.apply(
+          fontSizeFactor: UiScale.textScale,
+        ),
+      ),
       initialRoute: stressScene ? '/stress' : '/',
       routes: {
         '/': (_) => _buildGame(stressTest: false),
