@@ -32,8 +32,15 @@
       "shapes": [
         { "type": "circle", "color": "primary", "radius": 6, "offset": [0, 1] },
         { "type": "circle", "color": "shadow", "radius": 3, "offset": [2, 3] },
-        { "type": "rect", "color": "accent", "size": [2, 2], "offset": [-4, -6] },
-        { "type": "rect", "color": "accent", "size": [2, 2], "offset": [4, -6] }
+        { "type": "pixels", "color": "accent", "points": [[-4, -6], [-3, -5]] },
+        { "type": "pixels", "color": "accent", "points": [[4, -6], [3, -5]] },
+        {
+          "type": "line",
+          "color": "shadow",
+          "start": [0, 4],
+          "end": [2, 7],
+          "thickness": 1
+        }
       ]
     },
     {
@@ -49,8 +56,15 @@
       },
       "shapes": [
         { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 1] },
-        { "type": "rect", "color": "shadow", "size": [3, 4], "offset": [-4, -2] },
-        { "type": "rect", "color": "accent", "size": [2, 2], "offset": [4, -1] }
+        { "type": "rect", "color": "shadow", "size": [4, 5], "offset": [-3, -1] },
+        {
+          "type": "line",
+          "color": "accent",
+          "start": [2, 0],
+          "end": [6, 0],
+          "thickness": 1
+        },
+        { "type": "pixels", "color": "accent", "points": [[4, -1], [5, 1]] }
       ]
     },
     {
@@ -67,7 +81,16 @@
       "shapes": [
         { "type": "rect", "color": "primary", "size": [10, 8], "offset": [0, 1] },
         { "type": "rect", "color": "shadow", "size": [6, 4], "offset": [0, 2] },
-        { "type": "pixels", "color": "accent", "points": [[-3, -3], [3, -3]] }
+        { "type": "pixels", "color": "accent", "points": [[-3, -3], [3, -3]] },
+        {
+          "type": "arc",
+          "color": "accent",
+          "radius": 5,
+          "offset": [0, 0],
+          "startAngle": 0,
+          "sweepAngle": 360,
+          "thickness": 1
+        }
       ]
     },
     {
@@ -84,6 +107,15 @@
       "shapes": [
         { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 0] },
         { "type": "pixels", "color": "shadow", "points": [[-4, -4], [4, -4], [0, 4]] },
+        {
+          "type": "arc",
+          "color": "accent",
+          "radius": 4,
+          "offset": [0, 0],
+          "startAngle": 220,
+          "sweepAngle": 200,
+          "thickness": 1
+        },
         { "type": "rect", "color": "accent", "size": [2, 4], "offset": [0, -2] }
       ]
     },
@@ -101,7 +133,16 @@
       "shapes": [
         { "type": "rect", "color": "primary", "size": [8, 6], "offset": [0, 1] },
         { "type": "rect", "color": "shadow", "size": [6, 3], "offset": [0, 3] },
-        { "type": "pixels", "color": "accent", "points": [[-4, -2], [0, -4], [4, -2]] }
+        { "type": "pixels", "color": "accent", "points": [[-4, -2], [0, -5], [4, -2]] },
+        {
+          "type": "arc",
+          "color": "accent",
+          "radius": 4,
+          "offset": [0, -1],
+          "startAngle": 200,
+          "sweepAngle": 140,
+          "thickness": 1
+        }
       ]
     },
     {
@@ -118,7 +159,15 @@
       "shapes": [
         { "type": "rect", "color": "primary", "size": [10, 10], "offset": [0, 0] },
         { "type": "rect", "color": "shadow", "size": [6, 8], "offset": [-2, 2] },
-        { "type": "rect", "color": "accent", "size": [2, 6], "offset": [4, -2] }
+        { "type": "rect", "color": "accent", "size": [2, 6], "offset": [4, -2] },
+        { "type": "pixels", "color": "accent", "points": [[-5, -5], [5, -5], [0, -7]] },
+        {
+          "type": "line",
+          "color": "accent",
+          "start": [5, -2],
+          "end": [7, 4],
+          "thickness": 1
+        }
       ]
     },
     {
@@ -135,7 +184,18 @@
       "shapes": [
         { "type": "circle", "color": "primary", "radius": 4, "offset": [0, 1] },
         { "type": "pixels", "color": "shadow", "points": [[-3, 3], [3, 3]] },
-        { "type": "pixels", "color": "accent", "points": [[0, -4], [-2, -2], [2, -2]] }
+        {
+          "type": "pixels",
+          "color": "accent",
+          "points": [[0, -5], [-3, -1], [3, -1], [-1, 1], [1, 1]]
+        },
+        {
+          "type": "line",
+          "color": "accent",
+          "start": [-2, 4],
+          "end": [2, 4],
+          "thickness": 1
+        }
       ]
     },
     {
@@ -152,7 +212,16 @@
       "shapes": [
         { "type": "circle", "color": "primary", "radius": 6, "offset": [0, 1] },
         { "type": "circle", "color": "shadow", "radius": 3, "offset": [2, 2] },
-        { "type": "pixels", "color": "accent", "points": [[-2, -3], [2, -3]] }
+        { "type": "pixels", "color": "accent", "points": [[-2, -3], [2, -3]] },
+        {
+          "type": "arc",
+          "color": "accent",
+          "radius": 6,
+          "offset": [0, -2],
+          "startAngle": 200,
+          "sweepAngle": 140,
+          "thickness": 1
+        }
       ]
     },
     {
@@ -169,7 +238,15 @@
       "shapes": [
         { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 0] },
         { "type": "rect", "color": "shadow", "size": [6, 2], "offset": [0, 4] },
-        { "type": "pixels", "color": "accent", "points": [[-4, -2], [4, -2]] }
+        { "type": "pixels", "color": "accent", "points": [[-6, -1], [-4, -2]] },
+        { "type": "pixels", "color": "accent", "points": [[6, -1], [4, -2]] },
+        {
+          "type": "line",
+          "color": "accent",
+          "start": [-3, 1],
+          "end": [3, 1],
+          "thickness": 1
+        }
       ]
     },
     {
@@ -186,7 +263,20 @@
       "shapes": [
         { "type": "rect", "color": "primary", "size": [8, 8], "offset": [0, 0] },
         { "type": "rect", "color": "shadow", "size": [4, 6], "offset": [-2, 2] },
-        { "type": "pixels", "color": "accent", "points": [[0, -4], [0, 4]] }
+        {
+          "type": "line",
+          "color": "accent",
+          "start": [0, -5],
+          "end": [0, 5],
+          "thickness": 1
+        },
+        {
+          "type": "line",
+          "color": "accent",
+          "start": [-3, 0],
+          "end": [3, 0],
+          "thickness": 1
+        }
       ]
     },
     {
@@ -203,7 +293,14 @@
       "shapes": [
         { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 1] },
         { "type": "rect", "color": "shadow", "size": [2, 6], "offset": [-4, 1] },
-        { "type": "pixels", "color": "accent", "points": [[0, -4], [-2, -2], [2, -2]] }
+        { "type": "rect", "color": "accent", "size": [2, 6], "offset": [4, 1] },
+        {
+          "type": "line",
+          "color": "accent",
+          "start": [2, -5],
+          "end": [5, -7],
+          "thickness": 1
+        }
       ]
     },
     {
@@ -220,7 +317,16 @@
       "shapes": [
         { "type": "rect", "color": "primary", "size": [8, 10], "offset": [0, 1] },
         { "type": "rect", "color": "shadow", "size": [6, 6], "offset": [0, 3] },
-        { "type": "pixels", "color": "accent", "points": [[-3, -4], [3, -4]] }
+        { "type": "pixels", "color": "accent", "points": [[-3, -4], [3, -4]] },
+        {
+          "type": "arc",
+          "color": "accent",
+          "radius": 4,
+          "offset": [0, -3],
+          "startAngle": 200,
+          "sweepAngle": 140,
+          "thickness": 1
+        }
       ]
     },
     {
@@ -237,7 +343,13 @@
       "shapes": [
         { "type": "rect", "color": "primary", "size": [6, 10], "offset": [0, 0] },
         { "type": "rect", "color": "shadow", "size": [2, 8], "offset": [-2, 2] },
-        { "type": "pixels", "color": "accent", "points": [[-4, 0], [4, 0]] }
+        {
+          "type": "line",
+          "color": "accent",
+          "start": [-4, 0],
+          "end": [4, 0],
+          "thickness": 1
+        }
       ]
     },
     {
@@ -254,7 +366,14 @@
       "shapes": [
         { "type": "rect", "color": "primary", "size": [8, 10], "offset": [0, 0] },
         { "type": "rect", "color": "shadow", "size": [4, 8], "offset": [-2, 2] },
-        { "type": "rect", "color": "accent", "size": [2, 6], "offset": [4, -2] }
+        { "type": "rect", "color": "accent", "size": [2, 6], "offset": [4, -2] },
+        {
+          "type": "line",
+          "color": "accent",
+          "start": [2, -6],
+          "end": [6, -2],
+          "thickness": 1
+        }
       ]
     },
     {
