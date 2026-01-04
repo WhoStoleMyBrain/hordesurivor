@@ -3,16 +3,19 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 
 import '../game/projectile_state.dart';
+import 'render_scale.dart';
 
 class ProjectileComponent extends PositionComponent {
   ProjectileComponent({
     required ProjectileState state,
     Color color = const Color(0xFFFF8C3B),
     Image? spriteImage,
+    double renderScale = RenderScale.worldScale,
   }) : _state = state,
        _spriteImage = spriteImage,
        _paint = Paint()..color = color {
     anchor = Anchor.center;
+    scale = Vector2.all(renderScale);
     if (spriteImage != null) {
       size = Vector2(
         spriteImage.width.toDouble(),

@@ -6,6 +6,7 @@ import 'package:hordesurivor/data/enemy_variants.dart';
 import 'package:hordesurivor/data/tags.dart';
 
 import '../game/enemy_state.dart';
+import 'render_scale.dart';
 
 class EnemyComponent extends PositionComponent {
   EnemyComponent({
@@ -14,6 +15,7 @@ class EnemyComponent extends PositionComponent {
     Color color = const Color(0xFFE07064),
     Image? spriteImage,
     double telegraphOpacityMultiplier = 1.0,
+    double renderScale = RenderScale.worldScale,
   }) : _state = state,
        _radius = radius,
        _spriteImage = spriteImage,
@@ -60,6 +62,7 @@ class EnemyComponent extends PositionComponent {
        _zoneStrokePaint = _createZoneStrokePaint(state.role),
        _variantRingPaint = _createVariantRingPaint(state.variant) {
     anchor = Anchor.center;
+    scale = Vector2.all(renderScale);
     if (spriteImage != null) {
       size = Vector2(
         spriteImage.width.toDouble(),
