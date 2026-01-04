@@ -2,17 +2,20 @@ import 'package:flame/components.dart';
 import 'dart:ui';
 
 import '../game/player_state.dart';
+import 'render_scale.dart';
 
 class PlayerComponent extends PositionComponent {
   PlayerComponent({
     required PlayerState state,
     required double radius,
     Image? spriteImage,
+    double renderScale = RenderScale.worldScale,
   }) : _state = state,
        _radius = radius,
        _spriteImage = spriteImage,
        _paint = Paint()..color = const Color(0xFF7BD389) {
     anchor = Anchor.center;
+    scale = Vector2.all(renderScale);
     if (spriteImage != null) {
       size = Vector2(
         spriteImage.width.toDouble(),

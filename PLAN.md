@@ -15,7 +15,9 @@ This plan moves the project from V0.3 into V0.4 with a focus on **readability, f
 ## Progress update (latest)
 - **Done:** Phase 1 — added `UiScale.textScale` (0.9) and applied it to the app theme plus explicit UI font sizes (`lib/ui/`, `lib/main.dart`) to reduce debug/on-screen text sizing.
 - **Done:** Phase 2 — added a portal re-entry lockout timer when returning from area select (`lib/game/horde_game.dart`) to prevent immediate re-triggering.
+- **Done:** Phase 3 — introduced `RenderScale.worldScale` and applied it to player/enemy/projectile/effect render components plus sprite-batched projectiles (`lib/render/`) for a single-tweak gameplay visual scale.
 - **Decision:** keep a single UI-scale constant in `lib/ui/ui_scale.dart` for consistent text tuning.
+- **Decision:** render scale is visual-only; collision and gameplay radii remain unchanged to preserve balance.
 - **Follow-up:** verify remaining overlays and in-world text sizing after later scale adjustments (Phases 3–4).
 
 ---

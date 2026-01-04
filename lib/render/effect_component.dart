@@ -4,12 +4,16 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 
 import '../game/effect_state.dart';
+import 'render_scale.dart';
 
 class EffectComponent extends PositionComponent {
-  EffectComponent({required EffectState state})
-    : _state = state,
-      _paint = Paint()..color = _colorForKind(state.kind) {
+  EffectComponent({
+    required EffectState state,
+    double renderScale = RenderScale.worldScale,
+  }) : _state = state,
+       _paint = Paint()..color = _colorForKind(state.kind) {
     anchor = Anchor.center;
+    scale = Vector2.all(renderScale);
     priority = _priorityForShape(state.shape);
   }
 
