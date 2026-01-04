@@ -6,6 +6,7 @@ import '../data/skill_upgrade_defs.dart';
 import '../data/tags.dart';
 import '../game/level_up_system.dart';
 import 'selection_state.dart';
+import 'stat_text.dart';
 import 'tag_badge.dart';
 import 'ui_scale.dart';
 
@@ -14,12 +15,14 @@ class SelectionOverlay extends StatelessWidget {
     super.key,
     required this.selectionState,
     required this.onSelected,
+    required this.onReroll,
   });
 
   static const String overlayKey = 'selection';
 
   final SelectionState selectionState;
   final void Function(SelectionChoice choice) onSelected;
+  final VoidCallback onReroll;
 
   @override
   Widget build(BuildContext context) {
@@ -42,12 +45,24 @@ class SelectionOverlay extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'Choose a reward',
-                        style: TextStyle(
-                          fontSize: 18 * UiScale.textScale,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Choose a reward',
+                              style: TextStyle(
+                                fontSize: 18 * UiScale.textScale,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          _RerollButton(
+                            remaining: selectionState.rerollsRemaining,
+                            onPressed: selectionState.rerollsRemaining > 0
+                                ? onReroll
+                                : null,
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 12),
                       Flexible(
@@ -76,6 +91,18 @@ class SelectionOverlay extends StatelessWidget {
   }
 }
 
+class _RerollButton extends StatelessWidget {
+  const _RerollButton({required this.remaining, required this.onPressed});
+
+  final int remaining;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(onPressed: onPressed, child: Text('Reroll ($remaining)'));
+  }
+}
+
 class _ChoiceCard extends StatelessWidget {
   const _ChoiceCard({required this.choice, required this.onPressed});
 
@@ -87,6 +114,7 @@ class _ChoiceCard extends StatelessWidget {
     final theme = Theme.of(context);
     final tags = _tagsForChoice(choice);
     final badges = tagBadgesForTags(tags);
+    final statChanges = _statChangesForChoice(choice);
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.all(12),
@@ -115,6 +143,16 @@ class _ChoiceCard extends StatelessWidget {
             choice.description,
             style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
           ),
+          if (statChanges.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            for (final line in statChanges)
+              Text(
+                line,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.white60,
+                ),
+              ),
+          ],
           if (badges.isNotEmpty) ...[
             const SizedBox(height: 8),
             Wrap(
@@ -158,4 +196,17 @@ TagSet _tagsForChoice(SelectionChoice choice) {
           ? skillUpgradeDefsById[upgradeId]?.tags ?? const TagSet()
           : const TagSet();
   }
+}
+
+List<String> _statChangesForChoice(SelectionChoice choice) {
+  if (choice.type != SelectionType.item || choice.itemId == null) {
+    return const [];
+  }
+  final item = itemDefsById[choice.itemId];
+  if (item == null) {
+    return const [];
+  }
+  return [
+    for (final modifier in item.modifiers) StatText.formatModifier(modifier),
+  ];
 }
