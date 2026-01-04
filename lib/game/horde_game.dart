@@ -13,6 +13,7 @@ import '../data/ids.dart';
 import '../data/item_defs.dart';
 import '../data/skill_defs.dart';
 import '../data/skill_upgrade_defs.dart';
+import '../data/stat_defs.dart';
 import '../data/tags.dart';
 import '../data/area_defs.dart';
 import '../render/damage_number_component.dart';
@@ -34,6 +35,8 @@ import '../ui/options_screen.dart';
 import '../ui/selection_overlay.dart';
 import '../ui/selection_state.dart';
 import '../ui/start_screen.dart';
+import '../ui/stats_overlay.dart';
+import '../ui/stats_screen_state.dart';
 import 'damage_system.dart';
 import 'effect_pool.dart';
 import 'effect_state.dart';
@@ -122,6 +125,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   );
   final PlayerHudState _hudState = PlayerHudState();
   final SelectionState _selectionState = SelectionState();
+  final StatsScreenState _statsScreenState = StatsScreenState();
   final RunSummary _runSummary = RunSummary();
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
@@ -154,6 +158,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   PlayerHudState get hudState => _hudState;
   SelectionState get selectionState => _selectionState;
+  StatsScreenState get statsScreenState => _statsScreenState;
   GameFlowState get flowState => _flowState;
   RunSummary get runSummary => _runSummary;
   bool get runCompleted => _runCompleted;
@@ -366,7 +371,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (!_spawnerReady) {
       return;
     }
-    if (_selectionState.active) {
+    if (_selectionState.active || overlays.isActive(StatsOverlay.overlayKey)) {
       _playerState.movementIntent.setZero();
       _playerComponent.syncWithState();
       _syncHudState();
@@ -524,6 +529,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _applyStageSection(force: true);
     _selectionState.clear();
     overlays.remove(SelectionOverlay.overlayKey);
+    overlays.remove(StatsOverlay.overlayKey);
     _resetPlayerProgression();
     _resetRunSummary();
     _runSummary.areaName = area.name;
@@ -546,6 +552,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(AreaSelectScreen.overlayKey);
     overlays.remove(HudOverlay.overlayKey);
     overlays.remove(DeathScreen.overlayKey);
+    overlays.remove(StatsOverlay.overlayKey);
     overlays.add(HomeBaseOverlay.overlayKey);
     _syncHudState();
   }
@@ -566,6 +573,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(HudOverlay.overlayKey);
+    overlays.remove(StatsOverlay.overlayKey);
     overlays.add(HomeBaseOverlay.overlayKey);
     _syncHudState();
   }
@@ -630,6 +638,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   ) {
     if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.f1) {
       toggleFlowDebugOverlay();
+      return KeyEventResult.handled;
+    }
+    if (event is KeyDownEvent &&
+        (event.logicalKey == LogicalKeyboardKey.tab ||
+            event.logicalKey == LogicalKeyboardKey.keyI)) {
+      toggleStatsOverlay();
       return KeyEventResult.handled;
     }
     if (_inputLocked) {
@@ -815,13 +829,29 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _offerSelectionIfNeeded();
   }
 
+  void rerollSelection() {
+    final rerolled = _levelUpSystem.rerollChoices(
+      playerState: _playerState,
+      skillSystem: _skillSystem,
+    );
+    if (rerolled) {
+      _selectionState.showChoices(
+        _levelUpSystem.choices,
+        rerollsRemaining: _levelUpSystem.rerollsRemaining,
+      );
+    }
+  }
+
   void _offerSelectionIfNeeded() {
     _levelUpSystem.buildChoices(
       playerState: _playerState,
       skillSystem: _skillSystem,
     );
     if (_levelUpSystem.hasChoices) {
-      _selectionState.showChoices(_levelUpSystem.choices);
+      _selectionState.showChoices(
+        _levelUpSystem.choices,
+        rerollsRemaining: _levelUpSystem.rerollsRemaining,
+      );
       overlays.add(SelectionOverlay.overlayKey);
     } else {
       _selectionState.clear();
@@ -863,6 +893,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       threatTier: inStage ? threatTier : 0,
       sectionNote: inStage ? sectionNote : null,
       buildTags: buildTags,
+    );
+    _statsScreenState.update(
+      statValues: _collectStatValues(),
+      skills: _skillSystem.skillIds,
+      upgrades: _levelUpSystem.appliedUpgrades.toList(),
+      items: _levelUpSystem.appliedItems.toList(),
+      rerollsRemaining: _levelUpSystem.rerollsRemaining,
+      rerollsMax: _levelUpSystem.rerollsMax,
     );
   }
 
@@ -908,6 +946,21 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     return tags;
   }
 
+  Map<StatId, double> _collectStatValues() {
+    final values = <StatId, double>{};
+    for (final stat in StatId.values) {
+      final value = _playerState.stats.value(stat);
+      if (stat == StatId.maxHp || stat == StatId.moveSpeed) {
+        values[stat] = value;
+        continue;
+      }
+      if (value.abs() > 0.0001) {
+        values[stat] = value;
+      }
+    }
+    return values;
+  }
+
   void _handleSelectionStateChanged() {
     _updateInputLock();
   }
@@ -931,6 +984,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _updateInputLock() {
     final locked =
         _selectionState.active ||
+        overlays.isActive(StatsOverlay.overlayKey) ||
         !(_flowState == GameFlowState.stage ||
             _flowState == GameFlowState.homeBase);
     if (_inputLocked == locked) {
@@ -950,6 +1004,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       return;
     }
     overlays.add(FlowDebugOverlay.overlayKey);
+  }
+
+  void toggleStatsOverlay() {
+    if (_flowState != GameFlowState.stage || _selectionState.active) {
+      return;
+    }
+    if (overlays.isActive(StatsOverlay.overlayKey)) {
+      overlays.remove(StatsOverlay.overlayKey);
+    } else {
+      overlays.add(StatsOverlay.overlayKey);
+    }
+    _updateInputLock();
   }
 
   void debugJumpToState(GameFlowState state) {
@@ -992,6 +1058,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(SelectionOverlay.overlayKey);
     overlays.remove(OptionsScreen.overlayKey);
     overlays.remove(CompendiumScreen.overlayKey);
+    overlays.remove(StatsOverlay.overlayKey);
     overlays.add(StartScreen.overlayKey);
     _syncHudState();
   }
@@ -1178,6 +1245,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _stageTimer = null;
     _selectionState.clear();
     overlays.remove(SelectionOverlay.overlayKey);
+    overlays.remove(StatsOverlay.overlayKey);
     _setFlowState(GameFlowState.death);
     overlays.remove(HudOverlay.overlayKey);
     overlays.add(DeathScreen.overlayKey);
@@ -1191,9 +1259,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _resetPlayerProgression() {
     _experienceSystem.reset();
-    _levelUpSystem.reset();
     _skillSystem.resetToDefaults();
     _playerState.resetForRun();
+    _levelUpSystem.resetForRun(playerState: _playerState);
   }
 
   void _revivePlayer() {

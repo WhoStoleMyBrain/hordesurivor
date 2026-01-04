@@ -17,9 +17,13 @@ This plan moves the project from V0.3 into V0.4 with a focus on **readability, f
 - **Done:** Phase 2 — added a portal re-entry lockout timer when returning from area select (`lib/game/horde_game.dart`) to prevent immediate re-triggering.
 - **Done:** Phase 3 — introduced `RenderScale.worldScale` and applied it to player/enemy/projectile/effect render components plus sprite-batched projectiles (`lib/render/`) for a single-tweak gameplay visual scale.
 - **Done:** Phase 4 — refreshed enemy sprite recipes with clearer silhouettes and role-specific accents in `assets/sprites/recipes.json`.
+- **Done:** Phase 5 — added per-run rerolls with a reroll button in the selection overlay, plus explicit stat change lines for items in selection UI.
+- **Done:** Phase 5 — added a stats overlay (Tab/I) that freezes the run and lists stats, skills, upgrades, and items with tooltips (`lib/ui/stats_overlay.dart`).
 - **Decision:** keep a single UI-scale constant in `lib/ui/ui_scale.dart` for consistent text tuning.
 - **Decision:** render scale is visual-only; collision and gameplay radii remain unchanged to preserve balance.
+- **Decision:** base rerolls default to 1 per run; reroll bonuses add to the remaining pool.
 - **Follow-up:** verify remaining overlays and in-world text sizing after later scale adjustments (Phases 3–4).
+- **Follow-up:** confirm stats overlay keybinding prompt for mobile (add a button or menu hook when input mapping is finalized).
 
 ---
 

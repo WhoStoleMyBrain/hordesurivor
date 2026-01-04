@@ -12,6 +12,7 @@ import 'ui/home_base_overlay.dart';
 import 'ui/options_screen.dart';
 import 'ui/selection_overlay.dart';
 import 'ui/start_screen.dart';
+import 'ui/stats_overlay.dart';
 import 'ui/ui_scale.dart';
 
 void main() {
@@ -52,6 +53,11 @@ class HordeSurvivorApp extends StatelessWidget {
         SelectionOverlay.overlayKey: (_, game) => SelectionOverlay(
           selectionState: game.selectionState,
           onSelected: game.selectChoice,
+          onReroll: game.rerollSelection,
+        ),
+        StatsOverlay.overlayKey: (_, game) => StatsOverlay(
+          state: game.statsScreenState,
+          onClose: game.toggleStatsOverlay,
         ),
         StartScreen.overlayKey: (_, game) => StartScreen(
           onStart: game.beginHomeBaseFromStartScreen,
