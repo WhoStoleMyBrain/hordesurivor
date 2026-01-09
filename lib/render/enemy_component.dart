@@ -37,6 +37,15 @@ class EnemyComponent extends PositionComponent {
          )
          ..style = PaintingStyle.stroke
          ..strokeWidth = 2,
+       _badgePaint = Paint()
+         ..color = _resolveVariantColor(
+           (_roleColors[state.role] ?? color).withValues(alpha: 0.9),
+           state.variant,
+         )
+         ..style = PaintingStyle.stroke
+         ..strokeWidth = 2
+         ..strokeCap = StrokeCap.round
+         ..strokeJoin = StrokeJoin.round,
        _telegraphPaint = Paint()
          ..style = PaintingStyle.stroke
          ..strokeWidth = 2,
@@ -99,6 +108,7 @@ class EnemyComponent extends PositionComponent {
   final Color _telegraphTintColor;
   final Paint _paint;
   final Paint _outlinePaint;
+  final Paint _badgePaint;
   final Paint _telegraphPaint;
   final Paint _slowPaint;
   final Paint _oilPaint;
@@ -161,6 +171,7 @@ class EnemyComponent extends PositionComponent {
         _spriteImage.height.toDouble(),
       );
       canvas.drawImageRect(_spriteImage, srcRect, destRect, _paint);
+      _renderRoleBadge(canvas);
       return;
     }
 
@@ -176,6 +187,8 @@ class EnemyComponent extends PositionComponent {
       default:
         canvas.drawCircle(Offset.zero, _shapeRadius, _paint);
     }
+
+    _renderRoleBadge(canvas);
   }
 
   void applyTelegraphOpacity(double multiplier) {
@@ -256,6 +269,121 @@ class EnemyComponent extends PositionComponent {
         canvas.drawCircle(Offset.zero, zoneRadius, fillPaint);
         canvas.drawCircle(Offset.zero, zoneRadius, strokePaint);
       }
+    }
+  }
+
+  void _renderRoleBadge(Canvas canvas) {
+    if (_role == EnemyRole.chaser ||
+        _role == EnemyRole.ranged ||
+        _role == EnemyRole.spawner) {
+      return;
+    }
+
+    final size = (_shapeRadius * 0.4).clamp(4.0, 10.0).toDouble();
+    final center = Offset(0, -_shapeRadius - size - 4);
+    final paint = _badgePaint;
+
+    switch (_role) {
+      case EnemyRole.disruptor:
+        final half = size * 0.5;
+        canvas.drawLine(
+          center.translate(-half, -half),
+          center.translate(half, half),
+          paint,
+        );
+        canvas.drawLine(
+          center.translate(-half, half),
+          center.translate(half, -half),
+          paint,
+        );
+        break;
+      case EnemyRole.zoner:
+        final half = size * 0.6;
+        final rect = Rect.fromCenter(
+          center: center,
+          width: half * 2,
+          height: half * 2,
+        );
+        canvas.drawRect(rect, paint);
+        break;
+      case EnemyRole.exploder:
+        final half = size * 0.55;
+        canvas.drawCircle(center, half, paint);
+        canvas.drawLine(
+          center.translate(-half, 0),
+          center.translate(half, 0),
+          paint,
+        );
+        canvas.drawLine(
+          center.translate(0, -half),
+          center.translate(0, half),
+          paint,
+        );
+        break;
+      case EnemyRole.supportHealer:
+        final half = size * 0.6;
+        canvas.drawLine(
+          center.translate(-half, 0),
+          center.translate(half, 0),
+          paint,
+        );
+        canvas.drawLine(
+          center.translate(0, -half),
+          center.translate(0, half),
+          paint,
+        );
+        break;
+      case EnemyRole.supportBuffer:
+        final half = size * 0.65;
+        canvas.drawLine(
+          center.translate(0, -half),
+          center.translate(-half, half),
+          paint,
+        );
+        canvas.drawLine(
+          center.translate(0, -half),
+          center.translate(half, half),
+          paint,
+        );
+        canvas.drawLine(
+          center.translate(-half, half),
+          center.translate(half, half),
+          paint,
+        );
+        break;
+      case EnemyRole.pattern:
+        final half = size * 0.6;
+        canvas.drawLine(
+          center.translate(-half, -half * 0.2),
+          center.translate(0, half),
+          paint,
+        );
+        canvas.drawLine(
+          center.translate(half, -half * 0.2),
+          center.translate(0, half),
+          paint,
+        );
+        break;
+      case EnemyRole.elite:
+        final half = size * 0.7;
+        canvas.drawLine(
+          center.translate(-half, 0),
+          center.translate(0, -half),
+          paint,
+        );
+        canvas.drawLine(
+          center.translate(0, -half),
+          center.translate(half, 0),
+          paint,
+        );
+        canvas.drawLine(
+          center.translate(-half * 0.6, half),
+          center.translate(half * 0.6, half),
+          paint,
+        );
+        break;
+      default:
+        break;
     }
   }
 

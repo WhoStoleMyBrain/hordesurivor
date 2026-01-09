@@ -26,6 +26,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 6 (Contracts/Heat): surfaced an in-run HUD indicator for active Contract heat and names. Decision: keep the readout in the HUD panel near threat tier for clarity. Follow-up: revisit styling once broader HUD layout changes land.
 - ✅ Phase 1 (Visual scale & readability pass): applied UI-wide text scaling via `MediaQuery` so `UiScale.textScale` affects overlay text. Decision: rely on `TextScaler.linear` for consistent scaling across overlays. Follow-up: add a settings toggle to adjust `UiScale.textScale` once Options exposes UI scale.
 - ✅ Phase 3 (Skill/attack completeness): aligned Waterjet and Sword Thrust/Deflect descriptions to current behavior so tooltips match in-game actions. Decision: keep Waterjet as rapid pulses and Sword Deflect as an instant parry until mobility/deflect windows are implemented. Follow-up: revisit sword thrust mobility and deflect window once player impulse support exists.
+- ✅ Phase 7 (Enemy role clarity & scale tuning): added lightweight role badges over non-core enemies to reinforce role readability without extra VFX noise. Decision: skip badges for basic chaser/ranged/spawner to keep clutter low. Follow-up: adjust badge shapes/colors once sprite silhouettes are updated.
 
 ---
 
