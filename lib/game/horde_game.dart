@@ -826,6 +826,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       playerState: _playerState,
       skillSystem: _skillSystem,
     );
+    _hudState.triggerRewardMessage(_rewardMessageForChoice(choice));
     _offerSelectionIfNeeded();
   }
 
@@ -856,6 +857,17 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     } else {
       _selectionState.clear();
       overlays.remove(SelectionOverlay.overlayKey);
+    }
+  }
+
+  String _rewardMessageForChoice(SelectionChoice choice) {
+    switch (choice.type) {
+      case SelectionType.skill:
+        return 'Skill: ${choice.title}';
+      case SelectionType.item:
+        return 'Item: ${choice.title}';
+      case SelectionType.skillUpgrade:
+        return 'Upgrade: ${choice.title}';
     }
   }
 

@@ -20,6 +20,14 @@ class PlayerHudState extends ChangeNotifier {
   String? sectionNote;
   TagSet buildTags = const TagSet();
   int levelUpCounter = 0;
+  int rewardCounter = 0;
+  String? rewardMessage;
+
+  void triggerRewardMessage(String message) {
+    rewardMessage = message;
+    rewardCounter += 1;
+    notifyListeners();
+  }
 
   void update({
     required double hp,

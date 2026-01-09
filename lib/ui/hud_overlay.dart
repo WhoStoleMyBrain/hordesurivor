@@ -84,6 +84,31 @@ class HudOverlay extends StatelessWidget {
                             ),
                           ),
                         ),
+                      if (hudState.rewardMessage != null &&
+                          hudState.rewardMessage!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: TweenAnimationBuilder<double>(
+                            key: ValueKey(hudState.rewardCounter),
+                            tween: Tween(begin: 1.0, end: 0.0),
+                            duration: const Duration(milliseconds: 1400),
+                            builder: (context, value, child) {
+                              if (value <= 0.02) {
+                                return const SizedBox.shrink();
+                              }
+                              return Opacity(opacity: value, child: child);
+                            },
+                            child: Text(
+                              hudState.rewardMessage!,
+                              style: TextStyle(
+                                color: Colors.lightGreenAccent,
+                                fontSize: 12 * UiScale.textScale,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                          ),
+                        ),
                       if (hudState.stageDuration > 0) ...[
                         const SizedBox(height: 4),
                         Text(
