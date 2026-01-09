@@ -51,7 +51,7 @@ class SelectionOverlay extends StatelessWidget {
                             child: Text(
                               'Choose a reward',
                               style: TextStyle(
-                                fontSize: 18 * UiScale.textScale,
+                                fontSize: UiScale.fontSize(18),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

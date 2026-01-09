@@ -7,6 +7,8 @@ class OptionsScreen extends StatelessWidget {
     required this.onClose,
     required this.highContrastTelegraphs,
     required this.onHighContrastTelegraphsChanged,
+    required this.textScale,
+    required this.onTextScaleChanged,
   });
 
   static const String overlayKey = 'options_screen';
@@ -14,6 +16,8 @@ class OptionsScreen extends StatelessWidget {
   final VoidCallback onClose;
   final ValueListenable<bool> highContrastTelegraphs;
   final ValueChanged<bool> onHighContrastTelegraphsChanged;
+  final ValueListenable<double> textScale;
+  final ValueChanged<double> onTextScaleChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +54,47 @@ class OptionsScreen extends StatelessWidget {
                       ),
                       value: value,
                       onChanged: onHighContrastTelegraphsChanged,
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                ValueListenableBuilder<double>(
+                  valueListenable: textScale,
+                  builder: (context, value, _) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'UI text scale',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Adjust overlay text size for readability.',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.white70,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Slider(
+                                min: 0.85,
+                                max: 1.3,
+                                divisions: 3,
+                                label: '${(value * 100).round()}%',
+                                value: value,
+                                onChanged: onTextScaleChanged,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text('${(value * 100).round()}%'),
+                          ],
+                        ),
+                      ],
                     );
                   },
                 ),
