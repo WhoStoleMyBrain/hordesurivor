@@ -22,6 +22,8 @@ class PlayerHudState extends ChangeNotifier {
   int levelUpCounter = 0;
   int rewardCounter = 0;
   String? rewardMessage;
+  int contractHeat = 0;
+  List<String> contractNames = const [];
 
   void triggerRewardMessage(String message) {
     rewardMessage = message;
@@ -46,6 +48,8 @@ class PlayerHudState extends ChangeNotifier {
     required int threatTier,
     required String? sectionNote,
     required TagSet buildTags,
+    required int contractHeat,
+    required List<String> contractNames,
   }) {
     final didLevelChange = this.level != level;
     final nextLevelUpCounter = didLevelChange
@@ -67,6 +71,8 @@ class PlayerHudState extends ChangeNotifier {
         this.threatTier == threatTier &&
         this.sectionNote == sectionNote &&
         this.buildTags.equals(buildTags) &&
+        this.contractHeat == contractHeat &&
+        listEquals(this.contractNames, contractNames) &&
         levelUpCounter == nextLevelUpCounter) {
       return;
     }
@@ -87,6 +93,8 @@ class PlayerHudState extends ChangeNotifier {
     this.threatTier = threatTier;
     this.sectionNote = sectionNote;
     this.buildTags = buildTags;
+    this.contractHeat = contractHeat;
+    this.contractNames = contractNames;
     levelUpCounter = nextLevelUpCounter;
     notifyListeners();
   }
