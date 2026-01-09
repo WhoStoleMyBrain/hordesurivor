@@ -26,9 +26,55 @@ class HordeSurvivorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const stressScene = bool.fromEnvironment('STRESS_SCENE');
-    final baseTheme = ThemeData.dark();
+    final baseTheme = ThemeData.dark().copyWith(
+      textTheme: ThemeData.dark().textTheme.copyWith(
+        displayLarge: ThemeData.dark().textTheme.displayLarge?.copyWith(
+          fontSize: 40,
+        ),
+        displayMedium: ThemeData.dark().textTheme.displayMedium?.copyWith(
+          fontSize: 36,
+        ),
+        displaySmall: ThemeData.dark().textTheme.displaySmall?.copyWith(
+          fontSize: 30,
+        ),
+        headlineLarge: ThemeData.dark().textTheme.headlineLarge?.copyWith(
+          fontSize: 28,
+        ),
+        headlineMedium: ThemeData.dark().textTheme.headlineMedium?.copyWith(
+          fontSize: 24,
+        ),
+        headlineSmall: ThemeData.dark().textTheme.headlineSmall?.copyWith(
+          fontSize: 20,
+        ),
+        titleLarge: ThemeData.dark().textTheme.titleLarge?.copyWith(
+          fontSize: 18,
+        ),
+        titleMedium: ThemeData.dark().textTheme.titleMedium?.copyWith(
+          fontSize: 16,
+        ),
+        titleSmall: ThemeData.dark().textTheme.titleSmall?.copyWith(
+          fontSize: 14,
+        ),
+        bodyLarge: ThemeData.dark().textTheme.bodyLarge?.copyWith(fontSize: 14),
+        bodyMedium: ThemeData.dark().textTheme.bodyMedium?.copyWith(
+          fontSize: 12,
+        ),
+        bodySmall: ThemeData.dark().textTheme.bodySmall?.copyWith(fontSize: 10),
+        labelLarge: ThemeData.dark().textTheme.labelLarge?.copyWith(
+          fontSize: 14,
+        ),
+        labelMedium: ThemeData.dark().textTheme.labelMedium?.copyWith(
+          fontSize: 12,
+        ),
+        labelSmall: ThemeData.dark().textTheme.labelSmall?.copyWith(
+          fontSize: 10,
+        ),
+      ),
+    );
+
     final scaledTextTheme = baseTheme.textTheme.apply(
-      fontSizeFactor: UiScale.textScale,
+      fontSizeFactor: UiScale
+          .textScale, // TODO: This is not working rn, textScale != 1.0 is not working
     );
     return MaterialApp(
       theme: baseTheme.copyWith(

@@ -1,7 +1,7 @@
 class UiScale {
   const UiScale._();
 
-  static const double textScale = 0.9;
+  static const double textScale = 1.0;
 
   static double fontSize(double base) => base * textScale;
 }
