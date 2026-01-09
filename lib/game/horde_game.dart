@@ -169,6 +169,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   double _contractSupportWeightMultiplier = 1.0;
   double _contractRewardMultiplier = 1.0;
   int _contractHeat = 0;
+  List<String> _activeContractNames = const [];
 
   PlayerHudState get hudState => _hudState;
   SelectionState get selectionState => _selectionState;
@@ -952,6 +953,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       threatTier: inStage ? threatTier : 0,
       sectionNote: inStage ? sectionNote : null,
       buildTags: buildTags,
+      contractHeat: inStage ? _contractHeat : 0,
+      contractNames: inStage ? _activeContractNames : const [],
     );
     _statsScreenState.update(
       statValues: _collectStatValues(),
@@ -1369,6 +1372,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _contractSupportWeightMultiplier = 1.0;
     _contractRewardMultiplier = 1.0;
     _contractHeat = 0;
+    final nextContractNames = <String>[];
     for (final contractId in _activeContracts) {
       final def = contractDefsById[contractId];
       if (def == null) {
@@ -1379,7 +1383,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _contractProjectileSpeedMultiplier *= def.enemyProjectileSpeedMultiplier;
       _contractEliteWeightMultiplier *= def.eliteWeightMultiplier;
       _contractSupportWeightMultiplier *= def.supportRoleWeightMultiplier;
+      nextContractNames.add(def.name);
     }
+    _activeContractNames = List.unmodifiable(nextContractNames);
     _enemySystem.setProjectileSpeedMultiplier(
       _contractProjectileSpeedMultiplier,
     );

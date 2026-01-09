@@ -130,6 +130,20 @@ class HudOverlay extends StatelessWidget {
                           'THREAT TIER ${hudState.threatTier}',
                           style: const TextStyle(letterSpacing: 0.5),
                         ),
+                        if (hudState.contractHeat > 0) ...[
+                          Text(
+                            'HEAT ${hudState.contractHeat}',
+                            style: const TextStyle(letterSpacing: 0.5),
+                          ),
+                          if (hudState.contractNames.isNotEmpty)
+                            Text(
+                              hudState.contractNames.join(', '),
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                letterSpacing: 0.4,
+                              ),
+                            ),
+                        ],
                         if (hudState.sectionNote != null &&
                             hudState.sectionNote!.isNotEmpty)
                           Text(
