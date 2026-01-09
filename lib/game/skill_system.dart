@@ -169,9 +169,7 @@ class SkillSystem {
             _castPoisonGas(
               playerPosition: playerPosition,
               stats: stats,
-              enemyPool: enemyPool,
-              enemyGrid: enemyGrid,
-              onEnemyDamaged: onEnemyDamaged,
+              onEffectSpawn: onEffectSpawn,
             );
           case SkillId.roots:
             _castRoots(
@@ -457,32 +455,26 @@ class SkillSystem {
   void _castPoisonGas({
     required Vector2 playerPosition,
     required StatSheet stats,
-    required EnemyPool enemyPool,
-    SpatialGrid? enemyGrid,
-    required void Function(
-      EnemyState,
-      double, {
-      double knockbackX,
-      double knockbackY,
-      double knockbackForce,
-      double knockbackDuration,
-    })
-    onEnemyDamaged,
+    required void Function(EffectState) onEffectSpawn,
   }) {
     final aoeScale = _aoeScale(stats);
     final radius = 70 * aoeScale;
+    const duration = 0.8;
     final damage = 4 * _damageMultiplierFor(SkillId.poisonGas, stats);
-    final radiusSquared = radius * radius;
-    final candidates = enemyGrid == null
-        ? enemyPool.active
-        : enemyGrid.queryCircle(playerPosition, radius, _queryBuffer);
-    for (final enemy in candidates) {
-      final dx = enemy.position.x - playerPosition.x;
-      final dy = enemy.position.y - playerPosition.y;
-      if (dx * dx + dy * dy <= radiusSquared) {
-        onEnemyDamaged(enemy, damage);
-      }
-    }
+    final effect = _effectPool.acquire();
+    effect.reset(
+      kind: EffectKind.poisonAura,
+      shape: EffectShape.ground,
+      position: playerPosition,
+      direction: _fallbackDirection,
+      radius: radius,
+      length: 0,
+      width: 0,
+      duration: duration,
+      damagePerSecond: damage / duration,
+      followsPlayer: true,
+    );
+    onEffectSpawn(effect);
   }
 
   void _castRoots({

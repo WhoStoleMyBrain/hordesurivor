@@ -441,6 +441,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       dt,
       enemyPool: _enemyPool,
       enemyGrid: _enemyGrid,
+      playerPosition: _playerState.position,
       onDespawn: _handleEffectDespawn,
       onEnemyDamaged: _damageSystem.queueEnemyDamage,
     );

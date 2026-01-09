@@ -17,6 +17,7 @@ class EffectSystem {
     double dt, {
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
+    Vector2? playerPosition,
     required void Function(EffectState) onDespawn,
     required void Function(
       EnemyState,
@@ -33,6 +34,9 @@ class EffectSystem {
       final effect = active[index];
       if (!effect.active) {
         continue;
+      }
+      if (effect.followsPlayer && playerPosition != null) {
+        effect.position.setFrom(playerPosition);
       }
       effect.age += dt;
       if (effect.age >= effect.duration) {

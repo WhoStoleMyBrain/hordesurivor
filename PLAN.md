@@ -17,6 +17,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 2 (Knockback & impact feedback): added per-skill knockback parameters and applied knockback impulses during combat resolution. Follow-up: tune knockback values after playtesting and consider adding small hit-flash intensity tweaks once impact feel is validated.
 - ✅ Phase 4 (Reward loop): added a HUD-level "LEVEL UP!" pulse to make level gains more readable during combat.
 - ✅ Phase 4 (Reward loop): added a HUD acquisition pulse when selecting rewards (skills/items/upgrades). Decision: keep feedback in the HUD overlay for now to avoid extra VFX noise. Follow-up: consider adding a subtle sound cue or pickup spark once audio/VFX passes begin.
+- ✅ Phase 3 (Skill/attack completeness): converted Poison Gas to a follow-player DOT aura effect so it matches the skill description. Decision: keep a short 0.8s aura per cast for now. Follow-up: tune aura duration/radius once combat pacing is playtested.
 
 ---
 
