@@ -81,3 +81,5 @@ enum EnemyId {
 }
 
 enum AreaId { ashenOutskirts, haloBreach }
+
+enum MetaUnlockId { extraReroll, extraChoice }

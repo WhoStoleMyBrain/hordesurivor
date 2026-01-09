@@ -9,6 +9,7 @@ class StartScreen extends StatelessWidget {
     required this.onStart,
     required this.onOptions,
     required this.onCompendium,
+    required this.onMetaUnlocks,
     required this.wallet,
   });
 
@@ -17,6 +18,7 @@ class StartScreen extends StatelessWidget {
   final VoidCallback onStart;
   final VoidCallback onOptions;
   final VoidCallback onCompendium;
+  final VoidCallback onMetaUnlocks;
   final MetaCurrencyWallet wallet;
 
   @override
@@ -73,6 +75,14 @@ class StartScreen extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: onCompendium,
                     child: const Text('Compendium'),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: onMetaUnlocks,
+                    child: const Text('Meta Unlocks'),
                   ),
                 ),
               ],

@@ -21,6 +21,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 4 (Reward loop): surfaced stat modifier lines for skill upgrades in the selection UI so choices show explicit deltas alongside tags.
 - ✅ Phase 5 (Meta currency): added a first-pass "Meta Shards" earn rule based on run time, XP, and completion, and surfaced the earned amount on the run summary. Decision: keep it run-summary-only for now. Follow-up: add a persistent wallet and home-base UI entry for spending.
 - ✅ Phase 5 (Meta currency): added a persistent Meta Shards wallet (save/load via shared preferences) and surfaced the wallet total in the start screen, home base overlay, and death screen. Decision: show the wallet badge in HUD overlays only for now to avoid clutter during combat. Follow-up: build the lateral unlock screen and spending flow.
+- ✅ Phase 5 (Meta currency): added a Meta Unlocks screen with two lateral convenience unlocks (extra reroll, extra choice), wired to Meta Shards spending and applied their modifiers at run start. Decision: keep unlocks minimal and convenience-only while the full tree is scoped. Follow-up: expand the unlock catalog with skills/items/faction unlocks and add a tree-style layout once more options exist.
 
 ---
 
