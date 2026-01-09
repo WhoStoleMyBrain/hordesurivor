@@ -16,7 +16,15 @@ class ProjectileSystem {
     double dt,
     Vector2 arenaSize, {
     required void Function(ProjectileState) onDespawn,
-    required void Function(EnemyState, double) onEnemyHit,
+    required void Function(
+      EnemyState,
+      double, {
+      double knockbackX,
+      double knockbackY,
+      double knockbackForce,
+      double knockbackDuration,
+    })
+    onEnemyHit,
     SpatialGrid? enemyGrid,
     required double enemyRadius,
     PlayerState? playerState,
@@ -64,7 +72,14 @@ class ProjectileSystem {
                 damagePerSecond: projectile.igniteDamagePerSecond,
               );
             }
-            onEnemyHit(enemy, projectile.damage);
+            onEnemyHit(
+              enemy,
+              projectile.damage,
+              knockbackX: projectile.velocity.x,
+              knockbackY: projectile.velocity.y,
+              knockbackForce: projectile.knockbackForce,
+              knockbackDuration: projectile.knockbackDuration,
+            );
             onDespawn(projectile);
             _pool.release(projectile);
             break;

@@ -13,6 +13,11 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 
 ---
 
+## Progress updates
+- ✅ Phase 2 (Knockback & impact feedback): added per-skill knockback parameters and applied knockback impulses during combat resolution. Follow-up: tune knockback values after playtesting and consider adding small hit-flash intensity tweaks once impact feel is validated.
+
+---
+
 ## Phase 0 — Current-state audit & gap map
 **Goal:** verify V0.4 baseline and document exact missing behaviors before changes.
 

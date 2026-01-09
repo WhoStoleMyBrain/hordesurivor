@@ -64,7 +64,15 @@ void main() {
       onProjectileSpawn: (_) => spawnCount++,
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
-      onEnemyDamaged: (_, _) {},
+      onEnemyDamaged:
+          (
+            enemy,
+            damage, {
+            double knockbackDuration = 0,
+            double knockbackForce = 0,
+            double knockbackX = 0,
+            double knockbackY = 0,
+          }) {},
     );
 
     expect(spawnCount, 0);
@@ -78,7 +86,15 @@ void main() {
       onProjectileSpawn: (_) => spawnCount++,
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
-      onEnemyDamaged: (_, _) {},
+      onEnemyDamaged:
+          (
+            enemy,
+            damage, {
+            double knockbackDuration = 0,
+            double knockbackForce = 0,
+            double knockbackX = 0,
+            double knockbackY = 0,
+          }) {},
     );
 
     expect(spawnCount, 3);
@@ -206,7 +222,15 @@ void main() {
       },
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
-      onEnemyDamaged: (_, _) {},
+      onEnemyDamaged:
+          (
+            enemy,
+            damage, {
+            double knockbackDuration = 0,
+            double knockbackForce = 0,
+            double knockbackX = 0,
+            double knockbackY = 0,
+          }) {},
     );
 
     expect(damage, isNotNull);
