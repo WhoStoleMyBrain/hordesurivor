@@ -22,6 +22,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 5 (Meta currency): added a first-pass "Meta Shards" earn rule based on run time, XP, and completion, and surfaced the earned amount on the run summary. Decision: keep it run-summary-only for now. Follow-up: add a persistent wallet and home-base UI entry for spending.
 - ✅ Phase 5 (Meta currency): added a persistent Meta Shards wallet (save/load via shared preferences) and surfaced the wallet total in the start screen, home base overlay, and death screen. Decision: show the wallet badge in HUD overlays only for now to avoid clutter during combat. Follow-up: build the lateral unlock screen and spending flow.
 - ✅ Phase 5 (Meta currency): added a Meta Unlocks screen with two lateral convenience unlocks (extra reroll, extra choice), wired to Meta Shards spending and applied their modifiers at run start. Decision: keep unlocks minimal and convenience-only while the full tree is scoped. Follow-up: expand the unlock catalog with skills/items/faction unlocks and add a tree-style layout once more options exist.
+- ✅ Phase 6 (Contracts/Heat): added initial Contract definitions, selectable Contracts on the area selection screen, and applied their modifiers to elite odds, support spawns, enemy projectile speed, and meta shard rewards. Decision: keep the first Contracts list small and global for all areas. Follow-up: expand contract catalog with area-specific mutators and surface in-run UI indicator.
 
 ---
 

@@ -7,6 +7,9 @@ class RunSummary {
     this.xpGained = 0,
     this.damageTaken = 0,
     this.metaCurrencyEarned = 0,
+    this.metaRewardMultiplier = 1.0,
+    this.contractHeat = 0,
+    this.contractNames = const [],
     this.areaName,
     this.completed = false,
   });
@@ -16,6 +19,9 @@ class RunSummary {
   int xpGained;
   double damageTaken;
   int metaCurrencyEarned;
+  double metaRewardMultiplier;
+  int contractHeat;
+  List<String> contractNames;
   String? areaName;
   bool completed;
 
@@ -35,7 +41,7 @@ class RunSummary {
     final xpBonus = (xpGained / 20).floor();
     final completionBonus = completed ? 6 : 0;
     final total = 2 + timeBonus + xpBonus + completionBonus;
-    return math.max(0, total);
+    return math.max(0, (total * metaRewardMultiplier).round());
   }
 
   void finalizeMetaCurrency() {
@@ -48,6 +54,9 @@ class RunSummary {
     xpGained = 0;
     damageTaken = 0;
     metaCurrencyEarned = 0;
+    metaRewardMultiplier = 1.0;
+    contractHeat = 0;
+    contractNames = const [];
     areaName = null;
     completed = false;
   }

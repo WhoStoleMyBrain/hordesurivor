@@ -58,6 +58,18 @@ class DeathScreen extends StatelessWidget {
                     ),
                   ),
                 ],
+                if (summary.contractHeat > 0) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    'Heat ${summary.contractHeat} · '
+                    'Rewards x${summary.metaRewardMultiplier.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      letterSpacing: 0.6,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
                 const SizedBox(height: 16),
                 _StatRow(label: 'Score', value: summary.score.toString()),
                 _StatRow(
@@ -76,6 +88,11 @@ class DeathScreen extends StatelessWidget {
                   label: 'Meta Shards',
                   value: summary.metaCurrencyEarned.toString(),
                 ),
+                if (summary.contractNames.isNotEmpty)
+                  _StatRow(
+                    label: 'Contracts',
+                    value: summary.contractNames.join(', '),
+                  ),
                 _MetaWalletRow(wallet: wallet),
                 _StatRow(
                   label: 'Damage Taken',

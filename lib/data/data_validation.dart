@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'area_defs.dart';
+import 'contract_defs.dart';
 import 'enemy_defs.dart';
 import 'item_defs.dart';
 import 'meta_unlock_defs.dart';
@@ -68,6 +69,11 @@ DataValidationResult validateGameData() {
     label: 'MetaUnlockDef',
     result: result,
   );
+  _checkUniqueIds(
+    ids: contractDefs.map((def) => def.id),
+    label: 'ContractDef',
+    result: result,
+  );
 
   for (final def in skillDefs) {
     if (_isTagSetEmpty(def.tags)) {
@@ -116,6 +122,15 @@ DataValidationResult validateGameData() {
     }
     if (def.modifiers.isEmpty) {
       result.errors.add('MetaUnlockDef ${def.id} has no modifiers.');
+    }
+  }
+
+  for (final def in contractDefs) {
+    if (def.heat <= 0) {
+      result.errors.add('ContractDef ${def.id} has non-positive heat.');
+    }
+    if (def.rewardMultiplier < 1) {
+      result.errors.add('ContractDef ${def.id} has rewardMultiplier below 1.');
     }
   }
 
