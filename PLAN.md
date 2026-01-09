@@ -1,166 +1,153 @@
-# V0.4 Plan — HordeSurvivor (V0.3 wrap-up retained)
+# V0.4 Plan — HordeSurvivor (revised scope)
 
-This plan moves the project from V0.3 into V0.4 with a focus on **readability, flow fixes, and gameplay clarity**. It addresses V0.3 issues, improves sprite and scale readability (especially on Windows), and rounds out the skill/item UX. All work stays aligned with AGENTS.md: fixed timestep, pooling, data-driven content, and clarity over complexity.
+This revised V0.4 plan focuses on fixing core feel issues and missing systems called out in AGENTS.md: **readable combat**, **rewarding moment-to-moment gameplay**, **enemy role clarity**, **tag-based build identity**, and **lateral progression** with opt-in difficulty. It replaces the prior V0.4 scope and sets a step-by-step sequence that Codex cloud agents can follow.
 
 ---
 
 ## V0.4 Objectives (summary)
-- **Readability pass:** shrink debug/on-screen text and improve visual scale on Windows with a single configurable size parameter.
-- **Flow fix:** canceling run start after portal entry should not immediately re-trigger the portal.
-- **Visual clarity:** improve enemy and player/attack sprites for role readability.
-- **Selection UX upgrades:** rerolls, full stat-change descriptions, and weapon/tooltips that explain behavior clearly.
-- **Stats screen:** a pause/frozen overlay listing current stats, items, and skills with hoverable tooltips.
-- **Sanity check:** project-wide QA pass to ensure V0.4 is stable and readable.
-
-## Progress update (latest)
-- **Done:** Phase 1 — added `UiScale.textScale` (0.9) and applied it to the app theme plus explicit UI font sizes (`lib/ui/`, `lib/main.dart`) to reduce debug/on-screen text sizing.
-- **Done:** Phase 2 — added a portal re-entry lockout timer when returning from area select (`lib/game/horde_game.dart`) to prevent immediate re-triggering.
-- **Done:** Phase 3 — introduced `RenderScale.worldScale` and applied it to player/enemy/projectile/effect render components plus sprite-batched projectiles (`lib/render/`) for a single-tweak gameplay visual scale.
-- **Done:** Phase 4 — refreshed enemy sprite recipes with clearer silhouettes and role-specific accents in `assets/sprites/recipes.json`.
-- **Done:** Phase 5 — added per-run rerolls with a reroll button in the selection overlay, plus explicit stat change lines for items in selection UI.
-- **Done:** Phase 5 — added a stats overlay (Tab/I) that freezes the run and lists stats, skills, upgrades, and items with tooltips (`lib/ui/stats_overlay.dart`).
-- **Decision:** keep a single UI-scale constant in `lib/ui/ui_scale.dart` for consistent text tuning.
-- **Decision:** render scale is visual-only; collision and gameplay radii remain unchanged to preserve balance.
-- **Decision:** base rerolls default to 1 per run; reroll bonuses add to the remaining pool.
-- **Follow-up:** verify remaining overlays and in-world text sizing after later scale adjustments (Phases 3–4).
-- **Follow-up:** confirm stats overlay keybinding prompt for mobile (add a button or menu hook when input mapping is finalized).
+- **Combat feel pass:** increase player/enemy/attack visual scale, add knockback, and make attacks read clearly.
+- **Content completeness:** implement any missing or partially implemented skills/attacks and ensure tooltips match behavior.
+- **Reward loop:** add earnable meta currency, a lateral meta unlock tree, and improve in-run rewards/feedback.
+- **Difficulty system:** implement Contracts/Heat (opt-in) with clear mutators and reward scaling.
+- **Clarity & performance:** maintain fixed timestep, pooling, data-driven defs, and readability in crowds.
 
 ---
 
-## V0.4 Phase 0 — Baseline review & issue inventory
-**Goal:** confirm current V0.3 behavior, list exact problem surfaces, and avoid hidden scope creep.
+## Phase 0 — Current-state audit & gap map
+**Goal:** verify V0.4 baseline and document exact missing behaviors before changes.
 
-**Implementation notes:**
-- Document current debug text sizing locations and UI typography usage in `lib/ui/` overlays and HUD.
-- Identify portal entry/cancel flow state transitions and any proximity-triggered re-entry loops in `lib/game/` or `lib/render/`.
-- Snapshot current enemy/player/attack scales on Windows (desktop builds).
-- Gather list of current skills/items/weapon definitions and their stat coverage in `lib/data/`.
+**Steps:**
+1. Inventory all skills/attacks in `lib/data/skill_defs.dart` and confirm implementation coverage in `lib/game/` and `lib/render/` (note missing/misaligned behaviors).
+2. Inventory enemy roles in `lib/data/enemy_defs.dart`, confirm role behaviors implemented, and note any unclear telegraphs.
+3. Record current player/enemy/attack visual scales and hitbox sizes (separate model vs view).
+4. Review reward loop: gold/XP/loot drops, level-up rate, and any in-run feedback (damage numbers, VFX intensity).
+5. Confirm if any meta currency or progression data exists (likely absent) and document the entry points for adding it.
 
-**Exit criteria:** clear list of concrete V0.4 tasks mapped to file locations and systems.
-
----
-
-## V0.4 Phase 1 — Text readability & UI scale hygiene
-**Goal:** reduce oversized debug/on-screen text for both mobile and Windows; keep core HUD readable.
-
-**Implementation notes:**
-- Identify the debug overlay text widgets and apply a reduced base font size.
-- Ensure HUD and menu typography use a shared scale or theme value (avoid per-widget hard-coded font sizes).
-- Add a single UI scale constant in `lib/ui/` (or a shared settings config) so debug/UI text scales together.
-
-**Success checks:**
-- Debug overlays no longer dominate screen space on Windows.
-- Core HUD elements remain legible without crowding.
+**Exit criteria:** a short checklist of gaps with file paths and owner systems (combat, render, UI, data, meta).
 
 ---
 
-## V0.4 Phase 2 — Portal cancel re-entry fix
-**Goal:** exiting/canceling area selection after entering the portal must not immediately re-trigger portal entry.
+## Phase 1 — Visual scale & readability pass
+**Goal:** make player, enemies, and attacks readable at a glance; improve clarity in crowds.
 
-**Implementation notes:**
-- Add a portal cooldown/lockout timer or a flow-state gate so the portal cannot trigger while the area select overlay is visible or within a short grace window after cancel.
-- Ensure the fixed-step proximity checks do not fire when the flow is not in the home base state.
-- Add a small debug log or visual cue to confirm lockout behavior (only if it does not add new TODOs).
+**Steps:**
+1. Introduce or confirm a **single render scale** parameter for world visuals (player/enemy/attack sprites) in `lib/render/`.
+2. Apply scaling consistently to all render components (player, enemies, projectiles, beams, auras, ground effects).
+3. Ensure collision and gameplay radii remain unchanged (visual-only scaling), and verify hitboxes remain accurate.
+4. Tune UI scale so HUD/overlays stay legible but do not dominate the screen.
 
-**Success checks:**
-- Canceling area selection returns to home base without re-opening the selection dialog.
-- Player can re-enter the portal intentionally after a short delay or a movement step.
-
----
-
-## V0.4 Phase 3 — Global gameplay scale parameter
-**Goal:** increase player, enemies, and attack visual size on Windows, controlled by a single parameter.
-
-**Implementation notes:**
-- Introduce a `worldScale` or `renderScale` configuration in `lib/render/` (and/or `lib/game/` if simulation sizes depend on it).
-- Apply the scale to:
-  - Player sprite/visual component size.
-  - Enemy sprite/visual component size.
-  - Attack visuals (projectiles, beams, auras, ground effects).
-- Keep collision/logic sizes consistent and ensure hitboxes remain accurate; avoid per-entity allocations.
-
-**Success checks:**
-- Windows builds show larger player/enemy/attack visuals without breaking collisions.
-- Scaling can be adjusted by a single parameter for easy tuning.
+**Exit criteria:** visuals are larger and clearer without changing gameplay balance; all roles/attacks are readable on Windows and mobile.
 
 ---
 
-## V0.4 Phase 4 — Enemy sprite readability improvements
-**Goal:** improve enemy silhouettes and clarity for all existing roles.
+## Phase 2 — Knockback & impact feedback
+**Goal:** add satisfying, readable impact without breaking fixed timestep or pooling.
 
-**Implementation notes:**
-- Review `lib/data/enemy_defs.dart` and current sprite recipes in `lib/render/`.
-- Add or refine sprite recipes with clearer silhouettes and role-based accents (color or shape).
-- Ensure role telegraphs remain visible at the new scale.
+**Steps:**
+1. Implement a **knockback system** in `lib/game/` (data-driven per skill/weapon and enemy resistance).
+2. Add per-skill knockback parameters in `lib/data/skill_defs.dart` (e.g., force, falloff, duration).
+3. Update combat resolution to apply knockback in the fixed-step loop without per-frame allocations.
+4. Add lightweight hit feedback (damage numbers / brief flashes) if not already present, ensuring clarity over VFX noise.
 
-**Success checks:**
-- Enemies are distinguishable at a glance in crowds.
-- Telegraphs and ring effects remain readable without clutter.
-
----
-
-## V0.4 Phase 5 — Rerolls, item descriptions, and stat screen
-**Goal:** improve selection agency and build clarity during runs.
-
-**Implementation notes:**
-- Add a reroll count to the player run state (limited; no permanent meta bonuses).
-- Selection UI should display the remaining rerolls and allow rerolling current choices.
-- Item descriptions should list **explicit stat changes** (e.g., “+10% AOE size, -10% attack speed”).
-- Add a **Stats Screen overlay** in `lib/ui/`:
-  - Shows current stats, items obtained, and skills obtained.
-  - Each entry is hoverable (desktop) with tooltip details; mobile can use tap/long-press later.
-  - Freeze the game simulation while this overlay is open.
-
-**Success checks:**
-- Players can reroll selection choices a limited number of times.
-- Items and stats list accurate numeric changes.
-- Stats screen displays and freezes gameplay when open.
+**Exit criteria:** hits feel impactful; enemies respond visibly; performance remains stable.
 
 ---
 
-## V0.4 Phase 6 — Skill & weapon clarity pass
-**Goal:** all existing weapons/skills are implemented and selection tooltips explain their behavior and stats.
+## Phase 3 — Skill/attack completeness & correctness
+**Goal:** ensure all listed skills behave as described and are selectable with accurate tooltips.
 
-**Implementation notes:**
-- Ensure every V0.3/V0.1 weapon skill is implemented (Fireball, Waterjet, Oil Bombs, Sword variants, Poison Gas, Roots).
-- Tooltips should show only relevant stats (damage, AOE, attack speed, DOT, beam width, etc.).
-- If a stat is not used (e.g., a utility-only skill), omit it from the description.
-- Update `lib/data/skill_defs.dart` to include clear summary strings and stat metadata for UI.
+**Steps:**
+1. Implement any missing skills or missing behaviors: Fireball, Waterjet, Oil Bombs, Sword Thrust/Cut/Swing/Deflect, Poison Gas, Roots.
+2. For each skill, verify tags and delivery type match AGENTS.md (Projectile/Beam/Melee/Aura/Ground).
+3. Add clear tooltip metadata in `lib/data/skill_defs.dart` (only relevant stats shown).
+4. Validate that animations/telegraphs are visible at the new render scale.
 
-**Success checks:**
-- Skill selection shows clear, concise descriptions with relevant stats only.
-- All listed weapons match their described behavior in-game.
+**Exit criteria:** every skill in V0.1 list functions in-game, and tooltips accurately reflect behavior.
 
 ---
 
-## V0.4 Phase 7 — Sanity check & QA pass
-**Goal:** verify stability, readability, and correctness across V0.4 changes.
+## Phase 4 — Reward loop & in-run progression feel
+**Goal:** make combat and progression feel rewarding without violating “no stat meta-progression.”
 
-**Implementation notes:**
-- Run `dart format .`, `flutter analyze`, and `flutter test`.
-- Validate that new UI overlays do not create input leaks or stuck movement.
-- Ensure pooling remains intact for any new visual components.
-- Add a quick stress-scene check for scale/readability.
+**Steps:**
+1. Tune XP/level-up pacing for a steady cadence (avoid long droughts).
+2. Ensure selection UI highlights tradeoffs and tag synergies (explicit stat deltas + tags).
+3. Add small, clear reward feedback on level-up and item/skill acquisition (sound or UI flash).
+4. Verify drop/pickup visibility and radius; ensure pickups are easy to parse at scale.
 
-**Exit criteria:**
-- V0.4 changes are stable with no regressions in flow or readability.
+**Exit criteria:** players get frequent, clear rewards; choices feel meaningful and legible.
+
+---
+
+## Phase 5 — Meta currency (earnable) & lateral unlock tree
+**Goal:** introduce meta currency and a **lateral progression** unlock tree aligned with AGENTS.md.
+
+**Steps:**
+1. Define meta currency type(s) and earn rules (e.g., run completion, milestones, contracts).
+2. Add a persistent meta currency wallet (save/load) with minimal UI in `lib/ui/`.
+3. Build a **lateral unlock tree** (not raw power) that unlocks:
+   - New skills/items/factions/characters.
+   - Convenience-only unlocks with caps (e.g., +1 reroll, +1 starting choice).
+4. Ensure unlocks are data-driven and stored separately from run stats.
+5. Add a meta-progression menu entry from the main menu.
+
+**Exit criteria:** meta currency can be earned and spent; unlocks are lateral and visible in UI.
+
+---
+
+## Phase 6 — Contracts/Heat (opt-in difficulty)
+**Goal:** implement opt-in difficulty with proportional rewards and clear mutators.
+
+**Steps:**
+1. Define Contract/Heat data model with tagged mutators (e.g., more elites, faster projectiles, extra supports).
+2. Add a Contract selection UI before a run (or at start) that clearly shows difficulty and reward multipliers.
+3. Apply mutators in `lib/game/` via a centralized difficulty modifier system (avoid hardcoding per enemy).
+4. Ensure rewards scale with Heat (meta currency, drops, or run rewards) without raw permanent stats.
+
+**Exit criteria:** Contracts are selectable, change gameplay, and increase rewards proportionally.
+
+---
+
+## Phase 7 — Enemy role clarity & scale tuning
+**Goal:** ensure each enemy role reads clearly under the new scale and knockback.
+
+**Steps:**
+1. Review enemy sprite recipes and telegraphs; refine silhouettes and role accents.
+2. Verify role behavior clarity (spawners, zoners, supporters) with minimal screen noise.
+3. Confirm knockback, hit flashes, and telegraphs remain readable in dense waves.
+
+**Exit criteria:** each role is visually distinct and readable in crowds.
+
+---
+
+## Phase 8 — Performance & QA pass
+**Goal:** keep fixed timestep, pooling, and ensure no regressions.
+
+**Steps:**
+1. Run `dart format .`, `flutter analyze`, `flutter test`.
+2. Validate object pooling for new combat/knockback effects and Contracts modifiers.
+3. Run the stress scene to ensure frame stability with 500+ enemies and 1000+ projectiles.
+4. Check UI overlays for input locks and correct pause behavior.
+
+**Exit criteria:** all checks pass; no regressions in performance or readability.
 
 ---
 
 ## Implementation ordering (recommended)
-1. **Baseline review & issue inventory** (Phase 0).
-2. **Text readability & UI scale hygiene** (Phase 1).
-3. **Portal cancel re-entry fix** (Phase 2).
-4. **Global gameplay scale parameter** (Phase 3).
-5. **Enemy sprite readability improvements** (Phase 4).
-6. **Rerolls, item descriptions, and stats screen** (Phase 5).
-7. **Skill & weapon clarity pass** (Phase 6).
-8. **Sanity check & QA pass** (Phase 7).
+1. Phase 0 — Current-state audit & gap map
+2. Phase 1 — Visual scale & readability pass
+3. Phase 2 — Knockback & impact feedback
+4. Phase 3 — Skill/attack completeness & correctness
+5. Phase 4 — Reward loop & in-run progression feel
+6. Phase 5 — Meta currency & lateral unlock tree
+7. Phase 6 — Contracts/Heat (opt-in difficulty)
+8. Phase 7 — Enemy role clarity & scale tuning
+9. Phase 8 — Performance & QA pass
 
 ---
 
-## V0.4 Guardrails (carried forward)
-- No stat-based meta progression; rerolls are **per-run** only.
-- Maintain fixed timestep, pooling, and data-driven definitions.
-- Clarity beats complexity; avoid adding new mechanics that reduce screen readability.
+## Guardrails (non-negotiable)
+- No stat-based permanent power boosts; meta is **lateral only**.
+- Clarity beats complexity; avoid unreadable VFX or overly dense UI.
+- Keep fixed timestep, pooling, and data-driven definitions.
 - No new TODOs without an associated issue/task reference.
