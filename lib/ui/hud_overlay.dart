@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'hud_state.dart';
 import 'tag_badge.dart';
+import 'ui_scale.dart';
 
 class HudOverlay extends StatelessWidget {
   const HudOverlay({super.key, required this.hudState});
@@ -59,6 +60,30 @@ class HudOverlay extends StatelessWidget {
                         'XP ${hudState.xp}/${hudState.xpToNext}',
                         style: const TextStyle(letterSpacing: 0.5),
                       ),
+                      if (hudState.levelUpCounter > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: TweenAnimationBuilder<double>(
+                            key: ValueKey(hudState.levelUpCounter),
+                            tween: Tween(begin: 1.0, end: 0.0),
+                            duration: const Duration(milliseconds: 1200),
+                            builder: (context, value, child) {
+                              if (value <= 0.02) {
+                                return const SizedBox.shrink();
+                              }
+                              return Opacity(opacity: value, child: child);
+                            },
+                            child: Text(
+                              'LEVEL UP!',
+                              style: TextStyle(
+                                color: Colors.amberAccent,
+                                fontSize: 14 * UiScale.textScale,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.1,
+                              ),
+                            ),
+                          ),
+                        ),
                       if (hudState.stageDuration > 0) ...[
                         const SizedBox(height: 4),
                         Text(

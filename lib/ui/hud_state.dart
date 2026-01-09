@@ -19,6 +19,7 @@ class PlayerHudState extends ChangeNotifier {
   int threatTier = 0;
   String? sectionNote;
   TagSet buildTags = const TagSet();
+  int levelUpCounter = 0;
 
   void update({
     required double hp,
@@ -38,6 +39,10 @@ class PlayerHudState extends ChangeNotifier {
     required String? sectionNote,
     required TagSet buildTags,
   }) {
+    final didLevelChange = this.level != level;
+    final nextLevelUpCounter = didLevelChange
+        ? levelUpCounter + 1
+        : levelUpCounter;
     if (this.hp == hp &&
         this.maxHp == maxHp &&
         this.level == level &&
@@ -53,7 +58,8 @@ class PlayerHudState extends ChangeNotifier {
         this.sectionCount == sectionCount &&
         this.threatTier == threatTier &&
         this.sectionNote == sectionNote &&
-        this.buildTags.equals(buildTags)) {
+        this.buildTags.equals(buildTags) &&
+        levelUpCounter == nextLevelUpCounter) {
       return;
     }
 
@@ -73,6 +79,7 @@ class PlayerHudState extends ChangeNotifier {
     this.threatTier = threatTier;
     this.sectionNote = sectionNote;
     this.buildTags = buildTags;
+    levelUpCounter = nextLevelUpCounter;
     notifyListeners();
   }
 }
