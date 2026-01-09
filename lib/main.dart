@@ -73,24 +73,29 @@ class HordeSurvivorApp extends StatelessWidget {
       ),
     );
 
-    return MaterialApp(
-      theme: baseTheme.copyWith(
-        textTheme: baseTheme.textTheme,
-        primaryTextTheme: baseTheme.primaryTextTheme,
-      ),
-      builder: (context, child) {
-        final mediaQuery = MediaQuery.of(context);
-        return MediaQuery(
-          data: mediaQuery.copyWith(
-            textScaler: TextScaler.linear(UiScale.textScale),
+    return ValueListenableBuilder<double>(
+      valueListenable: UiScale.textScaleListenable,
+      builder: (context, textScale, _) {
+        return MaterialApp(
+          theme: baseTheme.copyWith(
+            textTheme: baseTheme.textTheme,
+            primaryTextTheme: baseTheme.primaryTextTheme,
           ),
-          child: child ?? const SizedBox.shrink(),
+          builder: (context, child) {
+            final mediaQuery = MediaQuery.of(context);
+            return MediaQuery(
+              data: mediaQuery.copyWith(
+                textScaler: TextScaler.linear(textScale),
+              ),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
+          initialRoute: stressScene ? '/stress' : '/',
+          routes: {
+            '/': (_) => _buildGame(stressTest: false),
+            '/stress': (_) => _buildGame(stressTest: true),
+          },
         );
-      },
-      initialRoute: stressScene ? '/stress' : '/',
-      routes: {
-        '/': (_) => _buildGame(stressTest: false),
-        '/stress': (_) => _buildGame(stressTest: true),
       },
     );
   }
@@ -120,6 +125,8 @@ class HordeSurvivorApp extends StatelessWidget {
           onClose: game.closeOptionsFromStartScreen,
           highContrastTelegraphs: game.highContrastTelegraphs,
           onHighContrastTelegraphsChanged: game.setHighContrastTelegraphs,
+          textScale: UiScale.textScaleListenable,
+          onTextScaleChanged: UiScale.setTextScale,
         ),
         CompendiumScreen.overlayKey: (_, game) =>
             CompendiumScreen(onClose: game.closeCompendiumFromStartScreen),

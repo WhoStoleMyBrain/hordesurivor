@@ -77,7 +77,7 @@ class HudOverlay extends StatelessWidget {
                               'LEVEL UP!',
                               style: TextStyle(
                                 color: Colors.amberAccent,
-                                fontSize: 14 * UiScale.textScale,
+                                fontSize: UiScale.fontSize(14),
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1.1,
                               ),
@@ -102,7 +102,7 @@ class HudOverlay extends StatelessWidget {
                               hudState.rewardMessage!,
                               style: TextStyle(
                                 color: Colors.lightGreenAccent,
-                                fontSize: 12 * UiScale.textScale,
+                                fontSize: UiScale.fontSize(12),
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.8,
                               ),

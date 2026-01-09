@@ -43,7 +43,7 @@ class DeathScreen extends StatelessWidget {
                 Text(
                   completed ? 'RUN COMPLETE' : 'YOU DIED',
                   style: TextStyle(
-                    fontSize: 22 * UiScale.textScale,
+                    fontSize: UiScale.fontSize(22),
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.2,
                   ),

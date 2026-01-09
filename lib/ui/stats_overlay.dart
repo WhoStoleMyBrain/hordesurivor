@@ -41,7 +41,7 @@ class StatsOverlay extends StatelessWidget {
                             child: Text(
                               'Run Stats',
                               style: TextStyle(
-                                fontSize: 18 * UiScale.textScale,
+                                fontSize: UiScale.fontSize(18),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
