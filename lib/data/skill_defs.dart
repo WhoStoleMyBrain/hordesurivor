@@ -7,6 +7,8 @@ class SkillDef {
     required this.name,
     required this.description,
     required this.tags,
+    this.knockbackForce = 0,
+    this.knockbackDuration = 0,
     this.weight = 1,
   });
 
@@ -14,6 +16,8 @@ class SkillDef {
   final String name;
   final String description;
   final TagSet tags;
+  final double knockbackForce;
+  final double knockbackDuration;
   final int weight;
 }
 
@@ -26,6 +30,8 @@ const List<SkillDef> skillDefs = [
       elements: {ElementTag.fire},
       deliveries: {DeliveryTag.projectile},
     ),
+    knockbackForce: 80,
+    knockbackDuration: 0.18,
   ),
   SkillDef(
     id: SkillId.waterjet,
@@ -41,6 +47,8 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.debuff},
       deliveries: {DeliveryTag.projectile, DeliveryTag.ground},
     ),
+    knockbackForce: 60,
+    knockbackDuration: 0.16,
   ),
   SkillDef(
     id: SkillId.swordThrust,
@@ -51,6 +59,8 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.mobility},
       deliveries: {DeliveryTag.melee},
     ),
+    knockbackForce: 120,
+    knockbackDuration: 0.2,
   ),
   SkillDef(
     id: SkillId.swordCut,
@@ -61,6 +71,8 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.aoe},
       deliveries: {DeliveryTag.melee},
     ),
+    knockbackForce: 100,
+    knockbackDuration: 0.18,
   ),
   SkillDef(
     id: SkillId.swordSwing,
@@ -71,6 +83,8 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.aoe},
       deliveries: {DeliveryTag.melee},
     ),
+    knockbackForce: 135,
+    knockbackDuration: 0.22,
   ),
   SkillDef(
     id: SkillId.swordDeflect,
@@ -81,6 +95,8 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.support},
       deliveries: {DeliveryTag.melee},
     ),
+    knockbackForce: 90,
+    knockbackDuration: 0.16,
   ),
   SkillDef(
     id: SkillId.poisonGas,

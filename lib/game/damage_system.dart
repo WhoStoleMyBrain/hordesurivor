@@ -12,12 +12,24 @@ class DamageSystem {
     EnemyState enemy,
     double amount, {
     TagSet tags = const TagSet(),
+    double knockbackX = 0,
+    double knockbackY = 0,
+    double knockbackForce = 0,
+    double knockbackDuration = 0,
   }) {
     if (amount <= 0) {
       return;
     }
     final event = _pool.acquire();
-    event.resetForEnemy(enemy, amount, tags);
+    event.resetForEnemy(
+      enemy,
+      amount,
+      tags,
+      knockbackX: knockbackX,
+      knockbackY: knockbackY,
+      knockbackForce: knockbackForce,
+      knockbackDuration: knockbackDuration,
+    );
     _active.add(event);
   }
 
@@ -47,6 +59,14 @@ class DamageSystem {
           continue;
         }
         enemy.hp -= event.amount;
+        if (event.knockbackForce > 0 && event.knockbackDuration > 0) {
+          enemy.applyKnockback(
+            directionX: event.knockbackX,
+            directionY: event.knockbackY,
+            force: event.knockbackForce,
+            duration: event.knockbackDuration,
+          );
+        }
         onEnemyDamaged?.call(enemy, event.amount);
         if (enemy.hp <= 0) {
           enemy.hp = 0;
@@ -80,12 +100,28 @@ class DamageEvent {
   PlayerState? player;
   double amount = 0;
   TagSet tags = const TagSet();
+  double knockbackX = 0;
+  double knockbackY = 0;
+  double knockbackForce = 0;
+  double knockbackDuration = 0;
 
-  void resetForEnemy(EnemyState enemy, double amount, TagSet tags) {
+  void resetForEnemy(
+    EnemyState enemy,
+    double amount,
+    TagSet tags, {
+    double knockbackX = 0,
+    double knockbackY = 0,
+    double knockbackForce = 0,
+    double knockbackDuration = 0,
+  }) {
     this.enemy = enemy;
     player = null;
     this.amount = amount;
     this.tags = tags;
+    this.knockbackX = knockbackX;
+    this.knockbackY = knockbackY;
+    this.knockbackForce = knockbackForce;
+    this.knockbackDuration = knockbackDuration;
   }
 
   void resetForPlayer(PlayerState player, double amount, TagSet tags) {
@@ -93,6 +129,10 @@ class DamageEvent {
     this.player = player;
     this.amount = amount;
     this.tags = tags;
+    knockbackX = 0;
+    knockbackY = 0;
+    knockbackForce = 0;
+    knockbackDuration = 0;
   }
 
   void clear() {
@@ -100,6 +140,10 @@ class DamageEvent {
     player = null;
     amount = 0;
     tags = const TagSet();
+    knockbackX = 0;
+    knockbackY = 0;
+    knockbackForce = 0;
+    knockbackDuration = 0;
   }
 }
 

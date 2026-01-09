@@ -18,7 +18,15 @@ class EffectSystem {
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
     required void Function(EffectState) onDespawn,
-    required void Function(EnemyState, double) onEnemyDamaged,
+    required void Function(
+      EnemyState,
+      double, {
+      double knockbackX,
+      double knockbackY,
+      double knockbackForce,
+      double knockbackDuration,
+    })
+    onEnemyDamaged,
   }) {
     final active = _pool.active;
     for (var index = active.length - 1; index >= 0; index--) {
@@ -64,7 +72,15 @@ class EffectSystem {
     EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
     double damage,
-    void Function(EnemyState, double) onEnemyDamaged,
+    void Function(
+      EnemyState,
+      double, {
+      double knockbackX,
+      double knockbackY,
+      double knockbackForce,
+      double knockbackDuration,
+    })
+    onEnemyDamaged,
   ) {
     final radius = effect.radius;
     final radiusSquared = radius * radius;
@@ -89,7 +105,15 @@ class EffectSystem {
     EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
     double damage,
-    void Function(EnemyState, double) onEnemyDamaged,
+    void Function(
+      EnemyState,
+      double, {
+      double knockbackX,
+      double knockbackY,
+      double knockbackForce,
+      double knockbackDuration,
+    })
+    onEnemyDamaged,
   ) {
     final dir = effect.direction;
     final length = effect.length;

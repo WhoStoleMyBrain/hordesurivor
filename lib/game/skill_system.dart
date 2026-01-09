@@ -88,7 +88,15 @@ class SkillSystem {
     required void Function(ProjectileState) onProjectileSpawn,
     required void Function(EffectState) onEffectSpawn,
     required void Function(ProjectileState) onProjectileDespawn,
-    required void Function(EnemyState, double) onEnemyDamaged,
+    required void Function(
+      EnemyState,
+      double, {
+      double knockbackX,
+      double knockbackY,
+      double knockbackForce,
+      double knockbackDuration,
+    })
+    onEnemyDamaged,
   }) {
     final cooldownSpeed = _cooldownSpeed(stats);
     final adjustedDt = dt * cooldownSpeed;
@@ -187,6 +195,8 @@ class SkillSystem {
     required EnemyPool enemyPool,
     required void Function(ProjectileState) onProjectileSpawn,
   }) {
+    final def = skillDefsById[SkillId.fireball];
+    final knockbackScale = _knockbackScale(stats);
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
@@ -210,6 +220,10 @@ class SkillSystem {
       lifespan: 2.0,
       fromEnemy: false,
     );
+    if (def != null && def.knockbackForce > 0 && def.knockbackDuration > 0) {
+      projectile.knockbackForce = def.knockbackForce * knockbackScale;
+      projectile.knockbackDuration = def.knockbackDuration;
+    }
     projectile
       ..ignitesOiledTargets = true
       ..igniteDuration = igniteDuration
@@ -255,6 +269,8 @@ class SkillSystem {
     required EnemyPool enemyPool,
     required void Function(ProjectileState) onProjectileSpawn,
   }) {
+    final def = skillDefsById[SkillId.oilBombs];
+    final knockbackScale = _knockbackScale(stats);
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
@@ -270,6 +286,10 @@ class SkillSystem {
       lifespan: 1.4,
       fromEnemy: false,
     );
+    if (def != null && def.knockbackForce > 0 && def.knockbackDuration > 0) {
+      projectile.knockbackForce = def.knockbackForce * knockbackScale;
+      projectile.knockbackDuration = def.knockbackDuration;
+    }
     onProjectileSpawn(projectile);
 
     const duration = 2.0;
@@ -298,8 +318,18 @@ class SkillSystem {
     required StatSheet stats,
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
-    required void Function(EnemyState, double) onEnemyDamaged,
+    required void Function(
+      EnemyState,
+      double, {
+      double knockbackX,
+      double knockbackY,
+      double knockbackForce,
+      double knockbackDuration,
+    })
+    onEnemyDamaged,
   }) {
+    final def = skillDefsById[SkillId.swordCut];
+    final knockbackScale = _knockbackScale(stats);
     final damage = 12 * _damageMultiplierFor(SkillId.swordCut, stats);
     _castMeleeArc(
       playerPosition: playerPosition,
@@ -310,6 +340,8 @@ class SkillSystem {
       baseRange: 46,
       arcDegrees: 90,
       damage: damage,
+      knockbackForce: (def?.knockbackForce ?? 0) * knockbackScale,
+      knockbackDuration: def?.knockbackDuration ?? 0,
       onEnemyDamaged: onEnemyDamaged,
     );
   }
@@ -320,8 +352,18 @@ class SkillSystem {
     required StatSheet stats,
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
-    required void Function(EnemyState, double) onEnemyDamaged,
+    required void Function(
+      EnemyState,
+      double, {
+      double knockbackX,
+      double knockbackY,
+      double knockbackForce,
+      double knockbackDuration,
+    })
+    onEnemyDamaged,
   }) {
+    final def = skillDefsById[SkillId.swordThrust];
+    final knockbackScale = _knockbackScale(stats);
     final damage = 10 * _damageMultiplierFor(SkillId.swordThrust, stats);
     _castMeleeArc(
       playerPosition: playerPosition,
@@ -332,6 +374,8 @@ class SkillSystem {
       baseRange: 58,
       arcDegrees: 30,
       damage: damage,
+      knockbackForce: (def?.knockbackForce ?? 0) * knockbackScale,
+      knockbackDuration: def?.knockbackDuration ?? 0,
       onEnemyDamaged: onEnemyDamaged,
     );
   }
@@ -342,8 +386,18 @@ class SkillSystem {
     required StatSheet stats,
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
-    required void Function(EnemyState, double) onEnemyDamaged,
+    required void Function(
+      EnemyState,
+      double, {
+      double knockbackX,
+      double knockbackY,
+      double knockbackForce,
+      double knockbackDuration,
+    })
+    onEnemyDamaged,
   }) {
+    final def = skillDefsById[SkillId.swordSwing];
+    final knockbackScale = _knockbackScale(stats);
     final damage = 14 * _damageMultiplierFor(SkillId.swordSwing, stats);
     _castMeleeArc(
       playerPosition: playerPosition,
@@ -354,6 +408,8 @@ class SkillSystem {
       baseRange: 52,
       arcDegrees: 140,
       damage: damage,
+      knockbackForce: (def?.knockbackForce ?? 0) * knockbackScale,
+      knockbackDuration: def?.knockbackDuration ?? 0,
       onEnemyDamaged: onEnemyDamaged,
     );
   }
@@ -364,9 +420,19 @@ class SkillSystem {
     required StatSheet stats,
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
-    required void Function(EnemyState, double) onEnemyDamaged,
+    required void Function(
+      EnemyState,
+      double, {
+      double knockbackX,
+      double knockbackY,
+      double knockbackForce,
+      double knockbackDuration,
+    })
+    onEnemyDamaged,
     required void Function(ProjectileState) onProjectileDespawn,
   }) {
+    final def = skillDefsById[SkillId.swordDeflect];
+    final knockbackScale = _knockbackScale(stats);
     final damage = 8 * _damageMultiplierFor(SkillId.swordDeflect, stats);
     _castMeleeArc(
       playerPosition: playerPosition,
@@ -377,6 +443,8 @@ class SkillSystem {
       baseRange: 42,
       arcDegrees: 100,
       damage: damage,
+      knockbackForce: (def?.knockbackForce ?? 0) * knockbackScale,
+      knockbackDuration: def?.knockbackDuration ?? 0,
       onEnemyDamaged: onEnemyDamaged,
     );
     _deflectProjectiles(
@@ -391,7 +459,15 @@ class SkillSystem {
     required StatSheet stats,
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
-    required void Function(EnemyState, double) onEnemyDamaged,
+    required void Function(
+      EnemyState,
+      double, {
+      double knockbackX,
+      double knockbackY,
+      double knockbackForce,
+      double knockbackDuration,
+    })
+    onEnemyDamaged,
   }) {
     final aoeScale = _aoeScale(stats);
     final radius = 70 * aoeScale;
@@ -462,7 +538,17 @@ class SkillSystem {
     required double baseRange,
     required double arcDegrees,
     required double damage,
-    required void Function(EnemyState, double) onEnemyDamaged,
+    required double knockbackForce,
+    required double knockbackDuration,
+    required void Function(
+      EnemyState,
+      double, {
+      double knockbackX,
+      double knockbackY,
+      double knockbackForce,
+      double knockbackDuration,
+    })
+    onEnemyDamaged,
   }) {
     final arcCosine = math.cos((arcDegrees * 0.5) * (math.pi / 180));
     final aoeScale = _aoeScale(stats);
@@ -492,7 +578,14 @@ class SkillSystem {
         continue;
       }
 
-      onEnemyDamaged(enemy, damage);
+      onEnemyDamaged(
+        enemy,
+        damage,
+        knockbackX: dx,
+        knockbackY: dy,
+        knockbackForce: knockbackForce,
+        knockbackDuration: knockbackDuration,
+      );
     }
   }
 
@@ -590,6 +683,10 @@ class SkillSystem {
     }
 
     return math.max(0.1, multiplier);
+  }
+
+  double _knockbackScale(StatSheet stats) {
+    return math.max(0.1, 1 + stats.value(StatId.knockbackStrength));
   }
 }
 

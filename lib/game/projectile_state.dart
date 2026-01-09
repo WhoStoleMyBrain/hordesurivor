@@ -21,6 +21,8 @@ class ProjectileState {
   bool ignitesOiledTargets = false;
   double igniteDuration = 0;
   double igniteDamagePerSecond = 0;
+  double knockbackForce = 0;
+  double knockbackDuration = 0;
   EffectKind? impactEffectKind;
   EffectShape impactEffectShape = EffectShape.ground;
   double impactEffectRadius = 0;
@@ -52,6 +54,8 @@ class ProjectileState {
     ignitesOiledTargets = false;
     igniteDuration = 0;
     igniteDamagePerSecond = 0;
+    knockbackForce = 0;
+    knockbackDuration = 0;
     impactEffectKind = null;
     impactEffectShape = EffectShape.ground;
     impactEffectRadius = 0;

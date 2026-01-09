@@ -77,6 +77,7 @@ class EnemySystem {
         default:
           _moveToward(enemy, dt);
       }
+      enemy.updateKnockback(dt);
     }
 
     if (_spawnRequests.isEmpty) {

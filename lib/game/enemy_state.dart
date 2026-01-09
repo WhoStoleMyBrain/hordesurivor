@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flame/extensions.dart';
 
 import '../data/ids.dart';
@@ -7,6 +9,7 @@ class EnemyState {
   EnemyState({required this.id})
     : position = Vector2.zero(),
       velocity = Vector2.zero(),
+      knockbackDirection = Vector2.zero(),
       dashDirection = Vector2.zero();
 
   EnemyId id;
@@ -43,7 +46,11 @@ class EnemyState {
   double igniteDamagePerSecond = 0;
   double speedMultiplier = 1;
   bool behaviorInitialized = false;
+  double knockbackTimer = 0;
+  double knockbackDuration = 0;
+  double knockbackBaseSpeed = 0;
   final Vector2 dashDirection;
+  final Vector2 knockbackDirection;
   bool active = false;
 
   void reset({
@@ -99,6 +106,10 @@ class EnemyState {
     speedMultiplier = 1;
     behaviorInitialized = false;
     dashDirection.setZero();
+    knockbackTimer = 0;
+    knockbackDuration = 0;
+    knockbackBaseSpeed = 0;
+    knockbackDirection.setZero();
     active = true;
   }
 
@@ -190,4 +201,46 @@ class EnemyState {
   }
 
   double get effectiveMoveSpeed => moveSpeed * speedMultiplier;
+
+  void applyKnockback({
+    required double directionX,
+    required double directionY,
+    required double force,
+    required double duration,
+  }) {
+    if (force <= 0 || duration <= 0) {
+      return;
+    }
+    final lengthSquared = directionX * directionX + directionY * directionY;
+    if (lengthSquared <= 0) {
+      return;
+    }
+    if (force >= knockbackBaseSpeed) {
+      final length = math.sqrt(lengthSquared);
+      knockbackDirection.setValues(directionX / length, directionY / length);
+      knockbackBaseSpeed = force;
+    }
+    if (duration > knockbackDuration) {
+      knockbackDuration = duration;
+    }
+    if (duration > knockbackTimer) {
+      knockbackTimer = duration;
+    }
+  }
+
+  void updateKnockback(double dt) {
+    if (knockbackTimer <= 0 || knockbackDuration <= 0) {
+      return;
+    }
+    knockbackTimer -= dt;
+    if (knockbackTimer <= 0) {
+      knockbackTimer = 0;
+      knockbackDuration = 0;
+      knockbackBaseSpeed = 0;
+      knockbackDirection.setZero();
+      return;
+    }
+    final intensity = (knockbackTimer / knockbackDuration).clamp(0.0, 1.0);
+    position.addScaled(knockbackDirection, knockbackBaseSpeed * intensity * dt);
+  }
 }
