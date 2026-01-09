@@ -199,14 +199,34 @@ TagSet _tagsForChoice(SelectionChoice choice) {
 }
 
 List<String> _statChangesForChoice(SelectionChoice choice) {
-  if (choice.type != SelectionType.item || choice.itemId == null) {
-    return const [];
+  switch (choice.type) {
+    case SelectionType.item:
+      final itemId = choice.itemId;
+      if (itemId == null) {
+        return const [];
+      }
+      final item = itemDefsById[itemId];
+      if (item == null) {
+        return const [];
+      }
+      return [
+        for (final modifier in item.modifiers)
+          StatText.formatModifier(modifier),
+      ];
+    case SelectionType.skillUpgrade:
+      final upgradeId = choice.skillUpgradeId;
+      if (upgradeId == null) {
+        return const [];
+      }
+      final upgrade = skillUpgradeDefsById[upgradeId];
+      if (upgrade == null) {
+        return const [];
+      }
+      return [
+        for (final modifier in upgrade.modifiers)
+          StatText.formatModifier(modifier),
+      ];
+    case SelectionType.skill:
+      return const [];
   }
-  final item = itemDefsById[choice.itemId];
-  if (item == null) {
-    return const [];
-  }
-  return [
-    for (final modifier in item.modifiers) StatText.formatModifier(modifier),
-  ];
 }
