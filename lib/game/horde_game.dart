@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show KeyEventResult;
 import 'package:flutter/services.dart';
 
+import '../data/contract_defs.dart';
 import '../data/enemy_defs.dart';
 import '../data/ids.dart';
 import '../data/item_defs.dart';
@@ -87,6 +88,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _portalLockoutDuration = 0.75;
   static const double _stageWaveInterval = 3.0;
   static const int _baseStageWaveCount = 4;
+  static const double _baseChampionChance = 0.05;
   static const TagSet _igniteDamageTags = TagSet(
     elements: {ElementTag.fire},
     effects: {EffectTag.dot},
@@ -133,6 +135,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final RunSummary _runSummary = RunSummary();
   final MetaCurrencyWallet _metaWallet = MetaCurrencyWallet();
   final MetaUnlocks _metaUnlocks = MetaUnlocks();
+  final List<ContractId> _activeContracts = [];
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
   final ValueNotifier<bool> highContrastTelegraphs = ValueNotifier(false);
@@ -161,6 +164,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   AreaDef? _activeArea;
   int _currentSectionIndex = 0;
   bool _runCompleted = false;
+  double _contractProjectileSpeedMultiplier = 1.0;
+  double _contractEliteWeightMultiplier = 1.0;
+  double _contractSupportWeightMultiplier = 1.0;
+  double _contractRewardMultiplier = 1.0;
+  int _contractHeat = 0;
 
   PlayerHudState get hudState => _hudState;
   SelectionState get selectionState => _selectionState;
@@ -245,6 +253,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       onProjectileSpawn: _handleProjectileSpawn,
       onSpawn: _registerEnemyComponent,
       onSelfDestruct: _handleEnemySelfDestruct,
+      championChance: _baseChampionChance,
     );
     _enemyGrid = SpatialGrid(cellSize: 64);
     _projectileSystem = ProjectileSystem(_projectilePool);
@@ -330,6 +339,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
               ),
             ],
       onSpawn: _registerEnemyComponent,
+      championChance: _baseChampionChance,
     );
     _spawnerReady = true;
     if (stressTest) {
@@ -550,8 +560,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
   }
 
-  void beginStageFromAreaSelect(AreaDef area) {
+  void beginStageFromAreaSelect(AreaDef area, List<ContractId> contracts) {
     _activeArea = area;
+    _applyContracts(contracts);
     _stageTimer = StageTimer(
       duration: area.stageDuration,
       sections: area.sections,
@@ -564,6 +575,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _resetPlayerProgression();
     _resetRunSummary();
     _runSummary.areaName = area.name;
+    _runSummary.contractHeat = _contractHeat;
+    _runSummary.metaRewardMultiplier = _contractRewardMultiplier;
+    _runSummary.contractNames = _activeContracts
+        .map((id) => contractDefsById[id]?.name ?? id.name)
+        .toList(growable: false);
     _revivePlayer();
     _resetStageActors();
     _setFlowState(GameFlowState.stage);
@@ -594,7 +610,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       returnToHomeBaseFromDeath();
       return;
     }
-    beginStageFromAreaSelect(area);
+    beginStageFromAreaSelect(area, _activeContracts.toList(growable: false));
   }
 
   void returnToHomeBaseFromDeath() {
@@ -1077,7 +1093,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         _refreshFlowDebugOverlay();
         return;
       case GameFlowState.stage:
-        beginStageFromAreaSelect(areaDefs.first);
+        beginStageFromAreaSelect(areaDefs.first, const []);
         _refreshFlowDebugOverlay();
         return;
       case GameFlowState.death:
@@ -1232,17 +1248,19 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         sectionDuration: sectionDuration,
         timeIntoSection: time,
       );
+      final adjustedRoles = _applyContractRoleWeights(tuning.roleWeights);
+      final adjustedVariants = _applyContractVariantWeights(
+        tuning.variantWeights,
+      );
       waves.add(
         SpawnWave(
           time: time,
           count: count,
-          roleWeights: tuning.roleWeights.isEmpty ? null : tuning.roleWeights,
+          roleWeights: adjustedRoles.isEmpty ? null : adjustedRoles,
           enemyWeights: tuning.enemyWeights.isEmpty
               ? null
               : tuning.enemyWeights,
-          variantWeights: tuning.variantWeights.isEmpty
-              ? null
-              : tuning.variantWeights,
+          variantWeights: adjustedVariants.isEmpty ? null : adjustedVariants,
         ),
       );
       time += _stageWaveInterval;
@@ -1252,6 +1270,46 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _handleStageComplete() {
     _endRun(completed: true);
+  }
+
+  Map<EnemyRole, int> _applyContractRoleWeights(
+    Map<EnemyRole, int> roleWeights,
+  ) {
+    if (roleWeights.isEmpty || _contractSupportWeightMultiplier == 1.0) {
+      return roleWeights;
+    }
+    final adjusted = Map<EnemyRole, int>.from(roleWeights);
+    for (final role in const [
+      EnemyRole.supportHealer,
+      EnemyRole.supportBuffer,
+    ]) {
+      final weight = adjusted[role];
+      if (weight == null || weight <= 0) {
+        continue;
+      }
+      adjusted[role] = math.max(
+        1,
+        (weight * _contractSupportWeightMultiplier).round(),
+      );
+    }
+    return adjusted;
+  }
+
+  Map<EnemyVariant, int> _applyContractVariantWeights(
+    Map<EnemyVariant, int> variantWeights,
+  ) {
+    if (variantWeights.isEmpty || _contractEliteWeightMultiplier == 1.0) {
+      return variantWeights;
+    }
+    final adjusted = Map<EnemyVariant, int>.from(variantWeights);
+    final championWeight = adjusted[EnemyVariant.champion];
+    if (championWeight != null && championWeight > 0) {
+      adjusted[EnemyVariant.champion] = math.max(
+        1,
+        (championWeight * _contractEliteWeightMultiplier).round(),
+      );
+    }
+    return adjusted;
   }
 
   void _resetStageActors() {
@@ -1300,6 +1358,37 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _resetRunSummary() {
     _runSummary.reset();
     _runCompleted = false;
+  }
+
+  void _applyContracts(List<ContractId> contracts) {
+    _activeContracts
+      ..clear()
+      ..addAll(contracts);
+    _contractProjectileSpeedMultiplier = 1.0;
+    _contractEliteWeightMultiplier = 1.0;
+    _contractSupportWeightMultiplier = 1.0;
+    _contractRewardMultiplier = 1.0;
+    _contractHeat = 0;
+    for (final contractId in _activeContracts) {
+      final def = contractDefsById[contractId];
+      if (def == null) {
+        continue;
+      }
+      _contractHeat += def.heat;
+      _contractRewardMultiplier *= def.rewardMultiplier;
+      _contractProjectileSpeedMultiplier *= def.enemyProjectileSpeedMultiplier;
+      _contractEliteWeightMultiplier *= def.eliteWeightMultiplier;
+      _contractSupportWeightMultiplier *= def.supportRoleWeightMultiplier;
+    }
+    _enemySystem.setProjectileSpeedMultiplier(
+      _contractProjectileSpeedMultiplier,
+    );
+    _spawnerSystem.setProjectileSpeedMultiplier(
+      _contractProjectileSpeedMultiplier,
+    );
+    final eliteChance = _baseChampionChance * _contractEliteWeightMultiplier;
+    _enemySystem.setChampionChance(eliteChance);
+    _spawnerSystem.setChampionChance(eliteChance);
   }
 
   void _resetPlayerProgression() {

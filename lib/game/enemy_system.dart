@@ -36,11 +36,20 @@ class EnemySystem {
   final void Function(ProjectileState) _onProjectileSpawn;
   final void Function(EnemyState) _onSpawn;
   final void Function(EnemyState) _onSelfDestruct;
-  final double _championChance;
+  double _championChance;
   final int _maxChampions;
   final List<_SpawnRequest> _spawnRequests = [];
   final Vector2 _directionBuffer = Vector2.zero();
   final Vector2 _perpBuffer = Vector2.zero();
+  double _projectileSpeedMultiplier = 1.0;
+
+  void setProjectileSpeedMultiplier(double multiplier) {
+    _projectileSpeedMultiplier = multiplier <= 0 ? 1.0 : multiplier;
+  }
+
+  void setChampionChance(double chance) {
+    _championChance = chance.clamp(0.0, 1.0);
+  }
 
   void update(double dt, Vector2 playerPosition, Vector2 arenaSize) {
     _spawnRequests.clear();
@@ -173,7 +182,7 @@ class EnemySystem {
           attackCooldown:
               def.attackCooldown * variantDef.attackCooldownMultiplier,
           attackRange: def.attackRange,
-          projectileSpeed: def.projectileSpeed,
+          projectileSpeed: def.projectileSpeed * _projectileSpeedMultiplier,
           projectileDamage:
               def.projectileDamage * variantDef.projectileDamageMultiplier,
           projectileSpread: def.projectileSpread,

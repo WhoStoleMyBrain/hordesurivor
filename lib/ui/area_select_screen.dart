@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../data/area_defs.dart';
+import '../data/contract_defs.dart';
+import '../data/ids.dart';
 
-class AreaSelectScreen extends StatelessWidget {
+class AreaSelectScreen extends StatefulWidget {
   const AreaSelectScreen({
     super.key,
     required this.onAreaSelected,
@@ -11,8 +13,15 @@ class AreaSelectScreen extends StatelessWidget {
 
   static const String overlayKey = 'area_select_screen';
 
-  final ValueChanged<AreaDef> onAreaSelected;
+  final void Function(AreaDef area, List<ContractId> contracts) onAreaSelected;
   final VoidCallback onReturn;
+
+  @override
+  State<AreaSelectScreen> createState() => _AreaSelectScreenState();
+}
+
+class _AreaSelectScreenState extends State<AreaSelectScreen> {
+  final Set<ContractId> _selectedContracts = {};
 
   @override
   Widget build(BuildContext context) {
@@ -107,14 +116,50 @@ class AreaSelectScreen extends StatelessWidget {
                           const SizedBox(height: 6),
                           _InfoRow(
                             label: 'Contracts',
-                            value: 'Locked for V0.2',
-                            muted: true,
+                            value: _selectedContracts.isEmpty
+                                ? 'None selected'
+                                : _contractSummary(),
+                            muted: _selectedContracts.isEmpty,
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
+                            children: [
+                              for (final contract in contractDefs)
+                                Tooltip(
+                                  message: contract.description,
+                                  child: FilterChip(
+                                    label: Text(
+                                      '${contract.name} '
+                                      '(+${contract.heat})',
+                                    ),
+                                    selected: _selectedContracts.contains(
+                                      contract.id,
+                                    ),
+                                    onSelected: (selected) {
+                                      setState(() {
+                                        if (selected) {
+                                          _selectedContracts.add(contract.id);
+                                        } else {
+                                          _selectedContracts.remove(
+                                            contract.id,
+                                          );
+                                        }
+                                      });
+                                    },
+                                  ),
+                                ),
+                            ],
                           ),
                           const SizedBox(height: 12),
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () => onAreaSelected(area),
+                              onPressed: () => widget.onAreaSelected(
+                                area,
+                                _selectedContracts.toList(growable: false),
+                              ),
                               child: const Text('Begin Stage'),
                             ),
                           ),
@@ -126,7 +171,7 @@ class AreaSelectScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               OutlinedButton(
-                onPressed: onReturn,
+                onPressed: widget.onReturn,
                 child: const Text('Return to Home Base'),
               ),
             ],
@@ -194,5 +239,21 @@ class _InfoRow extends StatelessWidget {
         Expanded(child: Text(value, style: textStyle)),
       ],
     );
+  }
+}
+
+extension on _AreaSelectScreenState {
+  String _contractSummary() {
+    var heat = 0;
+    var rewardMultiplier = 1.0;
+    for (final id in _selectedContracts) {
+      final def = contractDefsById[id];
+      if (def == null) {
+        continue;
+      }
+      heat += def.heat;
+      rewardMultiplier *= def.rewardMultiplier;
+    }
+    return 'Heat $heat · Rewards x${rewardMultiplier.toStringAsFixed(2)}';
   }
 }

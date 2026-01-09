@@ -55,12 +55,13 @@ class SpawnerSystem {
   late final Map<EnemyRole, _WeightedPicker<EnemyId>> _rolePickers;
   late List<_ResolvedWave> _resolvedWaves;
   final void Function(EnemyState) _onSpawn;
-  final double _championChance;
+  double _championChance;
   final int _maxChampions;
   final double _spawnMinRadius;
   final double _spawnMaxRadius;
   final Vector2 _arenaSize;
   final Vector2 _spawnPosition = Vector2.zero();
+  double _projectileSpeedMultiplier = 1.0;
   double _elapsed = 0;
   int _waveIndex = 0;
 
@@ -92,6 +93,14 @@ class SpawnerSystem {
 
   void updateArenaSize(Vector2 size) {
     _arenaSize.setFrom(size);
+  }
+
+  void setProjectileSpeedMultiplier(double multiplier) {
+    _projectileSpeedMultiplier = multiplier <= 0 ? 1.0 : multiplier;
+  }
+
+  void setChampionChance(double chance) {
+    _championChance = chance.clamp(0.0, 1.0);
   }
 
   void _spawnEnemy(
@@ -127,7 +136,7 @@ class SpawnerSystem {
       xpReward: (def.xpReward * variantDef.xpRewardMultiplier).round(),
       attackCooldown: def.attackCooldown * variantDef.attackCooldownMultiplier,
       attackRange: def.attackRange,
-      projectileSpeed: def.projectileSpeed,
+      projectileSpeed: def.projectileSpeed * _projectileSpeedMultiplier,
       projectileDamage:
           def.projectileDamage * variantDef.projectileDamageMultiplier,
       projectileSpread: def.projectileSpread,
