@@ -1345,6 +1345,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _endRun({required bool completed}) {
     _runCompleted = completed;
     _runSummary.completed = completed;
+    final dropBonus = _playerState.stats.value(StatId.drops);
+    final dropMultiplier = math.max(0.0, 1 + dropBonus);
+    _runSummary.metaRewardMultiplier =
+        _contractRewardMultiplier * dropMultiplier;
     _runSummary.finalizeMetaCurrency();
     unawaited(_metaWallet.add(_runSummary.metaCurrencyEarned));
     _resetStageActors();
