@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../game/meta_currency_wallet.dart';
+import 'meta_shard_badge.dart';
+
 class StartScreen extends StatelessWidget {
   const StartScreen({
     super.key,
     required this.onStart,
     required this.onOptions,
     required this.onCompendium,
+    required this.wallet,
   });
 
   static const String overlayKey = 'start_screen';
@@ -13,6 +17,7 @@ class StartScreen extends StatelessWidget {
   final VoidCallback onStart;
   final VoidCallback onOptions;
   final VoidCallback onCompendium;
+  final MetaCurrencyWallet wallet;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +49,8 @@ class StartScreen extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 16),
+                MetaShardBadge(wallet: wallet),
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,

@@ -109,6 +109,7 @@ class HordeSurvivorApp extends StatelessWidget {
           onStart: game.beginHomeBaseFromStartScreen,
           onOptions: game.openOptionsFromStartScreen,
           onCompendium: game.openCompendiumFromStartScreen,
+          wallet: game.metaWallet,
         ),
         OptionsScreen.overlayKey: (_, game) => OptionsScreen(
           onClose: game.closeOptionsFromStartScreen,
@@ -117,7 +118,8 @@ class HordeSurvivorApp extends StatelessWidget {
         ),
         CompendiumScreen.overlayKey: (_, game) =>
             CompendiumScreen(onClose: game.closeCompendiumFromStartScreen),
-        HomeBaseOverlay.overlayKey: (_, _) => const HomeBaseOverlay(),
+        HomeBaseOverlay.overlayKey: (_, game) =>
+            HomeBaseOverlay(wallet: game.metaWallet),
         AreaSelectScreen.overlayKey: (_, game) => AreaSelectScreen(
           onAreaSelected: game.beginStageFromAreaSelect,
           onReturn: game.returnToHomeBase,
@@ -127,6 +129,7 @@ class HordeSurvivorApp extends StatelessWidget {
           completed: game.runCompleted,
           onRestart: game.restartRunFromDeath,
           onReturn: game.returnToHomeBaseFromDeath,
+          wallet: game.metaWallet,
         ),
         FlowDebugOverlay.overlayKey: (_, game) => FlowDebugOverlay(
           flowState: game.flowState,

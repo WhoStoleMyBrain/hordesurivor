@@ -20,6 +20,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 3 (Skill/attack completeness): converted Poison Gas to a follow-player DOT aura effect so it matches the skill description. Decision: keep a short 0.8s aura per cast for now. Follow-up: tune aura duration/radius once combat pacing is playtested.
 - ✅ Phase 4 (Reward loop): surfaced stat modifier lines for skill upgrades in the selection UI so choices show explicit deltas alongside tags.
 - ✅ Phase 5 (Meta currency): added a first-pass "Meta Shards" earn rule based on run time, XP, and completion, and surfaced the earned amount on the run summary. Decision: keep it run-summary-only for now. Follow-up: add a persistent wallet and home-base UI entry for spending.
+- ✅ Phase 5 (Meta currency): added a persistent Meta Shards wallet (save/load via shared preferences) and surfaced the wallet total in the start screen, home base overlay, and death screen. Decision: show the wallet badge in HUD overlays only for now to avoid clutter during combat. Follow-up: build the lateral unlock screen and spending flow.
 
 ---
 
