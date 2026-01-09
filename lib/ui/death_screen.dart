@@ -70,6 +70,10 @@ class DeathScreen extends StatelessWidget {
                   value: summary.xpGained.toString(),
                 ),
                 _StatRow(
+                  label: 'Meta Shards',
+                  value: summary.metaCurrencyEarned.toString(),
+                ),
+                _StatRow(
                   label: 'Damage Taken',
                   value: summary.damageTaken.toStringAsFixed(0),
                 ),
