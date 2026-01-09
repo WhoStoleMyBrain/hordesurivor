@@ -16,7 +16,9 @@ import 'ui/start_screen.dart';
 import 'ui/stats_overlay.dart';
 import 'ui/ui_scale.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await UiScale.loadTextScale();
   validateGameDataOrThrow();
   runApp(const HordeSurvivorApp());
 }
