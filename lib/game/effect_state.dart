@@ -1,6 +1,6 @@
 import 'package:flame/extensions.dart';
 
-enum EffectKind { waterjetBeam, oilGround, rootsGround }
+enum EffectKind { waterjetBeam, oilGround, rootsGround, poisonAura }
 
 enum EffectShape { beam, ground }
 
@@ -20,6 +20,7 @@ class EffectState {
   double slowMultiplier = 1;
   double slowDuration = 0;
   double oilDuration = 0;
+  bool followsPlayer = false;
   bool active = false;
 
   void reset({
@@ -35,6 +36,7 @@ class EffectState {
     double slowMultiplier = 1,
     double slowDuration = 0,
     double oilDuration = 0,
+    bool followsPlayer = false,
   }) {
     this.kind = kind;
     this.shape = shape;
@@ -53,6 +55,7 @@ class EffectState {
     this.slowMultiplier = slowMultiplier;
     this.slowDuration = slowDuration;
     this.oilDuration = oilDuration;
+    this.followsPlayer = followsPlayer;
     age = 0;
     active = true;
   }

@@ -61,6 +61,8 @@ class EffectComponent extends PositionComponent {
         return const Color(0xFF2B2D42).withValues(alpha: 0.5);
       case EffectKind.rootsGround:
         return const Color(0xFF3E7C3E).withValues(alpha: 0.45);
+      case EffectKind.poisonAura:
+        return const Color(0xFF6ABF69).withValues(alpha: 0.4);
     }
   }
 
