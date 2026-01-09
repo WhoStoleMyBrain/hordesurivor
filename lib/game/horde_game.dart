@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -46,6 +47,7 @@ import 'enemy_state.dart';
 import 'enemy_system.dart';
 import 'experience_system.dart';
 import 'level_up_system.dart';
+import 'meta_currency_wallet.dart';
 import 'player_state.dart';
 import 'projectile_pool.dart';
 import 'projectile_state.dart';
@@ -127,6 +129,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final SelectionState _selectionState = SelectionState();
   final StatsScreenState _statsScreenState = StatsScreenState();
   final RunSummary _runSummary = RunSummary();
+  final MetaCurrencyWallet _metaWallet = MetaCurrencyWallet();
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
   final ValueNotifier<bool> highContrastTelegraphs = ValueNotifier(false);
@@ -162,6 +165,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   GameFlowState get flowState => _flowState;
   RunSummary get runSummary => _runSummary;
   bool get runCompleted => _runCompleted;
+  MetaCurrencyWallet get metaWallet => _metaWallet;
 
   @override
   backgroundColor() => const Color(0xFF0F1117);
@@ -169,6 +173,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+    await _metaWallet.load();
     _selectionListener = _handleSelectionStateChanged;
     _selectionState.addListener(_selectionListener!);
     if (stressTest) {
@@ -1255,6 +1260,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _runCompleted = completed;
     _runSummary.completed = completed;
     _runSummary.finalizeMetaCurrency();
+    unawaited(_metaWallet.add(_runSummary.metaCurrencyEarned));
     _resetStageActors();
     _stageTimer = null;
     _selectionState.clear();

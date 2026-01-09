@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../game/meta_currency_wallet.dart';
 import '../game/run_summary.dart';
 import 'ui_scale.dart';
 
@@ -10,6 +11,7 @@ class DeathScreen extends StatelessWidget {
     required this.completed,
     required this.onRestart,
     required this.onReturn,
+    required this.wallet,
   });
 
   static const String overlayKey = 'death';
@@ -18,6 +20,7 @@ class DeathScreen extends StatelessWidget {
   final bool completed;
   final VoidCallback onRestart;
   final VoidCallback onReturn;
+  final MetaCurrencyWallet wallet;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +76,7 @@ class DeathScreen extends StatelessWidget {
                   label: 'Meta Shards',
                   value: summary.metaCurrencyEarned.toString(),
                 ),
+                _MetaWalletRow(wallet: wallet),
                 _StatRow(
                   label: 'Damage Taken',
                   value: summary.damageTaken.toStringAsFixed(0),
@@ -137,6 +141,25 @@ class _StatRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _MetaWalletRow extends StatelessWidget {
+  const _MetaWalletRow({required this.wallet});
+
+  final MetaCurrencyWallet wallet;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: wallet,
+      builder: (context, _) {
+        return _StatRow(
+          label: 'Wallet Total',
+          value: wallet.balance.toString(),
+        );
+      },
     );
   }
 }
