@@ -36,7 +36,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.waterjet,
     name: 'Waterjet',
-    description: 'Channel a focused beam of water.',
+    description: 'Pulse a focused beam of water.',
     tags: TagSet(elements: {ElementTag.water}, deliveries: {DeliveryTag.beam}),
   ),
   SkillDef(
@@ -53,7 +53,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.swordThrust,
     name: 'Sword: Thrust',
-    description: 'Quick lunge with a narrow strike.',
+    description: 'Quick narrow thrust with precision reach.',
     tags: TagSet(
       elements: {ElementTag.steel},
       effects: {EffectTag.mobility},
@@ -89,7 +89,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.swordDeflect,
     name: 'Sword: Deflect',
-    description: 'Brief parry window that deflects projectiles.',
+    description: 'Deflect nearby projectiles with a quick parry.',
     tags: TagSet(
       elements: {ElementTag.steel},
       effects: {EffectTag.support},
