@@ -9,6 +9,7 @@ import 'ui/death_screen.dart';
 import 'ui/flow_debug_overlay.dart';
 import 'ui/hud_overlay.dart';
 import 'ui/home_base_overlay.dart';
+import 'ui/meta_unlock_screen.dart';
 import 'ui/options_screen.dart';
 import 'ui/selection_overlay.dart';
 import 'ui/start_screen.dart';
@@ -109,6 +110,7 @@ class HordeSurvivorApp extends StatelessWidget {
           onStart: game.beginHomeBaseFromStartScreen,
           onOptions: game.openOptionsFromStartScreen,
           onCompendium: game.openCompendiumFromStartScreen,
+          onMetaUnlocks: game.openMetaUnlocksFromStartScreen,
           wallet: game.metaWallet,
         ),
         OptionsScreen.overlayKey: (_, game) => OptionsScreen(
@@ -118,6 +120,11 @@ class HordeSurvivorApp extends StatelessWidget {
         ),
         CompendiumScreen.overlayKey: (_, game) =>
             CompendiumScreen(onClose: game.closeCompendiumFromStartScreen),
+        MetaUnlockScreen.overlayKey: (_, game) => MetaUnlockScreen(
+          wallet: game.metaWallet,
+          unlocks: game.metaUnlocks,
+          onClose: game.closeMetaUnlocksFromStartScreen,
+        ),
         HomeBaseOverlay.overlayKey: (_, game) =>
             HomeBaseOverlay(wallet: game.metaWallet),
         AreaSelectScreen.overlayKey: (_, game) => AreaSelectScreen(

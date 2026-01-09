@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'area_defs.dart';
 import 'enemy_defs.dart';
 import 'item_defs.dart';
+import 'meta_unlock_defs.dart';
 import 'skill_defs.dart';
 import 'skill_upgrade_defs.dart';
 import 'status_effect_defs.dart';
@@ -62,6 +63,11 @@ DataValidationResult validateGameData() {
     label: 'StatusEffectDef',
     result: result,
   );
+  _checkUniqueIds(
+    ids: metaUnlockDefs.map((def) => def.id),
+    label: 'MetaUnlockDef',
+    result: result,
+  );
 
   for (final def in skillDefs) {
     if (_isTagSetEmpty(def.tags)) {
@@ -101,6 +107,15 @@ DataValidationResult validateGameData() {
   for (final def in statusEffectDefs) {
     if (_isTagSetEmpty(def.tags)) {
       result.errors.add('StatusEffectDef ${def.id} has no tags.');
+    }
+  }
+
+  for (final def in metaUnlockDefs) {
+    if (def.cost <= 0) {
+      result.errors.add('MetaUnlockDef ${def.id} has non-positive cost.');
+    }
+    if (def.modifiers.isEmpty) {
+      result.errors.add('MetaUnlockDef ${def.id} has no modifiers.');
     }
   }
 

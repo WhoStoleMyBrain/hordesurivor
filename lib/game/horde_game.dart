@@ -32,6 +32,7 @@ import '../ui/flow_debug_overlay.dart';
 import '../ui/hud_overlay.dart';
 import '../ui/hud_state.dart';
 import '../ui/home_base_overlay.dart';
+import '../ui/meta_unlock_screen.dart';
 import '../ui/options_screen.dart';
 import '../ui/selection_overlay.dart';
 import '../ui/selection_state.dart';
@@ -48,6 +49,7 @@ import 'enemy_system.dart';
 import 'experience_system.dart';
 import 'level_up_system.dart';
 import 'meta_currency_wallet.dart';
+import 'meta_unlocks.dart';
 import 'player_state.dart';
 import 'projectile_pool.dart';
 import 'projectile_state.dart';
@@ -130,6 +132,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final StatsScreenState _statsScreenState = StatsScreenState();
   final RunSummary _runSummary = RunSummary();
   final MetaCurrencyWallet _metaWallet = MetaCurrencyWallet();
+  final MetaUnlocks _metaUnlocks = MetaUnlocks();
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
   final ValueNotifier<bool> highContrastTelegraphs = ValueNotifier(false);
@@ -166,6 +169,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   RunSummary get runSummary => _runSummary;
   bool get runCompleted => _runCompleted;
   MetaCurrencyWallet get metaWallet => _metaWallet;
+  MetaUnlocks get metaUnlocks => _metaUnlocks;
 
   @override
   backgroundColor() => const Color(0xFF0F1117);
@@ -174,6 +178,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   Future<void> onLoad() async {
     await super.onLoad();
     await _metaWallet.load();
+    await _metaUnlocks.load();
     _selectionListener = _handleSelectionStateChanged;
     _selectionState.addListener(_selectionListener!);
     if (stressTest) {
@@ -475,6 +480,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(StartScreen.overlayKey);
     overlays.remove(OptionsScreen.overlayKey);
     overlays.remove(CompendiumScreen.overlayKey);
+    overlays.remove(MetaUnlockScreen.overlayKey);
     overlays.add(HomeBaseOverlay.overlayKey);
     _syncHudState();
   }
@@ -501,6 +507,17 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.add(CompendiumScreen.overlayKey);
   }
 
+  void openMetaUnlocksFromStartScreen() {
+    if (_flowState != GameFlowState.start) {
+      return;
+    }
+    if (overlays.isActive(MetaUnlockScreen.overlayKey)) {
+      return;
+    }
+    overlays.remove(StartScreen.overlayKey);
+    overlays.add(MetaUnlockScreen.overlayKey);
+  }
+
   void closeOptionsFromStartScreen() {
     if (_flowState != GameFlowState.start) {
       return;
@@ -514,6 +531,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       return;
     }
     overlays.remove(CompendiumScreen.overlayKey);
+    overlays.add(StartScreen.overlayKey);
+  }
+
+  void closeMetaUnlocksFromStartScreen() {
+    if (_flowState != GameFlowState.start) {
+      return;
+    }
+    overlays.remove(MetaUnlockScreen.overlayKey);
     overlays.add(StartScreen.overlayKey);
   }
 
@@ -1281,6 +1306,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _experienceSystem.reset();
     _skillSystem.resetToDefaults();
     _playerState.resetForRun();
+    _playerState.applyModifiers(_metaUnlocks.activeModifiers);
     _levelUpSystem.resetForRun(playerState: _playerState);
   }
 
