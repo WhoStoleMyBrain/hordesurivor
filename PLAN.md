@@ -24,6 +24,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 5 (Meta currency): added a Meta Unlocks screen with two lateral convenience unlocks (extra reroll, extra choice), wired to Meta Shards spending and applied their modifiers at run start. Decision: keep unlocks minimal and convenience-only while the full tree is scoped. Follow-up: expand the unlock catalog with skills/items/faction unlocks and add a tree-style layout once more options exist.
 - ✅ Phase 6 (Contracts/Heat): added initial Contract definitions, selectable Contracts on the area selection screen, and applied their modifiers to elite odds, support spawns, enemy projectile speed, and meta shard rewards. Decision: keep the first Contracts list small and global for all areas. Follow-up: expand contract catalog with area-specific mutators and surface in-run UI indicator.
 - ✅ Phase 6 (Contracts/Heat): surfaced an in-run HUD indicator for active Contract heat and names. Decision: keep the readout in the HUD panel near threat tier for clarity. Follow-up: revisit styling once broader HUD layout changes land.
+- ✅ Phase 1 (Visual scale & readability pass): applied UI-wide text scaling via `MediaQuery` so `UiScale.textScale` affects overlay text. Decision: rely on `TextScaler.linear` for consistent scaling across overlays. Follow-up: add a settings toggle to adjust `UiScale.textScale` once Options exposes UI scale.
 
 ---
 

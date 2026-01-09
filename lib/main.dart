@@ -73,17 +73,20 @@ class HordeSurvivorApp extends StatelessWidget {
       ),
     );
 
-    final scaledTextTheme = baseTheme.textTheme.apply(
-      fontSizeFactor: UiScale
-          .textScale, // TODO: This is not working rn, textScale != 1.0 is not working
-    );
     return MaterialApp(
       theme: baseTheme.copyWith(
-        textTheme: scaledTextTheme,
-        primaryTextTheme: baseTheme.primaryTextTheme.apply(
-          fontSizeFactor: UiScale.textScale,
-        ),
+        textTheme: baseTheme.textTheme,
+        primaryTextTheme: baseTheme.primaryTextTheme,
       ),
+      builder: (context, child) {
+        final mediaQuery = MediaQuery.of(context);
+        return MediaQuery(
+          data: mediaQuery.copyWith(
+            textScaler: TextScaler.linear(UiScale.textScale),
+          ),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
       initialRoute: stressScene ? '/stress' : '/',
       routes: {
         '/': (_) => _buildGame(stressTest: false),
