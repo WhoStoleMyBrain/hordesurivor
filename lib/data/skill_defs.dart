@@ -9,6 +9,8 @@ class SkillDef {
     required this.tags,
     this.knockbackForce = 0,
     this.knockbackDuration = 0,
+    this.deflectRadius = 0,
+    this.deflectDuration = 0,
     this.weight = 1,
   });
 
@@ -18,6 +20,8 @@ class SkillDef {
   final TagSet tags;
   final double knockbackForce;
   final double knockbackDuration;
+  final double deflectRadius;
+  final double deflectDuration;
   final int weight;
 }
 
@@ -97,6 +101,8 @@ const List<SkillDef> skillDefs = [
     ),
     knockbackForce: 90,
     knockbackDuration: 0.16,
+    deflectRadius: 55,
+    deflectDuration: 0.18,
   ),
   SkillDef(
     id: SkillId.poisonGas,

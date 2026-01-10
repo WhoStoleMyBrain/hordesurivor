@@ -25,6 +25,8 @@ class PlayerState {
   final StatSheet stats;
   double hp;
   double impulseTimeRemaining = 0;
+  double deflectTimeRemaining = 0;
+  double deflectRadius = 0;
 
   double get maxHp => math.max(1, stats.value(StatId.maxHp));
   double get moveSpeed => math.max(0, stats.value(StatId.moveSpeed));
@@ -41,6 +43,8 @@ class PlayerState {
     movementIntent.setZero();
     impulseVelocity.setZero();
     impulseTimeRemaining = 0;
+    deflectTimeRemaining = 0;
+    deflectRadius = 0;
   }
 
   void step(double dt) {
@@ -56,6 +60,12 @@ class PlayerState {
     if (impulseTimeRemaining > 0) {
       position.addScaled(impulseVelocity, dt);
       impulseTimeRemaining = math.max(0, impulseTimeRemaining - dt);
+    }
+    if (deflectTimeRemaining > 0) {
+      deflectTimeRemaining = math.max(0, deflectTimeRemaining - dt);
+      if (deflectTimeRemaining == 0) {
+        deflectRadius = 0;
+      }
     }
   }
 
@@ -81,5 +91,13 @@ class PlayerState {
       ..normalize()
       ..scale(speed);
     impulseTimeRemaining = math.max(impulseTimeRemaining, duration);
+  }
+
+  void startDeflect({required double radius, required double duration}) {
+    if (radius <= 0 || duration <= 0) {
+      return;
+    }
+    deflectRadius = math.max(deflectRadius, radius);
+    deflectTimeRemaining = math.max(deflectTimeRemaining, duration);
   }
 }

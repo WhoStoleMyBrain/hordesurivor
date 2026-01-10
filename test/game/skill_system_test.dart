@@ -51,6 +51,8 @@ void main() {
     required double duration,
   }) {}
 
+  void noopPlayerDeflect({required double radius, required double duration}) {}
+
   test('fireball casts on cooldown and supports burst updates', () {
     final projectilePool = ProjectilePool(initialCapacity: 0);
     final effectPool = EffectPool(initialCapacity: 0);
@@ -72,6 +74,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onPlayerImpulse: noopPlayerImpulse,
+      onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged:
           (
             enemy,
@@ -95,6 +98,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onPlayerImpulse: noopPlayerImpulse,
+      onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged:
           (
             enemy,
@@ -137,6 +141,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onPlayerImpulse: noopPlayerImpulse,
+      onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
     damageSystem.resolve(onEnemyDefeated: (_) {});
@@ -153,6 +158,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onPlayerImpulse: noopPlayerImpulse,
+      onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
     damageSystem.resolve(onEnemyDefeated: (_) {});
@@ -194,6 +200,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onPlayerImpulse: noopPlayerImpulse,
+      onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
     damageSystem.resolve(
@@ -235,6 +242,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onPlayerImpulse: noopPlayerImpulse,
+      onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged:
           (
             enemy,
