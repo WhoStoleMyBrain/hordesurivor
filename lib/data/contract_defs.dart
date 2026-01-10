@@ -8,6 +8,7 @@ class ContractDef {
     required this.heat,
     required this.rewardMultiplier,
     this.enemyProjectileSpeedMultiplier = 1.0,
+    this.enemyMoveSpeedMultiplier = 1.0,
     this.eliteWeightMultiplier = 1.0,
     this.supportRoleWeightMultiplier = 1.0,
   });
@@ -18,6 +19,7 @@ class ContractDef {
   final int heat;
   final double rewardMultiplier;
   final double enemyProjectileSpeedMultiplier;
+  final double enemyMoveSpeedMultiplier;
   final double eliteWeightMultiplier;
   final double supportRoleWeightMultiplier;
 }
@@ -46,6 +48,14 @@ const List<ContractDef> contractDefs = [
     heat: 1,
     rewardMultiplier: 1.1,
     supportRoleWeightMultiplier: 1.5,
+  ),
+  ContractDef(
+    id: ContractId.relentlessAdvance,
+    name: 'Relentless Advance',
+    description: 'Enemies close in faster, shrinking safe spacing.',
+    heat: 1,
+    rewardMultiplier: 1.1,
+    enemyMoveSpeedMultiplier: 1.2,
   ),
 ];
 
