@@ -32,6 +32,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 4 (Reward loop): applied the drop-rate stat to the meta shard reward multiplier so Lucky Coin influences run rewards. Decision: compute the drop bonus at run end so late picks still count. Follow-up: add in-run pickup drops when a dedicated pickup system is introduced.
 - ✅ Phase 6 (Contracts/Heat): added a Relentless Advance contract that boosts enemy move speed and wired contract move-speed multipliers into the enemy and spawner systems. Decision: keep it as a global mutator alongside the existing contract set. Follow-up: tune the speed multiplier once playtesting verifies dodge windows.
 - ✅ Phase 4 (Reward loop): tuned early XP pacing by lowering base XP and growth in the experience curve. Decision: use base 18 / growth 8 for a steadier early cadence. Follow-up: revisit once pickup drops and level cadence playtests are available.
+- ✅ Phase 0 (Audit/gap map): documented current skill coverage, enemy role behaviors, scale/hitbox values, reward loop state, and meta entry points in the Phase 0 section. Decision: keep the audit notes inline in PLAN.md for now. Follow-up: expand the audit if any new systems land outside the current scope.
 
 ---
 
@@ -54,7 +55,6 @@ This section verifies what is already implemented in the codebase and lists the 
 - RenderScale applied across render components (player/enemy/projectile/effects) for consistent visual scaling.
 
 ### ⏳ Not yet implemented (aligned with AGENTS.md)
-- Phase 0 audit/gap map: documented verification of skill coverage, enemy role behaviors, visual scale/hitbox sizing, reward loop feedback, and meta currency entry points.
 - Visual scale & readability pass: confirm/tune world render scaling across all attacks and telegraphs, and verify collision radii remain unchanged on both desktop and mobile targets.
 - Knockback/impact tuning: playtest-based knockback value tuning and optional hit-flash intensity adjustments.
 - Skill behavior follow-ups: implement Sword Thrust mobility impulse and Sword Deflect parry-window timing once player impulse support exists.
@@ -77,6 +77,13 @@ This section verifies what is already implemented in the codebase and lists the 
 5. Confirm if any meta currency or progression data exists (likely absent) and document the entry points for adding it.
 
 **Exit criteria:** a short checklist of gaps with file paths and owner systems (combat, render, UI, data, meta).
+
+**Audit notes (completed)**
+- Skills: all V0.1 skills are defined in `lib/data/skill_defs.dart` and dispatched in `SkillSystem` (`lib/game/skill_system.dart`). Missing behavior gaps remain for Sword Thrust mobility impulse and a Deflect parry window timing (not yet implemented). Oil Bombs create an impact ground effect with oil/slow; Fireball ignites oiled targets as expected.
+- Enemies: all roles defined in `lib/data/enemy_defs.dart` have core behaviors in `lib/game/enemy_system.dart` (ranged, spawner, disruptor, zoner, exploder, support healer/buffer, pattern, elite). Telegraph arcs and role auras/zones render in `lib/render/enemy_component.dart`. Role-specific bespoke telegraphs for elite dash timing and exploder detonation remain minimal (only cooldown arc).
+- Visual scale & hitboxes: `RenderScale.worldScale` is 1.2 in `lib/render/render_scale.dart` for all render components. Gameplay radii are fixed in `lib/game/horde_game.dart` (`_playerRadius = 16`, `_enemyRadius = 14`, `_portalRadius = 26`). Projectile/effect radii are per-skill in `lib/game/skill_system.dart` (e.g., Fireball radius 4, Oil Bombs radius 6 + ground radius 46*AOE, Poison Gas radius 70*AOE, Roots radius 54*AOE). No collision changes tied to render scale.
+- Reward loop: XP is awarded on enemy death and leveled through `lib/game/experience_system.dart`; level-up UI and HUD pulses are present in overlays, but there is no in-run pickup/drop system (only stat modifiers exist for pickup radius).
+- Meta progression entry points: meta shards wallet and unlocks are stored in `lib/game/meta_currency_wallet.dart` and `lib/game/meta_unlocks.dart`, with UI badges and screens in `lib/ui/`. No additional lateral unlock catalog yet.
 
 ---
 
