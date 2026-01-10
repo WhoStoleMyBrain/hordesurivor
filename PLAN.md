@@ -35,6 +35,37 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 
 ---
 
+## Feature status (verified vs pending)
+This section verifies what is already implemented in the codebase and lists the remaining, AGENTS.md-aligned features that are still open for work.
+
+### ✅ Verified completed features
+- Knockback system with per-skill knockback parameters applied during combat resolution.
+- HUD-level feedback pulses for level-up and reward selections.
+- Poison Gas implemented as a follow-player DOT aura matching its skill description.
+- Selection UI shows explicit stat modifier deltas for item and skill upgrade choices.
+- Meta Shards: earn rules, run-summary display, persistent wallet, and UI badges (start/home/death).
+- Meta Unlocks screen with two convenience-only unlocks, spending flow, and run-start modifiers.
+- Contracts/Heat: data definitions, area selection UI, gameplay mutators (elite/support weights, projectile/move speed), reward scaling, and HUD heat indicator.
+- UI text scale system: MediaQuery text scaler, Options slider, and persisted preference.
+- Waterjet/Sword Thrust/Deflect tooltips aligned with current behavior.
+- Enemy role badges for non-core roles to reinforce readability.
+- Drop-rate stat applied to meta shard reward multiplier (Lucky Coin interaction).
+- Relentless Advance contract boosts enemy move speed via contract modifiers.
+- RenderScale applied across render components (player/enemy/projectile/effects) for consistent visual scaling.
+
+### ⏳ Not yet implemented (aligned with AGENTS.md)
+- Phase 0 audit/gap map: documented verification of skill coverage, enemy role behaviors, visual scale/hitbox sizing, reward loop feedback, and meta currency entry points.
+- Visual scale & readability pass: confirm/tune world render scaling across all attacks and telegraphs, and verify collision radii remain unchanged on both desktop and mobile targets.
+- Knockback/impact tuning: playtest-based knockback value tuning and optional hit-flash intensity adjustments.
+- Skill behavior follow-ups: implement Sword Thrust mobility impulse and Sword Deflect parry-window timing once player impulse support exists.
+- Reward loop enhancements: add sound cues or lightweight pickup sparks, and implement visible in-run pickups with readable pickup radius.
+- Meta progression expansion: grow the lateral unlock catalog (skills/items/factions/characters), add a tree-style layout, and keep unlocks strictly non-power.
+- Contracts/Heat expansion: broaden the contract catalog (including area-specific mutators) and polish in-run presentation.
+- Enemy role clarity pass: refine sprite recipes, silhouettes, and telegraphs for spawners/zoners/supporters in dense waves.
+- Performance & QA pass: run format/analyze/test gates and stress-scene validation with pooled effects.
+
+---
+
 ## Phase 0 — Current-state audit & gap map
 **Goal:** verify V0.4 baseline and document exact missing behaviors before changes.
 
