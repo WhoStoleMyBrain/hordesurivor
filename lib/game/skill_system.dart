@@ -88,6 +88,13 @@ class SkillSystem {
     required void Function(ProjectileState) onProjectileSpawn,
     required void Function(EffectState) onEffectSpawn,
     required void Function(ProjectileState) onProjectileDespawn,
+    required void Function({
+      required double dx,
+      required double dy,
+      required double speed,
+      required double duration,
+    })
+    onPlayerImpulse,
     required void Function(
       EnemyState,
       double, {
@@ -144,6 +151,7 @@ class SkillSystem {
               stats: stats,
               enemyPool: enemyPool,
               enemyGrid: enemyGrid,
+              onPlayerImpulse: onPlayerImpulse,
               onEnemyDamaged: onEnemyDamaged,
             );
           case SkillId.swordSwing:
@@ -350,6 +358,13 @@ class SkillSystem {
     required StatSheet stats,
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
+    required void Function({
+      required double dx,
+      required double dy,
+      required double speed,
+      required double duration,
+    })
+    onPlayerImpulse,
     required void Function(
       EnemyState,
       double, {
@@ -363,6 +378,20 @@ class SkillSystem {
     final def = skillDefsById[SkillId.swordThrust];
     final knockbackScale = _knockbackScale(stats);
     final damage = 10 * _damageMultiplierFor(SkillId.swordThrust, stats);
+    final impulseDirection = _resolveAim(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: enemyPool,
+    );
+    final impulseSpeed = (stats.value(StatId.moveSpeed) + 40)
+        .clamp(80, 160)
+        .toDouble();
+    onPlayerImpulse(
+      dx: impulseDirection.x,
+      dy: impulseDirection.y,
+      speed: impulseSpeed,
+      duration: 0.12,
+    );
     _castMeleeArc(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
