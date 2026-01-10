@@ -165,6 +165,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   int _currentSectionIndex = 0;
   bool _runCompleted = false;
   double _contractProjectileSpeedMultiplier = 1.0;
+  double _contractMoveSpeedMultiplier = 1.0;
   double _contractEliteWeightMultiplier = 1.0;
   double _contractSupportWeightMultiplier = 1.0;
   double _contractRewardMultiplier = 1.0;
@@ -1372,6 +1373,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       ..clear()
       ..addAll(contracts);
     _contractProjectileSpeedMultiplier = 1.0;
+    _contractMoveSpeedMultiplier = 1.0;
     _contractEliteWeightMultiplier = 1.0;
     _contractSupportWeightMultiplier = 1.0;
     _contractRewardMultiplier = 1.0;
@@ -1385,6 +1387,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _contractHeat += def.heat;
       _contractRewardMultiplier *= def.rewardMultiplier;
       _contractProjectileSpeedMultiplier *= def.enemyProjectileSpeedMultiplier;
+      _contractMoveSpeedMultiplier *= def.enemyMoveSpeedMultiplier;
       _contractEliteWeightMultiplier *= def.eliteWeightMultiplier;
       _contractSupportWeightMultiplier *= def.supportRoleWeightMultiplier;
       nextContractNames.add(def.name);
@@ -1396,6 +1399,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _spawnerSystem.setProjectileSpeedMultiplier(
       _contractProjectileSpeedMultiplier,
     );
+    _enemySystem.setMoveSpeedMultiplier(_contractMoveSpeedMultiplier);
+    _spawnerSystem.setMoveSpeedMultiplier(_contractMoveSpeedMultiplier);
     final eliteChance = _baseChampionChance * _contractEliteWeightMultiplier;
     _enemySystem.setChampionChance(eliteChance);
     _spawnerSystem.setChampionChance(eliteChance);

@@ -84,4 +84,4 @@ enum AreaId { ashenOutskirts, haloBreach }
 
 enum MetaUnlockId { extraReroll, extraChoice }
 
-enum ContractId { volleyPressure, eliteSurge, supportUplink }
+enum ContractId { volleyPressure, eliteSurge, supportUplink, relentlessAdvance }

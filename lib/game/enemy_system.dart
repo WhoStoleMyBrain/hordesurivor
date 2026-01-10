@@ -42,9 +42,14 @@ class EnemySystem {
   final Vector2 _directionBuffer = Vector2.zero();
   final Vector2 _perpBuffer = Vector2.zero();
   double _projectileSpeedMultiplier = 1.0;
+  double _moveSpeedMultiplier = 1.0;
 
   void setProjectileSpeedMultiplier(double multiplier) {
     _projectileSpeedMultiplier = multiplier <= 0 ? 1.0 : multiplier;
+  }
+
+  void setMoveSpeedMultiplier(double multiplier) {
+    _moveSpeedMultiplier = multiplier <= 0 ? 1.0 : multiplier;
   }
 
   void setChampionChance(double chance) {
@@ -177,7 +182,10 @@ class EnemySystem {
           variant: variant,
           position: position,
           maxHp: def.maxHp * variantDef.maxHpMultiplier,
-          moveSpeed: def.moveSpeed * variantDef.moveSpeedMultiplier,
+          moveSpeed:
+              def.moveSpeed *
+              variantDef.moveSpeedMultiplier *
+              _moveSpeedMultiplier,
           xpReward: (def.xpReward * variantDef.xpRewardMultiplier).round(),
           attackCooldown:
               def.attackCooldown * variantDef.attackCooldownMultiplier,

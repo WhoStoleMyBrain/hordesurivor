@@ -62,6 +62,7 @@ class SpawnerSystem {
   final Vector2 _arenaSize;
   final Vector2 _spawnPosition = Vector2.zero();
   double _projectileSpeedMultiplier = 1.0;
+  double _moveSpeedMultiplier = 1.0;
   double _elapsed = 0;
   int _waveIndex = 0;
 
@@ -99,6 +100,10 @@ class SpawnerSystem {
     _projectileSpeedMultiplier = multiplier <= 0 ? 1.0 : multiplier;
   }
 
+  void setMoveSpeedMultiplier(double multiplier) {
+    _moveSpeedMultiplier = multiplier <= 0 ? 1.0 : multiplier;
+  }
+
   void setChampionChance(double chance) {
     _championChance = chance.clamp(0.0, 1.0);
   }
@@ -132,7 +137,8 @@ class SpawnerSystem {
       variant: variant,
       spawnPosition: _spawnPosition,
       maxHp: def.maxHp * variantDef.maxHpMultiplier,
-      moveSpeed: def.moveSpeed * variantDef.moveSpeedMultiplier,
+      moveSpeed:
+          def.moveSpeed * variantDef.moveSpeedMultiplier * _moveSpeedMultiplier,
       xpReward: (def.xpReward * variantDef.xpRewardMultiplier).round(),
       attackCooldown: def.attackCooldown * variantDef.attackCooldownMultiplier,
       attackRange: def.attackRange,

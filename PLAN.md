@@ -30,6 +30,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 1 (Visual scale & readability pass): added an Options slider to adjust UI text scale and wired it through `UiScale` so overlay text scales consistently. Decision: keep the slider in Options and store the value in-memory for now. Follow-up: persist the UI scale preference alongside other settings once a shared settings save/load path exists.
 - ✅ Phase 1 (Visual scale & readability pass): persisted the UI text scale preference via shared preferences so Options changes survive restarts. Decision: clamp stored values to the same slider min/max for safety. Follow-up: consider folding this into a broader settings save/load bundle when more settings are added.
 - ✅ Phase 4 (Reward loop): applied the drop-rate stat to the meta shard reward multiplier so Lucky Coin influences run rewards. Decision: compute the drop bonus at run end so late picks still count. Follow-up: add in-run pickup drops when a dedicated pickup system is introduced.
+- ✅ Phase 6 (Contracts/Heat): added a Relentless Advance contract that boosts enemy move speed and wired contract move-speed multipliers into the enemy and spawner systems. Decision: keep it as a global mutator alongside the existing contract set. Follow-up: tune the speed multiplier once playtesting verifies dodge windows.
 
 ---
 
