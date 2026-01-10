@@ -425,6 +425,20 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       onProjectileSpawn: _handleProjectileSpawn,
       onEffectSpawn: _handleEffectSpawn,
       onProjectileDespawn: _handleProjectileDespawn,
+      onPlayerImpulse:
+          ({
+            required double dx,
+            required double dy,
+            required double speed,
+            required double duration,
+          }) {
+            _playerState.addImpulse(
+              dx: dx,
+              dy: dy,
+              speed: speed,
+              duration: duration,
+            );
+          },
       onEnemyDamaged: _damageSystem.queueEnemyDamage,
     );
     if (stressTest) {
