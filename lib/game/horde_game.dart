@@ -439,6 +439,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
               duration: duration,
             );
           },
+      onPlayerDeflect: ({required double radius, required double duration}) {
+        _playerState.startDeflect(radius: radius, duration: duration);
+      },
       onEnemyDamaged: _damageSystem.queueEnemyDamage,
     );
     if (stressTest) {

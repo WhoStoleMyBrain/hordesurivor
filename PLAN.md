@@ -35,6 +35,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 4 (Reward loop): tuned early XP pacing by lowering base XP and growth in the experience curve. Decision: use base 18 / growth 8 for a steadier early cadence. Follow-up: revisit once pickup drops and level cadence playtests are available.
 - ✅ Phase 0 (Audit/gap map): documented current skill coverage, enemy role behaviors, scale/hitbox values, reward loop state, and meta entry points in the Phase 0 section. Decision: keep the audit notes inline in PLAN.md for now. Follow-up: expand the audit if any new systems land outside the current scope.
 - ✅ Phase 3 (Skill/attack completeness): added a Sword Thrust lunge impulse based on aim direction and player move speed to deliver the intended mobility tag. Decision: keep the impulse short (0.12s) with a mild speed bump for now. Follow-up: tune impulse duration/speed once movement playtests validate dodge windows.
+- ✅ Phase 3 (Skill/attack completeness): added a short Sword Deflect parry window that deflects enemy projectiles within a radius after the cast. Decision: set the parry window to 0.18s with a 55px base radius scaled by AOE. Follow-up: tune deflect window timing/radius once projectile pressure is playtested.
 
 ---
 
@@ -59,7 +60,6 @@ This section verifies what is already implemented in the codebase and lists the 
 ### ⏳ Not yet implemented (aligned with AGENTS.md)
 - Visual scale & readability pass: confirm/tune world render scaling across all attacks and telegraphs, and verify collision radii remain unchanged on both desktop and mobile targets.
 - Knockback/impact tuning: playtest-based knockback value tuning and optional hit-flash intensity adjustments.
-- Skill behavior follow-ups: implement Sword Deflect parry-window timing once player impulse support exists.
 - Reward loop enhancements: add sound cues or lightweight pickup sparks, and implement visible in-run pickups with readable pickup radius.
 - Meta progression expansion: grow the lateral unlock catalog (skills/items/factions/characters), add a tree-style layout, and keep unlocks strictly non-power.
 - Contracts/Heat expansion: broaden the contract catalog (including area-specific mutators) and polish in-run presentation.

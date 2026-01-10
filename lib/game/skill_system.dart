@@ -95,6 +95,8 @@ class SkillSystem {
       required double duration,
     })
     onPlayerImpulse,
+    required void Function({required double radius, required double duration})
+    onPlayerDeflect,
     required void Function(
       EnemyState,
       double, {
@@ -172,6 +174,7 @@ class SkillSystem {
               enemyGrid: enemyGrid,
               onEnemyDamaged: onEnemyDamaged,
               onProjectileDespawn: onProjectileDespawn,
+              onPlayerDeflect: onPlayerDeflect,
             );
           case SkillId.poisonGas:
             _castPoisonGas(
@@ -457,6 +460,8 @@ class SkillSystem {
     })
     onEnemyDamaged,
     required void Function(ProjectileState) onProjectileDespawn,
+    required void Function({required double radius, required double duration})
+    onPlayerDeflect,
   }) {
     final def = skillDefsById[SkillId.swordDeflect];
     final knockbackScale = _knockbackScale(stats);
@@ -474,6 +479,10 @@ class SkillSystem {
       knockbackDuration: def?.knockbackDuration ?? 0,
       onEnemyDamaged: onEnemyDamaged,
     );
+    final aoeScale = _aoeScale(stats);
+    final deflectRadius = (def?.deflectRadius ?? 0) * aoeScale;
+    final deflectDuration = def?.deflectDuration ?? 0;
+    onPlayerDeflect(radius: deflectRadius, duration: deflectDuration);
     _deflectProjectiles(
       playerPosition: playerPosition,
       stats: stats,

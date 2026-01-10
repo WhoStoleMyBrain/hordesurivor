@@ -40,6 +40,16 @@ class ProjectileSystem {
       if (projectile.fromEnemy) {
         final player = playerState;
         if (player != null && onPlayerHit != null) {
+          if (player.deflectTimeRemaining > 0) {
+            final dx = player.position.x - projectile.position.x;
+            final dy = player.position.y - projectile.position.y;
+            final combinedRadius = projectile.radius + player.deflectRadius;
+            if (dx * dx + dy * dy <= combinedRadius * combinedRadius) {
+              onDespawn(projectile);
+              _pool.release(projectile);
+              continue;
+            }
+          }
           final dx = player.position.x - projectile.position.x;
           final dy = player.position.y - projectile.position.y;
           final combinedRadius = projectile.radius + playerRadius;
