@@ -25,6 +25,7 @@ import '../render/player_component.dart';
 import '../render/portal_component.dart';
 import '../render/projectile_batch_component.dart';
 import '../render/projectile_component.dart';
+import '../render/pickup_component.dart';
 import '../render/sprite_pipeline.dart';
 import '../ui/area_select_screen.dart';
 import '../ui/compendium_screen.dart';
@@ -52,6 +53,8 @@ import 'level_up_system.dart';
 import 'meta_currency_wallet.dart';
 import 'meta_unlocks.dart';
 import 'player_state.dart';
+import 'pickup_pool.dart';
+import 'pickup_state.dart';
 import 'projectile_pool.dart';
 import 'projectile_state.dart';
 import 'projectile_system.dart';
@@ -84,11 +87,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _panMaxRadius = 72;
   static const String _playerSpriteId = 'player_base';
   static const String _projectileSpriteId = 'projectile_firebolt';
+  static const String _pickupSpriteId = 'pickup_xp_orb';
   static const double _portalRadius = 26;
   static const double _portalLockoutDuration = 0.75;
   static const double _stageWaveInterval = 3.0;
   static const int _baseStageWaveCount = 4;
   static const double _baseChampionChance = 0.05;
+  static const double _pickupRadiusBase = 32;
+  static const double _pickupLifetime = 8;
   static const TagSet _igniteDamageTags = TagSet(
     elements: {ElementTag.fire},
     effects: {EffectTag.dot},
@@ -105,6 +111,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final SpritePipeline _spritePipeline = SpritePipeline();
   final Map<EnemyId, Image> _enemySprites = {};
   Image? _projectileSprite;
+  Image? _pickupSprite;
   ProjectileBatchComponent? _projectileBatchComponent;
   final Set<LogicalKeyboardKey> _keysPressed = {};
   final Vector2 _keyboardDirection = Vector2.zero();
@@ -121,6 +128,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final EffectPool _effectPool;
   late final EffectSystem _effectSystem;
   late final SkillSystem _skillSystem;
+  late final PickupPool _pickupPool;
   late final SpatialGrid _enemyGrid;
   late final DamageSystem _damageSystem;
   late final ExperienceSystem _experienceSystem;
@@ -140,6 +148,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
   final ValueNotifier<bool> highContrastTelegraphs = ValueNotifier(false);
   final Map<EffectState, EffectComponent> _effectComponents = {};
+  final Map<PickupState, PickupComponent> _pickupComponents = {};
   final List<DamageNumberComponent> _damageNumberPool = [];
   final TextPaint _enemyDamagePaint = TextPaint(
     style: const TextStyle(
@@ -217,6 +226,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (_projectileSprite == null) {
       debugPrint('Sprite cache missing $_projectileSpriteId.');
     }
+    _pickupSprite = _spritePipeline.lookup(_pickupSpriteId);
+    if (_pickupSprite == null) {
+      debugPrint('Sprite cache missing $_pickupSpriteId.');
+    }
     _playerState = PlayerState(
       position: size / 2,
       maxHp: _playerMaxHp,
@@ -240,6 +253,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _enemyPool = EnemyPool(initialCapacity: stressTest ? 600 : 48);
     _projectilePool = ProjectilePool(initialCapacity: stressTest ? 1400 : 64);
     _effectPool = EffectPool(initialCapacity: stressTest ? 180 : 32);
+    _pickupPool = PickupPool(initialCapacity: stressTest ? 220 : 48);
     if (_projectileSprite != null) {
       _projectileBatchComponent = ProjectileBatchComponent(
         pool: _projectilePool,
@@ -491,6 +505,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       onPlayerDamaged: _handlePlayerDamaged,
       onPlayerDefeated: _handlePlayerDefeated,
     );
+    _updatePickups(dt);
     _syncHudState();
 
     _playerState.clampToBounds(
@@ -807,11 +822,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _handleEnemyDefeated(EnemyState enemy) {
     if (!stressTest) {
       _runSummary.enemiesDefeated += 1;
-      _runSummary.xpGained += enemy.xpReward;
-      final levelsGained = _experienceSystem.addExperience(enemy.xpReward);
-      if (levelsGained > 0) {
-        _levelUpSystem.queueLevels(levelsGained);
-        _offerSelectionIfNeeded();
+      if (enemy.xpReward > 0) {
+        _spawnPickup(
+          kind: PickupKind.xpOrb,
+          position: enemy.position,
+          value: enemy.xpReward,
+        );
       }
     }
     final component = _enemyComponents.remove(enemy);
@@ -835,6 +851,15 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       telegraphOpacityMultiplier: _telegraphOpacityMultiplier,
     );
     _enemyComponents[enemy] = component;
+    add(component);
+  }
+
+  void _registerPickupComponent(PickupState pickup) {
+    final component = PickupComponent(
+      state: pickup,
+      spriteImage: _pickupSprite,
+    );
+    _pickupComponents[pickup] = component;
     add(component);
   }
 
@@ -1344,6 +1369,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _handleEffectDespawn(effect);
       _effectPool.release(effect);
     }
+    for (final pickup in List<PickupState>.from(_pickupPool.active)) {
+      _despawnPickup(pickup);
+    }
     for (final enemy in List<EnemyState>.from(_enemyPool.active)) {
       final component = _enemyComponents.remove(enemy);
       component?.removeFromParent();
@@ -1383,6 +1411,65 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _resetRunSummary() {
     _runSummary.reset();
     _runCompleted = false;
+  }
+
+  void _updatePickups(double dt) {
+    if (_pickupPool.active.isEmpty) {
+      return;
+    }
+    final pickupBonus = _playerState.stats.value(StatId.pickupRadius);
+    final pickupRadius = math.max(0, _pickupRadiusBase * (1 + pickupBonus));
+    final collectRadius = _playerRadius + pickupRadius;
+    final collectRadiusSquared = collectRadius * collectRadius;
+    for (var i = _pickupPool.active.length - 1; i >= 0; i--) {
+      final pickup = _pickupPool.active[i];
+      if (!pickup.active) {
+        continue;
+      }
+      pickup.age += dt;
+      if (pickup.lifespan > 0 && pickup.age >= pickup.lifespan) {
+        _despawnPickup(pickup);
+        continue;
+      }
+      final dx = pickup.position.x - _playerState.position.x;
+      final dy = pickup.position.y - _playerState.position.y;
+      if (dx * dx + dy * dy <= collectRadiusSquared) {
+        _collectPickup(pickup);
+      }
+    }
+  }
+
+  void _spawnPickup({
+    required PickupKind kind,
+    required Vector2 position,
+    required int value,
+  }) {
+    final pickup = _pickupPool.acquire();
+    pickup.reset(
+      kind: kind,
+      position: position,
+      value: value,
+      lifespan: _pickupLifetime,
+    );
+    _registerPickupComponent(pickup);
+  }
+
+  void _collectPickup(PickupState pickup) {
+    if (!stressTest) {
+      _runSummary.xpGained += pickup.value;
+      final levelsGained = _experienceSystem.addExperience(pickup.value);
+      if (levelsGained > 0) {
+        _levelUpSystem.queueLevels(levelsGained);
+        _offerSelectionIfNeeded();
+      }
+    }
+    _despawnPickup(pickup);
+  }
+
+  void _despawnPickup(PickupState pickup) {
+    final component = _pickupComponents.remove(pickup);
+    component?.removeFromParent();
+    _pickupPool.release(pickup);
   }
 
   void _applyContracts(List<ContractId> contracts) {
