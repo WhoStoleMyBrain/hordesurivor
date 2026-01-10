@@ -26,6 +26,7 @@ import '../render/portal_component.dart';
 import '../render/projectile_batch_component.dart';
 import '../render/projectile_component.dart';
 import '../render/pickup_component.dart';
+import '../render/pickup_spark_component.dart';
 import '../render/sprite_pipeline.dart';
 import '../ui/area_select_screen.dart';
 import '../ui/compendium_screen.dart';
@@ -150,6 +151,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Map<EffectState, EffectComponent> _effectComponents = {};
   final Map<PickupState, PickupComponent> _pickupComponents = {};
   final List<DamageNumberComponent> _damageNumberPool = [];
+  final List<PickupSparkComponent> _pickupSparkPool = [];
   final TextPaint _enemyDamagePaint = TextPaint(
     style: const TextStyle(
       color: Color(0xFFFFD166),
@@ -164,6 +166,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final math.Random _damageNumberRandom = math.Random(29);
   final Vector2 _damageNumberPosition = Vector2.zero();
   final Vector2 _damageNumberVelocity = Vector2.zero();
+  final Vector2 _pickupSparkPosition = Vector2.zero();
   final Vector2 _portalPosition = Vector2.zero();
   double _portalLockoutTimer = 0;
   GameFlowState _flowState = GameFlowState.start;
@@ -896,6 +899,15 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _runSummary.damageTaken += amount;
   }
 
+  void _spawnPickupSpark(Vector2 position) {
+    final component = _acquirePickupSpark();
+    _pickupSparkPosition.setFrom(position);
+    component.reset(position: _pickupSparkPosition);
+    if (!component.isMounted) {
+      add(component);
+    }
+  }
+
   DamageNumberComponent _acquireDamageNumber() {
     if (_damageNumberPool.isNotEmpty) {
       return _damageNumberPool.removeLast();
@@ -909,6 +921,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _releaseDamageNumber(DamageNumberComponent component) {
     component.removeFromParent();
     _damageNumberPool.add(component);
+  }
+
+  PickupSparkComponent _acquirePickupSpark() {
+    if (_pickupSparkPool.isNotEmpty) {
+      return _pickupSparkPool.removeLast();
+    }
+    return PickupSparkComponent(onComplete: _releasePickupSpark);
+  }
+
+  void _releasePickupSpark(PickupSparkComponent component) {
+    component.removeFromParent();
+    _pickupSparkPool.add(component);
   }
 
   void selectChoice(SelectionChoice choice) {
@@ -1382,6 +1406,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       component.removeFromParent();
       _damageNumberPool.add(component);
     }
+    for (final component
+        in children.whereType<PickupSparkComponent>().toList()) {
+      component.removeFromParent();
+      _pickupSparkPool.add(component);
+    }
   }
 
   void _handlePlayerDefeated() {
@@ -1463,6 +1492,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         _offerSelectionIfNeeded();
       }
     }
+    _spawnPickupSpark(pickup.position);
     _despawnPickup(pickup);
   }
 
