@@ -1,5 +1,5 @@
 class ExperienceSystem {
-  ExperienceSystem({int startingLevel = 1, int baseXp = 20, int xpGrowth = 10})
+  ExperienceSystem({int startingLevel = 1, int baseXp = 18, int xpGrowth = 8})
     : _startingLevel = startingLevel,
       _baseXp = baseXp,
       _xpGrowth = xpGrowth,
