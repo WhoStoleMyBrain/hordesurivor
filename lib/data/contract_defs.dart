@@ -57,6 +57,15 @@ const List<ContractDef> contractDefs = [
     rewardMultiplier: 1.1,
     enemyMoveSpeedMultiplier: 1.2,
   ),
+  ContractDef(
+    id: ContractId.coordinatedAssault,
+    name: 'Coordinated Assault',
+    description: 'Support lines tighten as volleys accelerate.',
+    heat: 2,
+    rewardMultiplier: 1.2,
+    enemyProjectileSpeedMultiplier: 1.2,
+    supportRoleWeightMultiplier: 1.4,
+  ),
 ];
 
 final Map<ContractId, ContractDef> contractDefsById = Map.unmodifiable({
