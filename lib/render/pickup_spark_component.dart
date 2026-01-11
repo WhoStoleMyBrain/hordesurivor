@@ -7,6 +7,7 @@ import 'render_scale.dart';
 class PickupSparkComponent extends PositionComponent {
   PickupSparkComponent({required this.onComplete}) {
     anchor = Anchor.center;
+    scale = Vector2.all(RenderScale.worldScale);
     priority = 16;
   }
 
@@ -56,6 +57,6 @@ class PickupSparkComponent extends PositionComponent {
     final radius = _startRadius + (_endRadius - _startRadius) * progress;
     final alpha = (1 - progress).clamp(0.0, 1.0);
     _paint.color = const Color(0xFFE9D8A6).withValues(alpha: alpha);
-    canvas.drawCircle(Offset.zero, radius * RenderScale.worldScale, _paint);
+    canvas.drawCircle(Offset.zero, radius, _paint);
   }
 }
