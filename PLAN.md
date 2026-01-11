@@ -39,6 +39,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 4 (Reward loop): added in-run XP pickups that drop on enemy defeat, scale collection radius with the pickup stat, and auto-despawn after a short lifetime. Decision: keep pickups as simple XP orbs with a base 32px pickup radius for now. Follow-up: add a pickup sparkle or sound cue once audio/VFX passes begin.
 - ✅ Phase 4 (Reward loop): added a lightweight pickup spark ring on XP pickup collection to reinforce reward feedback without extra VFX noise. Decision: keep it render-only and pooled. Follow-up: consider layering a soft sound cue once audio assets exist.
 - ✅ Phase 6 (Contracts/Heat): added a Hardened Onslaught contract that boosts elite odds and enemy move speed. Decision: keep it as another global contract alongside the initial set. Follow-up: add area-specific contract pools once additional mutators are defined.
+- ✅ Phase 6 (Contracts/Heat): added a Crossfire Rush contract that stacks enemy projectile and move-speed pressure. Decision: keep it as a global option to test combined dodge pressure. Follow-up: evaluate heat/reward tuning once area-specific pools land.
 
 ---
 

@@ -75,6 +75,15 @@ const List<ContractDef> contractDefs = [
     enemyMoveSpeedMultiplier: 1.15,
     eliteWeightMultiplier: 1.4,
   ),
+  ContractDef(
+    id: ContractId.crossfireRush,
+    name: 'Crossfire Rush',
+    description: 'Enemy volleys and advances quicken together.',
+    heat: 2,
+    rewardMultiplier: 1.2,
+    enemyProjectileSpeedMultiplier: 1.2,
+    enemyMoveSpeedMultiplier: 1.1,
+  ),
 ];
 
 final Map<ContractId, ContractDef> contractDefsById = Map.unmodifiable({
