@@ -92,4 +92,5 @@ enum ContractId {
   coordinatedAssault,
   hardenedOnslaught,
   crossfireRush,
+  siegeFormation,
 }
