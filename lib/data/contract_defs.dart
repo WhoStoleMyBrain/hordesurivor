@@ -84,6 +84,15 @@ const List<ContractDef> contractDefs = [
     enemyProjectileSpeedMultiplier: 1.2,
     enemyMoveSpeedMultiplier: 1.1,
   ),
+  ContractDef(
+    id: ContractId.siegeFormation,
+    name: 'Siege Formation',
+    description: 'Support lines advance in tighter, faster formations.',
+    heat: 2,
+    rewardMultiplier: 1.2,
+    enemyMoveSpeedMultiplier: 1.15,
+    supportRoleWeightMultiplier: 1.5,
+  ),
 ];
 
 final Map<ContractId, ContractDef> contractDefsById = Map.unmodifiable({

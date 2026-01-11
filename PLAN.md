@@ -40,6 +40,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 4 (Reward loop): added a lightweight pickup spark ring on XP pickup collection to reinforce reward feedback without extra VFX noise. Decision: keep it render-only and pooled. Follow-up: consider layering a soft sound cue once audio assets exist.
 - ✅ Phase 6 (Contracts/Heat): added a Hardened Onslaught contract that boosts elite odds and enemy move speed. Decision: keep it as another global contract alongside the initial set. Follow-up: add area-specific contract pools once additional mutators are defined.
 - ✅ Phase 6 (Contracts/Heat): added a Crossfire Rush contract that stacks enemy projectile and move-speed pressure. Decision: keep it as a global option to test combined dodge pressure. Follow-up: evaluate heat/reward tuning once area-specific pools land.
+- ✅ Phase 6 (Contracts/Heat): added a Siege Formation contract to push faster support-heavy waves. Decision: keep it global with existing Contracts for now. Follow-up: tune support weight once area-specific contract pools exist.
 
 ---
 
@@ -65,7 +66,7 @@ This section verifies what is already implemented in the codebase and lists the 
 - Visual scale & readability pass: confirm/tune world render scaling across all attacks and telegraphs, and verify collision radii remain unchanged on both desktop and mobile targets.
 - Knockback/impact tuning: playtest-based knockback value tuning and optional hit-flash intensity adjustments.
 - Meta progression expansion: grow the lateral unlock catalog (skills/items/factions/characters), add a tree-style layout, and keep unlocks strictly non-power.
-- Contracts/Heat expansion: broaden the contract catalog (including area-specific mutators) and polish in-run presentation.
+- Contracts/Heat expansion: broaden the contract catalog further (including area-specific mutators) and polish in-run presentation.
 - Enemy role clarity pass: refine sprite recipes, silhouettes, and telegraphs for spawners/zoners/supporters in dense waves.
 - Performance & QA pass: run format/analyze/test gates and stress-scene validation with pooled effects.
 
