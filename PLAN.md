@@ -42,6 +42,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 6 (Contracts/Heat): added a Hardened Onslaught contract that boosts elite odds and enemy move speed. Decision: keep it as another global contract alongside the initial set. Follow-up: add area-specific contract pools once additional mutators are defined.
 - ✅ Phase 6 (Contracts/Heat): added a Crossfire Rush contract that stacks enemy projectile and move-speed pressure. Decision: keep it as a global option to test combined dodge pressure. Follow-up: evaluate heat/reward tuning once area-specific pools land.
 - ✅ Phase 6 (Contracts/Heat): added a Siege Formation contract to push faster support-heavy waves. Decision: keep it global with existing Contracts for now. Follow-up: tune support weight once area-specific contract pools exist.
+- ✅ Phase 7 (Enemy role clarity & scale tuning): boosted support/zoner aura opacity and added a spawner charge rune to make role telegraphs easier to read in dense waves. Decision: keep the rune tied to spawn cooldown progress to avoid extra noise. Follow-up: revisit sprite silhouettes/telegraph styling once new sprite recipes are available.
 
 ---
 
@@ -68,7 +69,7 @@ This section verifies what is already implemented in the codebase and lists the 
 - Knockback/impact tuning: playtest-based knockback value tuning and optional hit-flash intensity adjustments.
 - Meta progression expansion: grow the lateral unlock catalog (skills/items/factions/characters), add a tree-style layout, and keep unlocks strictly non-power.
 - Contracts/Heat expansion: broaden the contract catalog further (including area-specific mutators) and polish in-run presentation.
-- Enemy role clarity pass: refine sprite recipes, silhouettes, and telegraphs for spawners/zoners/supporters in dense waves.
+- Enemy role clarity pass: refine sprite recipes and silhouettes for spawners/zoners/supporters in dense waves (telegraph opacity/runes updated).
 - Performance & QA pass: run format/analyze/test gates and stress-scene validation with pooled effects.
 
 ---

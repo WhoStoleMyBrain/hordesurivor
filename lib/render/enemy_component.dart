@@ -46,6 +46,13 @@ class EnemyComponent extends PositionComponent {
          ..strokeWidth = 2
          ..strokeCap = StrokeCap.round
          ..strokeJoin = StrokeJoin.round,
+       _spawnRunePaint = Paint()
+         ..color = _resolveVariantColor(
+           (_roleColors[state.role] ?? color).withValues(alpha: 0.9),
+           state.variant,
+         )
+         ..style = PaintingStyle.stroke
+         ..strokeWidth = 2,
        _telegraphPaint = Paint()
          ..style = PaintingStyle.stroke
          ..strokeWidth = 2,
@@ -109,6 +116,7 @@ class EnemyComponent extends PositionComponent {
   final Paint _paint;
   final Paint _outlinePaint;
   final Paint _badgePaint;
+  final Paint _spawnRunePaint;
   final Paint _telegraphPaint;
   final Paint _slowPaint;
   final Paint _oilPaint;
@@ -137,6 +145,7 @@ class EnemyComponent extends PositionComponent {
   void render(Canvas canvas) {
     _renderRoleAuras(canvas);
     _renderStatusRings(canvas);
+    _renderSpawnerRune(canvas);
     _renderVariantRing(canvas);
     if (_role == EnemyRole.ranged ||
         _role == EnemyRole.spawner ||
@@ -195,6 +204,9 @@ class EnemyComponent extends PositionComponent {
     final clamped = multiplier.clamp(0.0, 2.0);
     _telegraphPaint.color = _telegraphTintColor.withValues(
       alpha: (_telegraphBaseAlpha * clamped).clamp(0.0, 1.0),
+    );
+    _spawnRunePaint.color = _telegraphTintColor.withValues(
+      alpha: (_spawnRuneBaseAlpha * clamped).clamp(0.0, 1.0),
     );
 
     final auraFill = _auraFillPaint;
@@ -387,6 +399,24 @@ class EnemyComponent extends PositionComponent {
     }
   }
 
+  void _renderSpawnerRune(Canvas canvas) {
+    if (_role != EnemyRole.spawner) {
+      return;
+    }
+    final progress = _telegraphProgress();
+    if (progress <= 0) {
+      return;
+    }
+    final growth = 0.55 + (0.45 * progress);
+    final halfSize = (_shapeRadius + 10) * growth;
+    final rect = Rect.fromCenter(
+      center: Offset.zero,
+      width: halfSize * 2,
+      height: halfSize * 2,
+    );
+    canvas.drawRect(rect, _spawnRunePaint);
+  }
+
   double _telegraphProgress() {
     switch (_role) {
       case EnemyRole.ranged:
@@ -500,8 +530,9 @@ class EnemyComponent extends PositionComponent {
   }
 
   static const double _telegraphBaseAlpha = 0.5;
-  static const double _auraFillBaseAlpha = 0.12;
-  static const double _auraStrokeBaseAlpha = 0.35;
-  static const double _zoneFillBaseAlpha = 0.08;
-  static const double _zoneStrokeBaseAlpha = 0.28;
+  static const double _spawnRuneBaseAlpha = 0.28;
+  static const double _auraFillBaseAlpha = 0.16;
+  static const double _auraStrokeBaseAlpha = 0.45;
+  static const double _zoneFillBaseAlpha = 0.12;
+  static const double _zoneStrokeBaseAlpha = 0.36;
 }
