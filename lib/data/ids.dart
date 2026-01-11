@@ -90,4 +90,5 @@ enum ContractId {
   supportUplink,
   relentlessAdvance,
   coordinatedAssault,
+  hardenedOnslaught,
 }
