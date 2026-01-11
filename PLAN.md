@@ -38,6 +38,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 3 (Skill/attack completeness): added a short Sword Deflect parry window that deflects enemy projectiles within a radius after the cast. Decision: set the parry window to 0.18s with a 55px base radius scaled by AOE. Follow-up: tune deflect window timing/radius once projectile pressure is playtested.
 - ✅ Phase 4 (Reward loop): added in-run XP pickups that drop on enemy defeat, scale collection radius with the pickup stat, and auto-despawn after a short lifetime. Decision: keep pickups as simple XP orbs with a base 32px pickup radius for now. Follow-up: add a pickup sparkle or sound cue once audio/VFX passes begin.
 - ✅ Phase 4 (Reward loop): added a lightweight pickup spark ring on XP pickup collection to reinforce reward feedback without extra VFX noise. Decision: keep it render-only and pooled. Follow-up: consider layering a soft sound cue once audio assets exist.
+- ✅ Phase 6 (Contracts/Heat): added a Hardened Onslaught contract that boosts elite odds and enemy move speed. Decision: keep it as another global contract alongside the initial set. Follow-up: add area-specific contract pools once additional mutators are defined.
 
 ---
 

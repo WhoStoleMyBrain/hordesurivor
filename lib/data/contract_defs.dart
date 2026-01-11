@@ -66,6 +66,15 @@ const List<ContractDef> contractDefs = [
     enemyProjectileSpeedMultiplier: 1.2,
     supportRoleWeightMultiplier: 1.4,
   ),
+  ContractDef(
+    id: ContractId.hardenedOnslaught,
+    name: 'Hardened Onslaught',
+    description: 'Champions surge forward with faster advance.',
+    heat: 2,
+    rewardMultiplier: 1.2,
+    enemyMoveSpeedMultiplier: 1.15,
+    eliteWeightMultiplier: 1.4,
+  ),
 ];
 
 final Map<ContractId, ContractDef> contractDefsById = Map.unmodifiable({
