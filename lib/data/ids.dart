@@ -91,4 +91,5 @@ enum ContractId {
   relentlessAdvance,
   coordinatedAssault,
   hardenedOnslaught,
+  crossfireRush,
 }
