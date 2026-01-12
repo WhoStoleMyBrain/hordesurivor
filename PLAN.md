@@ -60,6 +60,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase E (Platform readiness & QA): added a virtual stick overlay that renders at touch origin during pan input, showing dead zone and max-radius travel for mobile steering. Decision: show the overlay only while actively panning to avoid HUD clutter. Follow-up: consider an optional idle hint or left-hand lock-on toggle for mobile.
 - ✅ Phase C (Run structure & end-of-run identity): expanded the run summary recap to list per-synergy trigger counts alongside the existing total synergy trigger stat. Decision: list synergies in definition order with an “×count” suffix to keep the recap compact. Follow-up: revisit ordering once the synergy catalog grows.
 - ✅ Phase 6 (Contracts/Heat): added per-area contract pools so the area select screen focuses mutators by location. Decision: keep pools small and thematic per area for now. Follow-up: expand the catalog and consider area-specific mutators once more contracts exist.
+- ✅ Phase 1 (Visual scale & readability pass): scaled combat damage numbers with `RenderScale` so floating damage text stays readable at larger world scales. Decision: keep TextPaint font sizes as-is and rely on component scaling. Follow-up: revisit font size tuning if damage text crowds the HUD at higher scales.
 
 ---
 
