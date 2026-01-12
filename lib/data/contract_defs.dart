@@ -102,6 +102,15 @@ const List<ContractDef> contractDefs = [
     eliteWeightMultiplier: 1.35,
     supportRoleWeightMultiplier: 1.4,
   ),
+  ContractDef(
+    id: ContractId.vanguardVolley,
+    name: 'Vanguard Volley',
+    description: 'Champion volleys land faster, tightening the front line.',
+    heat: 2,
+    rewardMultiplier: 1.2,
+    enemyProjectileSpeedMultiplier: 1.25,
+    eliteWeightMultiplier: 1.35,
+  ),
 ];
 
 final Map<ContractId, ContractDef> contractDefsById = Map.unmodifiable({

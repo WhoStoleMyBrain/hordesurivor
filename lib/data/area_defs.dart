@@ -105,6 +105,7 @@ const List<AreaDef> areaDefs = [
       ContractId.relentlessAdvance,
       ContractId.crossfireRush,
       ContractId.eliteSurge,
+      ContractId.vanguardVolley,
     ],
     stageDuration: 180,
     milestones: [

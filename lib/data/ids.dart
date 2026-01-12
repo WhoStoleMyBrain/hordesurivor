@@ -96,4 +96,5 @@ enum ContractId {
   crossfireRush,
   siegeFormation,
   commandingPresence,
+  vanguardVolley,
 }
