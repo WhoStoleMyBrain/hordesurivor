@@ -45,6 +45,8 @@ import '../ui/selection_state.dart';
 import '../ui/start_screen.dart';
 import '../ui/stats_overlay.dart';
 import '../ui/stats_screen_state.dart';
+import '../ui/virtual_stick_overlay.dart';
+import '../ui/virtual_stick_state.dart';
 import 'damage_system.dart';
 import 'effect_pool.dart';
 import 'effect_state.dart';
@@ -154,6 +156,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final ValueNotifier<bool> highContrastTelegraphs = ValueNotifier(false);
   final Map<EffectState, EffectComponent> _effectComponents = {};
   final Map<PickupState, PickupComponent> _pickupComponents = {};
+  final ValueNotifier<VirtualStickState> _virtualStickState = ValueNotifier(
+    const VirtualStickState.inactive(
+      deadZone: _panDeadZone,
+      maxRadius: _panMaxRadius,
+    ),
+  );
   final List<DamageNumberComponent> _damageNumberPool = [];
   final List<PickupSparkComponent> _pickupSparkPool = [];
   final TextPaint _enemyDamagePaint = TextPaint(
@@ -205,6 +213,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   bool get runCompleted => _runCompleted;
   MetaCurrencyWallet get metaWallet => _metaWallet;
   MetaUnlocks get metaUnlocks => _metaUnlocks;
+  ValueListenable<VirtualStickState> get virtualStickState =>
+      _virtualStickState;
 
   @override
   backgroundColor() => const Color(0xFF0F1117);
@@ -645,6 +655,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(HomeBaseOverlay.overlayKey);
     overlays.remove(DeathScreen.overlayKey);
     overlays.add(HudOverlay.overlayKey);
+    overlays.add(VirtualStickOverlay.overlayKey);
     _showFirstRunHintsIfNeeded();
     _syncHudState();
   }
@@ -657,6 +668,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(AreaSelectScreen.overlayKey);
     overlays.remove(HudOverlay.overlayKey);
+    overlays.remove(VirtualStickOverlay.overlayKey);
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
@@ -680,6 +692,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(HudOverlay.overlayKey);
+    overlays.remove(VirtualStickOverlay.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
     overlays.add(HomeBaseOverlay.overlayKey);
@@ -773,6 +786,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _isPanning = true;
     _panStart = info.eventPosition.widget.clone();
     _panDirection.setZero();
+    _virtualStickState.value = VirtualStickState(
+      active: true,
+      origin: Offset(_panStart!.x, _panStart!.y),
+      delta: Offset.zero,
+      deadZone: _panDeadZone,
+      maxRadius: _panMaxRadius,
+    );
   }
 
   @override
@@ -785,6 +805,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       return;
     }
     _panDirection.setFrom(info.eventPosition.widget - start);
+    _virtualStickState.value = _virtualStickState.value.copyWith(
+      active: true,
+      origin: Offset(start.x, start.y),
+      delta: Offset(_panDirection.x, _panDirection.y),
+    );
   }
 
   @override
@@ -795,6 +820,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _isPanning = false;
     _panStart = null;
     _panDirection.setZero();
+    _virtualStickState.value = const VirtualStickState.inactive(
+      deadZone: _panDeadZone,
+      maxRadius: _panMaxRadius,
+    );
   }
 
   void _handleProjectileSpawn(ProjectileState projectile) {
@@ -1170,6 +1199,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _panStart = null;
     _panDirection.setZero();
     _playerState.movementIntent.setZero();
+    _virtualStickState.value = const VirtualStickState.inactive(
+      deadZone: _panDeadZone,
+      maxRadius: _panMaxRadius,
+    );
   }
 
   void _setFlowState(GameFlowState state) {
@@ -1252,6 +1285,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _runCompleted = false;
     _setFlowState(GameFlowState.start);
     overlays.remove(HudOverlay.overlayKey);
+    overlays.remove(VirtualStickOverlay.overlayKey);
     overlays.remove(HomeBaseOverlay.overlayKey);
     overlays.remove(AreaSelectScreen.overlayKey);
     overlays.remove(DeathScreen.overlayKey);
@@ -1559,6 +1593,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(StatsOverlay.overlayKey);
     _setFlowState(GameFlowState.death);
     overlays.remove(HudOverlay.overlayKey);
+    overlays.remove(VirtualStickOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
     overlays.add(DeathScreen.overlayKey);
     _syncHudState();
