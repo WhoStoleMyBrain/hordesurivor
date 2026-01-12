@@ -4,6 +4,7 @@ import '../data/ids.dart';
 import '../data/item_defs.dart';
 import '../data/skill_defs.dart';
 import '../data/skill_upgrade_defs.dart';
+import '../data/synergy_defs.dart';
 import '../game/meta_currency_wallet.dart';
 import '../game/run_summary.dart';
 import 'ui_scale.dart';
@@ -31,6 +32,7 @@ class DeathScreen extends StatelessWidget {
     final skillNames = _namesForSkills(summary.skills);
     final itemNames = _namesForItems(summary.items);
     final upgradeNames = _namesForUpgrades(summary.upgrades);
+    final synergyEntries = _namesForSynergies(summary.synergyTriggerCounts);
     return Container(
       color: Colors.black.withValues(alpha: 0.7),
       alignment: Alignment.center,
@@ -112,7 +114,8 @@ class DeathScreen extends StatelessWidget {
                   ),
                 if (skillNames.isNotEmpty ||
                     itemNames.isNotEmpty ||
-                    upgradeNames.isNotEmpty) ...[
+                    upgradeNames.isNotEmpty ||
+                    synergyEntries.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   if (skillNames.isNotEmpty)
                     _RecapSection(title: 'Skills', entries: skillNames),
@@ -120,6 +123,8 @@ class DeathScreen extends StatelessWidget {
                     _RecapSection(title: 'Items', entries: itemNames),
                   if (upgradeNames.isNotEmpty)
                     _RecapSection(title: 'Upgrades', entries: upgradeNames),
+                  if (synergyEntries.isNotEmpty)
+                    _RecapSection(title: 'Synergies', entries: synergyEntries),
                 ],
                 const SizedBox(height: 20),
                 Row(
@@ -184,6 +189,17 @@ class DeathScreen extends StatelessWidget {
     return [
       for (final def in skillUpgradeDefs)
         if (idSet.contains(def.id)) def.name,
+    ];
+  }
+
+  List<String> _namesForSynergies(Map<SynergyId, int> counts) {
+    if (counts.isEmpty) {
+      return const [];
+    }
+    return [
+      for (final def in synergyDefs)
+        if (counts[def.id] != null)
+          '${def.name} ×${counts[def.id]!.toString()}',
     ];
   }
 }

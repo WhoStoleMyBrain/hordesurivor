@@ -970,6 +970,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _handleSynergyTriggered(SynergyDef synergy, EnemyState enemy) {
     _runSummary.synergyTriggers += 1;
+    final counts = _runSummary.synergyTriggerCounts;
+    counts[synergy.id] = (counts[synergy.id] ?? 0) + 1;
     final component = _acquireDamageNumber();
     final jitterX = (_damageNumberRandom.nextDouble() - 0.5) * 8;
     final jitterY = (_damageNumberRandom.nextDouble() - 0.5) * 6;

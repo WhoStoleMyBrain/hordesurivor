@@ -57,6 +57,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase D (Enemy role language & telegraph standards): added per-role telegraph opacity multipliers to emphasize spawners, zoners, support roles, and elites. Decision: keep multipliers modest (1.15–1.2) to avoid overpowering other signals. Follow-up: tune multipliers after stress-scene readability checks.
 - ✅ Phase D (Enemy role language & telegraph standards): added per-role telegraph stroke widths so key roles (spawner/zoner/support/elite) read at a glance in dense waves. Decision: keep the width deltas subtle (2.2–3.0) to avoid overpowering other telegraphs. Follow-up: revisit widths alongside silhouette updates.
 - ✅ Phase E (Platform readiness & QA): added a virtual stick overlay that renders at touch origin during pan input, showing dead zone and max-radius travel for mobile steering. Decision: show the overlay only while actively panning to avoid HUD clutter. Follow-up: consider an optional idle hint or left-hand lock-on toggle for mobile.
+- ✅ Phase C (Run structure & end-of-run identity): expanded the run summary recap to list per-synergy trigger counts alongside the existing total synergy trigger stat. Decision: list synergies in definition order with an “×count” suffix to keep the recap compact. Follow-up: revisit ordering once the synergy catalog grows.
 
 ---
 

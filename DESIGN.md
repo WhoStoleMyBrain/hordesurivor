@@ -42,7 +42,7 @@ The game transitions between well-defined states:
 - **Start** → **Home Base** → **Area Select** → **Stage** → **Death**
 
 ### 5.2 Run summary & scoring
-A run summary aggregates time alive, enemies defeated, XP earned, damage taken, and the meta currency payout (with Contract bonuses). It also captures a build recap (skills, items, upgrades) and synergy trigger counts for end-of-run reflection.
+A run summary aggregates time alive, enemies defeated, XP earned, damage taken, and the meta currency payout (with Contract bonuses). It also captures a build recap (skills, items, upgrades) and synergy trigger counts, including per-synergy tallies, for end-of-run reflection.
 
 ## 6) Data-driven content design
 ### 6.1 Tags (first-class build identity)
