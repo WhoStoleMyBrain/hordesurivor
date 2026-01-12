@@ -2,15 +2,19 @@ import 'dart:ui' show Canvas;
 
 import 'package:flame/components.dart';
 
+import 'render_scale.dart';
+
 class DamageNumberComponent extends PositionComponent {
   static final Vector2 _zero = Vector2.zero();
 
   DamageNumberComponent({
     required TextPaint textPaint,
     required this.onComplete,
+    double renderScale = RenderScale.worldScale,
   }) : _textPaint = textPaint {
     anchor = Anchor.center;
     priority = 20;
+    scale = Vector2.all(renderScale);
   }
 
   final void Function(DamageNumberComponent) onComplete;
