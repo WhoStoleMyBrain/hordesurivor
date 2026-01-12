@@ -88,6 +88,13 @@ DataValidationResult validateGameData() {
     if (def.weight <= 0) {
       result.errors.add('SkillDef ${def.id} has non-positive weight.');
     }
+    for (final status in def.statusEffects) {
+      if (!statusEffectDefsById.containsKey(status)) {
+        result.errors.add(
+          'SkillDef ${def.id} references unknown status effect $status.',
+        );
+      }
+    }
   }
 
   for (final def in skillUpgradeDefs) {

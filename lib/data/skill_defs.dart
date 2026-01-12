@@ -7,6 +7,7 @@ class SkillDef {
     required this.name,
     required this.description,
     required this.tags,
+    this.statusEffects = const {},
     this.knockbackForce = 0,
     this.knockbackDuration = 0,
     this.deflectRadius = 0,
@@ -18,6 +19,7 @@ class SkillDef {
   final String name;
   final String description;
   final TagSet tags;
+  final Set<StatusEffectId> statusEffects;
   final double knockbackForce;
   final double knockbackDuration;
   final double deflectRadius;
@@ -34,6 +36,7 @@ const List<SkillDef> skillDefs = [
       elements: {ElementTag.fire},
       deliveries: {DeliveryTag.projectile},
     ),
+    statusEffects: {StatusEffectId.ignite},
     knockbackForce: 80,
     knockbackDuration: 0.18,
   ),
@@ -42,6 +45,7 @@ const List<SkillDef> skillDefs = [
     name: 'Waterjet',
     description: 'Pulse a focused beam of water.',
     tags: TagSet(elements: {ElementTag.water}, deliveries: {DeliveryTag.beam}),
+    statusEffects: {StatusEffectId.slow},
   ),
   SkillDef(
     id: SkillId.oilBombs,
@@ -51,6 +55,7 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.debuff},
       deliveries: {DeliveryTag.projectile, DeliveryTag.ground},
     ),
+    statusEffects: {StatusEffectId.oilSoaked, StatusEffectId.slow},
     knockbackForce: 60,
     knockbackDuration: 0.16,
   ),
@@ -123,6 +128,7 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.debuff},
       deliveries: {DeliveryTag.ground},
     ),
+    statusEffects: {StatusEffectId.root},
   ),
 ];
 
