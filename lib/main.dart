@@ -16,6 +16,7 @@ import 'ui/selection_overlay.dart';
 import 'ui/start_screen.dart';
 import 'ui/stats_overlay.dart';
 import 'ui/ui_scale.dart';
+import 'ui/virtual_stick_overlay.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -108,6 +109,8 @@ class HordeSurvivorApp extends StatelessWidget {
       game: HordeGame(stressTest: stressTest),
       overlayBuilderMap: {
         HudOverlay.overlayKey: (_, game) => HudOverlay(hudState: game.hudState),
+        VirtualStickOverlay.overlayKey: (_, game) =>
+            VirtualStickOverlay(state: game.virtualStickState),
         SelectionOverlay.overlayKey: (_, game) => SelectionOverlay(
           selectionState: game.selectionState,
           onSelected: game.selectChoice,
@@ -160,7 +163,7 @@ class HordeSurvivorApp extends StatelessWidget {
         ),
       },
       initialActiveOverlays: stressTest
-          ? const [HudOverlay.overlayKey]
+          ? const [HudOverlay.overlayKey, VirtualStickOverlay.overlayKey]
           : const [StartScreen.overlayKey],
     );
   }

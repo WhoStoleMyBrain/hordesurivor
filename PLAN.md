@@ -52,6 +52,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase C (Run structure & end-of-run identity): added data-driven run milestones per area that grant bonus XP and trigger burst waves for mid-run and final pressure spikes. Decision: keep milestone rewards as XP plus a burst wave to reinforce pacing without adding new end-of-run entities yet. Follow-up: add a dedicated finale encounter and expand milestone effects once boss-style behavior lands.
 - ✅ Phase C (Run structure & end-of-run identity): expanded the run summary with a build recap (skills/items/upgrades) and a synergy trigger count on the death screen. Decision: show recap as compact chips below core stats to keep the summary readable. Follow-up: revisit layout density once a dedicated run recap screen exists.
 - ✅ Phase D (Enemy role language & telegraph standards): added per-role telegraph opacity multipliers to emphasize spawners, zoners, support roles, and elites. Decision: keep multipliers modest (1.15–1.2) to avoid overpowering other signals. Follow-up: tune multipliers after stress-scene readability checks.
+- ✅ Phase E (Platform readiness & QA): added a virtual stick overlay that renders at touch origin during pan input, showing dead zone and max-radius travel for mobile steering. Decision: show the overlay only while actively panning to avoid HUD clutter. Follow-up: consider an optional idle hint or left-hand lock-on toggle for mobile.
 
 ---
 
