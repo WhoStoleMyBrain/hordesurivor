@@ -179,6 +179,7 @@ const List<AreaDef> areaDefs = [
       ContractId.coordinatedAssault,
       ContractId.siegeFormation,
       ContractId.commandingPresence,
+      ContractId.radiantBarrage,
     ],
     stageDuration: 210,
     milestones: [

@@ -111,6 +111,14 @@ const List<ContractDef> contractDefs = [
     enemyProjectileSpeedMultiplier: 1.25,
     eliteWeightMultiplier: 1.35,
   ),
+  ContractDef(
+    id: ContractId.radiantBarrage,
+    name: 'Radiant Barrage',
+    description: 'Angelic volleys travel faster, tightening light patterns.',
+    heat: 1,
+    rewardMultiplier: 1.1,
+    enemyProjectileSpeedMultiplier: 1.2,
+  ),
 ];
 
 final Map<ContractId, ContractDef> contractDefsById = Map.unmodifiable({
