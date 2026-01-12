@@ -131,6 +131,7 @@ Render components emphasize clarity (badges, telegraphs, readable HUD). Optional
 ## 14) UI & overlays
 - Overlays (HUD, selection, start, options, compendium, meta unlocks, area select, death) are attached to the Flame game instance.
 - UI text scaling is adjustable and persisted, supporting accessibility and future mobile sizing.
+- A first-run hints overlay appears during the first stage and is dismissible to reinforce core controls and tradeoffs.
 
 ## 15) Performance & validation
 ### 15.1 Stress scene
@@ -140,7 +141,7 @@ A dedicated **stress scene** is available via a build flag to validate performan
 Data validation runs at startup to ensure definitions remain consistent as content grows.
 
 ## 16) Save & persistence
-- Shared preferences are used for UI scale settings, meta currency wallet, and unlock persistence.
+- Shared preferences are used for UI scale settings, meta currency wallet, unlock persistence, and a tutorial-seen flag for onboarding hints.
 
 ## 17) Asset & licensing constraints
 - Code is Apache-2.0; game assets are All Rights Reserved.

@@ -6,6 +6,7 @@ import 'game/horde_game.dart';
 import 'ui/area_select_screen.dart';
 import 'ui/compendium_screen.dart';
 import 'ui/death_screen.dart';
+import 'ui/first_run_hints_overlay.dart';
 import 'ui/flow_debug_overlay.dart';
 import 'ui/hud_overlay.dart';
 import 'ui/home_base_overlay.dart';
@@ -150,6 +151,8 @@ class HordeSurvivorApp extends StatelessWidget {
           onReturn: game.returnToHomeBaseFromDeath,
           wallet: game.metaWallet,
         ),
+        FirstRunHintsOverlay.overlayKey: (_, game) =>
+            FirstRunHintsOverlay(onDismiss: game.dismissFirstRunHints),
         FlowDebugOverlay.overlayKey: (_, game) => FlowDebugOverlay(
           flowState: game.flowState,
           onSelectState: game.debugJumpToState,

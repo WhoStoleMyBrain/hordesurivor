@@ -8,6 +8,7 @@ import 'package:flame/text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show KeyEventResult;
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/contract_defs.dart';
 import '../data/enemy_defs.dart';
@@ -31,6 +32,7 @@ import '../render/sprite_pipeline.dart';
 import '../ui/area_select_screen.dart';
 import '../ui/compendium_screen.dart';
 import '../ui/death_screen.dart';
+import '../ui/first_run_hints_overlay.dart';
 import '../ui/flow_debug_overlay.dart';
 import '../ui/hud_overlay.dart';
 import '../ui/hud_state.dart';
@@ -96,6 +98,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _baseChampionChance = 0.05;
   static const double _pickupRadiusBase = 32;
   static const double _pickupLifetime = 8;
+  static const String _tutorialSeenPrefsKey = 'tutorial_seen';
   static const TagSet _igniteDamageTags = TagSet(
     elements: {ElementTag.fire},
     effects: {EffectTag.dot},
@@ -183,6 +186,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   double _contractRewardMultiplier = 1.0;
   int _contractHeat = 0;
   List<String> _activeContractNames = const [];
+  bool _tutorialSeen = false;
 
   PlayerHudState get hudState => _hudState;
   SelectionState get selectionState => _selectionState;
@@ -201,6 +205,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     await super.onLoad();
     await _metaWallet.load();
     await _metaUnlocks.load();
+    await _loadTutorialSeen();
     _selectionListener = _handleSelectionStateChanged;
     _selectionState.addListener(_selectionListener!);
     if (stressTest) {
@@ -624,6 +629,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(HomeBaseOverlay.overlayKey);
     overlays.remove(DeathScreen.overlayKey);
     overlays.add(HudOverlay.overlayKey);
+    _showFirstRunHintsIfNeeded();
     _syncHudState();
   }
 
@@ -637,6 +643,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(HudOverlay.overlayKey);
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
+    overlays.remove(FirstRunHintsOverlay.overlayKey);
     overlays.add(HomeBaseOverlay.overlayKey);
     _syncHudState();
   }
@@ -658,6 +665,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(HudOverlay.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
+    overlays.remove(FirstRunHintsOverlay.overlayKey);
     overlays.add(HomeBaseOverlay.overlayKey);
     _syncHudState();
   }
@@ -1033,6 +1041,27 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
   }
 
+  void _showFirstRunHintsIfNeeded() {
+    if (stressTest || _tutorialSeen) {
+      return;
+    }
+    overlays.add(FirstRunHintsOverlay.overlayKey);
+  }
+
+  Future<void> _loadTutorialSeen() async {
+    final prefs = await SharedPreferences.getInstance();
+    _tutorialSeen = prefs.getBool(_tutorialSeenPrefsKey) ?? false;
+  }
+
+  Future<void> dismissFirstRunHints() async {
+    if (!_tutorialSeen) {
+      _tutorialSeen = true;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_tutorialSeenPrefsKey, true);
+    }
+    overlays.remove(FirstRunHintsOverlay.overlayKey);
+  }
+
   void _applyEnemyStatusDamage(double dt) {
     for (final enemy in _enemyPool.active) {
       if (!enemy.active) {
@@ -1188,6 +1217,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(OptionsScreen.overlayKey);
     overlays.remove(CompendiumScreen.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
+    overlays.remove(FirstRunHintsOverlay.overlayKey);
     overlays.add(StartScreen.overlayKey);
     _syncHudState();
   }
@@ -1433,6 +1463,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(StatsOverlay.overlayKey);
     _setFlowState(GameFlowState.death);
     overlays.remove(HudOverlay.overlayKey);
+    overlays.remove(FirstRunHintsOverlay.overlayKey);
     overlays.add(DeathScreen.overlayKey);
     _syncHudState();
   }
