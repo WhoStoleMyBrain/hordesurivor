@@ -72,7 +72,7 @@ A startup validation pass ensures IDs are unique and definitions are consistent 
 ### 7.3 Effects & status interactions
 - **Ground/beam effects** apply area damage and status effects (slow, root, oil-soak, ignite).
 - **Status effects** are represented by definitions for clarity and UI tagging.
-- **Synergy hooks** are defined in `lib/data/synergy_defs.dart` and drive Oil + Fire → Ignite behavior, with selection UI hints and a pooled on-hit text pulse to reinforce synergy triggers without new per-hit allocations.
+- **Synergy hooks** are defined in `lib/data/synergy_defs.dart` and drive Oil + Fire → Ignite plus Roots + Fire → Kindling behavior, with selection UI hints and a pooled on-hit text pulse to reinforce synergy triggers without new per-hit allocations.
 
 ### 7.4 Damage & knockback
 - Skills can apply knockback based on per-skill parameters and stat scaling.
