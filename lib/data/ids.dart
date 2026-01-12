@@ -97,4 +97,5 @@ enum ContractId {
   siegeFormation,
   commandingPresence,
   vanguardVolley,
+  radiantBarrage,
 }
