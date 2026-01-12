@@ -128,6 +128,7 @@ Visual scaling is controlled via `RenderScale.worldScale` and is explicitly deco
 
 ### 13.3 Effects & readability
 Render components emphasize clarity (badges, telegraphs, readable HUD). Optional high-contrast telegraphs are supported.
+Role telegraphs apply modest opacity multipliers for spawners, zoners, support roles, and elites to reinforce role readability without overwhelming other cues.
 
 ## 14) UI & overlays
 - Overlays (HUD, selection, start, options, compendium, meta unlocks, area select, death) are attached to the Flame game instance.

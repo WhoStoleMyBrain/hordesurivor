@@ -202,35 +202,37 @@ class EnemyComponent extends PositionComponent {
 
   void applyTelegraphOpacity(double multiplier) {
     final clamped = multiplier.clamp(0.0, 2.0);
+    final roleMultiplier = _roleTelegraphAlphaMultiplier[_role] ?? 1.0;
+    final combined = (clamped * roleMultiplier).clamp(0.0, 2.0);
     _telegraphPaint.color = _telegraphTintColor.withValues(
-      alpha: (_telegraphBaseAlpha * clamped).clamp(0.0, 1.0),
+      alpha: (_telegraphBaseAlpha * combined).clamp(0.0, 1.0),
     );
     _spawnRunePaint.color = _telegraphTintColor.withValues(
-      alpha: (_spawnRuneBaseAlpha * clamped).clamp(0.0, 1.0),
+      alpha: (_spawnRuneBaseAlpha * combined).clamp(0.0, 1.0),
     );
 
     final auraFill = _auraFillPaint;
     if (auraFill != null) {
       auraFill.color = _telegraphTintColor.withValues(
-        alpha: (_auraFillBaseAlpha * clamped).clamp(0.0, 1.0),
+        alpha: (_auraFillBaseAlpha * combined).clamp(0.0, 1.0),
       );
     }
     final auraStroke = _auraStrokePaint;
     if (auraStroke != null) {
       auraStroke.color = _telegraphTintColor.withValues(
-        alpha: (_auraStrokeBaseAlpha * clamped).clamp(0.0, 1.0),
+        alpha: (_auraStrokeBaseAlpha * combined).clamp(0.0, 1.0),
       );
     }
     final zoneFill = _zoneFillPaint;
     if (zoneFill != null) {
       zoneFill.color = _telegraphTintColor.withValues(
-        alpha: (_zoneFillBaseAlpha * clamped).clamp(0.0, 1.0),
+        alpha: (_zoneFillBaseAlpha * combined).clamp(0.0, 1.0),
       );
     }
     final zoneStroke = _zoneStrokePaint;
     if (zoneStroke != null) {
       zoneStroke.color = _telegraphTintColor.withValues(
-        alpha: (_zoneStrokeBaseAlpha * clamped).clamp(0.0, 1.0),
+        alpha: (_zoneStrokeBaseAlpha * combined).clamp(0.0, 1.0),
       );
     }
   }
@@ -535,4 +537,11 @@ class EnemyComponent extends PositionComponent {
   static const double _auraStrokeBaseAlpha = 0.45;
   static const double _zoneFillBaseAlpha = 0.12;
   static const double _zoneStrokeBaseAlpha = 0.36;
+  static const Map<EnemyRole, double> _roleTelegraphAlphaMultiplier = {
+    EnemyRole.spawner: 1.15,
+    EnemyRole.zoner: 1.2,
+    EnemyRole.supportHealer: 1.2,
+    EnemyRole.supportBuffer: 1.2,
+    EnemyRole.elite: 1.15,
+  };
 }
