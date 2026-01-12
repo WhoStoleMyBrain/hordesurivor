@@ -14,6 +14,8 @@ HordeSurvivor is a pixel-style horde survivor centered on readable combat, disti
 - **Current target:** desktop platforms (Windows/macOS/Linux/Web) for early iteration.
 - **Mobile-ready design:**
   - Touch-friendly input pathways exist (pan gestures) alongside keyboard input.
+  - A virtual stick overlay renders at touch origin during pan input to show dead zone
+    and max-radius travel for mobile steering.
   - UI overlays use `SafeArea` and text scaling to remain readable on smaller screens.
   - Render scaling is decoupled from gameplay hitboxes so visuals can be tuned for multiple screen sizes.
 
@@ -155,7 +157,7 @@ Data validation runs at startup to ensure definitions remain consistent as conte
 ## 18) Placeholders for future design decisions
 These categories are expected to be defined later and have no implementation yet:
 - **Audio & music pipeline** (sound design, mixing, and asset workflow).
-- **Mobile-specific controls** (virtual stick, aim assist, haptics).
+- **Mobile-specific controls** (aim assist, haptics, layout refinements).
 - **Accessibility & UX options** (colorblind modes, input remapping, pause behavior on focus loss).
 - **Meta unlock tree layout** (visual structure once the unlock catalog grows).
 - **In-depth enemy telegraph language** (silhouette standards, VFX cadence guidelines).
