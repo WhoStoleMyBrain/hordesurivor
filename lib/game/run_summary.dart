@@ -16,9 +16,10 @@ class RunSummary {
     this.items = const [],
     this.upgrades = const [],
     this.synergyTriggers = 0,
+    Map<SynergyId, int>? synergyTriggerCounts,
     this.areaName,
     this.completed = false,
-  });
+  }) : synergyTriggerCounts = synergyTriggerCounts ?? <SynergyId, int>{};
 
   double timeAlive;
   int enemiesDefeated;
@@ -32,6 +33,7 @@ class RunSummary {
   List<ItemId> items;
   List<SkillUpgradeId> upgrades;
   int synergyTriggers;
+  Map<SynergyId, int> synergyTriggerCounts;
   String? areaName;
   bool completed;
 
@@ -71,6 +73,7 @@ class RunSummary {
     items = const [];
     upgrades = const [];
     synergyTriggers = 0;
+    synergyTriggerCounts = <SynergyId, int>{};
     areaName = null;
     completed = false;
   }
