@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../data/ids.dart';
 import '../data/tags.dart';
 import 'ui_scale.dart';
 
@@ -52,6 +53,12 @@ List<TagBadgeData> tagBadgesForTags(TagSet tags) {
     for (final tag in tags.deliveries) _deliveryBadge(tag),
   ];
   return badges;
+}
+
+List<TagBadgeData> statusBadgesForEffects(
+  Iterable<StatusEffectId> statusEffects,
+) {
+  return [for (final status in statusEffects) _statusBadge(status)];
 }
 
 TagBadgeData _elementBadge(ElementTag tag) {
@@ -167,6 +174,41 @@ TagBadgeData _deliveryBadge(DeliveryTag tag) {
         label: 'Ground',
         icon: Icons.layers,
         color: const Color(0xFFE6BEAE),
+      );
+  }
+}
+
+TagBadgeData _statusBadge(StatusEffectId status) {
+  switch (status) {
+    case StatusEffectId.slow:
+      return TagBadgeData(
+        label: 'Slow',
+        icon: Icons.ac_unit,
+        color: const Color(0xFF7FD1FF),
+      );
+    case StatusEffectId.root:
+      return TagBadgeData(
+        label: 'Root',
+        icon: Icons.nature_people,
+        color: const Color(0xFF7FB77E),
+      );
+    case StatusEffectId.ignite:
+      return TagBadgeData(
+        label: 'Ignite',
+        icon: Icons.local_fire_department,
+        color: const Color(0xFFF56D5B),
+      );
+    case StatusEffectId.oilSoaked:
+      return TagBadgeData(
+        label: 'Oil',
+        icon: Icons.opacity,
+        color: const Color(0xFFB08968),
+      );
+    case StatusEffectId.vulnerable:
+      return TagBadgeData(
+        label: 'Vulnerable',
+        icon: Icons.flash_on,
+        color: const Color(0xFFF4B860),
       );
   }
 }

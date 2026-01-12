@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../data/ids.dart';
 import '../data/item_defs.dart';
 import '../data/skill_defs.dart';
 import '../data/skill_upgrade_defs.dart';
@@ -115,6 +116,8 @@ class _ChoiceCard extends StatelessWidget {
     final theme = Theme.of(context);
     final tags = _tagsForChoice(choice);
     final badges = tagBadgesForTags(tags);
+    final statusEffects = _statusEffectsForChoice(choice);
+    final statusBadges = statusBadgesForEffects(statusEffects);
     final statChanges = _statChangesForChoice(choice);
     final synergies = _synergyHintsForTags(tags);
     return OutlinedButton(
@@ -163,6 +166,16 @@ class _ChoiceCard extends StatelessWidget {
               children: [for (final badge in badges) TagBadge(data: badge)],
             ),
           ],
+          if (statusBadges.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final badge in statusBadges) TagBadge(data: badge),
+              ],
+            ),
+          ],
           if (synergies.isNotEmpty) ...[
             const SizedBox(height: 8),
             for (final line in synergies)
@@ -207,6 +220,19 @@ TagSet _tagsForChoice(SelectionChoice choice) {
       return upgradeId != null
           ? skillUpgradeDefsById[upgradeId]?.tags ?? const TagSet()
           : const TagSet();
+  }
+}
+
+Set<StatusEffectId> _statusEffectsForChoice(SelectionChoice choice) {
+  switch (choice.type) {
+    case SelectionType.skill:
+      final skillId = choice.skillId;
+      return skillId != null
+          ? skillDefsById[skillId]?.statusEffects ?? const {}
+          : const {};
+    case SelectionType.item:
+    case SelectionType.skillUpgrade:
+      return const {};
   }
 }
 

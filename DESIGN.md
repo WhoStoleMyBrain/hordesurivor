@@ -49,7 +49,7 @@ A run summary aggregates time alive, enemies defeated, XP earned, damage taken, 
 Tags are implemented as enums for elements, effects, and delivery methods. Skills, items, upgrades, and status effects are tagged to drive synergy and UI presentation.
 
 ### 6.2 Definitions and registries
-- **Skills:** `SkillDef` list with tags, descriptions, and knockback/deflect parameters.
+- **Skills:** `SkillDef` list with tags, descriptions, knockback/deflect parameters, and any status effects to surface selection badges.
 - **Items:** `ItemDef` list with stat modifiers and optional tag alignment.
 - **Skill upgrades:** `SkillUpgradeDef` list, tied to specific skills with modifiers.
 - **Enemies:** `EnemyDef` list with faction, role, stats, and spawn parameters.
@@ -141,6 +141,7 @@ Role telegraphs also use per-role stroke widths so spawners/zoners/supporters/el
 - UI text scaling is adjustable and persisted, supporting accessibility and future mobile sizing.
 - A first-run hints overlay appears during the first stage and is dismissible to reinforce core controls and tradeoffs.
 - The HUD primary cluster groups HP/XP with Contracts heat to keep difficulty context visible without scanning the lower stage panel.
+- Reward selection cards show tag badges and status-effect badges to make build intent legible at a glance.
 
 ## 15) Performance & validation
 ### 15.1 Stress scene
