@@ -23,6 +23,22 @@ class StageSection {
   final String? note;
 }
 
+class StageMilestone {
+  const StageMilestone({
+    required this.time,
+    required this.label,
+    this.note,
+    this.bonusWaveCount = 0,
+    this.xpReward = 0,
+  });
+
+  final double time;
+  final String label;
+  final String? note;
+  final int bonusWaveCount;
+  final int xpReward;
+}
+
 class AreaDef {
   const AreaDef({
     required this.id,
@@ -37,6 +53,7 @@ class AreaDef {
     this.difficultyTiers = const ['Standard'],
     this.lootModifiers = const [],
     this.mapMutators = const [],
+    this.milestones = const [],
   });
 
   final AreaId id;
@@ -51,6 +68,7 @@ class AreaDef {
   final List<String> mapMutators;
   final double stageDuration;
   final List<StageSection> sections;
+  final List<StageMilestone> milestones;
 }
 
 const List<AreaDef> areaDefs = [
@@ -65,6 +83,22 @@ const List<AreaDef> areaDefs = [
     lootModifiers: ['+Ember shards'],
     mapMutators: ['Falling embers'],
     stageDuration: 180,
+    milestones: [
+      StageMilestone(
+        time: 90,
+        label: 'Midway Surge',
+        note: 'Pressure spike and bonus XP.',
+        bonusWaveCount: 8,
+        xpReward: 24,
+      ),
+      StageMilestone(
+        time: 150,
+        label: 'Final Push',
+        note: 'Last pressure spike before extraction.',
+        bonusWaveCount: 10,
+        xpReward: 32,
+      ),
+    ],
     sections: [
       StageSection(
         startTime: 0,
@@ -110,6 +144,22 @@ const List<AreaDef> areaDefs = [
     lootModifiers: ['+Radiant sigils'],
     mapMutators: ['Unstable light zones'],
     stageDuration: 210,
+    milestones: [
+      StageMilestone(
+        time: 105,
+        label: 'Midway Surge',
+        note: 'Pressure spike and bonus XP.',
+        bonusWaveCount: 9,
+        xpReward: 26,
+      ),
+      StageMilestone(
+        time: 175,
+        label: 'Final Push',
+        note: 'Push through the final light surge.',
+        bonusWaveCount: 12,
+        xpReward: 36,
+      ),
+    ],
     sections: [
       StageSection(
         startTime: 0,
