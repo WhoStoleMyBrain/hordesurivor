@@ -434,9 +434,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _applyInput();
     _playerState.step(dt);
     if (!stressTest && _stageTimer != null) {
-      final sectionChanged = _stageTimer!.update(dt);
-      if (sectionChanged) {
+      final stageUpdate = _stageTimer!.update(dt);
+      if (stageUpdate.sectionChanged) {
         _applyStageSection();
+      }
+      if (stageUpdate.milestones.isNotEmpty) {
+        for (final milestone in stageUpdate.milestones) {
+          _handleStageMilestone(milestone);
+        }
       }
       if (_stageTimer!.isComplete) {
         _handleStageComplete();
@@ -618,6 +623,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _stageTimer = StageTimer(
       duration: area.stageDuration,
       sections: area.sections,
+      milestones: area.milestones,
     );
     _currentSectionIndex = 0;
     _applyStageSection(force: true);
@@ -1361,6 +1367,55 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         sectionDuration: sectionDuration,
         sectionIndex: sectionIndex,
       ),
+    );
+  }
+
+  void _handleStageMilestone(StageMilestone milestone) {
+    final message = milestone.label.isEmpty
+        ? 'MILESTONE!'
+        : 'MILESTONE: ${milestone.label}';
+    _hudState.triggerRewardMessage(message);
+    if (!stressTest && milestone.xpReward > 0) {
+      _runSummary.xpGained += milestone.xpReward;
+      final levelsGained = _experienceSystem.addExperience(milestone.xpReward);
+      if (levelsGained > 0) {
+        _levelUpSystem.queueLevels(levelsGained);
+        _offerSelectionIfNeeded();
+      }
+    }
+    if (milestone.bonusWaveCount <= 0) {
+      return;
+    }
+    final timer = _stageTimer;
+    final area = _activeArea;
+    final section = timer?.currentSection;
+    if (timer == null || area == null || section == null) {
+      return;
+    }
+    final sectionDuration = section.endTime - section.startTime;
+    final timeIntoSection = (timer.elapsed - section.startTime).clamp(
+      0.0,
+      sectionDuration,
+    );
+    final tuning = _spawnDirector.tuneSection(
+      section: section,
+      previousSection: null,
+      sectionDuration: sectionDuration,
+      timeIntoSection: timeIntoSection,
+    );
+    final adjustedRoles = _applyContractRoleWeights(tuning.roleWeights);
+    final adjustedVariants = _applyContractVariantWeights(
+      tuning.variantWeights,
+    );
+    _spawnerSystem.spawnBurst(
+      SpawnWave(
+        time: 0,
+        count: milestone.bonusWaveCount,
+        roleWeights: adjustedRoles.isEmpty ? null : adjustedRoles,
+        enemyWeights: tuning.enemyWeights.isEmpty ? null : tuning.enemyWeights,
+        variantWeights: adjustedVariants.isEmpty ? null : adjustedVariants,
+      ),
+      _playerState.position,
     );
   }
 

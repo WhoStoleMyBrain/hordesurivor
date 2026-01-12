@@ -49,6 +49,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase A (Onboarding & first-run clarity): moved Contracts heat readout into the primary HUD cluster near HP/XP so difficulty context is visible at a glance. Decision: keep the heat line close to core stats to reduce eye travel. Follow-up: add a small heat icon once HUD iconography pass begins.
 - ✅ Phase A (Onboarding & first-run clarity): tuned early-stage enemy variety to introduce chasers first, then ranged, then support/spawner pressure in later sections. Decision: keep section notes updated to match the new ramp. Follow-up: revisit weights after playtesting the early minutes.
 - ✅ Phase B (Build identity & tag synergy reinforcement): added data-driven synergy definitions for Oil + Fire → Ignite, surfaced synergy hints in the selection UI, and added an on-hit synergy text pulse when ignition triggers. Decision: reuse the pooled damage number component for the synergy cue to avoid new allocations. Follow-up: add a lightweight icon/pulse in render and expand the synergy catalog beyond Ignite.
+- ✅ Phase C (Run structure & end-of-run identity): added data-driven run milestones per area that grant bonus XP and trigger burst waves for mid-run and final pressure spikes. Decision: keep milestone rewards as XP plus a burst wave to reinforce pacing without adding new end-of-run entities yet. Follow-up: add a dedicated finale encounter and expand milestone effects once boss-style behavior lands.
 
 ---
 

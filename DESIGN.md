@@ -85,7 +85,7 @@ Enemy variants (base/champion) scale stats via multipliers, with tinting for rea
 
 ## 9) Stage progression & spawning
 ### 9.1 Area structure
-Areas are built from **timed sections** with their own role weights, enemy weights, and threat tiers.
+Areas are built from **timed sections** with their own role weights, enemy weights, and threat tiers. Areas also define **run milestones** (time-based beats) that trigger bonus XP and burst wave pressure spikes to reinforce pacing within a run.
 
 ### 9.2 Spawn director
 A spawn director blends section weights over time and scales enemy tiers based on player level for consistent pressure.

@@ -76,18 +76,7 @@ class SpawnerSystem {
     _elapsed += dt;
     while (_waveIndex < _resolvedWaves.length &&
         _elapsed >= _resolvedWaves[_waveIndex].time) {
-      final wave = _resolvedWaves[_waveIndex];
-      for (var i = 0; i < wave.count; i++) {
-        final enemyId =
-            wave.enemyId ??
-            _pickEnemyFromEnemies(wave.enemyPicker) ??
-            _pickEnemyFromRoles(wave.rolePicker);
-        if (enemyId == null) {
-          continue;
-        }
-        final variant = _pickVariant(wave.variantPicker);
-        _spawnEnemy(enemyId, playerPosition, variant: variant);
-      }
+      _spawnResolvedWave(_resolvedWaves[_waveIndex], playerPosition);
       _waveIndex++;
     }
   }
@@ -106,6 +95,11 @@ class SpawnerSystem {
 
   void setChampionChance(double chance) {
     _championChance = chance.clamp(0.0, 1.0);
+  }
+
+  void spawnBurst(SpawnWave wave, Vector2 playerPosition) {
+    final resolved = _resolveWave(wave);
+    _spawnResolvedWave(resolved, playerPosition);
   }
 
   void _spawnEnemy(
@@ -174,30 +168,44 @@ class SpawnerSystem {
   }
 
   List<_ResolvedWave> _resolveWaves(List<SpawnWave> waves) {
-    return waves
-        .map((wave) {
-          final roleEntries = _buildRoleEntries(wave.roleWeights);
-          final rolePicker = roleEntries.isEmpty
-              ? null
-              : _WeightedPicker(roleEntries);
-          final enemyEntries = _buildEnemyEntries(wave.enemyWeights);
-          final enemyPicker = enemyEntries.isEmpty
-              ? null
-              : _WeightedPicker(enemyEntries);
-          final variantEntries = _buildVariantEntries(wave.variantWeights);
-          final variantPicker = variantEntries.isEmpty
-              ? null
-              : _WeightedPicker(variantEntries);
-          return _ResolvedWave(
-            time: wave.time,
-            count: wave.count,
-            enemyId: wave.enemyId,
-            rolePicker: rolePicker,
-            enemyPicker: enemyPicker,
-            variantPicker: variantPicker,
-          );
-        })
-        .toList(growable: false);
+    return waves.map(_resolveWave).toList(growable: false);
+  }
+
+  _ResolvedWave _resolveWave(SpawnWave wave) {
+    final roleEntries = _buildRoleEntries(wave.roleWeights);
+    final rolePicker = roleEntries.isEmpty
+        ? null
+        : _WeightedPicker(roleEntries);
+    final enemyEntries = _buildEnemyEntries(wave.enemyWeights);
+    final enemyPicker = enemyEntries.isEmpty
+        ? null
+        : _WeightedPicker(enemyEntries);
+    final variantEntries = _buildVariantEntries(wave.variantWeights);
+    final variantPicker = variantEntries.isEmpty
+        ? null
+        : _WeightedPicker(variantEntries);
+    return _ResolvedWave(
+      time: wave.time,
+      count: wave.count,
+      enemyId: wave.enemyId,
+      rolePicker: rolePicker,
+      enemyPicker: enemyPicker,
+      variantPicker: variantPicker,
+    );
+  }
+
+  void _spawnResolvedWave(_ResolvedWave wave, Vector2 playerPosition) {
+    for (var i = 0; i < wave.count; i++) {
+      final enemyId =
+          wave.enemyId ??
+          _pickEnemyFromEnemies(wave.enemyPicker) ??
+          _pickEnemyFromRoles(wave.rolePicker);
+      if (enemyId == null) {
+        continue;
+      }
+      final variant = _pickVariant(wave.variantPicker);
+      _spawnEnemy(enemyId, playerPosition, variant: variant);
+    }
   }
 
   Map<EnemyRole, _WeightedPicker<EnemyId>> _buildRolePickers() {
