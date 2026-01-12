@@ -95,6 +95,9 @@ A spawn director blends section weights over time and scales enemy tiers based o
 ### 9.3 Spawner system
 Spawner waves are resolved into weighted picks across roles/enemies/variants, respecting champion caps and mutators.
 
+### 9.4 Finale pacing
+Areas can define a **stage finale** that starts after the timer completes, triggers a final burst wave, and holds the run open briefly before ending. This keeps the end-of-run moment readable without introducing permanent boss progression yet.
+
 ## 10) Progression systems
 ### 10.1 XP & leveling
 - XP is earned during combat and processed by `ExperienceSystem`.

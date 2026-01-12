@@ -195,6 +195,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   StageTimer? _stageTimer;
   AreaDef? _activeArea;
   int _currentSectionIndex = 0;
+  bool _finaleTriggered = false;
+  bool _finaleActive = false;
+  double _finaleTimer = 0;
   bool _runCompleted = false;
   double _contractProjectileSpeedMultiplier = 1.0;
   double _contractMoveSpeedMultiplier = 1.0;
@@ -454,8 +457,25 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         }
       }
       if (_stageTimer!.isComplete) {
-        _handleStageComplete();
-        return;
+        if (_finaleActive) {
+          _finaleTimer = math.max(0, _finaleTimer - dt);
+          if (_finaleTimer <= 0) {
+            _finaleActive = false;
+            _handleStageComplete();
+            return;
+          }
+        } else if (!_finaleTriggered && !stressTest) {
+          final finale = _activeArea?.finale;
+          if (finale != null) {
+            _startStageFinale(finale);
+          } else {
+            _handleStageComplete();
+            return;
+          }
+        } else if (!stressTest) {
+          _handleStageComplete();
+          return;
+        }
       }
     }
     _spawnerSystem.update(dt, _playerState.position);
@@ -630,6 +650,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void beginStageFromAreaSelect(AreaDef area, List<ContractId> contracts) {
     _activeArea = area;
     _applyContracts(contracts);
+    _resetFinaleState();
     _stageTimer = StageTimer(
       duration: area.stageDuration,
       sections: area.sections,
@@ -664,6 +685,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _resetStageActors();
     _activeArea = null;
     _stageTimer = null;
+    _resetFinaleState();
     _portalLockoutTimer = _portalLockoutDuration;
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(AreaSelectScreen.overlayKey);
@@ -689,6 +711,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _resetStageActors();
     _activeArea = null;
     _stageTimer = null;
+    _resetFinaleState();
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(HudOverlay.overlayKey);
@@ -1282,6 +1305,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _selectionState.clear();
     _activeArea = null;
     _stageTimer = null;
+    _resetFinaleState();
     _runCompleted = false;
     _setFlowState(GameFlowState.start);
     overlays.remove(HudOverlay.overlayKey);
@@ -1377,6 +1401,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _portalComponent.visible = _flowState == GameFlowState.homeBase;
   }
 
+  void _resetFinaleState() {
+    _finaleTriggered = false;
+    _finaleActive = false;
+    _finaleTimer = 0;
+  }
+
   void _applyStageSection({bool force = false}) {
     final timer = _stageTimer;
     final area = _activeArea;
@@ -1402,6 +1432,36 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         sectionDuration: sectionDuration,
         sectionIndex: sectionIndex,
       ),
+    );
+  }
+
+  void _startStageFinale(StageFinale finale) {
+    _finaleTriggered = true;
+    _finaleTimer = math.max(0, finale.duration);
+    _finaleActive = _finaleTimer > 0;
+    final message = finale.label.isEmpty
+        ? 'FINAL WAVE!'
+        : 'FINAL WAVE: ${finale.label}';
+    _hudState.triggerRewardMessage(message);
+    if (finale.bonusWaveCount <= 0) {
+      return;
+    }
+    final timer = _stageTimer;
+    final area = _activeArea;
+    final section = timer?.currentSection;
+    if (timer == null || area == null || section == null) {
+      return;
+    }
+    final sectionDuration = section.endTime - section.startTime;
+    final timeIntoSection = (timer.elapsed - section.startTime).clamp(
+      0.0,
+      sectionDuration,
+    );
+    _spawnBurstWave(
+      count: finale.bonusWaveCount,
+      section: section,
+      sectionDuration: sectionDuration,
+      timeIntoSection: timeIntoSection,
     );
   }
 
@@ -1432,6 +1492,20 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       0.0,
       sectionDuration,
     );
+    _spawnBurstWave(
+      count: milestone.bonusWaveCount,
+      section: section,
+      sectionDuration: sectionDuration,
+      timeIntoSection: timeIntoSection,
+    );
+  }
+
+  void _spawnBurstWave({
+    required int count,
+    required StageSection section,
+    required double sectionDuration,
+    required double timeIntoSection,
+  }) {
     final tuning = _spawnDirector.tuneSection(
       section: section,
       previousSection: null,
@@ -1445,7 +1519,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _spawnerSystem.spawnBurst(
       SpawnWave(
         time: 0,
-        count: milestone.bonusWaveCount,
+        count: count,
         roleWeights: adjustedRoles.isEmpty ? null : adjustedRoles,
         enemyWeights: tuning.enemyWeights.isEmpty ? null : tuning.enemyWeights,
         variantWeights: adjustedVariants.isEmpty ? null : adjustedVariants,
@@ -1588,6 +1662,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     unawaited(_metaWallet.add(_runSummary.metaCurrencyEarned));
     _resetStageActors();
     _stageTimer = null;
+    _resetFinaleState();
     _selectionState.clear();
     overlays.remove(SelectionOverlay.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
