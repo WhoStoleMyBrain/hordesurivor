@@ -55,7 +55,7 @@ class EnemyComponent extends PositionComponent {
          ..strokeWidth = 2,
        _telegraphPaint = Paint()
          ..style = PaintingStyle.stroke
-         ..strokeWidth = 2,
+         ..strokeWidth = _roleTelegraphStrokeWidth[state.role] ?? 2,
        _slowPaint = Paint()
          ..color = const Color(0xFF6EC7FF).withValues(alpha: 0.7)
          ..style = PaintingStyle.stroke
@@ -464,6 +464,17 @@ class EnemyComponent extends PositionComponent {
     EnemyRole.supportHealer: Color(0xFF6ED9C0),
     EnemyRole.supportBuffer: Color(0xFF5BB7E3),
     EnemyRole.pattern: Color(0xFF80C86A),
+  };
+  static const Map<EnemyRole, double> _roleTelegraphStrokeWidth = {
+    EnemyRole.ranged: 2.2,
+    EnemyRole.spawner: 2.6,
+    EnemyRole.disruptor: 2.4,
+    EnemyRole.zoner: 2.8,
+    EnemyRole.exploder: 2.4,
+    EnemyRole.supportHealer: 2.6,
+    EnemyRole.supportBuffer: 2.6,
+    EnemyRole.pattern: 2.2,
+    EnemyRole.elite: 3.0,
   };
 
   static Paint? _createAuraFillPaint(EnemyRole role) {
