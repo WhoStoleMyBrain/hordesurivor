@@ -43,6 +43,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 6 (Contracts/Heat): added a Crossfire Rush contract that stacks enemy projectile and move-speed pressure. Decision: keep it as a global option to test combined dodge pressure. Follow-up: evaluate heat/reward tuning once area-specific pools land.
 - ✅ Phase 6 (Contracts/Heat): added a Siege Formation contract to push faster support-heavy waves. Decision: keep it global with existing Contracts for now. Follow-up: tune support weight once area-specific contract pools exist.
 - ✅ Phase 7 (Enemy role clarity & scale tuning): boosted support/zoner aura opacity and added a spawner charge rune to make role telegraphs easier to read in dense waves. Decision: keep the rune tied to spawn cooldown progress to avoid extra noise. Follow-up: revisit sprite silhouettes/telegraph styling once new sprite recipes are available.
+- ✅ Phase 1 (Visual scale & readability pass): applied `RenderScale` to the area portal component so portal visuals scale with world scale. Decision: scale the portal label alongside the ring for consistent readability. Follow-up: confirm label legibility on smaller screens once UI scale playtests resume.
 
 ---
 

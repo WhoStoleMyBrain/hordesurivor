@@ -2,9 +2,16 @@ import 'package:flame/components.dart';
 import 'package:flame/text.dart';
 import 'package:flutter/painting.dart';
 
+import 'render_scale.dart';
+
 class PortalComponent extends PositionComponent {
-  PortalComponent({required this.radius, required this.label})
-    : super(anchor: Anchor.center);
+  PortalComponent({
+    required this.radius,
+    required this.label,
+    double renderScale = RenderScale.worldScale,
+  }) : super(anchor: Anchor.center) {
+    scale = Vector2.all(renderScale);
+  }
 
   final double radius;
   final String label;
