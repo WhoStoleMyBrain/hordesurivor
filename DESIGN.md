@@ -122,6 +122,7 @@ Items and upgrades apply explicit stat modifiers with tradeoffs. These are surfa
 - Contracts define gameplay mutators (projectile speed, move speed, elite/support weights).
 - Heat is displayed in-run, and rewards scale with heat multipliers.
 - Commanding Presence contract pairs elite and support weight boosts to emphasize coordinated enemy pressure.
+- Areas can define a contract pool to surface only thematic Contracts during area selection.
 
 ## 13) Rendering & visual pipeline
 ### 13.1 Sprite generation pipeline
