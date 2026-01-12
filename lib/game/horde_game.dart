@@ -917,6 +917,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _handleSynergyTriggered(SynergyDef synergy, EnemyState enemy) {
+    _runSummary.synergyTriggers += 1;
     final component = _acquireDamageNumber();
     final jitterX = (_damageNumberRandom.nextDouble() - 0.5) * 8;
     final jitterY = (_damageNumberRandom.nextDouble() - 0.5) * 6;
@@ -1540,6 +1541,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _endRun({required bool completed}) {
     _runCompleted = completed;
     _runSummary.completed = completed;
+    _runSummary.skills = _skillSystem.skillIds;
+    _runSummary.items = _levelUpSystem.appliedItems.toList(growable: false);
+    _runSummary.upgrades = _levelUpSystem.appliedUpgrades.toList(
+      growable: false,
+    );
     final dropBonus = _playerState.stats.value(StatId.drops);
     final dropMultiplier = math.max(0.0, 1 + dropBonus);
     _runSummary.metaRewardMultiplier =

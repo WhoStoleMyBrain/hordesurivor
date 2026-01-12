@@ -50,6 +50,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase A (Onboarding & first-run clarity): tuned early-stage enemy variety to introduce chasers first, then ranged, then support/spawner pressure in later sections. Decision: keep section notes updated to match the new ramp. Follow-up: revisit weights after playtesting the early minutes.
 - ✅ Phase B (Build identity & tag synergy reinforcement): added data-driven synergy definitions for Oil + Fire → Ignite, surfaced synergy hints in the selection UI, and added an on-hit synergy text pulse when ignition triggers. Decision: reuse the pooled damage number component for the synergy cue to avoid new allocations. Follow-up: add a lightweight icon/pulse in render and expand the synergy catalog beyond Ignite.
 - ✅ Phase C (Run structure & end-of-run identity): added data-driven run milestones per area that grant bonus XP and trigger burst waves for mid-run and final pressure spikes. Decision: keep milestone rewards as XP plus a burst wave to reinforce pacing without adding new end-of-run entities yet. Follow-up: add a dedicated finale encounter and expand milestone effects once boss-style behavior lands.
+- ✅ Phase C (Run structure & end-of-run identity): expanded the run summary with a build recap (skills/items/upgrades) and a synergy trigger count on the death screen. Decision: show recap as compact chips below core stats to keep the summary readable. Follow-up: revisit layout density once a dedicated run recap screen exists.
 
 ---
 

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../data/ids.dart';
+import '../data/item_defs.dart';
+import '../data/skill_defs.dart';
+import '../data/skill_upgrade_defs.dart';
 import '../game/meta_currency_wallet.dart';
 import '../game/run_summary.dart';
 import 'ui_scale.dart';
@@ -24,6 +28,9 @@ class DeathScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final skillNames = _namesForSkills(summary.skills);
+    final itemNames = _namesForItems(summary.items);
+    final upgradeNames = _namesForUpgrades(summary.upgrades);
     return Container(
       color: Colors.black.withValues(alpha: 0.7),
       alignment: Alignment.center,
@@ -98,6 +105,22 @@ class DeathScreen extends StatelessWidget {
                   label: 'Damage Taken',
                   value: summary.damageTaken.toStringAsFixed(0),
                 ),
+                if (summary.synergyTriggers > 0)
+                  _StatRow(
+                    label: 'Synergy Triggers',
+                    value: summary.synergyTriggers.toString(),
+                  ),
+                if (skillNames.isNotEmpty ||
+                    itemNames.isNotEmpty ||
+                    upgradeNames.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  if (skillNames.isNotEmpty)
+                    _RecapSection(title: 'Skills', entries: skillNames),
+                  if (itemNames.isNotEmpty)
+                    _RecapSection(title: 'Items', entries: itemNames),
+                  if (upgradeNames.isNotEmpty)
+                    _RecapSection(title: 'Upgrades', entries: upgradeNames),
+                ],
                 const SizedBox(height: 20),
                 Row(
                   children: [
@@ -129,6 +152,39 @@ class DeathScreen extends StatelessWidget {
     final minutes = clamped ~/ 60;
     final secs = clamped % 60;
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+  }
+
+  List<String> _namesForSkills(List<SkillId> ids) {
+    if (ids.isEmpty) {
+      return const [];
+    }
+    final idSet = ids.toSet();
+    return [
+      for (final def in skillDefs)
+        if (idSet.contains(def.id)) def.name,
+    ];
+  }
+
+  List<String> _namesForItems(List<ItemId> ids) {
+    if (ids.isEmpty) {
+      return const [];
+    }
+    final idSet = ids.toSet();
+    return [
+      for (final def in itemDefs)
+        if (idSet.contains(def.id)) def.name,
+    ];
+  }
+
+  List<String> _namesForUpgrades(List<SkillUpgradeId> ids) {
+    if (ids.isEmpty) {
+      return const [];
+    }
+    final idSet = ids.toSet();
+    return [
+      for (final def in skillUpgradeDefs)
+        if (idSet.contains(def.id)) def.name,
+    ];
   }
 }
 
@@ -177,6 +233,60 @@ class _MetaWalletRow extends StatelessWidget {
           value: wallet.balance.toString(),
         );
       },
+    );
+  }
+}
+
+class _RecapSection extends StatelessWidget {
+  const _RecapSection({required this.title, required this.entries});
+
+  final String title;
+  final List<String> entries;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.4,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final entry in entries)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF212733),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.white24),
+                  ),
+                  child: Text(
+                    entry,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
