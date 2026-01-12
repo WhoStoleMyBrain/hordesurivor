@@ -220,3 +220,114 @@ This section verifies what is already implemented in the codebase and lists the 
 - Clarity beats complexity; avoid unreadable VFX or overly dense UI.
 - Keep fixed timestep, pooling, and data-driven definitions.
 - No new TODOs without an associated issue/task reference.
+
+---
+
+# V0.5 Proposal — Toward a shippable “playable loop”
+
+V0.5 focuses on turning the current V0.4 foundation into a **cohesive, repeatable, shippable loop**: an end-to-end run that starts cleanly, teaches the player, delivers readable combat and build identity, and ends with clear outcomes. The goal is to make the game feel like a complete “vertical slice” of the final product while keeping all V0.1 design pillars intact (no stat meta-progression, lateral unlocks, opt-in difficulty, clarity-first combat).
+
+---
+
+## V0.5 Objectives (summary)
+- **First-play experience polish:** tutorialized onboarding flow, clearer HUD, and readable early-game pressure.
+- **Build identity in-run:** deepen tag-based synergies (without hard evolutions) and surface them in UI/feedback.
+- **Run structure & pacing:** defined milestones, a mid-run “pressure spike,” and a readable end-of-run moment.
+- **Enemy role language:** role telegraph and silhouette standards applied consistently.
+- **Vertical slice quality:** runnable, testable, and stable on desktop and Android targets.
+
+---
+
+## Phase A — Onboarding & first-run clarity
+**Goal:** make the first 3–5 minutes readable and instructive without tutorials that break flow.
+
+**Implementation details:**
+1. **First-run hints overlay** in `lib/ui/`:
+   - Lightweight, dismissible callouts for movement, auto-aiming skills, leveling, and item tradeoffs.
+   - Only show on the first run; persist a “tutorial seen” flag in shared preferences.
+2. **HUD clarity adjustments** in `lib/ui/`:
+   - Move or group critical readouts (HP, XP, level, heat) into a consistent “primary cluster.”
+   - Add iconography for tags/statuses in the selection overlay (skill and item entries).
+3. **Early-game pacing pass** in `lib/game/experience_system.dart` and `lib/game/spawn_system.dart`:
+   - Tune the first 2 minutes to avoid overwhelming density (clear enemy roles).
+   - Use a gentle enemy variety curve: chaser → ranged → spawner.
+
+**Exit criteria:** first-time players can finish a run without external instruction, and the HUD reads clearly at default scaling.
+
+---
+
+## Phase B — Build identity & tag synergy reinforcement
+**Goal:** make tag synergies feel like deliberate player-driven build identity.
+
+**Implementation details:**
+1. **Tag synergy system** in `lib/game/`:
+   - Add data-driven synergy hooks (e.g., Oil + Fire triggers Ignite burst/DOT).
+   - Keep synergies as additive effects, not hard skill evolutions.
+2. **Synergy UI feedback** in `lib/ui/` and `lib/render/`:
+   - Add a subtle, consistent on-hit feedback (icon or color pulse) when a synergy triggers.
+   - Surface synergy opportunities in tooltips and selection UI (e.g., “Oil + Fire = Ignite”).
+3. **Definition data pass** in `lib/data/`:
+   - Add synergy metadata to `SkillDef`/`StatusDef` or a dedicated synergy registry.
+   - Ensure all tags used in synergies exist and are validated at startup.
+
+**Exit criteria:** players can intentionally assemble a build and see/feel synergy payoffs in combat.
+
+---
+
+## Phase C — Run structure & end-of-run identity
+**Goal:** give each run a clear arc with a legible “final moment.”
+
+**Implementation details:**
+1. **Run milestones** in `lib/game/`:
+   - Add timed milestones (e.g., 3 min and 6 min) that push pressure and reward.
+   - Keep milestones data-driven in `AreaDef`.
+2. **End-of-run event** in `lib/game/` and `lib/render/`:
+   - Add a readable “final wave” or “boss-style” elite encounter (no new faction yet).
+   - Ensure telegraphs and role clarity match V0.4 readability standards.
+3. **Summary and rewards polish** in `lib/ui/`:
+   - Improve run summary with “build recap” (skills/tags/items chosen).
+   - Show synergy activations count (if implemented) to reinforce build identity.
+
+**Exit criteria:** runs have a clear beginning/middle/end, and the end feels like a deliberate finale.
+
+---
+
+## Phase D — Enemy role language & telegraph standards
+**Goal:** make enemy roles and telegraphs unmistakable in dense crowds.
+
+**Implementation details:**
+1. **Role telegraph guidelines** in `lib/render/`:
+   - Define color/shape conventions per role (support, zoner, spawner, elite).
+   - Apply consistent opacity and timing to telegraphs.
+2. **Silhouette pass** in sprite recipes:
+   - Add exaggerated silhouette differences for key roles (spawners/zoners/elite).
+3. **Readability validation**:
+   - Test in stress scene and normal run to ensure telegraph visibility at scale.
+
+**Exit criteria:** all enemy roles are visually distinguishable in dense waves.
+
+---
+
+## Phase E — Platform readiness & QA
+**Goal:** ensure V0.5 can be reliably played on desktop and Android.
+
+**Implementation details:**
+1. **Input polish**:
+   - Validate keyboard + touch input parity.
+   - Add a basic virtual stick overlay for mobile (if not already present).
+2. **Performance pass**:
+   - Run the stress scene with updated telegraphs/synergy effects.
+   - Confirm pooling and no per-frame allocations in new systems.
+3. **Quality gates**:
+   - Run `dart format .`, `flutter analyze`, and `flutter test`.
+   - Verify no new TODOs without an issue reference.
+
+**Exit criteria:** V0.5 builds, runs, and passes tests on desktop, and Android input feels responsive.
+
+---
+
+## V0.5 Exit Criteria (overall)
+- A complete, readable run loop with clear onboarding and a distinct end-of-run moment.
+- Tag synergies are data-driven, visible, and support build identity without hard evolutions.
+- Enemy role telegraphs are consistent and readable in dense combat.
+- Desktop and Android runs are playable with stable performance and passing tests.
