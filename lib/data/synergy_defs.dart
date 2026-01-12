@@ -40,6 +40,16 @@ const List<SynergyDef> synergyDefs = [
     requiredStatusEffects: {StatusEffectId.oilSoaked},
     resultStatusEffect: StatusEffectId.ignite,
   ),
+  SynergyDef(
+    id: SynergyId.igniteOnRoot,
+    name: 'Kindling',
+    description: 'Fire hits on rooted enemies spark into burning damage.',
+    selectionHint: 'Roots + Fire → Kindling',
+    triggerLabel: 'Kindling!',
+    triggerTags: TagSet(elements: {ElementTag.fire}),
+    requiredStatusEffects: {StatusEffectId.root},
+    resultStatusEffect: StatusEffectId.ignite,
+  ),
 ];
 
 final Map<SynergyId, SynergyDef> synergyDefsById = Map.unmodifiable({

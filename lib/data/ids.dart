@@ -33,7 +33,7 @@ enum SkillUpgradeId {
 
 enum StatusEffectId { slow, root, ignite, oilSoaked, vulnerable }
 
-enum SynergyId { igniteOnOil }
+enum SynergyId { igniteOnOil, igniteOnRoot }
 
 enum ItemId {
   glassCatalyst,
