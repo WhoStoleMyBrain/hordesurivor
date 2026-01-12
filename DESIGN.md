@@ -132,6 +132,7 @@ Render components emphasize clarity (badges, telegraphs, readable HUD). Optional
 - Overlays (HUD, selection, start, options, compendium, meta unlocks, area select, death) are attached to the Flame game instance.
 - UI text scaling is adjustable and persisted, supporting accessibility and future mobile sizing.
 - A first-run hints overlay appears during the first stage and is dismissible to reinforce core controls and tradeoffs.
+- The HUD primary cluster groups HP/XP with Contracts heat to keep difficulty context visible without scanning the lower stage panel.
 
 ## 15) Performance & validation
 ### 15.1 Stress scene
