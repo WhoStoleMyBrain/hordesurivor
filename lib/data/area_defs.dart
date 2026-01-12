@@ -39,6 +39,20 @@ class StageMilestone {
   final int xpReward;
 }
 
+class StageFinale {
+  const StageFinale({
+    required this.duration,
+    required this.label,
+    this.note,
+    this.bonusWaveCount = 0,
+  });
+
+  final double duration;
+  final String label;
+  final String? note;
+  final int bonusWaveCount;
+}
+
 class AreaDef {
   const AreaDef({
     required this.id,
@@ -54,6 +68,7 @@ class AreaDef {
     this.lootModifiers = const [],
     this.mapMutators = const [],
     this.milestones = const [],
+    this.finale,
   });
 
   final AreaId id;
@@ -69,6 +84,7 @@ class AreaDef {
   final double stageDuration;
   final List<StageSection> sections;
   final List<StageMilestone> milestones;
+  final StageFinale? finale;
 }
 
 const List<AreaDef> areaDefs = [
@@ -99,6 +115,12 @@ const List<AreaDef> areaDefs = [
         xpReward: 32,
       ),
     ],
+    finale: StageFinale(
+      duration: 12,
+      label: 'Extraction Hold',
+      note: 'Survive the last infernal push.',
+      bonusWaveCount: 14,
+    ),
     sections: [
       StageSection(
         startTime: 0,
@@ -160,6 +182,12 @@ const List<AreaDef> areaDefs = [
         xpReward: 36,
       ),
     ],
+    finale: StageFinale(
+      duration: 14,
+      label: 'Sanctum Stand',
+      note: 'Hold against the final light tide.',
+      bonusWaveCount: 16,
+    ),
     sections: [
       StageSection(
         startTime: 0,
