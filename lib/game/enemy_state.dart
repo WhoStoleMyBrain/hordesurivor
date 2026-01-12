@@ -200,6 +200,21 @@ class EnemyState {
     }
   }
 
+  bool hasStatusEffect(StatusEffectId id) {
+    switch (id) {
+      case StatusEffectId.slow:
+        return slowTimer > 0;
+      case StatusEffectId.root:
+        return rootTimer > 0;
+      case StatusEffectId.ignite:
+        return igniteTimer > 0;
+      case StatusEffectId.oilSoaked:
+        return oilTimer > 0;
+      case StatusEffectId.vulnerable:
+        return false;
+    }
+  }
+
   double get effectiveMoveSpeed => moveSpeed * speedMultiplier;
 
   void applyKnockback({

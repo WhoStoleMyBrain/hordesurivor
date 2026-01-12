@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/item_defs.dart';
 import '../data/skill_defs.dart';
 import '../data/skill_upgrade_defs.dart';
+import '../data/synergy_defs.dart';
 import '../data/tags.dart';
 import '../game/level_up_system.dart';
 import 'selection_state.dart';
@@ -115,6 +116,7 @@ class _ChoiceCard extends StatelessWidget {
     final tags = _tagsForChoice(choice);
     final badges = tagBadgesForTags(tags);
     final statChanges = _statChangesForChoice(choice);
+    final synergies = _synergyHintsForTags(tags);
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.all(12),
@@ -160,6 +162,16 @@ class _ChoiceCard extends StatelessWidget {
               runSpacing: 6,
               children: [for (final badge in badges) TagBadge(data: badge)],
             ),
+          ],
+          if (synergies.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            for (final line in synergies)
+              Text(
+                line,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.white70,
+                ),
+              ),
           ],
         ],
       ),
@@ -229,4 +241,17 @@ List<String> _statChangesForChoice(SelectionChoice choice) {
     case SelectionType.skill:
       return const [];
   }
+}
+
+List<String> _synergyHintsForTags(TagSet tags) {
+  if (tags.isEmpty) {
+    return const [];
+  }
+  final hints = <String>[];
+  for (final synergy in synergyDefs) {
+    if (synergy.matchesTags(tags)) {
+      hints.add('Synergy: ${synergy.selectionHint}');
+    }
+  }
+  return hints;
 }

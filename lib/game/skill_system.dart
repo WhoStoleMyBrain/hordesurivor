@@ -234,7 +234,7 @@ class SkillSystem {
       projectile.knockbackDuration = def.knockbackDuration;
     }
     projectile
-      ..ignitesOiledTargets = true
+      ..sourceSkillId = SkillId.fireball
       ..igniteDuration = igniteDuration
       ..igniteDamagePerSecond = igniteDamagePerSecond;
     onProjectileSpawn(projectile);
@@ -295,6 +295,7 @@ class SkillSystem {
       lifespan: 1.4,
       fromEnemy: false,
     );
+    projectile.sourceSkillId = SkillId.oilBombs;
     if (def != null && def.knockbackForce > 0 && def.knockbackDuration > 0) {
       projectile.knockbackForce = def.knockbackForce * knockbackScale;
       projectile.knockbackDuration = def.knockbackDuration;

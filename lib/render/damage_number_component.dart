@@ -26,11 +26,12 @@ class DamageNumberComponent extends PositionComponent {
     required TextPaint textPaint,
     required Vector2 velocity,
     double lifespan = 0.7,
+    String? label,
   }) {
     this.position.setFrom(position);
     _velocity.setFrom(velocity);
     _textPaint = textPaint;
-    _text = amount.toStringAsFixed(0);
+    _text = label ?? amount.toStringAsFixed(0);
     _remaining = lifespan;
     _active = true;
   }

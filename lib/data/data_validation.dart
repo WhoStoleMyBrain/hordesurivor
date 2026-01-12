@@ -8,6 +8,7 @@ import 'meta_unlock_defs.dart';
 import 'skill_defs.dart';
 import 'skill_upgrade_defs.dart';
 import 'status_effect_defs.dart';
+import 'synergy_defs.dart';
 import 'tags.dart';
 
 typedef DataLogFn = void Function(String message);
@@ -74,6 +75,11 @@ DataValidationResult validateGameData() {
     label: 'ContractDef',
     result: result,
   );
+  _checkUniqueIds(
+    ids: synergyDefs.map((def) => def.id),
+    label: 'SynergyDef',
+    result: result,
+  );
 
   for (final def in skillDefs) {
     if (_isTagSetEmpty(def.tags)) {
@@ -113,6 +119,15 @@ DataValidationResult validateGameData() {
   for (final def in statusEffectDefs) {
     if (_isTagSetEmpty(def.tags)) {
       result.errors.add('StatusEffectDef ${def.id} has no tags.');
+    }
+  }
+
+  for (final def in synergyDefs) {
+    if (_isTagSetEmpty(def.triggerTags)) {
+      result.errors.add('SynergyDef ${def.id} has no trigger tags.');
+    }
+    if (def.requiredStatusEffects.isEmpty) {
+      result.errors.add('SynergyDef ${def.id} has no required status effects.');
     }
   }
 

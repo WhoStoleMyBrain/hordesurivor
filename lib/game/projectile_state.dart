@@ -1,5 +1,6 @@
 import 'package:flame/extensions.dart';
 
+import '../data/ids.dart';
 import 'effect_state.dart';
 
 class ProjectileState {
@@ -18,7 +19,7 @@ class ProjectileState {
   bool fromEnemy = false;
   bool active = false;
   bool spawnImpactEffect = false;
-  bool ignitesOiledTargets = false;
+  SkillId? sourceSkillId;
   double igniteDuration = 0;
   double igniteDamagePerSecond = 0;
   double knockbackForce = 0;
@@ -51,7 +52,7 @@ class ProjectileState {
     age = 0;
     active = true;
     spawnImpactEffect = false;
-    ignitesOiledTargets = false;
+    sourceSkillId = null;
     igniteDuration = 0;
     igniteDamagePerSecond = 0;
     knockbackForce = 0;

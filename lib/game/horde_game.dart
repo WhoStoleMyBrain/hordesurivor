@@ -17,6 +17,7 @@ import '../data/item_defs.dart';
 import '../data/skill_defs.dart';
 import '../data/skill_upgrade_defs.dart';
 import '../data/stat_defs.dart';
+import '../data/synergy_defs.dart';
 import '../data/tags.dart';
 import '../data/area_defs.dart';
 import '../render/damage_number_component.dart';
@@ -161,6 +162,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       fontSize: 10,
       fontWeight: FontWeight.w700,
       letterSpacing: 0.4,
+    ),
+  );
+  final TextPaint _synergyPaint = TextPaint(
+    style: const TextStyle(
+      color: Color(0xFFFF6B6B),
+      fontSize: 9,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 0.5,
     ),
   );
   final math.Random _stressRandom = math.Random(41);
@@ -497,6 +506,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       onPlayerHit: (damage) {
         _damageSystem.queuePlayerDamage(_playerState, damage);
       },
+      onSynergyTriggered: _handleSynergyTriggered,
     );
     _effectSystem.update(
       dt,
@@ -894,6 +904,31 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       amount: amount,
       textPaint: _enemyDamagePaint,
       velocity: _damageNumberVelocity,
+    );
+    if (!component.isMounted) {
+      add(component);
+    }
+  }
+
+  void _handleSynergyTriggered(SynergyDef synergy, EnemyState enemy) {
+    final component = _acquireDamageNumber();
+    final jitterX = (_damageNumberRandom.nextDouble() - 0.5) * 8;
+    final jitterY = (_damageNumberRandom.nextDouble() - 0.5) * 6;
+    _damageNumberPosition.setValues(
+      enemy.position.x + jitterX,
+      enemy.position.y + jitterY,
+    );
+    _damageNumberVelocity.setValues(
+      0,
+      -20 - _damageNumberRandom.nextDouble() * 6,
+    );
+    component.reset(
+      position: _damageNumberPosition,
+      amount: 0,
+      textPaint: _synergyPaint,
+      velocity: _damageNumberVelocity,
+      label: synergy.triggerLabel,
+      lifespan: 0.6,
     );
     if (!component.isMounted) {
       add(component);
