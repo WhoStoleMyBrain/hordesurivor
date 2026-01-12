@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import '../data/ids.dart';
+
 class RunSummary {
   RunSummary({
     this.timeAlive = 0,
@@ -10,6 +12,10 @@ class RunSummary {
     this.metaRewardMultiplier = 1.0,
     this.contractHeat = 0,
     this.contractNames = const [],
+    this.skills = const [],
+    this.items = const [],
+    this.upgrades = const [],
+    this.synergyTriggers = 0,
     this.areaName,
     this.completed = false,
   });
@@ -22,6 +28,10 @@ class RunSummary {
   double metaRewardMultiplier;
   int contractHeat;
   List<String> contractNames;
+  List<SkillId> skills;
+  List<ItemId> items;
+  List<SkillUpgradeId> upgrades;
+  int synergyTriggers;
   String? areaName;
   bool completed;
 
@@ -57,6 +67,10 @@ class RunSummary {
     metaRewardMultiplier = 1.0;
     contractHeat = 0;
     contractNames = const [];
+    skills = const [];
+    items = const [];
+    upgrades = const [];
+    synergyTriggers = 0;
     areaName = null;
     completed = false;
   }
