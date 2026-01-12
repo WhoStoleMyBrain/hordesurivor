@@ -45,6 +45,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 6 (Contracts/Heat): added a Commanding Presence contract that boosts champion and support presence together. Decision: keep it as a mid-heat global option to reinforce coordination pressure. Follow-up: tune elite/support multipliers once area-specific contract pools land.
 - ✅ Phase 7 (Enemy role clarity & scale tuning): boosted support/zoner aura opacity and added a spawner charge rune to make role telegraphs easier to read in dense waves. Decision: keep the rune tied to spawn cooldown progress to avoid extra noise. Follow-up: revisit sprite silhouettes/telegraph styling once new sprite recipes are available.
 - ✅ Phase 1 (Visual scale & readability pass): applied `RenderScale` to the area portal component so portal visuals scale with world scale. Decision: scale the portal label alongside the ring for consistent readability. Follow-up: confirm label legibility on smaller screens once UI scale playtests resume.
+- ✅ Phase A (Onboarding & first-run clarity): added a first-run hints overlay that appears on the first stage and persists a tutorial-seen flag. Decision: keep the overlay compact with four core reminders and a single dismiss action. Follow-up: add iconography or tag badges to the hints once onboarding art direction is defined.
 
 ---
 
