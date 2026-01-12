@@ -21,7 +21,7 @@ class AreaSelectScreen extends StatefulWidget {
 }
 
 class _AreaSelectScreenState extends State<AreaSelectScreen> {
-  final Set<ContractId> _selectedContracts = {};
+  final Map<AreaId, Set<ContractId>> _selectedContractsByArea = {};
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +48,14 @@ class _AreaSelectScreenState extends State<AreaSelectScreen> {
                   separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final area = areaDefs[index];
+                    final areaContracts = _contractsForArea(area);
+                    final selectedContracts = _selectedContractsForArea(area);
+                    final allowedContracts = areaContracts
+                        .map((contract) => contract.id)
+                        .toSet();
+                    selectedContracts.removeWhere(
+                      (id) => !allowedContracts.contains(id),
+                    );
                     return Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -116,17 +124,17 @@ class _AreaSelectScreenState extends State<AreaSelectScreen> {
                           const SizedBox(height: 6),
                           _InfoRow(
                             label: 'Contracts',
-                            value: _selectedContracts.isEmpty
+                            value: selectedContracts.isEmpty
                                 ? 'None selected'
-                                : _contractSummary(),
-                            muted: _selectedContracts.isEmpty,
+                                : _contractSummary(selectedContracts),
+                            muted: selectedContracts.isEmpty,
                           ),
                           const SizedBox(height: 8),
                           Wrap(
                             spacing: 8,
                             runSpacing: 6,
                             children: [
-                              for (final contract in contractDefs)
+                              for (final contract in areaContracts)
                                 Tooltip(
                                   message: contract.description,
                                   child: FilterChip(
@@ -134,17 +142,15 @@ class _AreaSelectScreenState extends State<AreaSelectScreen> {
                                       '${contract.name} '
                                       '(+${contract.heat})',
                                     ),
-                                    selected: _selectedContracts.contains(
+                                    selected: selectedContracts.contains(
                                       contract.id,
                                     ),
                                     onSelected: (selected) {
                                       setState(() {
                                         if (selected) {
-                                          _selectedContracts.add(contract.id);
+                                          selectedContracts.add(contract.id);
                                         } else {
-                                          _selectedContracts.remove(
-                                            contract.id,
-                                          );
+                                          selectedContracts.remove(contract.id);
                                         }
                                       });
                                     },
@@ -158,7 +164,7 @@ class _AreaSelectScreenState extends State<AreaSelectScreen> {
                             child: ElevatedButton(
                               onPressed: () => widget.onAreaSelected(
                                 area,
-                                _selectedContracts.toList(growable: false),
+                                selectedContracts.toList(growable: false),
                               ),
                               child: const Text('Begin Stage'),
                             ),
@@ -243,10 +249,28 @@ class _InfoRow extends StatelessWidget {
 }
 
 extension on _AreaSelectScreenState {
-  String _contractSummary() {
+  Set<ContractId> _selectedContractsForArea(AreaDef area) {
+    return _selectedContractsByArea.putIfAbsent(area.id, () => <ContractId>{});
+  }
+
+  List<ContractDef> _contractsForArea(AreaDef area) {
+    if (area.contractPool.isEmpty) {
+      return contractDefs;
+    }
+    final contracts = <ContractDef>[];
+    for (final id in area.contractPool) {
+      final def = contractDefsById[id];
+      if (def != null) {
+        contracts.add(def);
+      }
+    }
+    return contracts;
+  }
+
+  String _contractSummary(Set<ContractId> contracts) {
     var heat = 0;
     var rewardMultiplier = 1.0;
-    for (final id in _selectedContracts) {
+    for (final id in contracts) {
       final def = contractDefsById[id];
       if (def == null) {
         continue;

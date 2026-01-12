@@ -58,6 +58,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase D (Enemy role language & telegraph standards): added per-role telegraph stroke widths so key roles (spawner/zoner/support/elite) read at a glance in dense waves. Decision: keep the width deltas subtle (2.2–3.0) to avoid overpowering other telegraphs. Follow-up: revisit widths alongside silhouette updates.
 - ✅ Phase E (Platform readiness & QA): added a virtual stick overlay that renders at touch origin during pan input, showing dead zone and max-radius travel for mobile steering. Decision: show the overlay only while actively panning to avoid HUD clutter. Follow-up: consider an optional idle hint or left-hand lock-on toggle for mobile.
 - ✅ Phase C (Run structure & end-of-run identity): expanded the run summary recap to list per-synergy trigger counts alongside the existing total synergy trigger stat. Decision: list synergies in definition order with an “×count” suffix to keep the recap compact. Follow-up: revisit ordering once the synergy catalog grows.
+- ✅ Phase 6 (Contracts/Heat): added per-area contract pools so the area select screen focuses mutators by location. Decision: keep pools small and thematic per area for now. Follow-up: expand the catalog and consider area-specific mutators once more contracts exist.
 
 ---
 
@@ -85,7 +86,7 @@ This section verifies what is already implemented in the codebase and lists the 
 - Visual scale & readability pass: confirm/tune world render scaling across all attacks and telegraphs, and verify collision radii remain unchanged on both desktop and mobile targets.
 - Knockback/impact tuning: playtest-based knockback value tuning and optional hit-flash intensity adjustments.
 - Meta progression expansion: grow the lateral unlock catalog (skills/items/factions/characters), add a tree-style layout, and keep unlocks strictly non-power.
-- Contracts/Heat expansion: broaden the contract catalog further (including area-specific mutators) and polish in-run presentation.
+- Contracts/Heat expansion: broaden the contract catalog further, add area-specific mutators, and polish in-run presentation.
 - Enemy role clarity pass: refine sprite recipes and silhouettes for spawners/zoners/supporters in dense waves (telegraph opacity/runes updated).
 - Performance & QA pass: run format/analyze/test gates and stress-scene validation with pooled effects.
 

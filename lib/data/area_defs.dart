@@ -67,6 +67,7 @@ class AreaDef {
     this.difficultyTiers = const ['Standard'],
     this.lootModifiers = const [],
     this.mapMutators = const [],
+    this.contractPool = const [],
     this.milestones = const [],
     this.finale,
   });
@@ -81,6 +82,7 @@ class AreaDef {
   final List<String> difficultyTiers;
   final List<String> lootModifiers;
   final List<String> mapMutators;
+  final List<ContractId> contractPool;
   final double stageDuration;
   final List<StageSection> sections;
   final List<StageMilestone> milestones;
@@ -98,6 +100,12 @@ const List<AreaDef> areaDefs = [
     enemyThemes: ['Demons'],
     lootModifiers: ['+Ember shards'],
     mapMutators: ['Falling embers'],
+    contractPool: [
+      ContractId.volleyPressure,
+      ContractId.relentlessAdvance,
+      ContractId.crossfireRush,
+      ContractId.eliteSurge,
+    ],
     stageDuration: 180,
     milestones: [
       StageMilestone(
@@ -165,6 +173,12 @@ const List<AreaDef> areaDefs = [
     enemyThemes: ['Angels'],
     lootModifiers: ['+Radiant sigils'],
     mapMutators: ['Unstable light zones'],
+    contractPool: [
+      ContractId.supportUplink,
+      ContractId.coordinatedAssault,
+      ContractId.siegeFormation,
+      ContractId.commandingPresence,
+    ],
     stageDuration: 210,
     milestones: [
       StageMilestone(

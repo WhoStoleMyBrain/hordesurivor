@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'area_defs.dart';
 import 'contract_defs.dart';
 import 'enemy_defs.dart';
+import 'ids.dart';
 import 'item_defs.dart';
 import 'meta_unlock_defs.dart';
 import 'skill_defs.dart';
@@ -224,6 +225,22 @@ DataValidationResult validateGameData() {
     }
     if (def.enemyThemes.isEmpty) {
       result.warnings.add('AreaDef ${def.id} has no enemy themes.');
+    }
+    if (def.contractPool.isNotEmpty) {
+      final seenContracts = <ContractId>{};
+      for (final contract in def.contractPool) {
+        if (!contractDefsById.containsKey(contract)) {
+          result.errors.add(
+            'AreaDef ${def.id} references missing contract $contract.',
+          );
+          continue;
+        }
+        if (!seenContracts.add(contract)) {
+          result.warnings.add(
+            'AreaDef ${def.id} contract pool has duplicate $contract.',
+          );
+        }
+      }
     }
 
     var lastEnd = 0.0;
