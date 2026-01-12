@@ -42,6 +42,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 6 (Contracts/Heat): added a Hardened Onslaught contract that boosts elite odds and enemy move speed. Decision: keep it as another global contract alongside the initial set. Follow-up: add area-specific contract pools once additional mutators are defined.
 - ✅ Phase 6 (Contracts/Heat): added a Crossfire Rush contract that stacks enemy projectile and move-speed pressure. Decision: keep it as a global option to test combined dodge pressure. Follow-up: evaluate heat/reward tuning once area-specific pools land.
 - ✅ Phase 6 (Contracts/Heat): added a Siege Formation contract to push faster support-heavy waves. Decision: keep it global with existing Contracts for now. Follow-up: tune support weight once area-specific contract pools exist.
+- ✅ Phase 6 (Contracts/Heat): added a Commanding Presence contract that boosts champion and support presence together. Decision: keep it as a mid-heat global option to reinforce coordination pressure. Follow-up: tune elite/support multipliers once area-specific contract pools land.
 - ✅ Phase 7 (Enemy role clarity & scale tuning): boosted support/zoner aura opacity and added a spawner charge rune to make role telegraphs easier to read in dense waves. Decision: keep the rune tied to spawn cooldown progress to avoid extra noise. Follow-up: revisit sprite silhouettes/telegraph styling once new sprite recipes are available.
 - ✅ Phase 1 (Visual scale & readability pass): applied `RenderScale` to the area portal component so portal visuals scale with world scale. Decision: scale the portal label alongside the ring for consistent readability. Follow-up: confirm label legibility on smaller screens once UI scale playtests resume.
 
@@ -58,6 +59,7 @@ This section verifies what is already implemented in the codebase and lists the 
 - Meta Shards: earn rules, run-summary display, persistent wallet, and UI badges (start/home/death).
 - Meta Unlocks screen with two convenience-only unlocks, spending flow, and run-start modifiers.
 - Contracts/Heat: data definitions, area selection UI, gameplay mutators (elite/support weights, projectile/move speed), reward scaling, and HUD heat indicator.
+- Contracts/Heat: expanded catalog with the Commanding Presence contract to mix elite and support pressure.
 - UI text scale system: MediaQuery text scaler, Options slider, and persisted preference.
 - Waterjet/Sword Thrust/Deflect tooltips aligned with current behavior.
 - Enemy role badges for non-core roles to reinforce readability.

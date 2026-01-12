@@ -93,4 +93,5 @@ enum ContractId {
   hardenedOnslaught,
   crossfireRush,
   siegeFormation,
+  commandingPresence,
 }

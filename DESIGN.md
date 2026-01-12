@@ -115,6 +115,7 @@ Items and upgrades apply explicit stat modifiers with tradeoffs. These are surfa
 ## 12) Difficulty system (Contracts/Heat)
 - Contracts define gameplay mutators (projectile speed, move speed, elite/support weights).
 - Heat is displayed in-run, and rewards scale with heat multipliers.
+- Commanding Presence contract pairs elite and support weight boosts to emphasize coordinated enemy pressure.
 
 ## 13) Rendering & visual pipeline
 ### 13.1 Sprite generation pipeline

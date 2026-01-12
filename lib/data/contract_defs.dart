@@ -93,6 +93,15 @@ const List<ContractDef> contractDefs = [
     enemyMoveSpeedMultiplier: 1.15,
     supportRoleWeightMultiplier: 1.5,
   ),
+  ContractDef(
+    id: ContractId.commandingPresence,
+    name: 'Commanding Presence',
+    description: 'Champions rally support units into denser formations.',
+    heat: 2,
+    rewardMultiplier: 1.2,
+    eliteWeightMultiplier: 1.35,
+    supportRoleWeightMultiplier: 1.4,
+  ),
 ];
 
 final Map<ContractId, ContractDef> contractDefsById = Map.unmodifiable({
