@@ -98,4 +98,5 @@ enum ContractId {
   commandingPresence,
   vanguardVolley,
   radiantBarrage,
+  radiantPursuit,
 }
