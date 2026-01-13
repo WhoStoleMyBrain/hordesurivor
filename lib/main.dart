@@ -120,11 +120,13 @@ class HordeSurvivorApp extends StatelessWidget {
           state: game.statsScreenState,
           onClose: game.toggleStatsOverlay,
         ),
-        StartScreen.overlayKey: (_, game) => StartScreen(
+        StartScreen.overlayKey: (context, game) => StartScreen(
           onStart: game.beginHomeBaseFromStartScreen,
           onOptions: game.openOptionsFromStartScreen,
           onCompendium: game.openCompendiumFromStartScreen,
           onMetaUnlocks: game.openMetaUnlocksFromStartScreen,
+          onStressTest: () =>
+              Navigator.of(context).pushReplacementNamed('/stress'),
           wallet: game.metaWallet,
         ),
         OptionsScreen.overlayKey: (_, game) => OptionsScreen(

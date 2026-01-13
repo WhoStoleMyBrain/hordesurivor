@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../game/meta_currency_wallet.dart';
@@ -10,6 +11,7 @@ class StartScreen extends StatelessWidget {
     required this.onOptions,
     required this.onCompendium,
     required this.onMetaUnlocks,
+    this.onStressTest,
     required this.wallet,
   });
 
@@ -19,6 +21,7 @@ class StartScreen extends StatelessWidget {
   final VoidCallback onOptions;
   final VoidCallback onCompendium;
   final VoidCallback onMetaUnlocks;
+  final VoidCallback? onStressTest;
   final MetaCurrencyWallet wallet;
 
   @override
@@ -85,6 +88,16 @@ class StartScreen extends StatelessWidget {
                     child: const Text('Meta Unlocks'),
                   ),
                 ),
+                if (kDebugMode && onStressTest != null) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: onStressTest,
+                      child: const Text('Stress Scene (Debug)'),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

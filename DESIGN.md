@@ -149,6 +149,7 @@ Role telegraphs also use per-role stroke widths so spawners/zoners/supporters/el
 ## 15) Performance & validation
 ### 15.1 Stress scene
 A dedicated **stress scene** is available via a build flag to validate performance at high enemy/projectile counts.
+In debug builds, the start screen exposes a quick-launch entry to jump into the stress scene for rapid profiling.
 
 ### 15.2 Runtime checks
 Data validation runs at startup to ensure definitions remain consistent as content grows.
