@@ -5,11 +5,12 @@ import 'tag_badge.dart';
 import 'ui_scale.dart';
 
 class HudOverlay extends StatelessWidget {
-  const HudOverlay({super.key, required this.hudState});
+  const HudOverlay({super.key, required this.hudState, this.onExitStressTest});
 
   static const String overlayKey = 'hud';
 
   final PlayerHudState hudState;
+  final VoidCallback? onExitStressTest;
 
   @override
   Widget build(BuildContext context) {
@@ -161,6 +162,24 @@ class HudOverlay extends StatelessWidget {
                           'FPS ${hudState.fps.toStringAsFixed(1)} '
                           '(${hudState.frameTimeMs.toStringAsFixed(1)} ms)',
                           style: const TextStyle(letterSpacing: 0.5),
+                        ),
+                      ],
+                      if (hudState.showPerformance &&
+                          onExitStressTest != null) ...[
+                        const SizedBox(height: 6),
+                        TextButton(
+                          onPressed: onExitStressTest,
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            foregroundColor: Colors.white70,
+                            minimumSize: const Size(0, 0),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
+                          ),
+                          child: const Text(
+                            'Return to Start',
+                            style: TextStyle(letterSpacing: 0.4),
+                          ),
                         ),
                       ],
                     ],

@@ -108,7 +108,12 @@ class HordeSurvivorApp extends StatelessWidget {
     return GameWidget<HordeGame>(
       game: HordeGame(stressTest: stressTest),
       overlayBuilderMap: {
-        HudOverlay.overlayKey: (_, game) => HudOverlay(hudState: game.hudState),
+        HudOverlay.overlayKey: (context, game) => HudOverlay(
+          hudState: game.hudState,
+          onExitStressTest: game.stressTest
+              ? () => Navigator.of(context).pushReplacementNamed('/')
+              : null,
+        ),
         VirtualStickOverlay.overlayKey: (_, game) =>
             VirtualStickOverlay(state: game.virtualStickState),
         SelectionOverlay.overlayKey: (_, game) => SelectionOverlay(
