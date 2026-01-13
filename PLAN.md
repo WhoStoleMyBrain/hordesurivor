@@ -63,6 +63,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 6 (Contracts/Heat): added per-area contract pools so the area select screen focuses mutators by location. Decision: keep pools small and thematic per area for now. Follow-up: expand the catalog and consider area-specific mutators once more contracts exist.
 - ✅ Phase 1 (Visual scale & readability pass): scaled combat damage numbers with `RenderScale` so floating damage text stays readable at larger world scales. Decision: keep TextPaint font sizes as-is and rely on component scaling. Follow-up: revisit font size tuning if damage text crowds the HUD at higher scales.
 - ✅ Phase 8 (Performance & QA pass): added a debug-only start-screen entry to launch the stress scene quickly for validation. Decision: keep the entry behind debug builds to avoid confusing players. Follow-up: add a return-to-start option inside the stress scene if longer profiling loops are needed.
+- ✅ Phase 8 (Performance & QA pass): added a stress-scene HUD action to return to the start screen without relaunching. Decision: keep it in the HUD panel alongside performance stats for quick access. Follow-up: none.
 
 ---
 
