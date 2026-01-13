@@ -124,6 +124,7 @@ Items and upgrades apply explicit stat modifiers with tradeoffs. These are surfa
 - Commanding Presence contract pairs elite and support weight boosts to emphasize coordinated enemy pressure.
 - Vanguard Volley pairs faster projectiles with higher champion weight to tighten frontline pressure in demon-themed areas.
 - Radiant Barrage speeds up angelic projectile volleys and is scoped to the Halo Breach contract pool.
+- Radiant Pursuit boosts angelic move speed to pressure spacing in the Halo Breach contract pool.
 - Areas can define a contract pool to surface only thematic Contracts during area selection.
 
 ## 13) Rendering & visual pipeline

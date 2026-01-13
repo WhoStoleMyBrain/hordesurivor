@@ -64,6 +64,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 1 (Visual scale & readability pass): scaled combat damage numbers with `RenderScale` so floating damage text stays readable at larger world scales. Decision: keep TextPaint font sizes as-is and rely on component scaling. Follow-up: revisit font size tuning if damage text crowds the HUD at higher scales.
 - ✅ Phase 8 (Performance & QA pass): added a debug-only start-screen entry to launch the stress scene quickly for validation. Decision: keep the entry behind debug builds to avoid confusing players. Follow-up: add a return-to-start option inside the stress scene if longer profiling loops are needed.
 - ✅ Phase 8 (Performance & QA pass): added a stress-scene HUD action to return to the start screen without relaunching. Decision: keep it in the HUD panel alongside performance stats for quick access. Follow-up: none.
+- ✅ Phase 6 (Contracts/Heat): added a Radiant Pursuit contract to boost angelic move speed in Halo Breach. Decision: keep it as a higher-heat mobility pressure option for angel areas. Follow-up: tune the move-speed multiplier once Halo Breach dodge windows are playtested.
 
 ---
 

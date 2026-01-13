@@ -119,6 +119,14 @@ const List<ContractDef> contractDefs = [
     rewardMultiplier: 1.1,
     enemyProjectileSpeedMultiplier: 1.2,
   ),
+  ContractDef(
+    id: ContractId.radiantPursuit,
+    name: 'Radiant Pursuit',
+    description: 'Angelic formations advance faster to close the breach.',
+    heat: 2,
+    rewardMultiplier: 1.2,
+    enemyMoveSpeedMultiplier: 1.2,
+  ),
 ];
 
 final Map<ContractId, ContractDef> contractDefsById = Map.unmodifiable({
