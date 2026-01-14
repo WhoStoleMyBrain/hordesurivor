@@ -10,6 +10,7 @@ import 'effect_pool.dart';
 import 'effect_state.dart';
 import 'enemy_pool.dart';
 import 'enemy_state.dart';
+import 'game_sizes.dart';
 import 'projectile_pool.dart';
 import 'projectile_state.dart';
 import 'spatial_grid.dart';
@@ -225,7 +226,7 @@ class SkillSystem {
       position: playerPosition,
       velocity: direction..scale(220),
       damage: damage,
-      radius: 4,
+      radius: GameSizes.projectileRadius(4),
       lifespan: 2.0,
       fromEnemy: false,
     );
@@ -292,7 +293,7 @@ class SkillSystem {
       position: playerPosition,
       velocity: direction.clone()..scale(160),
       damage: damage,
-      radius: 6,
+      radius: GameSizes.projectileRadius(6),
       lifespan: 1.4,
       fromEnemy: false,
     );

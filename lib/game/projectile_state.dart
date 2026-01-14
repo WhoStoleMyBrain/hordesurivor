@@ -2,6 +2,7 @@ import 'package:flame/extensions.dart';
 
 import '../data/ids.dart';
 import 'effect_state.dart';
+import 'game_sizes.dart';
 
 class ProjectileState {
   ProjectileState()
@@ -13,7 +14,7 @@ class ProjectileState {
   final Vector2 velocity;
   final Vector2 impactDirection;
   double damage = 1;
-  double radius = 3;
+  double radius = GameSizes.projectileRadius(3);
   double lifespan = 1;
   double age = 0;
   bool fromEnemy = false;

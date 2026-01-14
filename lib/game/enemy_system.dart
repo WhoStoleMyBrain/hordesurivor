@@ -6,6 +6,7 @@ import '../data/enemy_defs.dart';
 import '../data/enemy_variants.dart';
 import '../data/ids.dart';
 import '../data/tags.dart';
+import 'game_sizes.dart';
 import 'enemy_pool.dart';
 import 'enemy_state.dart';
 import 'projectile_pool.dart';
@@ -233,7 +234,7 @@ class EnemySystem {
         count: 4,
         speedMultiplier: 0.6,
         damageMultiplier: 0.8,
-        radius: 6,
+        radius: GameSizes.projectileRadius(6),
         lifespan: 3.0,
       );
       enemy.specialTimer = enemy.specialCooldown;
@@ -250,7 +251,7 @@ class EnemySystem {
         count: 8,
         speedMultiplier: 1.0,
         damageMultiplier: 1.1,
-        radius: 5,
+        radius: GameSizes.projectileRadius(5),
         lifespan: 1.4,
       );
       enemy.specialTimer = enemy.specialCooldown;
@@ -382,7 +383,7 @@ class EnemySystem {
       spread: enemy.projectileSpread,
       speedMultiplier: 1.0,
       damageMultiplier: 1.0,
-      radius: 4,
+      radius: GameSizes.projectileRadius(4),
       lifespan: 2.2,
     );
   }
@@ -428,7 +429,7 @@ class EnemySystem {
         spread: spread,
         speedMultiplier: speedMultiplier,
         damageMultiplier: damageMultiplier,
-        radius: 4,
+        radius: GameSizes.projectileRadius(4),
         lifespan: 2.2,
       );
       return;
@@ -442,7 +443,7 @@ class EnemySystem {
         position: enemy.position,
         velocity: aimDirection..scale(enemy.projectileSpeed * speedMultiplier),
         damage: enemy.projectileDamage * damageMultiplier,
-        radius: 4,
+        radius: GameSizes.projectileRadius(4),
         lifespan: 2.2,
         fromEnemy: true,
       );

@@ -56,6 +56,7 @@ import 'enemy_pool.dart';
 import 'enemy_state.dart';
 import 'enemy_system.dart';
 import 'experience_system.dart';
+import 'game_sizes.dart';
 import 'level_up_system.dart';
 import 'meta_currency_wallet.dart';
 import 'meta_unlocks.dart';
@@ -77,10 +78,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   HordeGame({this.stressTest = false}) : super();
 
   static const double _fixedDelta = 1 / 60;
-  static const double _playerRadius = 16;
+  static const double _playerRadius = GameSizes.playerRadius;
   static const double _playerSpeed = 80;
   static const double _playerMaxHp = 100;
-  static const double _enemyRadius = 14;
+  static const double _enemyRadius = GameSizes.enemyRadius;
   static const double _enemyContactDamagePerSecond = 12;
   static const int _stressWaveFrontlineCount = 260;
   static const int _stressWaveMixedCount = 200;
@@ -1524,7 +1525,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         position: _stressPosition,
         velocity: _stressVelocity,
         damage: 0.5,
-        radius: 3,
+        radius: GameSizes.projectileRadius(3),
         lifespan: 1.8,
         fromEnemy: true,
       );
