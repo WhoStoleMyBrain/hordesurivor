@@ -64,4 +64,53 @@ void main() {
 
     expect(playerState.maxHp, closeTo(80, 0.001));
   });
+
+  test('LevelUpSystem hides locked skills and items until unlocked', () {
+    final system = LevelUpSystem(random: math.Random(3), baseChoiceCount: 999);
+    final playerState = PlayerState(
+      position: Vector2.zero(),
+      maxHp: 100,
+      moveSpeed: 10,
+    );
+    final skillSystem = SkillSystem(
+      projectilePool: ProjectilePool(),
+      effectPool: EffectPool(),
+    );
+
+    system.queueLevels(1);
+    system.buildChoices(
+      playerState: playerState,
+      skillSystem: skillSystem,
+      unlockedMeta: const {},
+    );
+
+    expect(
+      system.choices.any((choice) => choice.skillId == SkillId.windCutter),
+      isFalse,
+    );
+    expect(
+      system.choices.any((choice) => choice.itemId == ItemId.thermalCoil),
+      isFalse,
+    );
+
+    system.skipChoice(playerState: playerState);
+    system.queueLevels(1);
+    system.buildChoices(
+      playerState: playerState,
+      skillSystem: skillSystem,
+      unlockedMeta: const {
+        MetaUnlockId.fieldManual,
+        MetaUnlockId.thermalCoilBlueprint,
+      },
+    );
+
+    expect(
+      system.choices.any((choice) => choice.skillId == SkillId.windCutter),
+      isTrue,
+    );
+    expect(
+      system.choices.any((choice) => choice.itemId == ItemId.thermalCoil),
+      isTrue,
+    );
+  });
 }

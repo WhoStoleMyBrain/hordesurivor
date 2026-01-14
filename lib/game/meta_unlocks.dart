@@ -18,6 +18,17 @@ class MetaUnlocks extends ChangeNotifier {
 
   Iterable<MetaUnlockId> get unlockedIds => Set.unmodifiable(_unlocked);
 
+  bool canUnlock(MetaUnlockId id) {
+    final def = metaUnlockDefsById[id];
+    if (def == null) {
+      return false;
+    }
+    if (def.prerequisites.isEmpty) {
+      return true;
+    }
+    return def.prerequisites.any(_unlocked.contains);
+  }
+
   List<StatModifier> get activeModifiers => [
     for (final id in _unlocked) ...?metaUnlockDefsById[id]?.modifiers,
   ];
@@ -41,6 +52,9 @@ class MetaUnlocks extends ChangeNotifier {
     }
     final def = metaUnlockDefsById[id];
     if (def == null) {
+      return false;
+    }
+    if (!canUnlock(id)) {
       return false;
     }
     final spent = await wallet.spend(def.cost);

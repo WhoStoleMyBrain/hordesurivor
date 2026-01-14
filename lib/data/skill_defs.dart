@@ -7,6 +7,7 @@ class SkillDef {
     required this.name,
     required this.description,
     required this.tags,
+    this.metaUnlockId,
     this.statusEffects = const {},
     this.knockbackForce = 0,
     this.knockbackDuration = 0,
@@ -19,6 +20,7 @@ class SkillDef {
   final String name;
   final String description;
   final TagSet tags;
+  final MetaUnlockId? metaUnlockId;
   final Set<StatusEffectId> statusEffects;
   final double knockbackForce;
   final double knockbackDuration;
@@ -138,6 +140,7 @@ const List<SkillDef> skillDefs = [
       elements: {ElementTag.wind},
       deliveries: {DeliveryTag.projectile},
     ),
+    metaUnlockId: MetaUnlockId.fieldManual,
     knockbackForce: 70,
     knockbackDuration: 0.16,
   ),
@@ -149,6 +152,7 @@ const List<SkillDef> skillDefs = [
       elements: {ElementTag.steel},
       deliveries: {DeliveryTag.projectile},
     ),
+    metaUnlockId: MetaUnlockId.steelShardsLicense,
     knockbackForce: 85,
     knockbackDuration: 0.18,
   ),
@@ -161,6 +165,7 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.aoe},
       deliveries: {DeliveryTag.beam},
     ),
+    metaUnlockId: MetaUnlockId.flameWaveTechnique,
   ),
   SkillDef(
     id: SkillId.frostNova,
@@ -171,6 +176,7 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.aoe, EffectTag.debuff},
       deliveries: {DeliveryTag.aura},
     ),
+    metaUnlockId: MetaUnlockId.frostNovaDiagram,
     statusEffects: {StatusEffectId.slow},
   ),
   SkillDef(
@@ -182,6 +188,7 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.aoe, EffectTag.dot},
       deliveries: {DeliveryTag.ground},
     ),
+    metaUnlockId: MetaUnlockId.earthSpikesSurvey,
   ),
   SkillDef(
     id: SkillId.sporeBurst,
@@ -192,6 +199,7 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.aoe, EffectTag.dot},
       deliveries: {DeliveryTag.projectile, DeliveryTag.ground},
     ),
+    metaUnlockId: MetaUnlockId.sporeBurstCulture,
   ),
 ];
 

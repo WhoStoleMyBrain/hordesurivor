@@ -96,6 +96,12 @@ DataValidationResult validateGameData() {
         );
       }
     }
+    if (def.metaUnlockId != null &&
+        !metaUnlockDefsById.containsKey(def.metaUnlockId)) {
+      result.errors.add(
+        'SkillDef ${def.id} references missing meta unlock ${def.metaUnlockId}.',
+      );
+    }
   }
 
   for (final def in skillUpgradeDefs) {
@@ -122,6 +128,12 @@ DataValidationResult validateGameData() {
     if (def.weight <= 0) {
       result.errors.add('ItemDef ${def.id} has non-positive weight.');
     }
+    if (def.metaUnlockId != null &&
+        !metaUnlockDefsById.containsKey(def.metaUnlockId)) {
+      result.errors.add(
+        'ItemDef ${def.id} references missing meta unlock ${def.metaUnlockId}.',
+      );
+    }
   }
 
   for (final def in statusEffectDefs) {
@@ -143,8 +155,43 @@ DataValidationResult validateGameData() {
     if (def.cost <= 0) {
       result.errors.add('MetaUnlockDef ${def.id} has non-positive cost.');
     }
-    if (def.modifiers.isEmpty) {
-      result.errors.add('MetaUnlockDef ${def.id} has no modifiers.');
+    if (def.modifiers.isEmpty &&
+        def.unlockedSkills.isEmpty &&
+        def.unlockedItems.isEmpty) {
+      result.errors.add('MetaUnlockDef ${def.id} has no effects.');
+    }
+    for (final prereq in def.prerequisites) {
+      if (!metaUnlockDefsById.containsKey(prereq)) {
+        result.errors.add(
+          'MetaUnlockDef ${def.id} references missing prerequisite $prereq.',
+        );
+      }
+    }
+    for (final skillId in def.unlockedSkills) {
+      final skill = skillDefsById[skillId];
+      if (skill == null) {
+        result.errors.add(
+          'MetaUnlockDef ${def.id} unlocks missing skill $skillId.',
+        );
+      } else if (skill.metaUnlockId != def.id) {
+        result.errors.add(
+          'MetaUnlockDef ${def.id} unlocks skill $skillId without matching '
+          'metaUnlockId.',
+        );
+      }
+    }
+    for (final itemId in def.unlockedItems) {
+      final item = itemDefsById[itemId];
+      if (item == null) {
+        result.errors.add(
+          'MetaUnlockDef ${def.id} unlocks missing item $itemId.',
+        );
+      } else if (item.metaUnlockId != def.id) {
+        result.errors.add(
+          'MetaUnlockDef ${def.id} unlocks item $itemId without matching '
+          'metaUnlockId.',
+        );
+      }
     }
   }
 
