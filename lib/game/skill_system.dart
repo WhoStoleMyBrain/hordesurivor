@@ -253,6 +253,7 @@ class SkillSystem {
       enemyPool: enemyPool,
     );
     const duration = 0.35;
+    final aoeScale = _aoeScale(stats);
     final damage = 6 * _damageMultiplierFor(SkillId.waterjet, stats);
     final effect = _effectPool.acquire();
     effect.reset(
@@ -261,8 +262,8 @@ class SkillSystem {
       position: playerPosition,
       direction: direction,
       radius: 0,
-      length: 140,
-      width: 10,
+      length: 140 * aoeScale,
+      width: 10 * aoeScale,
       duration: duration,
       damagePerSecond: damage / duration,
       slowMultiplier: 0.7,
