@@ -122,6 +122,7 @@ class HordeSurvivorApp extends StatelessWidget {
           selectionState: game.selectionState,
           onSelected: game.selectChoice,
           onReroll: game.rerollSelection,
+          onSkip: game.skipSelection,
         ),
         StatsOverlay.overlayKey: (_, game) => StatsOverlay(
           state: game.statsScreenState,

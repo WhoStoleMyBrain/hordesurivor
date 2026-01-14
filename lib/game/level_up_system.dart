@@ -137,6 +137,12 @@ class LevelUpSystem {
     _choices.clear();
   }
 
+  void skipChoice({required PlayerState playerState}) {
+    _syncRerolls(playerState);
+    _pendingLevels = math.max(0, _pendingLevels - 1);
+    _choices.clear();
+  }
+
   List<SelectionChoice> _buildChoicesFor(
     PlayerState playerState,
     SkillSystem skillSystem,
