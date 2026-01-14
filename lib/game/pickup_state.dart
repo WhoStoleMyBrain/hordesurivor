@@ -10,6 +10,8 @@ class PickupState {
   int value = 0;
   double age = 0;
   double lifespan = 0;
+  double magnetSpeed = 0;
+  bool collecting = false;
   bool active = false;
 
   void reset({
@@ -23,6 +25,8 @@ class PickupState {
     this.value = value;
     this.lifespan = lifespan;
     age = 0;
+    magnetSpeed = 0;
+    collecting = false;
     active = true;
   }
 }
