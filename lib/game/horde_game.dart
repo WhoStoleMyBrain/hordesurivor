@@ -102,6 +102,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _baseChampionChance = 0.05;
   static const double _pickupRadiusBase = 32;
   static const double _pickupLifetime = 8;
+  static const double _pickupMagnetStartSpeed = 120;
+  static const double _pickupMagnetAcceleration = 560;
+  static const double _pickupMagnetMaxSpeed = 520;
   static const String _tutorialSeenPrefsKey = 'tutorial_seen';
   static const TagSet _igniteDamageTags = TagSet(
     elements: {ElementTag.fire},
@@ -1827,15 +1830,37 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         continue;
       }
       pickup.age += dt;
-      if (pickup.lifespan > 0 && pickup.age >= pickup.lifespan) {
+      if (!pickup.collecting &&
+          pickup.lifespan > 0 &&
+          pickup.age >= pickup.lifespan) {
         _despawnPickup(pickup);
         continue;
       }
-      final dx = pickup.position.x - _playerState.position.x;
-      final dy = pickup.position.y - _playerState.position.y;
-      if (dx * dx + dy * dy <= collectRadiusSquared) {
-        _collectPickup(pickup);
+      final dx = _playerState.position.x - pickup.position.x;
+      final dy = _playerState.position.y - pickup.position.y;
+      final distanceSquared = dx * dx + dy * dy;
+      if (!pickup.collecting && distanceSquared <= collectRadiusSquared) {
+        pickup.collecting = true;
+        pickup.magnetSpeed = _pickupMagnetStartSpeed;
       }
+      if (!pickup.collecting) {
+        continue;
+      }
+      if (distanceSquared <= _playerRadius * _playerRadius) {
+        _collectPickup(pickup);
+        continue;
+      }
+      final distance = math.sqrt(distanceSquared);
+      if (distance <= 0) {
+        continue;
+      }
+      pickup.magnetSpeed = math.min(
+        _pickupMagnetMaxSpeed,
+        pickup.magnetSpeed + _pickupMagnetAcceleration * dt,
+      );
+      final travel = math.min(pickup.magnetSpeed * dt, distance);
+      pickup.position.x += (dx / distance) * travel;
+      pickup.position.y += (dy / distance) * travel;
     }
   }
 
