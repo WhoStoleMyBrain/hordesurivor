@@ -29,125 +29,185 @@ class DeathScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final titleStyle = textTheme.titleLarge?.copyWith(
+      fontSize: UiScale.fontSize(22),
+      fontWeight: FontWeight.w700,
+      letterSpacing: 1.2,
+    );
+    final subtitleStyle = textTheme.bodyMedium?.copyWith(
+      color: Colors.white70,
+      letterSpacing: 0.6,
+    );
+    final sectionTitleStyle = textTheme.titleSmall?.copyWith(
+      fontSize: UiScale.fontSize(13),
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0.4,
+      color: Colors.white70,
+    );
+    final statLabelStyle = textTheme.bodySmall?.copyWith(
+      fontSize: UiScale.fontSize(12),
+      color: Colors.white70,
+      letterSpacing: 0.4,
+    );
+    final statValueStyle = textTheme.bodySmall?.copyWith(
+      fontSize: UiScale.fontSize(12),
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0.4,
+    );
     final skillNames = _namesForSkills(summary.skills);
     final itemNames = _namesForItems(summary.items);
     final upgradeNames = _namesForUpgrades(summary.upgrades);
     final synergyEntries = _namesForSynergies(summary.synergyTriggerCounts);
+    final summaryStats = <_StatEntry>[
+      _StatEntry(label: 'Score', value: summary.score.toString()),
+      _StatEntry(
+        label: 'Time Alive',
+        value: _formatDuration(summary.timeAlive),
+      ),
+      _StatEntry(
+        label: 'Enemies Defeated',
+        value: summary.enemiesDefeated.toString(),
+      ),
+      _StatEntry(label: 'XP Gained', value: summary.xpGained.toString()),
+      _StatEntry(
+        label: 'Damage Taken',
+        value: summary.damageTaken.toStringAsFixed(0),
+      ),
+      if (summary.synergyTriggers > 0)
+        _StatEntry(
+          label: 'Synergy Triggers',
+          value: summary.synergyTriggers.toString(),
+        ),
+    ];
+    final rewardStats = <_StatEntry>[
+      _StatEntry(
+        label: 'Meta Shards',
+        value: summary.metaCurrencyEarned.toString(),
+      ),
+      if (summary.contractNames.isNotEmpty)
+        _StatEntry(label: 'Contracts', value: summary.contractNames.join(', ')),
+    ];
     return Container(
       color: Colors.black.withValues(alpha: 0.7),
       alignment: Alignment.center,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 420),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: const Color(0xFF161A22),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white24),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  completed ? 'RUN COMPLETE' : 'YOU DIED',
-                  style: TextStyle(
-                    fontSize: UiScale.fontSize(22),
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                if (summary.areaName != null) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    summary.areaName!,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      letterSpacing: 0.6,
-                    ),
-                  ),
-                ],
-                if (summary.contractHeat > 0) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    'Heat ${summary.contractHeat} · '
-                    'Rewards x${summary.metaRewardMultiplier.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      letterSpacing: 0.6,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-                const SizedBox(height: 16),
-                _StatRow(label: 'Score', value: summary.score.toString()),
-                _StatRow(
-                  label: 'Time Alive',
-                  value: _formatDuration(summary.timeAlive),
-                ),
-                _StatRow(
-                  label: 'Enemies Defeated',
-                  value: summary.enemiesDefeated.toString(),
-                ),
-                _StatRow(
-                  label: 'XP Gained',
-                  value: summary.xpGained.toString(),
-                ),
-                _StatRow(
-                  label: 'Meta Shards',
-                  value: summary.metaCurrencyEarned.toString(),
-                ),
-                if (summary.contractNames.isNotEmpty)
-                  _StatRow(
-                    label: 'Contracts',
-                    value: summary.contractNames.join(', '),
-                  ),
-                _MetaWalletRow(wallet: wallet),
-                _StatRow(
-                  label: 'Damage Taken',
-                  value: summary.damageTaken.toStringAsFixed(0),
-                ),
-                if (summary.synergyTriggers > 0)
-                  _StatRow(
-                    label: 'Synergy Triggers',
-                    value: summary.synergyTriggers.toString(),
-                  ),
-                if (skillNames.isNotEmpty ||
-                    itemNames.isNotEmpty ||
-                    upgradeNames.isNotEmpty ||
-                    synergyEntries.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  if (skillNames.isNotEmpty)
-                    _RecapSection(title: 'Skills', entries: skillNames),
-                  if (itemNames.isNotEmpty)
-                    _RecapSection(title: 'Items', entries: itemNames),
-                  if (upgradeNames.isNotEmpty)
-                    _RecapSection(title: 'Upgrades', entries: upgradeNames),
-                  if (synergyEntries.isNotEmpty)
-                    _RecapSection(title: 'Synergies', entries: synergyEntries),
-                ],
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: onReturn,
-                        child: const Text('Return Home'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: onRestart,
-                        child: const Text('Restart Run'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 460,
+              maxHeight: constraints.maxHeight * 0.9,
             ),
-          ),
-        ),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: const Color(0xFF161A22),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white24),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Scrollbar(
+                  thumbVisibility: true,
+                  child: SingleChildScrollView(
+                    primary: true,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          completed ? 'RUN COMPLETE' : 'YOU DIED',
+                          style: titleStyle,
+                        ),
+                        if (summary.areaName != null) ...[
+                          const SizedBox(height: 6),
+                          Text(summary.areaName!, style: subtitleStyle),
+                        ],
+                        if (summary.contractHeat > 0) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            'Heat ${summary.contractHeat} · '
+                            'Rewards x${summary.metaRewardMultiplier.toStringAsFixed(2)}',
+                            style: subtitleStyle,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                        const SizedBox(height: 16),
+                        _StatSection(
+                          title: 'Run Summary',
+                          titleStyle: sectionTitleStyle,
+                          entries: summaryStats,
+                          labelStyle: statLabelStyle,
+                          valueStyle: statValueStyle,
+                        ),
+                        const SizedBox(height: 12),
+                        _StatSection(
+                          title: 'Rewards',
+                          titleStyle: sectionTitleStyle,
+                          entries: rewardStats,
+                          labelStyle: statLabelStyle,
+                          valueStyle: statValueStyle,
+                          footer: _MetaWalletRow(
+                            wallet: wallet,
+                            labelStyle: statLabelStyle,
+                            valueStyle: statValueStyle,
+                          ),
+                        ),
+                        if (skillNames.isNotEmpty ||
+                            itemNames.isNotEmpty ||
+                            upgradeNames.isNotEmpty ||
+                            synergyEntries.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          if (skillNames.isNotEmpty)
+                            _RecapSection(
+                              title: 'Skills',
+                              entries: skillNames,
+                              titleStyle: sectionTitleStyle,
+                            ),
+                          if (itemNames.isNotEmpty)
+                            _RecapSection(
+                              title: 'Items',
+                              entries: itemNames,
+                              titleStyle: sectionTitleStyle,
+                            ),
+                          if (upgradeNames.isNotEmpty)
+                            _RecapSection(
+                              title: 'Upgrades',
+                              entries: upgradeNames,
+                              titleStyle: sectionTitleStyle,
+                            ),
+                          if (synergyEntries.isNotEmpty)
+                            _RecapSection(
+                              title: 'Synergies',
+                              entries: synergyEntries,
+                              titleStyle: sectionTitleStyle,
+                            ),
+                        ],
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: onReturn,
+                                child: const Text('Return Home'),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: FilledButton(
+                                onPressed: onRestart,
+                                child: const Text('Restart Run'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -204,29 +264,37 @@ class DeathScreen extends StatelessWidget {
   }
 }
 
-class _StatRow extends StatelessWidget {
-  const _StatRow({required this.label, required this.value});
+class _StatEntry {
+  const _StatEntry({required this.label, required this.value});
 
   final String label;
   final String value;
+}
+
+class _StatRow extends StatelessWidget {
+  const _StatRow({
+    required this.label,
+    required this.value,
+    required this.labelStyle,
+    required this.valueStyle,
+  });
+
+  final String label;
+  final String value;
+  final TextStyle? labelStyle;
+  final TextStyle? valueStyle;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: const TextStyle(color: Colors.white70, letterSpacing: 0.4),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.4,
-            ),
+          Expanded(child: Text(label, style: labelStyle)),
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(value, style: valueStyle, textAlign: TextAlign.right),
           ),
         ],
       ),
@@ -235,9 +303,15 @@ class _StatRow extends StatelessWidget {
 }
 
 class _MetaWalletRow extends StatelessWidget {
-  const _MetaWalletRow({required this.wallet});
+  const _MetaWalletRow({
+    required this.wallet,
+    required this.labelStyle,
+    required this.valueStyle,
+  });
 
   final MetaCurrencyWallet wallet;
+  final TextStyle? labelStyle;
+  final TextStyle? valueStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -247,6 +321,8 @@ class _MetaWalletRow extends StatelessWidget {
         return _StatRow(
           label: 'Wallet Total',
           value: wallet.balance.toString(),
+          labelStyle: labelStyle,
+          valueStyle: valueStyle,
         );
       },
     );
@@ -254,10 +330,15 @@ class _MetaWalletRow extends StatelessWidget {
 }
 
 class _RecapSection extends StatelessWidget {
-  const _RecapSection({required this.title, required this.entries});
+  const _RecapSection({
+    required this.title,
+    required this.entries,
+    required this.titleStyle,
+  });
 
   final String title;
   final List<String> entries;
+  final TextStyle? titleStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -266,14 +347,7 @@ class _RecapSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.4,
-            ),
-          ),
+          Text(title, style: titleStyle),
           const SizedBox(height: 6),
           Wrap(
             spacing: 6,
@@ -292,9 +366,9 @@ class _RecapSection extends StatelessWidget {
                   ),
                   child: Text(
                     entry,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white70,
-                      fontSize: 12,
+                      fontSize: UiScale.fontSize(12),
                       letterSpacing: 0.3,
                     ),
                   ),
@@ -302,6 +376,53 @@ class _RecapSection extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _StatSection extends StatelessWidget {
+  const _StatSection({
+    required this.title,
+    required this.titleStyle,
+    required this.entries,
+    required this.labelStyle,
+    required this.valueStyle,
+    this.footer,
+  });
+
+  final String title;
+  final TextStyle? titleStyle;
+  final List<_StatEntry> entries;
+  final TextStyle? labelStyle;
+  final TextStyle? valueStyle;
+  final Widget? footer;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xFF1D2430),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: titleStyle),
+            const SizedBox(height: 8),
+            for (final entry in entries)
+              _StatRow(
+                label: entry.label,
+                value: entry.value,
+                labelStyle: labelStyle,
+                valueStyle: valueStyle,
+              ),
+            if (footer != null) ...[const SizedBox(height: 4), footer!],
+          ],
+        ),
       ),
     );
   }
