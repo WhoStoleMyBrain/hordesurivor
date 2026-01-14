@@ -18,6 +18,7 @@ class SelectionOverlay extends StatelessWidget {
     required this.selectionState,
     required this.onSelected,
     required this.onReroll,
+    required this.onSkip,
   });
 
   static const String overlayKey = 'selection';
@@ -25,6 +26,7 @@ class SelectionOverlay extends StatelessWidget {
   final SelectionState selectionState;
   final void Function(SelectionChoice choice) onSelected;
   final VoidCallback onReroll;
+  final VoidCallback onSkip;
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +82,11 @@ class SelectionOverlay extends StatelessWidget {
                             );
                           },
                         ),
+                      ),
+                      const SizedBox(height: 12),
+                      _SkipButton(
+                        rewardXp: selectionState.skipRewardXp,
+                        onPressed: onSkip,
                       ),
                     ],
                   ),
@@ -188,6 +195,22 @@ class _ChoiceCard extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+class _SkipButton extends StatelessWidget {
+  const _SkipButton({required this.rewardXp, required this.onPressed});
+
+  final int rewardXp;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = rewardXp > 0 ? 'Skip (+$rewardXp XP)' : 'Skip';
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton(onPressed: onPressed, child: Text(label)),
     );
   }
 }

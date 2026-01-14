@@ -105,6 +105,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _pickupMagnetStartSpeed = 120;
   static const double _pickupMagnetAcceleration = 560;
   static const double _pickupMagnetMaxSpeed = 520;
+  static const double _skipRewardXpFraction = 0.2;
   static const String _tutorialSeenPrefsKey = 'tutorial_seen';
   static const TagSet _igniteDamageTags = TagSet(
     elements: {ElementTag.fire},
@@ -1158,6 +1159,20 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _offerSelectionIfNeeded();
   }
 
+  void skipSelection() {
+    final rewardXp = _skipRewardXpValue();
+    _levelUpSystem.skipChoice(playerState: _playerState);
+    if (!stressTest && rewardXp > 0) {
+      _runSummary.xpGained += rewardXp;
+      final levelsGained = _experienceSystem.addExperience(rewardXp);
+      if (levelsGained > 0) {
+        _levelUpSystem.queueLevels(levelsGained);
+      }
+    }
+    _hudState.triggerRewardMessage(_skipRewardMessage(rewardXp));
+    _offerSelectionIfNeeded();
+  }
+
   void rerollSelection() {
     final rerolled = _levelUpSystem.rerollChoices(
       playerState: _playerState,
@@ -1167,6 +1182,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _selectionState.showChoices(
         _levelUpSystem.choices,
         rerollsRemaining: _levelUpSystem.rerollsRemaining,
+        skipRewardXp: _skipRewardXpValue(),
       );
     }
   }
@@ -1180,12 +1196,25 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _selectionState.showChoices(
         _levelUpSystem.choices,
         rerollsRemaining: _levelUpSystem.rerollsRemaining,
+        skipRewardXp: _skipRewardXpValue(),
       );
       overlays.add(SelectionOverlay.overlayKey);
     } else {
       _selectionState.clear();
       overlays.remove(SelectionOverlay.overlayKey);
     }
+  }
+
+  int _skipRewardXpValue() {
+    final reward = (_experienceSystem.xpToNext * _skipRewardXpFraction).round();
+    return math.max(1, reward);
+  }
+
+  String _skipRewardMessage(int rewardXp) {
+    if (rewardXp <= 0) {
+      return 'Skipped reward';
+    }
+    return 'Skipped reward (+$rewardXp XP)';
   }
 
   String _rewardMessageForChoice(SelectionChoice choice) {
