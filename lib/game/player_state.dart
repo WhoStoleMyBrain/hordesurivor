@@ -10,7 +10,11 @@ class PlayerState {
     required this.position,
     required double maxHp,
     required double moveSpeed,
+    this.invulnerabilityDuration = 0.5,
+    this.hitEffectDuration = 0.18,
   }) : hp = maxHp,
+       baseInvulnerabilityDuration = invulnerabilityDuration,
+       baseHitEffectDuration = hitEffectDuration,
        stats = StatSheet(
          baseValues: {StatId.maxHp: maxHp, StatId.moveSpeed: moveSpeed},
        ),
@@ -24,12 +28,25 @@ class PlayerState {
   final Vector2 impulseVelocity;
   final StatSheet stats;
   double hp;
+  final double baseInvulnerabilityDuration;
+  final double baseHitEffectDuration;
+  double invulnerabilityDuration;
+  double hitEffectDuration;
   double impulseTimeRemaining = 0;
   double deflectTimeRemaining = 0;
   double deflectRadius = 0;
+  double invulnerabilityTimeRemaining = 0;
+  double hitEffectTimeRemaining = 0;
 
   double get maxHp => math.max(1, stats.value(StatId.maxHp));
   double get moveSpeed => math.max(0, stats.value(StatId.moveSpeed));
+  bool get isInvulnerable => invulnerabilityTimeRemaining > 0;
+  double get hitEffectProgress {
+    if (hitEffectDuration <= 0) {
+      return 0;
+    }
+    return (1 - (hitEffectTimeRemaining / hitEffectDuration)).clamp(0, 1);
+  }
 
   void applyModifiers(Iterable<StatModifier> modifiers) {
     stats.addModifiers(modifiers);
@@ -45,6 +62,10 @@ class PlayerState {
     impulseTimeRemaining = 0;
     deflectTimeRemaining = 0;
     deflectRadius = 0;
+    invulnerabilityDuration = baseInvulnerabilityDuration;
+    hitEffectDuration = baseHitEffectDuration;
+    invulnerabilityTimeRemaining = 0;
+    hitEffectTimeRemaining = 0;
   }
 
   void step(double dt) {
@@ -66,6 +87,15 @@ class PlayerState {
       if (deflectTimeRemaining == 0) {
         deflectRadius = 0;
       }
+    }
+    if (invulnerabilityTimeRemaining > 0) {
+      invulnerabilityTimeRemaining = math.max(
+        0,
+        invulnerabilityTimeRemaining - dt,
+      );
+    }
+    if (hitEffectTimeRemaining > 0) {
+      hitEffectTimeRemaining = math.max(0, hitEffectTimeRemaining - dt);
     }
   }
 
@@ -99,5 +129,23 @@ class PlayerState {
     }
     deflectRadius = math.max(deflectRadius, radius);
     deflectTimeRemaining = math.max(deflectTimeRemaining, duration);
+  }
+
+  void registerHit({
+    double? invulnerabilityDurationOverride,
+    double? hitEffectDurationOverride,
+  }) {
+    final invulnerability =
+        invulnerabilityDurationOverride ?? invulnerabilityDuration;
+    if (invulnerability > 0) {
+      invulnerabilityTimeRemaining = math.max(
+        invulnerabilityTimeRemaining,
+        invulnerability,
+      );
+    }
+    final hitDuration = hitEffectDurationOverride ?? hitEffectDuration;
+    if (hitDuration > 0) {
+      hitEffectTimeRemaining = math.max(hitEffectTimeRemaining, hitDuration);
+    }
   }
 }

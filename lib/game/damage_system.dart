@@ -80,7 +80,11 @@ class DamageSystem {
       if (player == null || player.hp <= 0) {
         continue;
       }
+      if (player.isInvulnerable) {
+        continue;
+      }
       player.hp -= event.amount;
+      player.registerHit();
       onPlayerDamaged?.call(event.amount);
       if (player.hp <= 0) {
         player.hp = 0;
