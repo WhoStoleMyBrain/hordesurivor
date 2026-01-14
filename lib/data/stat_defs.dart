@@ -5,6 +5,7 @@ enum StatId {
   dashSpeed,
   dashDistance,
   dashCooldown,
+  dashCharges,
   dashDuration,
   dashStartOffset,
   dashEndOffset,

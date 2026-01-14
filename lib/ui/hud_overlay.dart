@@ -70,6 +70,18 @@ class HudOverlay extends StatelessWidget {
                         labelStyle: statLabelStyle,
                         valueStyle: statValueStyle,
                       ),
+                      if (hudState.dashMaxCharges > 0) ...[
+                        const SizedBox(height: 4),
+                        _DashStatusRow(
+                          dashCharges: hudState.dashCharges,
+                          dashMaxCharges: hudState.dashMaxCharges,
+                          dashCooldownRemaining: hudState.dashCooldownRemaining,
+                          dashCooldownDuration: hudState.dashCooldownDuration,
+                          labelStyle: statLabelStyle,
+                          valueStyle: statValueStyle,
+                          mutedStyle: mutedStyle,
+                        ),
+                      ],
                       const SizedBox(height: 4),
                       _HudStatRow(
                         label: 'LV',
@@ -271,6 +283,110 @@ class _HudStatRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _DashStatusRow extends StatelessWidget {
+  const _DashStatusRow({
+    required this.dashCharges,
+    required this.dashMaxCharges,
+    required this.dashCooldownRemaining,
+    required this.dashCooldownDuration,
+    this.labelStyle,
+    this.valueStyle,
+    this.mutedStyle,
+  });
+
+  final int dashCharges;
+  final int dashMaxCharges;
+  final double dashCooldownRemaining;
+  final double dashCooldownDuration;
+  final TextStyle? labelStyle;
+  final TextStyle? valueStyle;
+  final TextStyle? mutedStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    final availableCharges = dashCharges.clamp(0, dashMaxCharges);
+    final hasCharges = availableCharges > 0;
+    final cooldownActive =
+        availableCharges < dashMaxCharges && dashCooldownRemaining > 0;
+    final cooldownText = cooldownActive
+        ? 'CHARGING ${dashCooldownRemaining.toStringAsFixed(1)}s'
+        : hasCharges
+        ? 'READY'
+        : 'EMPTY';
+    final statusStyle = (cooldownActive || !hasCharges)
+        ? mutedStyle
+        : valueStyle?.copyWith(color: Colors.lightGreenAccent);
+    final cooldownRatio = dashCooldownDuration > 0
+        ? (1 - (dashCooldownRemaining / dashCooldownDuration)).clamp(0.0, 1.0)
+        : 1.0;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text('DASH', style: labelStyle),
+        const SizedBox(width: 6),
+        Wrap(
+          spacing: 4,
+          children: [
+            for (var i = 0; i < dashMaxCharges; i++)
+              _DashChargePip(
+                filled: i < availableCharges,
+                charging: i == availableCharges && cooldownActive,
+                chargeProgress: cooldownRatio,
+              ),
+          ],
+        ),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            '$availableCharges/$dashMaxCharges $cooldownText',
+            style: statusStyle,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DashChargePip extends StatelessWidget {
+  const _DashChargePip({
+    required this.filled,
+    required this.charging,
+    required this.chargeProgress,
+  });
+
+  final bool filled;
+  final bool charging;
+  final double chargeProgress;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = filled
+        ? Colors.lightGreenAccent
+        : charging
+        ? Colors.orangeAccent
+        : Colors.white24;
+    final fillColor = filled
+        ? color
+        : charging
+        ? color.withValues(alpha: (0.2 + 0.6 * chargeProgress).clamp(0.2, 0.8))
+        : Colors.transparent;
+    return SizedBox(
+      width: 10,
+      height: 10,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: color.withValues(alpha: 0.7), width: 1),
+          color: fillColor,
+        ),
+      ),
     );
   }
 }

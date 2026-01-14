@@ -1264,6 +1264,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       buildTags: buildTags,
       contractHeat: inStage ? _contractHeat : 0,
       contractNames: inStage ? _activeContractNames : const [],
+      dashCharges: _playerState.dashCharges,
+      dashMaxCharges: _playerState.dashMaxCharges,
+      dashCooldownRemaining: _playerState.dashCooldownRemaining,
+      dashCooldownDuration: math.max(
+        0,
+        _playerState.stats.value(StatId.dashCooldown),
+      ),
     );
     _statsScreenState.update(
       statValues: _collectStatValues(),

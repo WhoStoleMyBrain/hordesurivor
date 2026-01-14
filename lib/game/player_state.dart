@@ -22,6 +22,7 @@ class PlayerState {
            StatId.dashSpeed: 720,
            StatId.dashDistance: 120,
            StatId.dashCooldown: 0.9,
+           StatId.dashCharges: 2,
            StatId.dashDuration: 0,
            StatId.dashStartOffset: 0,
            StatId.dashEndOffset: 0,
@@ -58,6 +59,8 @@ class PlayerState {
   double dashCooldownRemaining = 0;
   double dashEndOffsetDistance = 0;
   bool dashEndOffsetPending = false;
+  int dashCharges = 0;
+  int dashMaxCharges = 0;
 
   double get maxHp => math.max(1, stats.value(StatId.maxHp));
   double get moveSpeed => math.max(0, stats.value(StatId.moveSpeed));
@@ -73,6 +76,7 @@ class PlayerState {
   void applyModifiers(Iterable<StatModifier> modifiers) {
     stats.addModifiers(modifiers);
     hp = hp.clamp(0, maxHp);
+    _syncDashChargeLimits();
   }
 
   void resetForRun() {
@@ -95,11 +99,26 @@ class PlayerState {
     dashCooldownRemaining = 0;
     dashEndOffsetDistance = 0;
     dashEndOffsetPending = false;
+    dashCharges = 0;
+    dashMaxCharges = 0;
+    _syncDashChargeLimits(fillCharges: true);
   }
 
   void step(double dt) {
+    _syncDashChargeLimits();
     if (dashCooldownRemaining > 0) {
       dashCooldownRemaining = math.max(0, dashCooldownRemaining - dt);
+    }
+    if (dashCooldownRemaining == 0 && dashCharges < dashMaxCharges) {
+      final dashCooldown = math.max(0.0, stats.value(StatId.dashCooldown));
+      if (dashCooldown <= 0) {
+        dashCharges = dashMaxCharges;
+      } else {
+        dashCharges = math.min(dashMaxCharges, dashCharges + 1);
+        if (dashCharges < dashMaxCharges) {
+          dashCooldownRemaining = dashCooldown;
+        }
+      }
     }
     if (movementIntent.length2 > 0) {
       lastMovementDirection
@@ -199,7 +218,7 @@ class PlayerState {
   }
 
   bool tryDash() {
-    if (dashCooldownRemaining > 0 || dashTimeRemaining > 0) {
+    if (dashCharges <= 0 || dashTimeRemaining > 0) {
       return false;
     }
     final dashSpeed = math.max(0.0, stats.value(StatId.dashSpeed)).toDouble();
@@ -233,10 +252,10 @@ class PlayerState {
       position.addScaled(dashDirection, dashStartOffset);
     }
     if (dashTeleport >= 1) {
+      _consumeDashCharge(dashCooldown);
       if (dashDistance != 0 || dashEndOffset != 0) {
         position.addScaled(dashDirection, dashDistance + dashEndOffset);
       }
-      dashCooldownRemaining = dashCooldown;
       if (dashInvulnerability > 0) {
         invulnerabilityTimeRemaining = math.max(
           invulnerabilityTimeRemaining,
@@ -259,11 +278,11 @@ class PlayerState {
     } else if (speed <= 0) {
       return false;
     }
+    _consumeDashCharge(dashCooldown);
     dashVelocity
       ..setFrom(dashDirection)
       ..scale(speed);
     dashTimeRemaining = duration;
-    dashCooldownRemaining = dashCooldown;
     dashEndOffsetPending = dashEndOffset != 0;
     dashEndOffsetDistance = dashEndOffset;
     impulseTimeRemaining = 0;
@@ -274,5 +293,33 @@ class PlayerState {
       );
     }
     return true;
+  }
+
+  void _consumeDashCharge(double dashCooldown) {
+    if (dashCharges > 0) {
+      dashCharges -= 1;
+    }
+    if (dashCharges < dashMaxCharges && dashCooldownRemaining <= 0) {
+      if (dashCooldown <= 0) {
+        dashCharges = dashMaxCharges;
+      } else {
+        dashCooldownRemaining = dashCooldown;
+      }
+    }
+  }
+
+  void _syncDashChargeLimits({bool fillCharges = false}) {
+    final maxCharges = math.max(1, stats.value(StatId.dashCharges).round());
+    if (maxCharges != dashMaxCharges) {
+      if (maxCharges > dashMaxCharges) {
+        dashCharges += maxCharges - dashMaxCharges;
+      }
+      dashMaxCharges = maxCharges;
+    }
+    if (fillCharges) {
+      dashCharges = dashMaxCharges;
+    } else if (dashCharges > dashMaxCharges) {
+      dashCharges = dashMaxCharges;
+    }
   }
 }
