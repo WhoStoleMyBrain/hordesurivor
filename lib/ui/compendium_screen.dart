@@ -122,6 +122,7 @@ class _EnemyList extends StatelessWidget {
         return _CompendiumCard(
           title: enemy.name,
           description: enemy.description,
+          details: _buildEnemyDetails(enemy),
           badges: badges,
         );
       },
@@ -157,11 +158,13 @@ class _CompendiumCard extends StatelessWidget {
   const _CompendiumCard({
     required this.title,
     required this.description,
+    this.details,
     required this.badges,
   });
 
   final String title;
   final String description;
+  final String? details;
   final List<TagBadgeData> badges;
 
   @override
@@ -191,6 +194,16 @@ class _CompendiumCard extends StatelessWidget {
                 color: Colors.white70,
               ),
             ),
+            if (details != null && details!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                details!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.white60,
+                  height: 1.35,
+                ),
+              ),
+            ],
             if (badges.isNotEmpty) ...[
               const SizedBox(height: 10),
               Wrap(
@@ -286,4 +299,117 @@ TagBadgeData _roleBadge(EnemyRole role) {
         color: const Color(0xFFA5A5FF),
       );
   }
+}
+
+const double _enemyContactDamagePerSecond = 12;
+
+String _buildEnemyDetails(EnemyDef enemy) {
+  final details = <String>[
+    'HP: ${_formatNumber(enemy.maxHp)}',
+    'XP: ${enemy.xpReward}',
+    'Move Speed: ${_formatNumber(enemy.moveSpeed)}',
+    'Attack: Contact (${_formatNumber(_enemyContactDamagePerSecond)} DPS)',
+  ];
+
+  details.addAll(_enemyRoleDetails(enemy));
+
+  return details.map((line) => '• $line').join('\n');
+}
+
+List<String> _enemyRoleDetails(EnemyDef enemy) {
+  switch (enemy.role) {
+    case EnemyRole.ranged:
+      return [
+        'Attack: Projectile (${_formatNumber(enemy.projectileDamage)} dmg)',
+        'Cooldown: ${_formatNumber(enemy.attackCooldown, fractionDigits: 1)}s',
+        'Range: ${_formatNumber(enemy.attackRange)}',
+        'Projectile Speed: ${_formatNumber(enemy.projectileSpeed)}',
+        'Spread: ${_formatNumber(enemy.projectileSpread, fractionDigits: 2)}',
+      ];
+    case EnemyRole.spawner:
+      final spawnName = enemy.spawnEnemyId != null
+          ? enemyDefsById[enemy.spawnEnemyId!]?.name ?? 'Unknown'
+          : 'None';
+      return [
+        'Spawner: ${enemy.spawnCount}× $spawnName',
+        'Spawn Cooldown: ${_formatNumber(enemy.spawnCooldown, fractionDigits: 1)}s',
+        'Spawn Radius: ${_formatNumber(enemy.spawnRadius)}',
+      ];
+    case EnemyRole.disruptor:
+      final cooldown = enemy.attackCooldown * 1.4;
+      final damage = enemy.projectileDamage * 0.9;
+      return [
+        'Attack: Curse burst (3 projectiles, ${_formatNumber(damage)} dmg)',
+        'Burst Cooldown: ${_formatNumber(cooldown, fractionDigits: 1)}s',
+        'Range: ${_formatNumber(enemy.attackRange)}',
+        'Projectile Speed: ${_formatNumber(enemy.projectileSpeed)}',
+        'Spread: ${_formatNumber(enemy.projectileSpread, fractionDigits: 2)}',
+      ];
+    case EnemyRole.zoner:
+      final cooldown = enemy.attackCooldown * 1.7;
+      final damage = enemy.projectileDamage * 0.8;
+      return [
+        'Attack: Burning ring (4 projectiles, ${_formatNumber(damage)} dmg)',
+        'Ring Cooldown: ${_formatNumber(cooldown, fractionDigits: 1)}s',
+        'Range: ${_formatNumber(enemy.attackRange)}',
+        'Projectile Speed: ${_formatNumber(enemy.projectileSpeed)}',
+        'Spread: ${_formatNumber(enemy.projectileSpread, fractionDigits: 2)}',
+      ];
+    case EnemyRole.exploder:
+      final cooldown = enemy.attackCooldown * 1.3;
+      final damage = enemy.projectileDamage * 1.1;
+      return [
+        'Attack: Detonation ring (8 projectiles, ${_formatNumber(damage)} dmg)',
+        'Detonation Cooldown: ${_formatNumber(cooldown, fractionDigits: 1)}s',
+        'Range: ${_formatNumber(enemy.attackRange)}',
+        'Projectile Speed: ${_formatNumber(enemy.projectileSpeed)}',
+        'Spread: ${_formatNumber(enemy.projectileSpread, fractionDigits: 2)}',
+      ];
+    case EnemyRole.supportHealer:
+      final cooldown = enemy.attackCooldown * 1.8;
+      final radius = enemy.attackRange * 0.75;
+      return [
+        'Support: Heal pulse (no damage)',
+        'Pulse Cooldown: ${_formatNumber(cooldown, fractionDigits: 1)}s',
+        'Pulse Radius: ${_formatNumber(radius)}',
+      ];
+    case EnemyRole.supportBuffer:
+      final cooldown = enemy.attackCooldown * 1.8;
+      final radius = enemy.attackRange * 0.8;
+      return [
+        'Support: Rally pulse (no damage)',
+        'Pulse Cooldown: ${_formatNumber(cooldown, fractionDigits: 1)}s',
+        'Pulse Radius: ${_formatNumber(radius)}',
+      ];
+    case EnemyRole.pattern:
+      final cooldown = enemy.attackCooldown * 1.3;
+      final damage = enemy.projectileDamage * 0.9;
+      return [
+        'Attack: Orbit volley (2 projectiles, ${_formatNumber(damage)} dmg)',
+        'Volley Cooldown: ${_formatNumber(cooldown, fractionDigits: 1)}s',
+        'Range: ${_formatNumber(enemy.attackRange)}',
+        'Projectile Speed: ${_formatNumber(enemy.projectileSpeed)}',
+        'Spread: ${_formatNumber(enemy.projectileSpread, fractionDigits: 2)}',
+      ];
+    case EnemyRole.elite:
+      final cooldown = enemy.attackCooldown * 1.5;
+      return [
+        'Attack: Charge dash (contact damage)',
+        'Charge Cooldown: ${_formatNumber(cooldown, fractionDigits: 1)}s',
+        'Range: ${_formatNumber(enemy.attackRange)}',
+      ];
+    case EnemyRole.chaser:
+      return const ['Attack: Melee pressure (contact damage)'];
+  }
+}
+
+String _formatNumber(double value, {int fractionDigits = 0}) {
+  final rounded = value.roundToDouble();
+  if ((value - rounded).abs() < 0.01 && fractionDigits == 0) {
+    return rounded.toInt().toString();
+  }
+  if ((value - rounded).abs() < 0.01 && fractionDigits > 0) {
+    return rounded.toInt().toString();
+  }
+  return value.toStringAsFixed(fractionDigits);
 }
