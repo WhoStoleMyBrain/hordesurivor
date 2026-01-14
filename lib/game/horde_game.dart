@@ -455,6 +455,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _runSummary.timeAlive += dt;
     _applyInput();
     _playerState.step(dt);
+    _playerState.clampToBounds(
+      min: Vector2(_playerRadius, _playerRadius),
+      max: Vector2(size.x - _playerRadius, size.y - _playerRadius),
+    );
     if (!stressTest && _stageTimer != null) {
       final stageUpdate = _stageTimer!.update(dt);
       if (stageUpdate.sectionChanged) {
@@ -500,20 +504,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       onProjectileSpawn: _handleProjectileSpawn,
       onEffectSpawn: _handleEffectSpawn,
       onProjectileDespawn: _handleProjectileDespawn,
-      onPlayerImpulse:
-          ({
-            required double dx,
-            required double dy,
-            required double speed,
-            required double duration,
-          }) {
-            _playerState.addImpulse(
-              dx: dx,
-              dy: dy,
-              speed: speed,
-              duration: duration,
-            );
-          },
       onPlayerDeflect: ({required double radius, required double duration}) {
         _playerState.startDeflect(radius: radius, duration: duration);
       },
@@ -569,11 +559,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
     _updatePickups(dt);
     _syncHudState();
-
-    _playerState.clampToBounds(
-      min: Vector2(_playerRadius, _playerRadius),
-      max: Vector2(size.x - _playerRadius, size.y - _playerRadius),
-    );
 
     _playerComponent.syncWithState();
   }
