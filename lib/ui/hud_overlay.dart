@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'hud_state.dart';
 import 'tag_badge.dart';
-import 'ui_scale.dart';
 
 class HudOverlay extends StatelessWidget {
   const HudOverlay({super.key, required this.hudState, this.onExitStressTest});
@@ -14,6 +13,7 @@ class HudOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).textTheme;
     return SafeArea(
       child: Align(
         alignment: Alignment.topLeft,
@@ -28,6 +28,18 @@ class HudOverlay extends StatelessWidget {
             child: AnimatedBuilder(
               animation: hudState,
               builder: (context, _) {
+                final statLabelStyle = theme.labelMedium?.copyWith(
+                  color: Colors.white70,
+                  letterSpacing: 0.6,
+                );
+                final statValueStyle = theme.bodyMedium?.copyWith(
+                  color: Colors.white,
+                  letterSpacing: 0.6,
+                );
+                final mutedStyle = theme.bodySmall?.copyWith(
+                  color: Colors.white70,
+                  letterSpacing: 0.4,
+                );
                 return Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -48,37 +60,50 @@ class HudOverlay extends StatelessWidget {
                               TagBadge(data: badge),
                           ],
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 8),
                       ],
-                      Text(
-                        'HP ${hudState.hp.toStringAsFixed(0)}'
-                        '/${hudState.maxHp.toStringAsFixed(0)}',
-                        style: const TextStyle(letterSpacing: 0.5),
+                      _HudStatRow(
+                        label: 'HP',
+                        value:
+                            '${hudState.hp.toStringAsFixed(0)}'
+                            '/${hudState.maxHp.toStringAsFixed(0)}',
+                        labelStyle: statLabelStyle,
+                        valueStyle: statValueStyle,
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        'LV ${hudState.level} '
-                        'XP ${hudState.xp}/${hudState.xpToNext}',
-                        style: const TextStyle(letterSpacing: 0.5),
+                      _HudStatRow(
+                        label: 'LV',
+                        value: '${hudState.level}',
+                        labelStyle: statLabelStyle,
+                        valueStyle: statValueStyle,
+                      ),
+                      const SizedBox(height: 2),
+                      _HudStatRow(
+                        label: 'XP',
+                        value: '${hudState.xp}/${hudState.xpToNext}',
+                        labelStyle: statLabelStyle,
+                        valueStyle: statValueStyle,
                       ),
                       if (hudState.contractHeat > 0) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          'HEAT ${hudState.contractHeat}',
-                          style: const TextStyle(letterSpacing: 0.5),
+                        const SizedBox(height: 6),
+                        _HudStatRow(
+                          label: 'HEAT',
+                          value: '${hudState.contractHeat}',
+                          labelStyle: statLabelStyle,
+                          valueStyle: statValueStyle,
                         ),
                         if (hudState.contractNames.isNotEmpty)
-                          Text(
-                            hudState.contractNames.join(', '),
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              letterSpacing: 0.4,
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              hudState.contractNames.join(', '),
+                              style: mutedStyle,
                             ),
                           ),
                       ],
                       if (hudState.levelUpCounter > 0)
                         Padding(
-                          padding: const EdgeInsets.only(top: 4),
+                          padding: const EdgeInsets.only(top: 6),
                           child: TweenAnimationBuilder<double>(
                             key: ValueKey(hudState.levelUpCounter),
                             tween: Tween(begin: 1.0, end: 0.0),
@@ -93,8 +118,8 @@ class HudOverlay extends StatelessWidget {
                               'LEVEL UP!',
                               style: TextStyle(
                                 color: Colors.amberAccent,
-                                fontSize: UiScale.fontSize(14),
-                                fontWeight: FontWeight.bold,
+                                fontSize: theme.labelLarge?.fontSize,
+                                fontWeight: FontWeight.w700,
                                 letterSpacing: 1.1,
                               ),
                             ),
@@ -103,7 +128,7 @@ class HudOverlay extends StatelessWidget {
                       if (hudState.rewardMessage != null &&
                           hudState.rewardMessage!.isNotEmpty)
                         Padding(
-                          padding: const EdgeInsets.only(top: 4),
+                          padding: const EdgeInsets.only(top: 6),
                           child: TweenAnimationBuilder<double>(
                             key: ValueKey(hudState.rewardCounter),
                             tween: Tween(begin: 1.0, end: 0.0),
@@ -118,50 +143,65 @@ class HudOverlay extends StatelessWidget {
                               hudState.rewardMessage!,
                               style: TextStyle(
                                 color: Colors.lightGreenAccent,
-                                fontSize: UiScale.fontSize(12),
-                                fontWeight: FontWeight.bold,
+                                fontSize: theme.labelMedium?.fontSize,
+                                fontWeight: FontWeight.w700,
                                 letterSpacing: 0.8,
                               ),
                             ),
                           ),
                         ),
                       if (hudState.stageDuration > 0) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          'SCORE ${hudState.score}',
-                          style: const TextStyle(letterSpacing: 0.5),
+                        const SizedBox(height: 8),
+                        _HudStatRow(
+                          label: 'SCORE',
+                          value: '${hudState.score}',
+                          labelStyle: statLabelStyle,
+                          valueStyle: statValueStyle,
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          'TIME ${_formatTimer(hudState.stageElapsed)}'
-                          ' / ${_formatTimer(hudState.stageDuration)}',
-                          style: const TextStyle(letterSpacing: 0.5),
+                        _HudStatRow(
+                          label: 'TIME',
+                          value:
+                              '${_formatTimer(hudState.stageElapsed)}'
+                              ' / ${_formatTimer(hudState.stageDuration)}',
+                          labelStyle: statLabelStyle,
+                          valueStyle: statValueStyle,
                         ),
-                        Text(
-                          'SECTION ${hudState.sectionIndex + 1}'
-                          '/${hudState.sectionCount}',
-                          style: const TextStyle(letterSpacing: 0.5),
+                        const SizedBox(height: 2),
+                        _HudStatRow(
+                          label: 'SECTION',
+                          value:
+                              '${hudState.sectionIndex + 1}'
+                              '/${hudState.sectionCount}',
+                          labelStyle: statLabelStyle,
+                          valueStyle: statValueStyle,
                         ),
-                        Text(
-                          'THREAT TIER ${hudState.threatTier}',
-                          style: const TextStyle(letterSpacing: 0.5),
+                        const SizedBox(height: 2),
+                        _HudStatRow(
+                          label: 'THREAT',
+                          value: '${hudState.threatTier}',
+                          labelStyle: statLabelStyle,
+                          valueStyle: statValueStyle,
                         ),
                         if (hudState.sectionNote != null &&
                             hudState.sectionNote!.isNotEmpty)
-                          Text(
-                            hudState.sectionNote!,
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              letterSpacing: 0.4,
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              hudState.sectionNote!,
+                              style: mutedStyle,
                             ),
                           ),
                       ],
                       if (hudState.showPerformance) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          'FPS ${hudState.fps.toStringAsFixed(1)} '
-                          '(${hudState.frameTimeMs.toStringAsFixed(1)} ms)',
-                          style: const TextStyle(letterSpacing: 0.5),
+                        const SizedBox(height: 8),
+                        _HudStatRow(
+                          label: 'FPS',
+                          value:
+                              '${hudState.fps.toStringAsFixed(1)} '
+                              '(${hudState.frameTimeMs.toStringAsFixed(1)} ms)',
+                          labelStyle: statLabelStyle,
+                          valueStyle: statValueStyle,
                         ),
                       ],
                       if (hudState.showPerformance &&
@@ -198,5 +238,39 @@ class HudOverlay extends StatelessWidget {
     final minutes = clamped ~/ 60;
     final secs = clamped % 60;
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+  }
+}
+
+class _HudStatRow extends StatelessWidget {
+  const _HudStatRow({
+    required this.label,
+    required this.value,
+    this.labelStyle,
+    this.valueStyle,
+  });
+
+  final String label;
+  final String value;
+  final TextStyle? labelStyle;
+  final TextStyle? valueStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Text(label, style: labelStyle),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            value,
+            style: valueStyle,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
   }
 }
