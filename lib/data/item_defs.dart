@@ -8,6 +8,7 @@ class ItemDef {
     required this.name,
     required this.description,
     required this.modifiers,
+    this.metaUnlockId,
     this.tags = const TagSet(),
     this.weight = 1,
   });
@@ -16,6 +17,7 @@ class ItemDef {
   final String name;
   final String description;
   final List<StatModifier> modifiers;
+  final MetaUnlockId? metaUnlockId;
   final TagSet tags;
   final int weight;
 }
@@ -228,6 +230,7 @@ const List<ItemDef> itemDefs = [
       StatModifier(stat: StatId.fireDamage, amount: 0.15),
       StatModifier(stat: StatId.projectileDamage, amount: -0.15),
     ],
+    metaUnlockId: MetaUnlockId.thermalCoilBlueprint,
     tags: TagSet(elements: {ElementTag.fire}, effects: {EffectTag.dot}),
   ),
   ItemDef(
@@ -239,6 +242,7 @@ const List<ItemDef> itemDefs = [
       StatModifier(stat: StatId.aoeSize, amount: 0.15),
       StatModifier(stat: StatId.moveSpeed, amount: -0.1),
     ],
+    metaUnlockId: MetaUnlockId.hydraulicStabilizerPermit,
     tags: TagSet(deliveries: {DeliveryTag.beam}),
   ),
   ItemDef(
@@ -250,6 +254,7 @@ const List<ItemDef> itemDefs = [
       StatModifier(stat: StatId.poisonResistance, amount: 0.2),
       StatModifier(stat: StatId.healingReceived, amount: -0.2),
     ],
+    metaUnlockId: MetaUnlockId.sporeSatchelKit,
     tags: TagSet(elements: {ElementTag.poison}, effects: {EffectTag.dot}),
   ),
   ItemDef(
@@ -260,6 +265,7 @@ const List<ItemDef> itemDefs = [
       StatModifier(stat: StatId.knockbackStrength, amount: 0.25),
       StatModifier(stat: StatId.attackSpeed, amount: -0.15),
     ],
+    metaUnlockId: MetaUnlockId.gravelBootsPattern,
   ),
   ItemDef(
     id: ItemId.moltenBuckle,
@@ -270,6 +276,7 @@ const List<ItemDef> itemDefs = [
       StatModifier(stat: StatId.fireDamage, amount: 0.2),
       StatModifier(stat: StatId.selfExplosionDamageTaken, amount: 0.25),
     ],
+    metaUnlockId: MetaUnlockId.moltenBuckleForge,
     tags: TagSet(elements: {ElementTag.fire}),
   ),
   ItemDef(
@@ -281,6 +288,7 @@ const List<ItemDef> itemDefs = [
       StatModifier(stat: StatId.dotDamage, amount: 0.15),
       StatModifier(stat: StatId.projectileDamage, amount: -0.2),
     ],
+    metaUnlockId: MetaUnlockId.serratedEdgeRecipe,
     tags: TagSet(effects: {EffectTag.dot}),
   ),
   ItemDef(
@@ -291,6 +299,7 @@ const List<ItemDef> itemDefs = [
       StatModifier(stat: StatId.healingReceived, amount: 0.25),
       StatModifier(stat: StatId.damage, amount: -0.15),
     ],
+    metaUnlockId: MetaUnlockId.mercyCharmVow,
     tags: TagSet(effects: {EffectTag.support}),
   ),
 ];

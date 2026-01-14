@@ -1163,6 +1163,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final rerolled = _levelUpSystem.rerollChoices(
       playerState: _playerState,
       skillSystem: _skillSystem,
+      unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
     );
     if (rerolled) {
       _selectionState.showChoices(
@@ -1177,6 +1178,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _levelUpSystem.buildChoices(
       playerState: _playerState,
       skillSystem: _skillSystem,
+      unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
     );
     if (_levelUpSystem.hasChoices) {
       _selectionState.showChoices(

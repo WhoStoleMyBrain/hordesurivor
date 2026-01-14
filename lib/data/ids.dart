@@ -90,7 +90,23 @@ enum EnemyId {
 
 enum AreaId { ashenOutskirts, haloBreach }
 
-enum MetaUnlockId { extraReroll, extraChoice }
+enum MetaUnlockId {
+  fieldManual,
+  extraReroll,
+  extraChoice,
+  steelShardsLicense,
+  thermalCoilBlueprint,
+  sporeSatchelKit,
+  flameWaveTechnique,
+  hydraulicStabilizerPermit,
+  gravelBootsPattern,
+  sporeBurstCulture,
+  frostNovaDiagram,
+  moltenBuckleForge,
+  serratedEdgeRecipe,
+  mercyCharmVow,
+  earthSpikesSurvey,
+}
 
 enum ContractId {
   volleyPressure,

@@ -76,13 +76,14 @@ class LevelUpSystem {
   void buildChoices({
     required PlayerState playerState,
     required SkillSystem skillSystem,
+    Set<MetaUnlockId> unlockedMeta = const {},
   }) {
     if (_pendingLevels <= 0 || _choices.isNotEmpty) {
       return;
     }
     _choices
       ..clear()
-      ..addAll(_buildChoicesFor(playerState, skillSystem));
+      ..addAll(_buildChoicesFor(playerState, skillSystem, unlockedMeta));
     if (_choices.isEmpty) {
       _pendingLevels = 0;
     }
@@ -91,6 +92,7 @@ class LevelUpSystem {
   bool rerollChoices({
     required PlayerState playerState,
     required SkillSystem skillSystem,
+    Set<MetaUnlockId> unlockedMeta = const {},
   }) {
     if (_choices.isEmpty || _rerollsRemaining <= 0) {
       return false;
@@ -98,7 +100,7 @@ class LevelUpSystem {
     _rerollsRemaining -= 1;
     _choices
       ..clear()
-      ..addAll(_buildChoicesFor(playerState, skillSystem));
+      ..addAll(_buildChoicesFor(playerState, skillSystem, unlockedMeta));
     return true;
   }
 
@@ -146,10 +148,11 @@ class LevelUpSystem {
   List<SelectionChoice> _buildChoicesFor(
     PlayerState playerState,
     SkillSystem skillSystem,
+    Set<MetaUnlockId> unlockedMeta,
   ) {
     final extraChoices = playerState.stats.value(StatId.choiceCount).round();
     final choiceCount = math.max(1, _baseChoiceCount + extraChoices);
-    final candidates = _buildCandidates(skillSystem);
+    final candidates = _buildCandidates(skillSystem, unlockedMeta);
     candidates.shuffle(_random);
     return candidates.take(choiceCount).toList();
   }
@@ -166,10 +169,15 @@ class LevelUpSystem {
     }
   }
 
-  List<SelectionChoice> _buildCandidates(SkillSystem skillSystem) {
+  List<SelectionChoice> _buildCandidates(
+    SkillSystem skillSystem,
+    Set<MetaUnlockId> unlockedMeta,
+  ) {
     final candidates = <SelectionChoice>[
       for (final skill in skillDefs)
-        if (!skillSystem.hasSkill(skill.id))
+        if (!skillSystem.hasSkill(skill.id) &&
+            (skill.metaUnlockId == null ||
+                unlockedMeta.contains(skill.metaUnlockId)))
           SelectionChoice(
             type: SelectionType.skill,
             title: skill.name,
@@ -186,12 +194,14 @@ class LevelUpSystem {
             skillUpgradeId: upgrade.id,
           ),
       for (final item in itemDefs)
-        SelectionChoice(
-          type: SelectionType.item,
-          title: item.name,
-          description: item.description,
-          itemId: item.id,
-        ),
+        if (item.metaUnlockId == null ||
+            unlockedMeta.contains(item.metaUnlockId))
+          SelectionChoice(
+            type: SelectionType.item,
+            title: item.name,
+            description: item.description,
+            itemId: item.id,
+          ),
     ];
     return candidates;
   }
