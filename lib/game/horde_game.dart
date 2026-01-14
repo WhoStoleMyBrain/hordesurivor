@@ -865,6 +865,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _playerState.movementIntent.setFrom(_keyboardDirection);
   }
 
+  void _attemptDash() {
+    if (_inputLocked || _flowState != GameFlowState.stage) {
+      return;
+    }
+    _playerState.tryDash();
+  }
+
   @override
   KeyEventResult onKeyEvent(
     KeyEvent event,
@@ -873,6 +880,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (event is KeyDownEvent &&
         event.logicalKey == LogicalKeyboardKey.escape) {
       toggleEscapeMenu();
+      return KeyEventResult.handled;
+    }
+    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.space) {
+      _attemptDash();
       return KeyEventResult.handled;
     }
     if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.f1) {
