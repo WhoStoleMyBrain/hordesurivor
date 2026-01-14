@@ -68,6 +68,7 @@ A startup validation pass ensures IDs are unique and definitions are consistent 
 ### 7.2 Skills & casting
 - Skills are executed on individual cooldowns via the `SkillSystem`.
 - Skill behavior is implemented as data-driven actions (projectile spawn, beam effects, melee arcs, auras).
+- AOE stats scale beam coverage (e.g., Waterjet length/width) alongside ground and melee area effects for consistent readability.
 
 ### 7.3 Effects & status interactions
 - **Ground/beam effects** apply area damage and status effects (slow, root, oil-soak, ignite).
