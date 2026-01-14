@@ -44,13 +44,6 @@ void main() {
     return PlayerState(position: Vector2.zero(), maxHp: 100, moveSpeed: 120);
   }
 
-  void noopPlayerImpulse({
-    required double dx,
-    required double dy,
-    required double speed,
-    required double duration,
-  }) {}
-
   void noopPlayerDeflect({required double radius, required double duration}) {}
 
   test('fireball casts on cooldown and supports burst updates', () {
@@ -73,7 +66,6 @@ void main() {
       onProjectileSpawn: (_) => spawnCount++,
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
-      onPlayerImpulse: noopPlayerImpulse,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged:
           (
@@ -97,7 +89,6 @@ void main() {
       onProjectileSpawn: (_) => spawnCount++,
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
-      onPlayerImpulse: noopPlayerImpulse,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged:
           (
@@ -140,7 +131,6 @@ void main() {
       onProjectileSpawn: (_) {},
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
-      onPlayerImpulse: noopPlayerImpulse,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
@@ -157,7 +147,6 @@ void main() {
       onProjectileSpawn: (_) {},
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
-      onPlayerImpulse: noopPlayerImpulse,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
@@ -199,7 +188,6 @@ void main() {
       onProjectileSpawn: (_) {},
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
-      onPlayerImpulse: noopPlayerImpulse,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
@@ -241,7 +229,6 @@ void main() {
       },
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
-      onPlayerImpulse: noopPlayerImpulse,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged:
           (

@@ -23,11 +23,12 @@ class EffectComponent extends PositionComponent {
   @override
   void update(double dt) {
     if (_state.shape == EffectShape.beam) {
-      final center = _state.position + _state.direction * (_state.length * 0.5);
-      position.setFrom(center);
+      anchor = Anchor.centerLeft;
+      position.setFrom(_state.position);
       size.setValues(_state.length, _state.width);
       angle = math.atan2(_state.direction.y, _state.direction.x);
     } else {
+      anchor = Anchor.center;
       position.setFrom(_state.position);
       size.setValues(_state.radius * 2, _state.radius * 2);
       angle = 0;
