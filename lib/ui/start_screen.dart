@@ -1,8 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../game/meta_currency_wallet.dart';
-import 'meta_shard_badge.dart';
+import 'start_menu_entries.dart';
 
 class StartScreen extends StatelessWidget {
   const StartScreen({
@@ -55,49 +54,14 @@ class StartScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
-                MetaShardBadge(wallet: wallet),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: onStart,
-                    child: const Text('Enter Home Base'),
-                  ),
+                StartMenuEntries(
+                  onStart: onStart,
+                  onOptions: onOptions,
+                  onCompendium: onCompendium,
+                  onMetaUnlocks: onMetaUnlocks,
+                  onStressTest: onStressTest,
+                  wallet: wallet,
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: onOptions,
-                    child: const Text('Options'),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: onCompendium,
-                    child: const Text('Compendium'),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: onMetaUnlocks,
-                    child: const Text('Meta Unlocks'),
-                  ),
-                ),
-                if (kDebugMode && onStressTest != null) ...[
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: onStressTest,
-                      child: const Text('Stress Scene (Debug)'),
-                    ),
-                  ),
-                ],
               ],
             ),
           ),

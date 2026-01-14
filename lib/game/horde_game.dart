@@ -33,6 +33,7 @@ import '../render/sprite_pipeline.dart';
 import '../ui/area_select_screen.dart';
 import '../ui/compendium_screen.dart';
 import '../ui/death_screen.dart';
+import '../ui/escape_menu_overlay.dart';
 import '../ui/first_run_hints_overlay.dart';
 import '../ui/flow_debug_overlay.dart';
 import '../ui/hud_overlay.dart';
@@ -207,6 +208,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   int _contractHeat = 0;
   List<String> _activeContractNames = const [];
   bool _tutorialSeen = false;
+  bool _menuReturnPending = false;
 
   PlayerHudState get hudState => _hudState;
   SelectionState get selectionState => _selectionState;
@@ -437,7 +439,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (!_spawnerReady) {
       return;
     }
-    if (_selectionState.active || overlays.isActive(StatsOverlay.overlayKey)) {
+    if (_selectionState.active ||
+        overlays.isActive(StatsOverlay.overlayKey) ||
+        overlays.isActive(EscapeMenuOverlay.overlayKey)) {
       _playerState.movementIntent.setZero();
       _playerComponent.syncWithState();
       _syncHudState();
@@ -589,6 +593,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (overlays.isActive(OptionsScreen.overlayKey)) {
       return;
     }
+    _menuReturnPending = false;
     overlays.remove(StartScreen.overlayKey);
     overlays.add(OptionsScreen.overlayKey);
   }
@@ -600,6 +605,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (overlays.isActive(CompendiumScreen.overlayKey)) {
       return;
     }
+    _menuReturnPending = false;
     overlays.remove(StartScreen.overlayKey);
     overlays.add(CompendiumScreen.overlayKey);
   }
@@ -611,32 +617,113 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (overlays.isActive(MetaUnlockScreen.overlayKey)) {
       return;
     }
+    _menuReturnPending = false;
     overlays.remove(StartScreen.overlayKey);
     overlays.add(MetaUnlockScreen.overlayKey);
   }
 
-  void closeOptionsFromStartScreen() {
-    if (_flowState != GameFlowState.start) {
-      return;
-    }
+  void closeOptionsScreen() {
     overlays.remove(OptionsScreen.overlayKey);
-    overlays.add(StartScreen.overlayKey);
-  }
-
-  void closeCompendiumFromStartScreen() {
+    if (_menuReturnPending) {
+      overlays.add(EscapeMenuOverlay.overlayKey);
+      _menuReturnPending = false;
+      _updateInputLock();
+      return;
+    }
     if (_flowState != GameFlowState.start) {
       return;
     }
+    overlays.add(StartScreen.overlayKey);
+  }
+
+  void closeCompendiumScreen() {
     overlays.remove(CompendiumScreen.overlayKey);
-    overlays.add(StartScreen.overlayKey);
-  }
-
-  void closeMetaUnlocksFromStartScreen() {
+    if (_menuReturnPending) {
+      overlays.add(EscapeMenuOverlay.overlayKey);
+      _menuReturnPending = false;
+      _updateInputLock();
+      return;
+    }
     if (_flowState != GameFlowState.start) {
       return;
     }
-    overlays.remove(MetaUnlockScreen.overlayKey);
     overlays.add(StartScreen.overlayKey);
+  }
+
+  void closeMetaUnlocksScreen() {
+    overlays.remove(MetaUnlockScreen.overlayKey);
+    if (_menuReturnPending) {
+      overlays.add(EscapeMenuOverlay.overlayKey);
+      _menuReturnPending = false;
+      _updateInputLock();
+      return;
+    }
+    if (_flowState != GameFlowState.start) {
+      return;
+    }
+    overlays.add(StartScreen.overlayKey);
+  }
+
+  void openOptionsFromMenu() {
+    if (overlays.isActive(OptionsScreen.overlayKey)) {
+      return;
+    }
+    _menuReturnPending = true;
+    overlays.remove(EscapeMenuOverlay.overlayKey);
+    overlays.add(OptionsScreen.overlayKey);
+  }
+
+  void openCompendiumFromMenu() {
+    if (overlays.isActive(CompendiumScreen.overlayKey)) {
+      return;
+    }
+    _menuReturnPending = true;
+    overlays.remove(EscapeMenuOverlay.overlayKey);
+    overlays.add(CompendiumScreen.overlayKey);
+  }
+
+  void openMetaUnlocksFromMenu() {
+    if (overlays.isActive(MetaUnlockScreen.overlayKey)) {
+      return;
+    }
+    _menuReturnPending = true;
+    overlays.remove(EscapeMenuOverlay.overlayKey);
+    overlays.add(MetaUnlockScreen.overlayKey);
+  }
+
+  void enterHomeBaseFromMenu() {
+    overlays.remove(EscapeMenuOverlay.overlayKey);
+    switch (_flowState) {
+      case GameFlowState.start:
+        beginHomeBaseFromStartScreen();
+        return;
+      case GameFlowState.homeBase:
+        _updateInputLock();
+        return;
+      case GameFlowState.areaSelect:
+        returnToHomeBase();
+        return;
+      case GameFlowState.death:
+        returnToHomeBaseFromDeath();
+        return;
+      case GameFlowState.stage:
+        returnToHomeBase();
+        return;
+    }
+  }
+
+  void closeEscapeMenu() {
+    overlays.remove(EscapeMenuOverlay.overlayKey);
+    _updateInputLock();
+  }
+
+  void continueRunFromMenu() {
+    closeEscapeMenu();
+  }
+
+  void abortRunFromMenu() {
+    overlays.remove(EscapeMenuOverlay.overlayKey);
+    returnToHomeBase();
   }
 
   void setHighContrastTelegraphs(bool enabled) {
@@ -675,6 +762,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(AreaSelectScreen.overlayKey);
     overlays.remove(HomeBaseOverlay.overlayKey);
     overlays.remove(DeathScreen.overlayKey);
+    overlays.remove(EscapeMenuOverlay.overlayKey);
     overlays.add(HudOverlay.overlayKey);
     overlays.add(VirtualStickOverlay.overlayKey);
     _showFirstRunHintsIfNeeded();
@@ -694,6 +782,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
+    overlays.remove(EscapeMenuOverlay.overlayKey);
     overlays.add(HomeBaseOverlay.overlayKey);
     _syncHudState();
   }
@@ -718,6 +807,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(VirtualStickOverlay.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
+    overlays.remove(EscapeMenuOverlay.overlayKey);
     overlays.add(HomeBaseOverlay.overlayKey);
     _syncHudState();
   }
@@ -780,6 +870,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     KeyEvent event,
     Set<LogicalKeyboardKey> keysPressed,
   ) {
+    if (event is KeyDownEvent &&
+        event.logicalKey == LogicalKeyboardKey.escape) {
+      toggleEscapeMenu();
+      return KeyEventResult.handled;
+    }
     if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.f1) {
       toggleFlowDebugOverlay();
       return KeyEventResult.handled;
@@ -1243,6 +1338,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final locked =
         _selectionState.active ||
         overlays.isActive(StatsOverlay.overlayKey) ||
+        overlays.isActive(EscapeMenuOverlay.overlayKey) ||
         !(_flowState == GameFlowState.stage ||
             _flowState == GameFlowState.homeBase);
     if (_inputLocked == locked) {
@@ -1273,6 +1369,28 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     } else {
       overlays.add(StatsOverlay.overlayKey);
     }
+    _updateInputLock();
+  }
+
+  void toggleEscapeMenu() {
+    if (_selectionState.active) {
+      return;
+    }
+    if (overlays.isActive(EscapeMenuOverlay.overlayKey)) {
+      overlays.remove(EscapeMenuOverlay.overlayKey);
+      _updateInputLock();
+      return;
+    }
+    if (_flowState == GameFlowState.stage) {
+      overlays.remove(StatsOverlay.overlayKey);
+      overlays.add(EscapeMenuOverlay.overlayKey);
+      _updateInputLock();
+      return;
+    }
+    if (_flowState == GameFlowState.start) {
+      return;
+    }
+    overlays.add(EscapeMenuOverlay.overlayKey);
     _updateInputLock();
   }
 
@@ -1309,6 +1427,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _stageTimer = null;
     _resetFinaleState();
     _runCompleted = false;
+    _menuReturnPending = false;
     _setFlowState(GameFlowState.start);
     overlays.remove(HudOverlay.overlayKey);
     overlays.remove(VirtualStickOverlay.overlayKey);
@@ -1320,6 +1439,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(CompendiumScreen.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
+    overlays.remove(EscapeMenuOverlay.overlayKey);
     overlays.add(StartScreen.overlayKey);
     _syncHudState();
   }
@@ -1668,6 +1788,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _selectionState.clear();
     overlays.remove(SelectionOverlay.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
+    overlays.remove(EscapeMenuOverlay.overlayKey);
     _setFlowState(GameFlowState.death);
     overlays.remove(HudOverlay.overlayKey);
     overlays.remove(VirtualStickOverlay.overlayKey);

@@ -6,6 +6,7 @@ import 'game/horde_game.dart';
 import 'ui/area_select_screen.dart';
 import 'ui/compendium_screen.dart';
 import 'ui/death_screen.dart';
+import 'ui/escape_menu_overlay.dart';
 import 'ui/first_run_hints_overlay.dart';
 import 'ui/flow_debug_overlay.dart';
 import 'ui/hud_overlay.dart';
@@ -17,6 +18,7 @@ import 'ui/start_screen.dart';
 import 'ui/stats_overlay.dart';
 import 'ui/ui_scale.dart';
 import 'ui/virtual_stick_overlay.dart';
+import 'game/game_flow_state.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -135,18 +137,32 @@ class HordeSurvivorApp extends StatelessWidget {
           wallet: game.metaWallet,
         ),
         OptionsScreen.overlayKey: (_, game) => OptionsScreen(
-          onClose: game.closeOptionsFromStartScreen,
+          onClose: game.closeOptionsScreen,
           highContrastTelegraphs: game.highContrastTelegraphs,
           onHighContrastTelegraphsChanged: game.setHighContrastTelegraphs,
           textScale: UiScale.textScaleListenable,
           onTextScaleChanged: UiScale.setTextScale,
         ),
         CompendiumScreen.overlayKey: (_, game) =>
-            CompendiumScreen(onClose: game.closeCompendiumFromStartScreen),
+            CompendiumScreen(onClose: game.closeCompendiumScreen),
         MetaUnlockScreen.overlayKey: (_, game) => MetaUnlockScreen(
           wallet: game.metaWallet,
           unlocks: game.metaUnlocks,
-          onClose: game.closeMetaUnlocksFromStartScreen,
+          onClose: game.closeMetaUnlocksScreen,
+        ),
+        EscapeMenuOverlay.overlayKey: (context, game) => EscapeMenuOverlay(
+          inRun: game.flowState == GameFlowState.stage,
+          wallet: game.metaWallet,
+          onClose: game.closeEscapeMenu,
+          onEnterHomeBase: game.enterHomeBaseFromMenu,
+          onOptions: game.openOptionsFromMenu,
+          onCompendium: game.openCompendiumFromMenu,
+          onMetaUnlocks: game.openMetaUnlocksFromMenu,
+          onStressTest: () =>
+              Navigator.of(context).pushReplacementNamed('/stress'),
+          statsState: game.statsScreenState,
+          onContinue: game.continueRunFromMenu,
+          onAbort: game.abortRunFromMenu,
         ),
         HomeBaseOverlay.overlayKey: (_, game) =>
             HomeBaseOverlay(wallet: game.metaWallet),
