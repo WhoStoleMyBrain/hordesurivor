@@ -7,9 +7,11 @@ import 'package:hordesurivor/data/stat_defs.dart';
 import 'package:hordesurivor/data/tags.dart';
 import 'package:hordesurivor/game/damage_system.dart';
 import 'package:hordesurivor/game/effect_pool.dart';
+import 'package:hordesurivor/game/effect_state.dart';
 import 'package:hordesurivor/game/enemy_pool.dart';
 import 'package:hordesurivor/game/player_state.dart';
 import 'package:hordesurivor/game/projectile_pool.dart';
+import 'package:hordesurivor/game/projectile_state.dart';
 import 'package:hordesurivor/game/skill_system.dart';
 
 void main() {
@@ -243,5 +245,231 @@ void main() {
 
     expect(damage, isNotNull);
     expect(damage!, closeTo(14.8, 0.01));
+  });
+
+  test('wind cutter spawns a fast projectile', () {
+    final projectilePool = ProjectilePool(initialCapacity: 0);
+    final effectPool = EffectPool(initialCapacity: 0);
+    final system = SkillSystem(
+      effectPool: effectPool,
+      projectilePool: projectilePool,
+      skillSlots: [SkillSlot(id: SkillId.windCutter, cooldown: 0.1)],
+    );
+    final playerState = buildPlayer();
+
+    ProjectileState? projectile;
+    system.update(
+      dt: 0.2,
+      playerPosition: Vector2.zero(),
+      aimDirection: Vector2(1, 0),
+      stats: playerState.stats,
+      enemyPool: EnemyPool(initialCapacity: 0),
+      onProjectileSpawn: (state) => projectile = state,
+      onEffectSpawn: (_) {},
+      onProjectileDespawn: (_) {},
+      onPlayerDeflect: noopPlayerDeflect,
+      onEnemyDamaged:
+          (
+            enemy,
+            damage, {
+            double knockbackDuration = 0,
+            double knockbackForce = 0,
+            double knockbackX = 0,
+            double knockbackY = 0,
+          }) {},
+    );
+
+    expect(projectile, isNotNull);
+    expect(projectile!.sourceSkillId, SkillId.windCutter);
+    expect(projectile!.velocity.x, greaterThan(200));
+  });
+
+  test('steel shards fires a triple spread', () {
+    final projectilePool = ProjectilePool(initialCapacity: 0);
+    final effectPool = EffectPool(initialCapacity: 0);
+    final system = SkillSystem(
+      effectPool: effectPool,
+      projectilePool: projectilePool,
+      skillSlots: [SkillSlot(id: SkillId.steelShards, cooldown: 0.1)],
+    );
+    final playerState = buildPlayer();
+
+    final projectiles = <ProjectileState>[];
+    system.update(
+      dt: 0.2,
+      playerPosition: Vector2.zero(),
+      aimDirection: Vector2(1, 0),
+      stats: playerState.stats,
+      enemyPool: EnemyPool(initialCapacity: 0),
+      onProjectileSpawn: projectiles.add,
+      onEffectSpawn: (_) {},
+      onProjectileDespawn: (_) {},
+      onPlayerDeflect: noopPlayerDeflect,
+      onEnemyDamaged:
+          (
+            enemy,
+            damage, {
+            double knockbackDuration = 0,
+            double knockbackForce = 0,
+            double knockbackX = 0,
+            double knockbackY = 0,
+          }) {},
+    );
+
+    expect(projectiles.length, 3);
+    final hasPositive = projectiles.any((p) => p.velocity.y > 0);
+    final hasNegative = projectiles.any((p) => p.velocity.y < 0);
+    expect(hasPositive, isTrue);
+    expect(hasNegative, isTrue);
+  });
+
+  test('flame wave spawns a beam effect', () {
+    final projectilePool = ProjectilePool(initialCapacity: 0);
+    final effectPool = EffectPool(initialCapacity: 0);
+    final system = SkillSystem(
+      effectPool: effectPool,
+      projectilePool: projectilePool,
+      skillSlots: [SkillSlot(id: SkillId.flameWave, cooldown: 0.1)],
+    );
+    final playerState = buildPlayer();
+
+    EffectState? effect;
+    system.update(
+      dt: 0.2,
+      playerPosition: Vector2.zero(),
+      aimDirection: Vector2(1, 0),
+      stats: playerState.stats,
+      enemyPool: EnemyPool(initialCapacity: 0),
+      onProjectileSpawn: (_) {},
+      onEffectSpawn: (state) => effect = state,
+      onProjectileDespawn: (_) {},
+      onPlayerDeflect: noopPlayerDeflect,
+      onEnemyDamaged:
+          (
+            enemy,
+            damage, {
+            double knockbackDuration = 0,
+            double knockbackForce = 0,
+            double knockbackX = 0,
+            double knockbackY = 0,
+          }) {},
+    );
+
+    expect(effect, isNotNull);
+    expect(effect!.kind, EffectKind.flameWave);
+    expect(effect!.shape, EffectShape.beam);
+  });
+
+  test('frost nova follows the player and slows targets', () {
+    final projectilePool = ProjectilePool(initialCapacity: 0);
+    final effectPool = EffectPool(initialCapacity: 0);
+    final system = SkillSystem(
+      effectPool: effectPool,
+      projectilePool: projectilePool,
+      skillSlots: [SkillSlot(id: SkillId.frostNova, cooldown: 0.1)],
+    );
+    final playerState = buildPlayer();
+
+    EffectState? effect;
+    system.update(
+      dt: 0.2,
+      playerPosition: Vector2.zero(),
+      aimDirection: Vector2(1, 0),
+      stats: playerState.stats,
+      enemyPool: EnemyPool(initialCapacity: 0),
+      onProjectileSpawn: (_) {},
+      onEffectSpawn: (state) => effect = state,
+      onProjectileDespawn: (_) {},
+      onPlayerDeflect: noopPlayerDeflect,
+      onEnemyDamaged:
+          (
+            enemy,
+            damage, {
+            double knockbackDuration = 0,
+            double knockbackForce = 0,
+            double knockbackX = 0,
+            double knockbackY = 0,
+          }) {},
+    );
+
+    expect(effect, isNotNull);
+    expect(effect!.kind, EffectKind.frostNova);
+    expect(effect!.followsPlayer, isTrue);
+    expect(effect!.slowMultiplier, lessThan(1));
+  });
+
+  test('earth spikes erupts ahead of the player', () {
+    final projectilePool = ProjectilePool(initialCapacity: 0);
+    final effectPool = EffectPool(initialCapacity: 0);
+    final system = SkillSystem(
+      effectPool: effectPool,
+      projectilePool: projectilePool,
+      skillSlots: [SkillSlot(id: SkillId.earthSpikes, cooldown: 0.1)],
+    );
+    final playerState = buildPlayer();
+
+    EffectState? effect;
+    system.update(
+      dt: 0.2,
+      playerPosition: Vector2.zero(),
+      aimDirection: Vector2(1, 0),
+      stats: playerState.stats,
+      enemyPool: EnemyPool(initialCapacity: 0),
+      onProjectileSpawn: (_) {},
+      onEffectSpawn: (state) => effect = state,
+      onProjectileDespawn: (_) {},
+      onPlayerDeflect: noopPlayerDeflect,
+      onEnemyDamaged:
+          (
+            enemy,
+            damage, {
+            double knockbackDuration = 0,
+            double knockbackForce = 0,
+            double knockbackX = 0,
+            double knockbackY = 0,
+          }) {},
+    );
+
+    expect(effect, isNotNull);
+    expect(effect!.kind, EffectKind.earthSpikes);
+    expect(effect!.position.x, greaterThan(0));
+  });
+
+  test('spore burst spawns an impact cloud', () {
+    final projectilePool = ProjectilePool(initialCapacity: 0);
+    final effectPool = EffectPool(initialCapacity: 0);
+    final system = SkillSystem(
+      effectPool: effectPool,
+      projectilePool: projectilePool,
+      skillSlots: [SkillSlot(id: SkillId.sporeBurst, cooldown: 0.1)],
+    );
+    final playerState = buildPlayer();
+
+    ProjectileState? projectile;
+    system.update(
+      dt: 0.2,
+      playerPosition: Vector2.zero(),
+      aimDirection: Vector2(1, 0),
+      stats: playerState.stats,
+      enemyPool: EnemyPool(initialCapacity: 0),
+      onProjectileSpawn: (state) => projectile = state,
+      onEffectSpawn: (_) {},
+      onProjectileDespawn: (_) {},
+      onPlayerDeflect: noopPlayerDeflect,
+      onEnemyDamaged:
+          (
+            enemy,
+            damage, {
+            double knockbackDuration = 0,
+            double knockbackForce = 0,
+            double knockbackX = 0,
+            double knockbackY = 0,
+          }) {},
+    );
+
+    expect(projectile, isNotNull);
+    expect(projectile!.spawnImpactEffect, isTrue);
+    expect(projectile!.impactEffectKind, EffectKind.sporeCloud);
+    expect(projectile!.impactEffectDuration, greaterThan(0));
   });
 }

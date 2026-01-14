@@ -64,6 +64,14 @@ class EffectComponent extends PositionComponent {
         return const Color(0xFF3E7C3E).withValues(alpha: 0.45);
       case EffectKind.poisonAura:
         return const Color(0xFF6ABF69).withValues(alpha: 0.4);
+      case EffectKind.flameWave:
+        return const Color(0xFFFF9E3D).withValues(alpha: 0.65);
+      case EffectKind.frostNova:
+        return const Color(0xFF7CD9FF).withValues(alpha: 0.45);
+      case EffectKind.earthSpikes:
+        return const Color(0xFF7B5E3B).withValues(alpha: 0.5);
+      case EffectKind.sporeCloud:
+        return const Color(0xFF5F9E4A).withValues(alpha: 0.45);
     }
   }
 

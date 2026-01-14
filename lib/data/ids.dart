@@ -8,6 +8,12 @@ enum SkillId {
   swordDeflect,
   poisonGas,
   roots,
+  windCutter,
+  steelShards,
+  flameWave,
+  frostNova,
+  earthSpikes,
+  sporeBurst,
 }
 
 enum SkillUpgradeId {

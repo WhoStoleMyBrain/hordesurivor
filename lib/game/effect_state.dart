@@ -1,6 +1,15 @@
 import 'package:flame/extensions.dart';
 
-enum EffectKind { waterjetBeam, oilGround, rootsGround, poisonAura }
+enum EffectKind {
+  waterjetBeam,
+  oilGround,
+  rootsGround,
+  poisonAura,
+  flameWave,
+  frostNova,
+  earthSpikes,
+  sporeCloud,
+}
 
 enum EffectShape { beam, ground }
 
