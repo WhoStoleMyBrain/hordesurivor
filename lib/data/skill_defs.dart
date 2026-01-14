@@ -130,6 +130,69 @@ const List<SkillDef> skillDefs = [
     ),
     statusEffects: {StatusEffectId.root},
   ),
+  SkillDef(
+    id: SkillId.windCutter,
+    name: 'Wind Cutter',
+    description: 'Launch razor wind projectiles at high speed.',
+    tags: TagSet(
+      elements: {ElementTag.wind},
+      deliveries: {DeliveryTag.projectile},
+    ),
+    knockbackForce: 70,
+    knockbackDuration: 0.16,
+  ),
+  SkillDef(
+    id: SkillId.steelShards,
+    name: 'Steel Shards',
+    description: 'Fan out a trio of steel shards.',
+    tags: TagSet(
+      elements: {ElementTag.steel},
+      deliveries: {DeliveryTag.projectile},
+    ),
+    knockbackForce: 85,
+    knockbackDuration: 0.18,
+  ),
+  SkillDef(
+    id: SkillId.flameWave,
+    name: 'Flame Wave',
+    description: 'Sweep a short fire beam across enemies.',
+    tags: TagSet(
+      elements: {ElementTag.fire},
+      effects: {EffectTag.aoe},
+      deliveries: {DeliveryTag.beam},
+    ),
+  ),
+  SkillDef(
+    id: SkillId.frostNova,
+    name: 'Frost Nova',
+    description: 'Release a chilling pulse that slows nearby foes.',
+    tags: TagSet(
+      elements: {ElementTag.water},
+      effects: {EffectTag.aoe, EffectTag.debuff},
+      deliveries: {DeliveryTag.aura},
+    ),
+    statusEffects: {StatusEffectId.slow},
+  ),
+  SkillDef(
+    id: SkillId.earthSpikes,
+    name: 'Earth Spikes',
+    description: 'Erupt spikes from the ground ahead.',
+    tags: TagSet(
+      elements: {ElementTag.earth},
+      effects: {EffectTag.aoe, EffectTag.dot},
+      deliveries: {DeliveryTag.ground},
+    ),
+  ),
+  SkillDef(
+    id: SkillId.sporeBurst,
+    name: 'Spore Burst',
+    description: 'Lob spores that linger as toxic clouds.',
+    tags: TagSet(
+      elements: {ElementTag.poison},
+      effects: {EffectTag.aoe, EffectTag.dot},
+      deliveries: {DeliveryTag.projectile, DeliveryTag.ground},
+    ),
+  ),
 ];
 
 final Map<SkillId, SkillDef> skillDefsById = Map.unmodifiable({

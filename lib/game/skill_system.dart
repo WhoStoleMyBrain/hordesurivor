@@ -35,6 +35,12 @@ class SkillSystem {
     SkillId.swordDeflect: 1.4,
     SkillId.poisonGas: 1.3,
     SkillId.roots: 1.2,
+    SkillId.windCutter: 0.55,
+    SkillId.steelShards: 0.9,
+    SkillId.flameWave: 1.1,
+    SkillId.frostNova: 1.4,
+    SkillId.earthSpikes: 1.3,
+    SkillId.sporeBurst: 1.0,
   };
 
   final EffectPool _effectPool;
@@ -182,6 +188,52 @@ class SkillSystem {
               stats: stats,
               enemyPool: enemyPool,
               onEffectSpawn: onEffectSpawn,
+            );
+          case SkillId.windCutter:
+            _castWindCutter(
+              playerPosition: playerPosition,
+              aimDirection: aimDirection,
+              stats: stats,
+              enemyPool: enemyPool,
+              onProjectileSpawn: onProjectileSpawn,
+            );
+          case SkillId.steelShards:
+            _castSteelShards(
+              playerPosition: playerPosition,
+              aimDirection: aimDirection,
+              stats: stats,
+              enemyPool: enemyPool,
+              onProjectileSpawn: onProjectileSpawn,
+            );
+          case SkillId.flameWave:
+            _castFlameWave(
+              playerPosition: playerPosition,
+              aimDirection: aimDirection,
+              stats: stats,
+              enemyPool: enemyPool,
+              onEffectSpawn: onEffectSpawn,
+            );
+          case SkillId.frostNova:
+            _castFrostNova(
+              playerPosition: playerPosition,
+              stats: stats,
+              onEffectSpawn: onEffectSpawn,
+            );
+          case SkillId.earthSpikes:
+            _castEarthSpikes(
+              playerPosition: playerPosition,
+              aimDirection: aimDirection,
+              stats: stats,
+              enemyPool: enemyPool,
+              onEffectSpawn: onEffectSpawn,
+            );
+          case SkillId.sporeBurst:
+            _castSporeBurst(
+              playerPosition: playerPosition,
+              aimDirection: aimDirection,
+              stats: stats,
+              enemyPool: enemyPool,
+              onProjectileSpawn: onProjectileSpawn,
             );
             break;
         }
@@ -531,6 +583,210 @@ class SkillSystem {
       slowDuration: rootDuration,
     );
     onEffectSpawn(effect);
+  }
+
+  void _castWindCutter({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required StatSheet stats,
+    required EnemyPool enemyPool,
+    required void Function(ProjectileState) onProjectileSpawn,
+  }) {
+    final def = skillDefsById[SkillId.windCutter];
+    final knockbackScale = _knockbackScale(stats);
+    final direction = _resolveAim(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: enemyPool,
+    );
+    final damage = 7 * _damageMultiplierFor(SkillId.windCutter, stats);
+    final projectile = _projectilePool.acquire();
+    projectile.reset(
+      position: playerPosition,
+      velocity: direction..scale(280),
+      damage: damage,
+      radius: GameSizes.projectileRadius(3),
+      lifespan: 1.4,
+      fromEnemy: false,
+    );
+    projectile.sourceSkillId = SkillId.windCutter;
+    if (def != null && def.knockbackForce > 0 && def.knockbackDuration > 0) {
+      projectile.knockbackForce = def.knockbackForce * knockbackScale;
+      projectile.knockbackDuration = def.knockbackDuration;
+    }
+    onProjectileSpawn(projectile);
+  }
+
+  void _castSteelShards({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required StatSheet stats,
+    required EnemyPool enemyPool,
+    required void Function(ProjectileState) onProjectileSpawn,
+  }) {
+    final def = skillDefsById[SkillId.steelShards];
+    final knockbackScale = _knockbackScale(stats);
+    final direction = _resolveAim(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: enemyPool,
+    );
+    final damage = 6 * _damageMultiplierFor(SkillId.steelShards, stats);
+    const spread = [-0.2, 0.0, 0.2];
+    for (final angle in spread) {
+      final projectile = _projectilePool.acquire();
+      final velocity = direction.clone()
+        ..rotate(angle)
+        ..scale(200);
+      projectile.reset(
+        position: playerPosition,
+        velocity: velocity,
+        damage: damage,
+        radius: GameSizes.projectileRadius(3),
+        lifespan: 1.2,
+        fromEnemy: false,
+      );
+      projectile.sourceSkillId = SkillId.steelShards;
+      if (def != null && def.knockbackForce > 0 && def.knockbackDuration > 0) {
+        projectile.knockbackForce = def.knockbackForce * knockbackScale;
+        projectile.knockbackDuration = def.knockbackDuration;
+      }
+      onProjectileSpawn(projectile);
+    }
+  }
+
+  void _castFlameWave({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required StatSheet stats,
+    required EnemyPool enemyPool,
+    required void Function(EffectState) onEffectSpawn,
+  }) {
+    final direction = _resolveAim(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: enemyPool,
+    );
+    const duration = 0.45;
+    final aoeScale = _aoeScale(stats);
+    final damage = 10 * _damageMultiplierFor(SkillId.flameWave, stats);
+    final effect = _effectPool.acquire();
+    effect.reset(
+      kind: EffectKind.flameWave,
+      shape: EffectShape.beam,
+      position: playerPosition,
+      direction: direction,
+      radius: 0,
+      length: 120 * aoeScale,
+      width: 18 * aoeScale,
+      duration: duration,
+      damagePerSecond: damage / duration,
+    );
+    onEffectSpawn(effect);
+  }
+
+  void _castFrostNova({
+    required Vector2 playerPosition,
+    required StatSheet stats,
+    required void Function(EffectState) onEffectSpawn,
+  }) {
+    final aoeScale = _aoeScale(stats);
+    const duration = 0.6;
+    final damage = 5 * _damageMultiplierFor(SkillId.frostNova, stats);
+    final effect = _effectPool.acquire();
+    effect.reset(
+      kind: EffectKind.frostNova,
+      shape: EffectShape.ground,
+      position: playerPosition,
+      direction: _fallbackDirection,
+      radius: 80 * aoeScale,
+      length: 0,
+      width: 0,
+      duration: duration,
+      damagePerSecond: damage / duration,
+      slowMultiplier: 0.6,
+      slowDuration: duration,
+      followsPlayer: true,
+    );
+    onEffectSpawn(effect);
+  }
+
+  void _castEarthSpikes({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required StatSheet stats,
+    required EnemyPool enemyPool,
+    required void Function(EffectState) onEffectSpawn,
+  }) {
+    final direction = _resolveAim(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: enemyPool,
+    );
+    final aoeScale = _aoeScale(stats);
+    const duration = 0.7;
+    final damage = 9 * _damageMultiplierFor(SkillId.earthSpikes, stats);
+    final target = Vector2(
+      playerPosition.x + direction.x * 72,
+      playerPosition.y + direction.y * 72,
+    );
+    final effect = _effectPool.acquire();
+    effect.reset(
+      kind: EffectKind.earthSpikes,
+      shape: EffectShape.ground,
+      position: target,
+      direction: direction,
+      radius: 68 * aoeScale,
+      length: 0,
+      width: 0,
+      duration: duration,
+      damagePerSecond: damage / duration,
+    );
+    onEffectSpawn(effect);
+  }
+
+  void _castSporeBurst({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required StatSheet stats,
+    required EnemyPool enemyPool,
+    required void Function(ProjectileState) onProjectileSpawn,
+  }) {
+    final direction = _resolveAim(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: enemyPool,
+    ).clone();
+    final damage = 5 * _damageMultiplierFor(SkillId.sporeBurst, stats);
+    final projectile = _projectilePool.acquire();
+    projectile.reset(
+      position: playerPosition,
+      velocity: direction.clone()..scale(170),
+      damage: damage,
+      radius: GameSizes.projectileRadius(5),
+      lifespan: 1.6,
+      fromEnemy: false,
+    );
+    projectile.sourceSkillId = SkillId.sporeBurst;
+    onProjectileSpawn(projectile);
+
+    final aoeScale = _aoeScale(stats);
+    const duration = 1.4;
+    final radius = 50 * aoeScale;
+    final cloudDamage =
+        (4 * _damageMultiplierFor(SkillId.sporeBurst, stats)) / duration;
+    projectile.setImpactEffect(
+      kind: EffectKind.sporeCloud,
+      shape: EffectShape.ground,
+      direction: direction,
+      radius: radius,
+      length: 0,
+      width: 0,
+      duration: duration,
+      damagePerSecond: cloudDamage,
+      slowMultiplier: 0.85,
+      slowDuration: 0.4,
+    );
   }
 
   void _castMeleeArc({
