@@ -24,6 +24,10 @@ class PlayerHudState extends ChangeNotifier {
   String? rewardMessage;
   int contractHeat = 0;
   List<String> contractNames = const [];
+  int dashCharges = 0;
+  int dashMaxCharges = 0;
+  double dashCooldownRemaining = 0;
+  double dashCooldownDuration = 0;
 
   void triggerRewardMessage(String message) {
     rewardMessage = message;
@@ -50,6 +54,10 @@ class PlayerHudState extends ChangeNotifier {
     required TagSet buildTags,
     required int contractHeat,
     required List<String> contractNames,
+    required int dashCharges,
+    required int dashMaxCharges,
+    required double dashCooldownRemaining,
+    required double dashCooldownDuration,
   }) {
     final didLevelChange = this.level != level;
     final nextLevelUpCounter = didLevelChange
@@ -73,6 +81,10 @@ class PlayerHudState extends ChangeNotifier {
         this.buildTags.equals(buildTags) &&
         this.contractHeat == contractHeat &&
         listEquals(this.contractNames, contractNames) &&
+        this.dashCharges == dashCharges &&
+        this.dashMaxCharges == dashMaxCharges &&
+        this.dashCooldownRemaining == dashCooldownRemaining &&
+        this.dashCooldownDuration == dashCooldownDuration &&
         levelUpCounter == nextLevelUpCounter) {
       return;
     }
@@ -95,6 +107,10 @@ class PlayerHudState extends ChangeNotifier {
     this.buildTags = buildTags;
     this.contractHeat = contractHeat;
     this.contractNames = contractNames;
+    this.dashCharges = dashCharges;
+    this.dashMaxCharges = dashMaxCharges;
+    this.dashCooldownRemaining = dashCooldownRemaining;
+    this.dashCooldownDuration = dashCooldownDuration;
     levelUpCounter = nextLevelUpCounter;
     notifyListeners();
   }
