@@ -241,7 +241,7 @@ drop-based progression bars and clear upgrade gating.
    - Add a **skip behavior** for item/gold level-ups that grants currency (or a small stat bonus)
      rather than an item selection.
 
-7. **Add validation and tests**
+7. ✅ **Add validation and tests**
    - Validate that each weapon has 7+ upgrade tiers and that tier chains are contiguous.
    - Ensure each track has a defined selection pool and level curve.
    - Add or update tests to ensure:
@@ -258,6 +258,9 @@ drop-based progression bars and clear upgrade gating.
 - Drop variety exists with at least XP + gold pickups.
 - Selection pools are track-specific and extensible to future currencies.
 - UI reflects multi-track progression with clear, readable bars and level-up context.
+
+**Potential follow-ups:**
+- Add unit coverage for currency track fill/level-up events to directly exercise the multi-currency queues.
 
 ---
 
