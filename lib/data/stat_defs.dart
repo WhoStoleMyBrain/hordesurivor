@@ -32,6 +32,8 @@ enum StatId {
   drops,
   rerolls,
   choiceCount,
+  banishes,
+  skipMetaShards,
   cooldownRecovery,
   accuracy,
   pickupRadius,

@@ -10,6 +10,7 @@ class EnemyDef {
     required this.role,
     required this.xpReward,
     this.spriteId,
+    this.metaUnlockId,
     this.maxHp = 15,
     this.moveSpeed = 28,
     this.attackCooldown = 1.6,
@@ -31,6 +32,7 @@ class EnemyDef {
   final EnemyRole role;
   final int xpReward;
   final String? spriteId;
+  final MetaUnlockId? metaUnlockId;
   final double maxHp;
   final double moveSpeed;
   final double attackCooldown;
@@ -96,6 +98,7 @@ const List<EnemyDef> enemyDefs = [
     role: EnemyRole.disruptor,
     xpReward: 8,
     spriteId: 'enemy_hexer',
+    metaUnlockId: MetaUnlockId.infernalDisruptorDossier,
     maxHp: 16,
     moveSpeed: 22,
     attackCooldown: 2.4,
@@ -112,6 +115,7 @@ const List<EnemyDef> enemyDefs = [
     role: EnemyRole.zoner,
     xpReward: 8,
     spriteId: 'enemy_brimstone_brander',
+    metaUnlockId: MetaUnlockId.infernalDisruptorDossier,
     maxHp: 20,
     moveSpeed: 18,
     attackCooldown: 2.8,
@@ -128,6 +132,7 @@ const List<EnemyDef> enemyDefs = [
     role: EnemyRole.elite,
     xpReward: 16,
     spriteId: 'enemy_hellknight',
+    metaUnlockId: MetaUnlockId.infernalAnnihilatorDossier,
     maxHp: 60,
     moveSpeed: 30,
     attackCooldown: 3.2,
@@ -141,6 +146,7 @@ const List<EnemyDef> enemyDefs = [
     role: EnemyRole.exploder,
     xpReward: 7,
     spriteId: 'enemy_cinderling',
+    metaUnlockId: MetaUnlockId.infernalAnnihilatorDossier,
     maxHp: 10,
     moveSpeed: 34,
     attackCooldown: 2.6,
@@ -184,6 +190,7 @@ const List<EnemyDef> enemyDefs = [
     role: EnemyRole.supportHealer,
     xpReward: 9,
     spriteId: 'enemy_seraph_medic',
+    metaUnlockId: MetaUnlockId.celestialSupportAccords,
     maxHp: 20,
     moveSpeed: 22,
     attackCooldown: 3.2,
@@ -197,6 +204,7 @@ const List<EnemyDef> enemyDefs = [
     role: EnemyRole.supportBuffer,
     xpReward: 9,
     spriteId: 'enemy_herald',
+    metaUnlockId: MetaUnlockId.celestialSupportAccords,
     maxHp: 18,
     moveSpeed: 22,
     attackCooldown: 3.0,
@@ -210,6 +218,7 @@ const List<EnemyDef> enemyDefs = [
     role: EnemyRole.zoner,
     xpReward: 8,
     spriteId: 'enemy_warden',
+    metaUnlockId: MetaUnlockId.celestialWardEdict,
     maxHp: 24,
     moveSpeed: 12,
     attackCooldown: 3.2,
@@ -226,6 +235,7 @@ const List<EnemyDef> enemyDefs = [
     role: EnemyRole.pattern,
     xpReward: 8,
     spriteId: 'enemy_sentinel',
+    metaUnlockId: MetaUnlockId.celestialVanguardWarrant,
     maxHp: 18,
     moveSpeed: 28,
     attackCooldown: 2.4,
@@ -242,6 +252,7 @@ const List<EnemyDef> enemyDefs = [
     role: EnemyRole.elite,
     xpReward: 16,
     spriteId: 'enemy_archon_lancer',
+    metaUnlockId: MetaUnlockId.celestialVanguardWarrant,
     maxHp: 55,
     moveSpeed: 32,
     attackCooldown: 2.8,

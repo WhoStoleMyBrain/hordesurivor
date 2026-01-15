@@ -86,6 +86,7 @@ class SelectionOverlay extends StatelessWidget {
                       const SizedBox(height: 12),
                       _SkipButton(
                         rewardXp: selectionState.skipRewardXp,
+                        rewardMetaShards: selectionState.skipRewardMetaShards,
                         onPressed: onSkip,
                       ),
                     ],
@@ -200,19 +201,41 @@ class _ChoiceCard extends StatelessWidget {
 }
 
 class _SkipButton extends StatelessWidget {
-  const _SkipButton({required this.rewardXp, required this.onPressed});
+  const _SkipButton({
+    required this.rewardXp,
+    required this.rewardMetaShards,
+    required this.onPressed,
+  });
 
   final int rewardXp;
+  final int rewardMetaShards;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    final label = rewardXp > 0 ? 'Skip (+$rewardXp XP)' : 'Skip';
+    final label = _skipLabel(
+      rewardXp: rewardXp,
+      rewardMetaShards: rewardMetaShards,
+    );
     return Align(
       alignment: Alignment.centerRight,
       child: TextButton(onPressed: onPressed, child: Text(label)),
     );
   }
+}
+
+String _skipLabel({required int rewardXp, required int rewardMetaShards}) {
+  if (rewardXp <= 0 && rewardMetaShards <= 0) {
+    return 'Skip';
+  }
+  final parts = <String>[];
+  if (rewardXp > 0) {
+    parts.add('+$rewardXp XP');
+  }
+  if (rewardMetaShards > 0) {
+    parts.add('+$rewardMetaShards Shards');
+  }
+  return 'Skip (${parts.join(', ')})';
 }
 
 String _labelForChoice(SelectionType type) {

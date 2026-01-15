@@ -2,9 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flame/extensions.dart';
 
-import '../data/ids.dart';
 import '../data/enemy_defs.dart';
 import '../data/enemy_variants.dart';
+import '../data/ids.dart';
 import '../data/tags.dart';
 import 'enemy_pool.dart';
 import 'enemy_state.dart';
@@ -34,6 +34,7 @@ class SpawnerSystem {
     required Vector2 arenaSize,
     required List<SpawnWave> waves,
     required void Function(EnemyState) onSpawn,
+    Set<MetaUnlockId> unlockedMeta = const {},
     double championChance = 0.05,
     int maxChampions = 2,
     double spawnMinRadius = 120,
@@ -42,6 +43,7 @@ class SpawnerSystem {
        _random = random,
        _arenaSize = arenaSize.clone(),
        _onSpawn = onSpawn,
+       _unlockedMeta = unlockedMeta.toSet(),
        _championChance = championChance,
        _maxChampions = maxChampions,
        _spawnMinRadius = spawnMinRadius,
@@ -52,9 +54,10 @@ class SpawnerSystem {
 
   final EnemyPool _pool;
   final math.Random _random;
-  late final Map<EnemyRole, _WeightedPicker<EnemyId>> _rolePickers;
+  late Map<EnemyRole, _WeightedPicker<EnemyId>> _rolePickers;
   late List<_ResolvedWave> _resolvedWaves;
   final void Function(EnemyState) _onSpawn;
+  Set<MetaUnlockId> _unlockedMeta;
   double _championChance;
   final int _maxChampions;
   final double _spawnMinRadius;
@@ -70,6 +73,11 @@ class SpawnerSystem {
     _resolvedWaves = _resolveWaves(waves);
     _elapsed = 0;
     _waveIndex = 0;
+  }
+
+  void setUnlockedMeta(Set<MetaUnlockId> unlockedMeta) {
+    _unlockedMeta = unlockedMeta.toSet();
+    _rolePickers = _buildRolePickers();
   }
 
   void update(double dt, Vector2 playerPosition) {
@@ -108,7 +116,7 @@ class SpawnerSystem {
     required EnemyVariant variant,
   }) {
     final def = enemyDefsById[id];
-    if (def == null) {
+    if (def == null || !_isEnemyUnlocked(def)) {
       return;
     }
     final variantDef =
@@ -211,6 +219,9 @@ class SpawnerSystem {
   Map<EnemyRole, _WeightedPicker<EnemyId>> _buildRolePickers() {
     final roleBuckets = <EnemyRole, List<_WeightedEntry<EnemyId>>>{};
     for (final def in enemyDefs) {
+      if (!_isEnemyUnlocked(def)) {
+        continue;
+      }
       final entries = roleBuckets.putIfAbsent(def.role, () => []);
       entries.add(_WeightedEntry(def.id, def.weight));
     }
@@ -251,12 +262,21 @@ class SpawnerSystem {
       if (weight <= 0) {
         return;
       }
-      if (!enemyDefsById.containsKey(enemyId)) {
+      final def = enemyDefsById[enemyId];
+      if (def == null || !_isEnemyUnlocked(def)) {
         return;
       }
       entries.add(_WeightedEntry(enemyId, weight));
     });
     return entries;
+  }
+
+  bool _isEnemyUnlocked(EnemyDef def) {
+    final unlockId = def.metaUnlockId;
+    if (unlockId == null) {
+      return true;
+    }
+    return _unlockedMeta.contains(unlockId);
   }
 
   List<_WeightedEntry<EnemyVariant>> _buildVariantEntries(
