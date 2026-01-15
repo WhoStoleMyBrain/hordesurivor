@@ -2,10 +2,13 @@ import 'package:flutter/foundation.dart';
 
 import 'area_defs.dart';
 import 'contract_defs.dart';
+import 'currency_defs.dart';
 import 'enemy_defs.dart';
 import 'ids.dart';
 import 'item_defs.dart';
 import 'meta_unlock_defs.dart';
+import 'progression_track_defs.dart';
+import 'selection_pool_defs.dart';
 import 'skill_defs.dart';
 import 'skill_upgrade_defs.dart';
 import 'status_effect_defs.dart';
@@ -74,6 +77,21 @@ DataValidationResult validateGameData() {
   _checkUniqueIds(
     ids: contractDefs.map((def) => def.id),
     label: 'ContractDef',
+    result: result,
+  );
+  _checkUniqueIds(
+    ids: currencyDefs.map((def) => def.id),
+    label: 'CurrencyDef',
+    result: result,
+  );
+  _checkUniqueIds(
+    ids: selectionPoolDefs.map((def) => def.id),
+    label: 'SelectionPoolDef',
+    result: result,
+  );
+  _checkUniqueIds(
+    ids: progressionTrackDefs.map((def) => def.id),
+    label: 'ProgressionTrackDef',
     result: result,
   );
   _checkUniqueIds(
@@ -220,6 +238,55 @@ DataValidationResult validateGameData() {
           'matching metaUnlockId.',
         );
       }
+    }
+  }
+
+  for (final def in currencyDefs) {
+    if (def.name.trim().isEmpty) {
+      result.errors.add('CurrencyDef ${def.id} has an empty name.');
+    }
+    if (def.iconId.trim().isEmpty) {
+      result.errors.add('CurrencyDef ${def.id} has an empty iconId.');
+    }
+    if (def.colorKey.trim().isEmpty) {
+      result.errors.add('CurrencyDef ${def.id} has an empty colorKey.');
+    }
+    if (def.dropWeight <= 0) {
+      result.errors.add('CurrencyDef ${def.id} has non-positive dropWeight.');
+    }
+  }
+
+  for (final def in selectionPoolDefs) {
+    if (def.name.trim().isEmpty) {
+      result.errors.add('SelectionPoolDef ${def.id} has an empty name.');
+    }
+  }
+
+  for (final def in progressionTrackDefs) {
+    if (def.name.trim().isEmpty) {
+      result.errors.add('ProgressionTrackDef ${def.id} has an empty name.');
+    }
+    if (!currencyDefsById.containsKey(def.currencyId)) {
+      result.errors.add(
+        'ProgressionTrackDef ${def.id} references missing currency '
+        '${def.currencyId}.',
+      );
+    }
+    if (!selectionPoolDefsById.containsKey(def.selectionPoolId)) {
+      result.errors.add(
+        'ProgressionTrackDef ${def.id} references missing selection pool '
+        '${def.selectionPoolId}.',
+      );
+    }
+    if (def.levelCurve.base <= 0 || def.levelCurve.growth <= 0) {
+      result.errors.add(
+        'ProgressionTrackDef ${def.id} has invalid level curve values.',
+      );
+    }
+    if (def.skipRewardFraction < 0) {
+      result.errors.add(
+        'ProgressionTrackDef ${def.id} has negative skipRewardFraction.',
+      );
     }
   }
 

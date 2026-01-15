@@ -139,3 +139,9 @@ enum ContractId {
   radiantBarrage,
   radiantPursuit,
 }
+
+enum CurrencyId { xp, gold }
+
+enum ProgressionTrackId { skills, items }
+
+enum SelectionPoolId { skillPool, itemPool, futurePool }
