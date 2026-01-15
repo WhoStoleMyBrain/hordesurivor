@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/contract_defs.dart';
+import '../data/currency_defs.dart';
 import '../data/enemy_defs.dart';
 import '../data/ids.dart';
 import '../data/item_defs.dart';
@@ -101,7 +102,19 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _panMaxRadius = 72;
   static const String _playerSpriteId = 'player_base';
   static const String _projectileSpriteId = 'projectile_firebolt';
-  static const String _pickupSpriteId = 'pickup_xp_orb';
+  static const Map<PickupKind, String> _pickupSpriteIds = {
+    PickupKind.xpOrb: 'pickup_xp_orb',
+    PickupKind.goldCoin: 'pickup_gold_coin',
+  };
+  static const Map<CurrencyId, PickupKind> _pickupKindByCurrency = {
+    CurrencyId.xp: PickupKind.xpOrb,
+    CurrencyId.gold: PickupKind.goldCoin,
+  };
+  static const Map<PickupKind, CurrencyId> _currencyByPickupKind = {
+    PickupKind.xpOrb: CurrencyId.xp,
+    PickupKind.goldCoin: CurrencyId.gold,
+  };
+  static const double _goldPickupValueMultiplier = 0.75;
   static const double _portalRadius = 26;
   static const double _portalLockoutDuration = 0.75;
   static const double _stageWaveInterval = 3.0;
@@ -129,7 +142,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final SpritePipeline _spritePipeline = SpritePipeline();
   final Map<EnemyId, Image> _enemySprites = {};
   Image? _projectileSprite;
-  Image? _pickupSprite;
+  final Map<PickupKind, Image?> _pickupSprites = {};
   ProjectileBatchComponent? _projectileBatchComponent;
   final Set<LogicalKeyboardKey> _keysPressed = {};
   final Vector2 _keyboardDirection = Vector2.zero();
@@ -199,6 +212,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Vector2 _stressPosition = Vector2.zero();
   final Vector2 _stressVelocity = Vector2.zero();
   final math.Random _damageNumberRandom = math.Random(29);
+  final math.Random _pickupRandom = math.Random(17);
   final Vector2 _damageNumberPosition = Vector2.zero();
   final Vector2 _damageNumberVelocity = Vector2.zero();
   final Vector2 _pickupSparkPosition = Vector2.zero();
@@ -220,6 +234,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   double _contractSupportWeightMultiplier = 1.0;
   double _contractRewardMultiplier = 1.0;
   int _contractHeat = 0;
+  late final List<CurrencyDef> _pickupCurrencyDefs;
+  late final double _pickupCurrencyWeightTotal;
   List<String> _activeContractNames = const [];
   bool _tutorialSeen = false;
   bool _menuReturnPending = false;
@@ -272,9 +288,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (_projectileSprite == null) {
       debugPrint('Sprite cache missing $_projectileSpriteId.');
     }
-    _pickupSprite = _spritePipeline.lookup(_pickupSpriteId);
-    if (_pickupSprite == null) {
-      debugPrint('Sprite cache missing $_pickupSpriteId.');
+    for (final entry in _pickupSpriteIds.entries) {
+      final image = _spritePipeline.lookup(entry.value);
+      if (image == null) {
+        debugPrint('Sprite cache missing ${entry.value}.');
+      }
+      _pickupSprites[entry.key] = image;
     }
     _playerState = PlayerState(
       position: size / 2,
@@ -301,6 +320,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _effectPool = EffectPool(initialCapacity: stressTest ? 180 : 32);
     _summonPool = SummonPool(initialCapacity: stressTest ? 120 : 24);
     _pickupPool = PickupPool(initialCapacity: stressTest ? 220 : 48);
+    _pickupCurrencyDefs = currencyDefs
+        .where((def) => def.dropWeight > 0)
+        .toList(growable: false);
+    _pickupCurrencyWeightTotal = _pickupCurrencyDefs.fold(
+      0,
+      (total, def) => total + def.dropWeight,
+    );
     if (_projectileSprite != null) {
       _projectileBatchComponent = ProjectileBatchComponent(
         pool: _projectilePool,
@@ -1034,10 +1060,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (!stressTest) {
       _runSummary.enemiesDefeated += 1;
       if (enemy.xpReward > 0) {
+        final pickupKind = _rollPickupKind();
+        final pickupValue = _pickupValueForKind(pickupKind, enemy.xpReward);
         _spawnPickup(
-          kind: PickupKind.xpOrb,
+          kind: pickupKind,
           position: enemy.position,
-          value: enemy.xpReward,
+          value: pickupValue,
         );
       }
     }
@@ -1068,10 +1096,33 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _registerPickupComponent(PickupState pickup) {
     final component = PickupComponent(
       state: pickup,
-      spriteImage: _pickupSprite,
+      spriteImages: _pickupSprites,
     );
     _pickupComponents[pickup] = component;
     add(component);
+  }
+
+  PickupKind _rollPickupKind() {
+    if (_pickupCurrencyDefs.isEmpty || _pickupCurrencyWeightTotal <= 0) {
+      return PickupKind.xpOrb;
+    }
+    final roll = _pickupRandom.nextDouble() * _pickupCurrencyWeightTotal;
+    var current = 0.0;
+    for (final def in _pickupCurrencyDefs) {
+      current += def.dropWeight;
+      if (roll <= current) {
+        return _pickupKindByCurrency[def.id] ?? PickupKind.xpOrb;
+      }
+    }
+    final fallback = _pickupCurrencyDefs.last;
+    return _pickupKindByCurrency[fallback.id] ?? PickupKind.xpOrb;
+  }
+
+  int _pickupValueForKind(PickupKind kind, int baseValue) {
+    if (kind == PickupKind.goldCoin) {
+      return math.max(1, (baseValue * _goldPickupValueMultiplier).round());
+    }
+    return baseValue;
   }
 
   void _handleEnemyDamaged(EnemyState enemy, double amount) {
@@ -2020,8 +2071,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _collectPickup(PickupState pickup) {
     if (!stressTest) {
-      _runSummary.xpGained += pickup.value;
-      final gain = _progressionSystem.addCurrency(CurrencyId.xp, pickup.value);
+      final currencyId = _currencyByPickupKind[pickup.kind] ?? CurrencyId.xp;
+      if (currencyId == CurrencyId.xp) {
+        _runSummary.xpGained += pickup.value;
+      }
+      final gain = _progressionSystem.addCurrency(currencyId, pickup.value);
       if (gain != null && gain.levelsGained > 0) {
         _levelUpSystem.queueLevels(gain.trackId, gain.levelsGained);
         _offerSelectionIfNeeded();

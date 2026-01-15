@@ -460,6 +460,23 @@
         { "type": "circle", "color": "shadow", "radius": 3, "offset": [2, 2] },
         { "type": "pixels", "color": "accent", "points": [[-2, -2]] }
       ]
+    },
+    {
+      "id": "pickup_gold_coin",
+      "kind": "pickup",
+      "outputName": "pickup_gold_coin.png",
+      "size": 12,
+      "seed": 47,
+      "palette": {
+        "primary": "#F2C94C",
+        "shadow": "#C58B2F",
+        "accent": "#FFE9A8"
+      },
+      "shapes": [
+        { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 0] },
+        { "type": "circle", "color": "shadow", "radius": 3, "offset": [2, 2] },
+        { "type": "pixels", "color": "accent", "points": [[-2, -2]] }
+      ]
     }
   ]
 }
