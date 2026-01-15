@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:hordesurivor/data/ids.dart';
 import 'package:hordesurivor/data/stat_defs.dart';
+import 'package:hordesurivor/data/weapon_upgrade_defs.dart';
 import 'package:hordesurivor/game/effect_pool.dart';
 import 'package:hordesurivor/game/level_up_system.dart';
 import 'package:hordesurivor/game/player_state.dart';
@@ -199,6 +200,88 @@ void main() {
     );
     expect(
       system.choices.any((choice) => choice.skillId == SkillId.mineLayer),
+      isTrue,
+    );
+  });
+
+  test('LevelUpSystem gates weapon upgrades by ownership and tier', () {
+    final system = LevelUpSystem(random: math.Random(5), baseChoiceCount: 999);
+    final playerState = PlayerState(
+      position: Vector2.zero(),
+      maxHp: 100,
+      moveSpeed: 10,
+    );
+    final skillSystem = SkillSystem(
+      projectilePool: ProjectilePool(),
+      effectPool: EffectPool(),
+      summonPool: SummonPool(),
+      skillSlots: [],
+    );
+
+    system.queueLevels(ProgressionTrackId.skills, 1);
+    system.buildChoices(
+      trackId: ProgressionTrackId.skills,
+      selectionPoolId: SelectionPoolId.skillPool,
+      playerState: playerState,
+      skillSystem: skillSystem,
+    );
+
+    expect(
+      system.choices.any(
+        (choice) => choice.type == SelectionType.weaponUpgrade,
+      ),
+      isFalse,
+    );
+
+    system.skipChoice(
+      trackId: ProgressionTrackId.skills,
+      playerState: playerState,
+    );
+    skillSystem.addSkill(SkillId.fireball);
+    system.queueLevels(ProgressionTrackId.skills, 1);
+    system.buildChoices(
+      trackId: ProgressionTrackId.skills,
+      selectionPoolId: SelectionPoolId.skillPool,
+      playerState: playerState,
+      skillSystem: skillSystem,
+    );
+
+    final tier2 = weaponUpgradeDefsBySkillAndTier[SkillId.fireball]?[2];
+    final tier3 = weaponUpgradeDefsBySkillAndTier[SkillId.fireball]?[3];
+    expect(
+      system.choices.any((choice) => choice.weaponUpgradeId == tier2?.id),
+      isTrue,
+    );
+    expect(
+      system.choices.any((choice) => choice.weaponUpgradeId == tier3?.id),
+      isFalse,
+    );
+
+    system.applyChoice(
+      trackId: ProgressionTrackId.skills,
+      choice: SelectionChoice(
+        type: SelectionType.weaponUpgrade,
+        title: tier2?.name ?? 'Tier 2',
+        description: tier2?.summary ?? 'Tier 2 upgrade',
+        weaponUpgradeId: tier2?.id,
+      ),
+      playerState: playerState,
+      skillSystem: skillSystem,
+    );
+    system.queueLevels(ProgressionTrackId.skills, 1);
+    system.buildChoices(
+      trackId: ProgressionTrackId.skills,
+      selectionPoolId: SelectionPoolId.skillPool,
+      playerState: playerState,
+      skillSystem: skillSystem,
+    );
+
+    expect(
+      system.choices.any((choice) => choice.weaponUpgradeId == tier2?.id),
+      isFalse,
+    );
+    expect(
+      system.choices.any((choice) => choice.weaponUpgradeId == tier3?.id),
       isTrue,
     );
   });
