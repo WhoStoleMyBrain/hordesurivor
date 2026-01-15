@@ -69,6 +69,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Refactor Plan (Multi-currency progression): added data-driven Currency, Selection Pool, and Progression Track definitions seeded with XP and gold tracks. Decision: keep the new catalogs data-only until multi-track runtime wiring begins. Follow-up: connect the track definitions to progression runtime and HUD bars.
 - ✅ Refactor Plan (Multi-currency progression): added tiered Weapon Upgrade definitions (7 tiers per weapon) and validation for contiguous tier chains across all skills. Decision: keep tier bonuses modest and data-only until the upgrade gating flow is wired. Follow-up: tune per-weapon tier modifiers and names once the multi-track selection flow is implemented.
 - ✅ Refactor Plan (Multi-currency progression): introduced a track-aware progression runtime with per-track level queues, selection pools, and tier-gated weapon upgrade offerings. Decision: keep the XP track as the only active currency while gold drops/UI are pending. Follow-up: add gold pickups and item-track UI so item selections are driven by their own bar.
+- ✅ Refactor Plan (Multi-currency progression): added weighted XP/gold pickup drops, routed pickups to the correct currency track, and added a gold pickup sprite. Decision: scale gold pickup value off XP reward for now. Follow-up: tune gold drop values and add HUD bars to surface multi-track fill.
 
 ---
 
@@ -228,7 +229,7 @@ drop-based progression bars and clear upgrade gating.
      - Offer a weapon upgrade only if the player owns the weapon and has the prior tier.
      - Treat weapon acquisition as tier 1 in the upgrade chain.
 
-5. **Implement drop variety and pickup routing**
+5. ✅ **Implement drop variety and pickup routing**
    - Add drop tables that can spawn different pickup types (XP orb, gold coin, future token).
    - Route pickup collection to the correct currency bar and emit the appropriate track level-up event.
    - Ensure pickup visuals and UI bars are readable and distinct.
