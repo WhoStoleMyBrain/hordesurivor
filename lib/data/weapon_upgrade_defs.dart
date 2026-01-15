@@ -1,0 +1,316 @@
+import 'ids.dart';
+import 'skill_defs.dart';
+import 'stat_defs.dart';
+import 'tags.dart';
+
+const int weaponUpgradeTierCount = 7;
+
+class WeaponUpgradeDef {
+  const WeaponUpgradeDef({
+    required this.id,
+    required this.skillId,
+    required this.tier,
+    required this.name,
+    required this.summary,
+    required this.tags,
+    required this.modifiers,
+    this.weight = 1,
+  });
+
+  final String id;
+  final SkillId skillId;
+  final int tier;
+  final String name;
+  final String summary;
+  final TagSet tags;
+  final List<StatModifier> modifiers;
+  final int weight;
+}
+
+final List<WeaponUpgradeDef> weaponUpgradeDefs = [
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.fireball,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.damage,
+      0.06,
+      0.02,
+      StatId.fireDamage,
+      0.04,
+      0.01,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.waterjet,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.beamDamage,
+      0.07,
+      0.02,
+      StatId.attackSpeed,
+      0.04,
+      0.01,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.oilBombs,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.explosionDamage,
+      0.06,
+      0.02,
+      StatId.aoeSize,
+      0.05,
+      0.015,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.swordThrust,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.meleeDamage,
+      0.07,
+      0.02,
+      StatId.attackSpeed,
+      0.04,
+      0.01,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.swordCut,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.meleeDamage,
+      0.08,
+      0.02,
+      StatId.aoeSize,
+      0.05,
+      0.015,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.swordSwing,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.meleeDamage,
+      0.09,
+      0.02,
+      StatId.aoeSize,
+      0.05,
+      0.015,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.swordDeflect,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.meleeDamage,
+      0.06,
+      0.015,
+      StatId.cooldownRecovery,
+      0.04,
+      0.01,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.poisonGas,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.dotDamage,
+      0.07,
+      0.02,
+      StatId.aoeSize,
+      0.05,
+      0.015,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.roots,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.rootDuration,
+      0.07,
+      0.02,
+      StatId.rootStrength,
+      0.05,
+      0.015,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.windCutter,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.projectileDamage,
+      0.07,
+      0.02,
+      StatId.attackSpeed,
+      0.04,
+      0.01,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.steelShards,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.projectileDamage,
+      0.08,
+      0.02,
+      StatId.attackSpeed,
+      0.04,
+      0.01,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.flameWave,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.beamDamage,
+      0.07,
+      0.02,
+      StatId.aoeSize,
+      0.05,
+      0.015,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.frostNova,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.aoeSize,
+      0.06,
+      0.015,
+      StatId.waterDamage,
+      0.05,
+      0.015,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.earthSpikes,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.damage,
+      0.07,
+      0.02,
+      StatId.aoeSize,
+      0.05,
+      0.015,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.sporeBurst,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.dotDamage,
+      0.07,
+      0.02,
+      StatId.aoeSize,
+      0.05,
+      0.015,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.scrapRover,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.meleeDamage,
+      0.07,
+      0.02,
+      StatId.attackSpeed,
+      0.04,
+      0.01,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.arcTurret,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.projectileDamage,
+      0.07,
+      0.02,
+      StatId.attackSpeed,
+      0.04,
+      0.01,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.guardianOrbs,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.damage,
+      0.06,
+      0.02,
+      StatId.aoeSize,
+      0.05,
+      0.015,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.menderOrb,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.cooldownRecovery,
+      0.05,
+      0.015,
+      StatId.healingReceived,
+      0.04,
+      0.01,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.mineLayer,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.explosionDamage,
+      0.07,
+      0.02,
+      StatId.aoeSize,
+      0.05,
+      0.015,
+      tier,
+    ),
+  ),
+];
+
+final Map<String, WeaponUpgradeDef> weaponUpgradeDefsById = Map.unmodifiable({
+  for (final def in weaponUpgradeDefs) def.id: def,
+});
+
+List<WeaponUpgradeDef> _buildWeaponUpgradeChain({
+  required SkillId skillId,
+  required List<StatModifier> Function(int tier) modifiersForTier,
+}) {
+  final skill = skillDefsById[skillId];
+  final name = skill?.name ?? skillId.name;
+  final tags = skill?.tags ?? const TagSet();
+
+  return List<WeaponUpgradeDef>.generate(weaponUpgradeTierCount, (index) {
+    final tier = index + 1;
+    return WeaponUpgradeDef(
+      id: '${skillId.name}_tier_$tier',
+      skillId: skillId,
+      tier: tier,
+      name: '$name Tier $tier',
+      summary: 'Tier $tier upgrade for $name.',
+      tags: tags,
+      modifiers: modifiersForTier(tier),
+    );
+  });
+}
+
+List<StatModifier> _primarySecondary(
+  StatId primary,
+  double primaryBase,
+  double primaryStep,
+  StatId secondary,
+  double secondaryBase,
+  double secondaryStep,
+  int tier,
+) {
+  final stepIndex = tier - 1;
+  return [
+    StatModifier(stat: primary, amount: primaryBase + primaryStep * stepIndex),
+    StatModifier(
+      stat: secondary,
+      amount: secondaryBase + secondaryStep * stepIndex,
+    ),
+  ];
+}

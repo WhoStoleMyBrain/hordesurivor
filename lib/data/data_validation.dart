@@ -14,6 +14,7 @@ import 'skill_upgrade_defs.dart';
 import 'status_effect_defs.dart';
 import 'synergy_defs.dart';
 import 'tags.dart';
+import 'weapon_upgrade_defs.dart';
 
 typedef DataLogFn = void Function(String message);
 
@@ -62,6 +63,11 @@ DataValidationResult validateGameData() {
   _checkUniqueIds(
     ids: skillUpgradeDefs.map((def) => def.id),
     label: 'SkillUpgradeDef',
+    result: result,
+  );
+  _checkUniqueIds(
+    ids: weaponUpgradeDefs.map((def) => def.id),
+    label: 'WeaponUpgradeDef',
     result: result,
   );
   _checkUniqueIds(
@@ -136,6 +142,53 @@ DataValidationResult validateGameData() {
     }
     if (def.weight <= 0) {
       result.errors.add('SkillUpgradeDef ${def.id} has non-positive weight.');
+    }
+  }
+
+  for (final def in weaponUpgradeDefs) {
+    if (!skillDefsById.containsKey(def.skillId)) {
+      result.errors.add(
+        'WeaponUpgradeDef ${def.id} skillId ${def.skillId} not found.',
+      );
+    }
+    if (_isTagSetEmpty(def.tags)) {
+      result.errors.add('WeaponUpgradeDef ${def.id} has no tags.');
+    }
+    if (def.modifiers.isEmpty) {
+      result.errors.add('WeaponUpgradeDef ${def.id} has no modifiers.');
+    }
+    if (def.weight <= 0) {
+      result.errors.add('WeaponUpgradeDef ${def.id} has non-positive weight.');
+    }
+    if (def.tier <= 0) {
+      result.errors.add('WeaponUpgradeDef ${def.id} has invalid tier.');
+    }
+  }
+
+  final tiersBySkill = <SkillId, Set<int>>{};
+  for (final def in weaponUpgradeDefs) {
+    tiersBySkill.putIfAbsent(def.skillId, () => <int>{}).add(def.tier);
+  }
+  for (final skill in skillDefs) {
+    final tiers = tiersBySkill[skill.id];
+    if (tiers == null || tiers.isEmpty) {
+      result.errors.add('SkillDef ${skill.id} has no weapon upgrade tiers.');
+      continue;
+    }
+    final maxTier = tiers.reduce((value, element) {
+      return value > element ? value : element;
+    });
+    if (maxTier < weaponUpgradeTierCount) {
+      result.errors.add(
+        'SkillDef ${skill.id} has only $maxTier weapon upgrade tiers.',
+      );
+    }
+    for (var tier = 1; tier <= maxTier; tier++) {
+      if (!tiers.contains(tier)) {
+        result.errors.add(
+          'SkillDef ${skill.id} is missing weapon upgrade tier $tier.',
+        );
+      }
     }
   }
 
