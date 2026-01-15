@@ -30,6 +30,7 @@ import '../render/projectile_component.dart';
 import '../render/pickup_component.dart';
 import '../render/pickup_spark_component.dart';
 import '../render/sprite_pipeline.dart';
+import '../render/summon_component.dart';
 import '../ui/area_select_screen.dart';
 import '../ui/compendium_screen.dart';
 import '../ui/death_screen.dart';
@@ -73,6 +74,9 @@ import 'spawner_system.dart';
 import 'game_flow_state.dart';
 import 'run_summary.dart';
 import 'stage_timer.dart';
+import 'summon_pool.dart';
+import 'summon_state.dart';
+import 'summon_system.dart';
 
 class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   HordeGame({this.stressTest = false}) : super();
@@ -140,6 +144,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final ProjectileSystem _projectileSystem;
   late final EffectPool _effectPool;
   late final EffectSystem _effectSystem;
+  late final SummonPool _summonPool;
+  late final SummonSystem _summonSystem;
   late final SkillSystem _skillSystem;
   late final PickupPool _pickupPool;
   late final SpatialGrid _enemyGrid;
@@ -161,6 +167,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
   final ValueNotifier<bool> highContrastTelegraphs = ValueNotifier(false);
   final Map<EffectState, EffectComponent> _effectComponents = {};
+  final Map<SummonState, SummonComponent> _summonComponents = {};
   final Map<PickupState, PickupComponent> _pickupComponents = {};
   final ValueNotifier<VirtualStickState> _virtualStickState = ValueNotifier(
     const VirtualStickState.inactive(
@@ -290,6 +297,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _enemyPool = EnemyPool(initialCapacity: stressTest ? 600 : 48);
     _projectilePool = ProjectilePool(initialCapacity: stressTest ? 1400 : 64);
     _effectPool = EffectPool(initialCapacity: stressTest ? 180 : 32);
+    _summonPool = SummonPool(initialCapacity: stressTest ? 120 : 24);
     _pickupPool = PickupPool(initialCapacity: stressTest ? 220 : 48);
     if (_projectileSprite != null) {
       _projectileBatchComponent = ProjectileBatchComponent(
@@ -311,9 +319,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _enemyGrid = SpatialGrid(cellSize: 64);
     _projectileSystem = ProjectileSystem(_projectilePool);
     _effectSystem = EffectSystem(_effectPool);
+    _summonSystem = SummonSystem(_summonPool);
     _skillSystem = SkillSystem(
       projectilePool: _projectilePool,
       effectPool: _effectPool,
+      summonPool: _summonPool,
     );
     _damageSystem = DamageSystem(DamageEventPool(initialCapacity: 64));
     for (var i = 0; i < 32; i++) {
@@ -505,9 +515,20 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       onProjectileSpawn: _handleProjectileSpawn,
       onEffectSpawn: _handleEffectSpawn,
       onProjectileDespawn: _handleProjectileDespawn,
+      onSummonSpawn: _handleSummonSpawn,
       onPlayerDeflect: ({required double radius, required double duration}) {
         _playerState.startDeflect(radius: radius, duration: duration);
       },
+      onEnemyDamaged: _damageSystem.queueEnemyDamage,
+    );
+    _summonSystem.update(
+      dt,
+      playerState: _playerState,
+      enemyPool: _enemyPool,
+      enemyGrid: _enemyGrid,
+      projectilePool: _projectilePool,
+      onProjectileSpawn: _handleProjectileSpawn,
+      onDespawn: _handleSummonDespawn,
       onEnemyDamaged: _damageSystem.queueEnemyDamage,
     );
     if (stressTest) {
@@ -993,6 +1014,17 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _handleEffectDespawn(EffectState effect) {
     final component = _effectComponents.remove(effect);
+    component?.removeFromParent();
+  }
+
+  void _handleSummonSpawn(SummonState summon) {
+    final component = SummonComponent(state: summon);
+    _summonComponents[summon] = component;
+    add(component);
+  }
+
+  void _handleSummonDespawn(SummonState summon) {
+    final component = _summonComponents.remove(summon);
     component?.removeFromParent();
   }
 
@@ -1803,6 +1835,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     for (final effect in List<EffectState>.from(_effectPool.active)) {
       _handleEffectDespawn(effect);
       _effectPool.release(effect);
+    }
+    for (final summon in List<SummonState>.from(_summonPool.active)) {
+      _handleSummonDespawn(summon);
+      _summonPool.release(summon);
     }
     for (final pickup in List<PickupState>.from(_pickupPool.active)) {
       _despawnPickup(pickup);

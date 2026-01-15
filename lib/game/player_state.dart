@@ -79,6 +79,13 @@ class PlayerState {
     _syncDashChargeLimits();
   }
 
+  void heal(double amount) {
+    if (amount <= 0) {
+      return;
+    }
+    hp = math.min(maxHp, hp + amount);
+  }
+
   void resetForRun() {
     stats.resetModifiers();
     hp = maxHp;

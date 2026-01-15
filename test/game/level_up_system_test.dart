@@ -10,6 +10,7 @@ import 'package:hordesurivor/game/level_up_system.dart';
 import 'package:hordesurivor/game/player_state.dart';
 import 'package:hordesurivor/game/projectile_pool.dart';
 import 'package:hordesurivor/game/skill_system.dart';
+import 'package:hordesurivor/game/summon_pool.dart';
 
 void main() {
   test('LevelUpSystem builds choice list based on choice count', () {
@@ -29,6 +30,7 @@ void main() {
     final skillSystem = SkillSystem(
       projectilePool: ProjectilePool(),
       effectPool: EffectPool(),
+      summonPool: SummonPool(),
     );
 
     system.queueLevels(1);
@@ -47,6 +49,7 @@ void main() {
     final skillSystem = SkillSystem(
       projectilePool: ProjectilePool(),
       effectPool: EffectPool(),
+      summonPool: SummonPool(),
     );
     const choice = SelectionChoice(
       type: SelectionType.item,
@@ -75,6 +78,7 @@ void main() {
     final skillSystem = SkillSystem(
       projectilePool: ProjectilePool(),
       effectPool: EffectPool(),
+      summonPool: SummonPool(),
     );
 
     system.queueLevels(1);
@@ -110,6 +114,44 @@ void main() {
     );
     expect(
       system.choices.any((choice) => choice.itemId == ItemId.thermalCoil),
+      isTrue,
+    );
+  });
+
+  test('LevelUpSystem surfaces autonomous skills as choices', () {
+    final system = LevelUpSystem(random: math.Random(4), baseChoiceCount: 999);
+    final playerState = PlayerState(
+      position: Vector2.zero(),
+      maxHp: 100,
+      moveSpeed: 10,
+    );
+    final skillSystem = SkillSystem(
+      projectilePool: ProjectilePool(),
+      effectPool: EffectPool(),
+      summonPool: SummonPool(),
+    );
+
+    system.queueLevels(1);
+    system.buildChoices(playerState: playerState, skillSystem: skillSystem);
+
+    expect(
+      system.choices.any((choice) => choice.skillId == SkillId.scrapRover),
+      isTrue,
+    );
+    expect(
+      system.choices.any((choice) => choice.skillId == SkillId.arcTurret),
+      isTrue,
+    );
+    expect(
+      system.choices.any((choice) => choice.skillId == SkillId.guardianOrbs),
+      isTrue,
+    );
+    expect(
+      system.choices.any((choice) => choice.skillId == SkillId.menderOrb),
+      isTrue,
+    );
+    expect(
+      system.choices.any((choice) => choice.skillId == SkillId.mineLayer),
       isTrue,
     );
   });

@@ -201,6 +201,52 @@ const List<SkillDef> skillDefs = [
     ),
     metaUnlockId: MetaUnlockId.sporeBurstCulture,
   ),
+  SkillDef(
+    id: SkillId.scrapRover,
+    name: 'Scrap Rover',
+    description: 'Deploy a melee rover that hunts nearby foes.',
+    tags: TagSet(elements: {ElementTag.steel}, deliveries: {DeliveryTag.melee}),
+  ),
+  SkillDef(
+    id: SkillId.arcTurret,
+    name: 'Arc Turret',
+    description: 'Summon a turret drone that fires on its own.',
+    tags: TagSet(
+      elements: {ElementTag.steel},
+      effects: {EffectTag.support},
+      deliveries: {DeliveryTag.projectile},
+    ),
+  ),
+  SkillDef(
+    id: SkillId.guardianOrbs,
+    name: 'Guardian Orbs',
+    description: 'Orbiting orbs intercept enemies with close-range damage.',
+    tags: TagSet(
+      elements: {ElementTag.steel},
+      effects: {EffectTag.support},
+      deliveries: {DeliveryTag.aura},
+    ),
+  ),
+  SkillDef(
+    id: SkillId.menderOrb,
+    name: 'Mender Orb',
+    description: 'Orbiting wisp restores health over time.',
+    tags: TagSet(
+      elements: {ElementTag.wood},
+      effects: {EffectTag.support},
+      deliveries: {DeliveryTag.aura},
+    ),
+  ),
+  SkillDef(
+    id: SkillId.mineLayer,
+    name: 'Mine Layer',
+    description: 'Drop proximity mines that detonate on approach.',
+    tags: TagSet(
+      elements: {ElementTag.fire},
+      effects: {EffectTag.aoe},
+      deliveries: {DeliveryTag.ground},
+    ),
+  ),
 ];
 
 final Map<SkillId, SkillDef> skillDefsById = Map.unmodifiable({

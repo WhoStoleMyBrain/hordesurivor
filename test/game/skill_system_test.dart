@@ -13,6 +13,8 @@ import 'package:hordesurivor/game/player_state.dart';
 import 'package:hordesurivor/game/projectile_pool.dart';
 import 'package:hordesurivor/game/projectile_state.dart';
 import 'package:hordesurivor/game/skill_system.dart';
+import 'package:hordesurivor/game/summon_pool.dart';
+import 'package:hordesurivor/game/summon_state.dart';
 
 void main() {
   void resetEnemy({
@@ -48,12 +50,15 @@ void main() {
 
   void noopPlayerDeflect({required double radius, required double duration}) {}
 
+  void noopSummonSpawn(SummonState summon) {}
+
   test('fireball casts on cooldown and supports burst updates', () {
     final projectilePool = ProjectilePool(initialCapacity: 0);
     final effectPool = EffectPool(initialCapacity: 0);
     final system = SkillSystem(
       effectPool: effectPool,
       projectilePool: projectilePool,
+      summonPool: SummonPool(initialCapacity: 0),
       skillSlots: [SkillSlot(id: SkillId.fireball, cooldown: 0.5)],
     );
     final playerState = buildPlayer();
@@ -68,6 +73,7 @@ void main() {
       onProjectileSpawn: (_) => spawnCount++,
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged:
           (
@@ -91,6 +97,7 @@ void main() {
       onProjectileSpawn: (_) => spawnCount++,
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged:
           (
@@ -119,6 +126,7 @@ void main() {
     final system = SkillSystem(
       effectPool: effectPool,
       projectilePool: projectilePool,
+      summonPool: SummonPool(initialCapacity: 0),
       skillSlots: [SkillSlot(id: SkillId.swordCut, cooldown: 0.3)],
     );
     final playerState = buildPlayer();
@@ -133,6 +141,7 @@ void main() {
       onProjectileSpawn: (_) {},
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
@@ -149,6 +158,7 @@ void main() {
       onProjectileSpawn: (_) {},
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
@@ -175,6 +185,7 @@ void main() {
     final system = SkillSystem(
       effectPool: effectPool,
       projectilePool: projectilePool,
+      summonPool: SummonPool(initialCapacity: 0),
       skillSlots: [SkillSlot(id: SkillId.swordCut, cooldown: 0.1)],
     );
     final playerState = buildPlayer();
@@ -190,6 +201,7 @@ void main() {
       onProjectileSpawn: (_) {},
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
@@ -210,6 +222,7 @@ void main() {
     final system = SkillSystem(
       effectPool: effectPool,
       projectilePool: projectilePool,
+      summonPool: SummonPool(initialCapacity: 0),
       skillSlots: [SkillSlot(id: SkillId.fireball, cooldown: 0.2)],
     );
     final playerState = buildPlayer();
@@ -231,6 +244,7 @@ void main() {
       },
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged:
           (
@@ -253,6 +267,7 @@ void main() {
     final system = SkillSystem(
       effectPool: effectPool,
       projectilePool: projectilePool,
+      summonPool: SummonPool(initialCapacity: 0),
       skillSlots: [SkillSlot(id: SkillId.windCutter, cooldown: 0.1)],
     );
     final playerState = buildPlayer();
@@ -267,6 +282,7 @@ void main() {
       onProjectileSpawn: (state) => projectile = state,
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged:
           (
@@ -290,6 +306,7 @@ void main() {
     final system = SkillSystem(
       effectPool: effectPool,
       projectilePool: projectilePool,
+      summonPool: SummonPool(initialCapacity: 0),
       skillSlots: [SkillSlot(id: SkillId.steelShards, cooldown: 0.1)],
     );
     final playerState = buildPlayer();
@@ -304,6 +321,7 @@ void main() {
       onProjectileSpawn: projectiles.add,
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged:
           (
@@ -329,6 +347,7 @@ void main() {
     final system = SkillSystem(
       effectPool: effectPool,
       projectilePool: projectilePool,
+      summonPool: SummonPool(initialCapacity: 0),
       skillSlots: [SkillSlot(id: SkillId.flameWave, cooldown: 0.1)],
     );
     final playerState = buildPlayer();
@@ -343,6 +362,7 @@ void main() {
       onProjectileSpawn: (_) {},
       onEffectSpawn: (state) => effect = state,
       onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged:
           (
@@ -366,6 +386,7 @@ void main() {
     final system = SkillSystem(
       effectPool: effectPool,
       projectilePool: projectilePool,
+      summonPool: SummonPool(initialCapacity: 0),
       skillSlots: [SkillSlot(id: SkillId.frostNova, cooldown: 0.1)],
     );
     final playerState = buildPlayer();
@@ -380,6 +401,7 @@ void main() {
       onProjectileSpawn: (_) {},
       onEffectSpawn: (state) => effect = state,
       onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged:
           (
@@ -404,6 +426,7 @@ void main() {
     final system = SkillSystem(
       effectPool: effectPool,
       projectilePool: projectilePool,
+      summonPool: SummonPool(initialCapacity: 0),
       skillSlots: [SkillSlot(id: SkillId.earthSpikes, cooldown: 0.1)],
     );
     final playerState = buildPlayer();
@@ -418,6 +441,7 @@ void main() {
       onProjectileSpawn: (_) {},
       onEffectSpawn: (state) => effect = state,
       onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged:
           (
@@ -441,6 +465,7 @@ void main() {
     final system = SkillSystem(
       effectPool: effectPool,
       projectilePool: projectilePool,
+      summonPool: SummonPool(initialCapacity: 0),
       skillSlots: [SkillSlot(id: SkillId.sporeBurst, cooldown: 0.1)],
     );
     final playerState = buildPlayer();
@@ -455,6 +480,7 @@ void main() {
       onProjectileSpawn: (state) => projectile = state,
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged:
           (
@@ -471,5 +497,42 @@ void main() {
     expect(projectile!.spawnImpactEffect, isTrue);
     expect(projectile!.impactEffectKind, EffectKind.sporeCloud);
     expect(projectile!.impactEffectDuration, greaterThan(0));
+  });
+
+  test('scrap rover spawns autonomous summons', () {
+    final projectilePool = ProjectilePool(initialCapacity: 0);
+    final effectPool = EffectPool(initialCapacity: 0);
+    final system = SkillSystem(
+      effectPool: effectPool,
+      projectilePool: projectilePool,
+      summonPool: SummonPool(initialCapacity: 0),
+      skillSlots: [SkillSlot(id: SkillId.scrapRover, cooldown: 0.1)],
+    );
+    final playerState = buildPlayer();
+
+    var summonCount = 0;
+    system.update(
+      dt: 0.2,
+      playerPosition: Vector2.zero(),
+      aimDirection: Vector2.zero(),
+      stats: playerState.stats,
+      enemyPool: EnemyPool(initialCapacity: 0),
+      onProjectileSpawn: (_) {},
+      onEffectSpawn: (_) {},
+      onProjectileDespawn: (_) {},
+      onSummonSpawn: (_) => summonCount++,
+      onPlayerDeflect: noopPlayerDeflect,
+      onEnemyDamaged:
+          (
+            enemy,
+            damage, {
+            double knockbackDuration = 0,
+            double knockbackForce = 0,
+            double knockbackX = 0,
+            double knockbackY = 0,
+          }) {},
+    );
+
+    expect(summonCount, greaterThan(0));
   });
 }
