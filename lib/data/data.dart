@@ -1,9 +1,12 @@
 export 'area_defs.dart';
 export 'contract_defs.dart';
+export 'currency_defs.dart';
 export 'data_validation.dart';
 export 'enemy_defs.dart';
 export 'ids.dart';
 export 'item_defs.dart';
+export 'progression_track_defs.dart';
+export 'selection_pool_defs.dart';
 export 'skill_defs.dart';
 export 'sprite_recipes.dart';
 export 'status_effect_defs.dart';

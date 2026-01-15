@@ -66,6 +66,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 8 (Performance & QA pass): added a stress-scene HUD action to return to the start screen without relaunching. Decision: keep it in the HUD panel alongside performance stats for quick access. Follow-up: none.
 - ✅ Phase 6 (Contracts/Heat): added a Radiant Pursuit contract to boost angelic move speed in Halo Breach. Decision: keep it as a higher-heat mobility pressure option for angel areas. Follow-up: tune the move-speed multiplier once Halo Breach dodge windows are playtested.
 - ✅ Phase 1 (Visual scale & readability pass): applied AOE scaling to Waterjet beam length/width so beam visuals and coverage track area modifiers. Decision: treat Waterjet as an AOE-sensitive beam like other area effects. Follow-up: tune base beam length/width once combat readability playtests resume.
+- ✅ Refactor Plan (Multi-currency progression): added data-driven Currency, Selection Pool, and Progression Track definitions seeded with XP and gold tracks. Decision: keep the new catalogs data-only until multi-track runtime wiring begins. Follow-up: connect the track definitions to progression runtime and HUD bars.
 
 ---
 
@@ -198,7 +199,7 @@ drop-based progression bars and clear upgrade gating.
    - Document current data structures for skills/items/upgrades in `lib/data/` and how selections are built.
    - Identify hard-coded assumptions that “level up = XP” and “reward pool = mixed.”
 
-2. **Define a new progression model (data + runtime)**
+2. ✅ **Define a new progression model (data + runtime)**
    - Introduce a `CurrencyDef` (id, name, icon, color, bar thresholds, drop weights).
    - Introduce a `ProgressionTrackDef` that binds a currency to a level-up outcome:
      - `trackId`, `currencyId`, `selectionPoolId`, `levelCurve`, `onSkipReward`.
