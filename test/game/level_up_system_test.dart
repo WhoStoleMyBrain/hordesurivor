@@ -33,8 +33,13 @@ void main() {
       summonPool: SummonPool(),
     );
 
-    system.queueLevels(1);
-    system.buildChoices(playerState: playerState, skillSystem: skillSystem);
+    system.queueLevels(ProgressionTrackId.skills, 1);
+    system.buildChoices(
+      trackId: ProgressionTrackId.skills,
+      selectionPoolId: SelectionPoolId.skillPool,
+      playerState: playerState,
+      skillSystem: skillSystem,
+    );
 
     expect(system.choices.length, 4);
   });
@@ -58,8 +63,9 @@ void main() {
       itemId: ItemId.glassCatalyst,
     );
 
-    system.queueLevels(1);
+    system.queueLevels(ProgressionTrackId.items, 1);
     system.applyChoice(
+      trackId: ProgressionTrackId.items,
       choice: choice,
       playerState: playerState,
       skillSystem: skillSystem,
@@ -81,8 +87,10 @@ void main() {
       summonPool: SummonPool(),
     );
 
-    system.queueLevels(1);
+    system.queueLevels(ProgressionTrackId.skills, 1);
     system.buildChoices(
+      trackId: ProgressionTrackId.skills,
+      selectionPoolId: SelectionPoolId.skillPool,
       playerState: playerState,
       skillSystem: skillSystem,
       unlockedMeta: const {},
@@ -97,21 +105,55 @@ void main() {
       isFalse,
     );
 
-    system.skipChoice(playerState: playerState);
-    system.queueLevels(1);
+    system.skipChoice(
+      trackId: ProgressionTrackId.skills,
+      playerState: playerState,
+    );
+    system.queueLevels(ProgressionTrackId.items, 1);
     system.buildChoices(
+      trackId: ProgressionTrackId.items,
+      selectionPoolId: SelectionPoolId.itemPool,
       playerState: playerState,
       skillSystem: skillSystem,
-      unlockedMeta: const {
-        MetaUnlockId.fieldManual,
-        MetaUnlockId.thermalCoilBlueprint,
-      },
+      unlockedMeta: const {},
+    );
+
+    expect(
+      system.choices.any((choice) => choice.itemId == ItemId.thermalCoil),
+      isFalse,
+    );
+
+    system.skipChoice(
+      trackId: ProgressionTrackId.items,
+      playerState: playerState,
+    );
+    system.queueLevels(ProgressionTrackId.skills, 1);
+    system.buildChoices(
+      trackId: ProgressionTrackId.skills,
+      selectionPoolId: SelectionPoolId.skillPool,
+      playerState: playerState,
+      skillSystem: skillSystem,
+      unlockedMeta: const {MetaUnlockId.fieldManual},
     );
 
     expect(
       system.choices.any((choice) => choice.skillId == SkillId.windCutter),
       isTrue,
     );
+
+    system.skipChoice(
+      trackId: ProgressionTrackId.skills,
+      playerState: playerState,
+    );
+    system.queueLevels(ProgressionTrackId.items, 1);
+    system.buildChoices(
+      trackId: ProgressionTrackId.items,
+      selectionPoolId: SelectionPoolId.itemPool,
+      playerState: playerState,
+      skillSystem: skillSystem,
+      unlockedMeta: const {MetaUnlockId.thermalCoilBlueprint},
+    );
+
     expect(
       system.choices.any((choice) => choice.itemId == ItemId.thermalCoil),
       isTrue,
@@ -131,8 +173,13 @@ void main() {
       summonPool: SummonPool(),
     );
 
-    system.queueLevels(1);
-    system.buildChoices(playerState: playerState, skillSystem: skillSystem);
+    system.queueLevels(ProgressionTrackId.skills, 1);
+    system.buildChoices(
+      trackId: ProgressionTrackId.skills,
+      selectionPoolId: SelectionPoolId.skillPool,
+      playerState: playerState,
+      skillSystem: skillSystem,
+    );
 
     expect(
       system.choices.any((choice) => choice.skillId == SkillId.scrapRover),

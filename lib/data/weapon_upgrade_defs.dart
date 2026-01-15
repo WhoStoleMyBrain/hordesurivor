@@ -274,6 +274,34 @@ final Map<String, WeaponUpgradeDef> weaponUpgradeDefsById = Map.unmodifiable({
   for (final def in weaponUpgradeDefs) def.id: def,
 });
 
+final Map<SkillId, List<WeaponUpgradeDef>> weaponUpgradeChainsBySkillId =
+    Map.unmodifiable(_buildWeaponUpgradeChainsBySkillId());
+
+final Map<SkillId, Map<int, WeaponUpgradeDef>> weaponUpgradeDefsBySkillAndTier =
+    Map.unmodifiable(_buildWeaponUpgradeDefsBySkillAndTier());
+
+Map<SkillId, List<WeaponUpgradeDef>> _buildWeaponUpgradeChainsBySkillId() {
+  final chains = <SkillId, List<WeaponUpgradeDef>>{};
+  for (final def in weaponUpgradeDefs) {
+    chains.putIfAbsent(def.skillId, () => <WeaponUpgradeDef>[]).add(def);
+  }
+  for (final entry in chains.entries) {
+    entry.value.sort((a, b) => a.tier.compareTo(b.tier));
+  }
+  return chains;
+}
+
+Map<SkillId, Map<int, WeaponUpgradeDef>>
+_buildWeaponUpgradeDefsBySkillAndTier() {
+  final tiers = <SkillId, Map<int, WeaponUpgradeDef>>{};
+  for (final entry in weaponUpgradeChainsBySkillId.entries) {
+    tiers[entry.key] = Map<int, WeaponUpgradeDef>.unmodifiable({
+      for (final def in entry.value) def.tier: def,
+    });
+  }
+  return tiers;
+}
+
 List<WeaponUpgradeDef> _buildWeaponUpgradeChain({
   required SkillId skillId,
   required List<StatModifier> Function(int tier) modifiersForTier,

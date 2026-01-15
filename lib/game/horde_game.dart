@@ -15,10 +15,12 @@ import '../data/enemy_defs.dart';
 import '../data/ids.dart';
 import '../data/item_defs.dart';
 import '../data/skill_defs.dart';
+import '../data/progression_track_defs.dart';
 import '../data/skill_upgrade_defs.dart';
 import '../data/stat_defs.dart';
 import '../data/synergy_defs.dart';
 import '../data/tags.dart';
+import '../data/weapon_upgrade_defs.dart';
 import '../data/area_defs.dart';
 import '../render/damage_number_component.dart';
 import '../render/enemy_component.dart';
@@ -56,7 +58,6 @@ import 'effect_system.dart';
 import 'enemy_pool.dart';
 import 'enemy_state.dart';
 import 'enemy_system.dart';
-import 'experience_system.dart';
 import 'game_sizes.dart';
 import 'level_up_system.dart';
 import 'meta_currency_wallet.dart';
@@ -64,6 +65,7 @@ import 'meta_unlocks.dart';
 import 'player_state.dart';
 import 'pickup_pool.dart';
 import 'pickup_state.dart';
+import 'progression_system.dart';
 import 'projectile_pool.dart';
 import 'projectile_state.dart';
 import 'projectile_system.dart';
@@ -110,7 +112,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _pickupMagnetStartSpeed = 120;
   static const double _pickupMagnetAcceleration = 560;
   static const double _pickupMagnetMaxSpeed = 520;
-  static const double _skipRewardXpFraction = 0.2;
   static const String _tutorialSeenPrefsKey = 'tutorial_seen';
   static const TagSet _igniteDamageTags = TagSet(
     elements: {ElementTag.fire},
@@ -150,7 +151,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final PickupPool _pickupPool;
   late final SpatialGrid _enemyGrid;
   late final DamageSystem _damageSystem;
-  late final ExperienceSystem _experienceSystem;
+  late final ProgressionSystem _progressionSystem;
   late final LevelUpSystem _levelUpSystem;
   late final PortalComponent _portalComponent = PortalComponent(
     radius: _portalRadius,
@@ -158,6 +159,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   );
   final PlayerHudState _hudState = PlayerHudState();
   final SelectionState _selectionState = SelectionState();
+  ProgressionTrackId? _activeSelectionTrackId;
   final StatsScreenState _statsScreenState = StatsScreenState();
   final RunSummary _runSummary = RunSummary();
   final MetaCurrencyWallet _metaWallet = MetaCurrencyWallet();
@@ -279,8 +281,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       maxHp: _playerMaxHp,
       moveSpeed: _playerSpeed,
     );
-    _experienceSystem = ExperienceSystem();
-    _spawnDirector = SpawnDirector(experienceSystem: _experienceSystem);
+    _progressionSystem = ProgressionSystem();
+    _spawnDirector = SpawnDirector(progressionSystem: _progressionSystem);
     _levelUpSystem = LevelUpSystem(random: math.Random(11));
     _playerComponent = PlayerComponent(
       state: _playerState,
@@ -1170,7 +1172,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void selectChoice(SelectionChoice choice) {
+    final trackId = _activeSelectionTrackId;
+    if (trackId == null) {
+      return;
+    }
     _levelUpSystem.applyChoice(
+      trackId: trackId,
       choice: choice,
       playerState: _playerState,
       skillSystem: _skillSystem,
@@ -1180,14 +1187,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void skipSelection() {
-    final rewardXp = _skipRewardXpValue();
+    final trackId = _activeSelectionTrackId;
+    if (trackId == null) {
+      return;
+    }
+    final rewardXp = _skipRewardXpValue(trackId);
     final rewardMetaShards = _skipRewardMetaShardValue();
-    _levelUpSystem.skipChoice(playerState: _playerState);
+    _levelUpSystem.skipChoice(trackId: trackId, playerState: _playerState);
     if (!stressTest && rewardXp > 0) {
       _runSummary.xpGained += rewardXp;
-      final levelsGained = _experienceSystem.addExperience(rewardXp);
-      if (levelsGained > 0) {
-        _levelUpSystem.queueLevels(levelsGained);
+      final gain = _progressionSystem.addCurrency(CurrencyId.xp, rewardXp);
+      if (gain != null && gain.levelsGained > 0) {
+        _levelUpSystem.queueLevels(gain.trackId, gain.levelsGained);
       }
     }
     if (!stressTest && rewardMetaShards > 0) {
@@ -1201,6 +1212,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void rerollSelection() {
     final rerolled = _levelUpSystem.rerollChoices(
+      trackId: _activeSelectionTrackId ?? ProgressionTrackId.skills,
+      selectionPoolId: _activeSelectionPoolId(),
       playerState: _playerState,
       skillSystem: _skillSystem,
       unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
@@ -1209,35 +1222,62 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _selectionState.showChoices(
         _levelUpSystem.choices,
         rerollsRemaining: _levelUpSystem.rerollsRemaining,
-        skipRewardXp: _skipRewardXpValue(),
+        skipRewardXp: _skipRewardXpValue(
+          _activeSelectionTrackId ?? ProgressionTrackId.skills,
+        ),
         skipRewardMetaShards: _skipRewardMetaShardValue(),
       );
     }
   }
 
   void _offerSelectionIfNeeded() {
+    final nextTrackId = _levelUpSystem.nextPendingTrackId;
+    if (nextTrackId == null) {
+      _selectionState.clear();
+      overlays.remove(SelectionOverlay.overlayKey);
+      _activeSelectionTrackId = null;
+      return;
+    }
     _levelUpSystem.buildChoices(
+      trackId: nextTrackId,
+      selectionPoolId: _selectionPoolForTrack(nextTrackId),
       playerState: _playerState,
       skillSystem: _skillSystem,
       unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
     );
     if (_levelUpSystem.hasChoices) {
+      _activeSelectionTrackId = nextTrackId;
       _selectionState.showChoices(
         _levelUpSystem.choices,
         rerollsRemaining: _levelUpSystem.rerollsRemaining,
-        skipRewardXp: _skipRewardXpValue(),
+        skipRewardXp: _skipRewardXpValue(nextTrackId),
         skipRewardMetaShards: _skipRewardMetaShardValue(),
       );
       overlays.add(SelectionOverlay.overlayKey);
     } else {
       _selectionState.clear();
       overlays.remove(SelectionOverlay.overlayKey);
+      _activeSelectionTrackId = null;
     }
   }
 
-  int _skipRewardXpValue() {
-    final reward = (_experienceSystem.xpToNext * _skipRewardXpFraction).round();
+  int _skipRewardXpValue(ProgressionTrackId trackId) {
+    final track = _progressionSystem.trackForId(trackId);
+    final skipFraction =
+        progressionTrackDefsById[trackId]?.skipRewardFraction ?? 0.2;
+    final reward = (track.currencyToNext * skipFraction).round();
     return math.max(1, reward);
+  }
+
+  SelectionPoolId _selectionPoolForTrack(ProgressionTrackId trackId) {
+    return progressionTrackDefsById[trackId]?.selectionPoolId ??
+        SelectionPoolId.skillPool;
+  }
+
+  SelectionPoolId _activeSelectionPoolId() {
+    return _selectionPoolForTrack(
+      _activeSelectionTrackId ?? ProgressionTrackId.skills,
+    );
   }
 
   int _skipRewardMetaShardValue() {
@@ -1267,6 +1307,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         return 'Item: ${choice.title}';
       case SelectionType.skillUpgrade:
         return 'Upgrade: ${choice.title}';
+      case SelectionType.weaponUpgrade:
+        return 'Weapon Upgrade: ${choice.title}';
     }
   }
 
@@ -1287,12 +1329,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     final inStage = _flowState == GameFlowState.stage && stageTimer != null;
     final buildTags = _collectBuildTags();
+    final skillTrack = _progressionSystem.trackForId(ProgressionTrackId.skills);
     _hudState.update(
       hp: _playerState.hp,
       maxHp: _playerState.maxHp,
-      level: _experienceSystem.level,
-      xp: _experienceSystem.currentXp,
-      xpToNext: _experienceSystem.xpToNext,
+      level: skillTrack.level,
+      xp: skillTrack.currentCurrency,
+      xpToNext: skillTrack.currencyToNext,
       score: inStage ? _runSummary.score : 0,
       showPerformance: stressTest,
       fps: _fps,
@@ -1318,6 +1361,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       statValues: _collectStatValues(),
       skills: _skillSystem.skillIds,
       upgrades: _levelUpSystem.appliedUpgrades.toList(),
+      weaponUpgrades: _levelUpSystem.appliedWeaponUpgrades.toList(),
       items: _levelUpSystem.appliedItems.toList(),
       rerollsRemaining: _levelUpSystem.rerollsRemaining,
       rerollsMax: _levelUpSystem.rerollsMax,
@@ -1374,6 +1418,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     for (final upgradeId in _levelUpSystem.appliedUpgrades) {
       final def = skillUpgradeDefsById[upgradeId];
+      if (def != null) {
+        tags = tags.merge(def.tags);
+      }
+    }
+    for (final upgradeId in _levelUpSystem.appliedWeaponUpgrades) {
+      final def = weaponUpgradeDefsById[upgradeId];
       if (def != null) {
         tags = tags.merge(def.tags);
       }
@@ -1686,9 +1736,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _hudState.triggerRewardMessage(message);
     if (!stressTest && milestone.xpReward > 0) {
       _runSummary.xpGained += milestone.xpReward;
-      final levelsGained = _experienceSystem.addExperience(milestone.xpReward);
-      if (levelsGained > 0) {
-        _levelUpSystem.queueLevels(levelsGained);
+      final gain = _progressionSystem.addCurrency(
+        CurrencyId.xp,
+        milestone.xpReward,
+      );
+      if (gain != null && gain.levelsGained > 0) {
+        _levelUpSystem.queueLevels(gain.trackId, gain.levelsGained);
         _offerSelectionIfNeeded();
       }
     }
@@ -1872,6 +1925,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _runSummary.upgrades = _levelUpSystem.appliedUpgrades.toList(
       growable: false,
     );
+    _runSummary.weaponUpgrades = _levelUpSystem.appliedWeaponUpgrades.toList(
+      growable: false,
+    );
     final dropBonus = _playerState.stats.value(StatId.drops);
     final dropMultiplier = math.max(0.0, 1 + dropBonus);
     _runSummary.metaRewardMultiplier =
@@ -1882,6 +1938,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _stageTimer = null;
     _resetFinaleState();
     _selectionState.clear();
+    _activeSelectionTrackId = null;
     overlays.remove(SelectionOverlay.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(EscapeMenuOverlay.overlayKey);
@@ -1964,9 +2021,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _collectPickup(PickupState pickup) {
     if (!stressTest) {
       _runSummary.xpGained += pickup.value;
-      final levelsGained = _experienceSystem.addExperience(pickup.value);
-      if (levelsGained > 0) {
-        _levelUpSystem.queueLevels(levelsGained);
+      final gain = _progressionSystem.addCurrency(CurrencyId.xp, pickup.value);
+      if (gain != null && gain.levelsGained > 0) {
+        _levelUpSystem.queueLevels(gain.trackId, gain.levelsGained);
         _offerSelectionIfNeeded();
       }
     }
@@ -2019,11 +2076,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _resetPlayerProgression() {
-    _experienceSystem.reset();
+    _progressionSystem.reset();
     _skillSystem.resetToDefaults();
     _playerState.resetForRun();
     _playerState.applyModifiers(_metaUnlocks.activeModifiers);
     _levelUpSystem.resetForRun(playerState: _playerState);
+    _activeSelectionTrackId = null;
   }
 
   void _revivePlayer() {

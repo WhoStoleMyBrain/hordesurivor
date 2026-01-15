@@ -6,6 +6,7 @@ import '../data/skill_defs.dart';
 import '../data/skill_upgrade_defs.dart';
 import '../data/synergy_defs.dart';
 import '../data/tags.dart';
+import '../data/weapon_upgrade_defs.dart';
 import '../game/level_up_system.dart';
 import 'selection_state.dart';
 import 'stat_text.dart';
@@ -246,6 +247,8 @@ String _labelForChoice(SelectionType type) {
       return 'Item';
     case SelectionType.skillUpgrade:
       return 'Upgrade';
+    case SelectionType.weaponUpgrade:
+      return 'Weapon Upgrade';
   }
 }
 
@@ -266,6 +269,11 @@ TagSet _tagsForChoice(SelectionChoice choice) {
       return upgradeId != null
           ? skillUpgradeDefsById[upgradeId]?.tags ?? const TagSet()
           : const TagSet();
+    case SelectionType.weaponUpgrade:
+      final upgradeId = choice.weaponUpgradeId;
+      return upgradeId != null
+          ? weaponUpgradeDefsById[upgradeId]?.tags ?? const TagSet()
+          : const TagSet();
   }
 }
 
@@ -278,6 +286,7 @@ Set<StatusEffectId> _statusEffectsForChoice(SelectionChoice choice) {
           : const {};
     case SelectionType.item:
     case SelectionType.skillUpgrade:
+    case SelectionType.weaponUpgrade:
       return const {};
   }
 }
@@ -303,6 +312,19 @@ List<String> _statChangesForChoice(SelectionChoice choice) {
         return const [];
       }
       final upgrade = skillUpgradeDefsById[upgradeId];
+      if (upgrade == null) {
+        return const [];
+      }
+      return [
+        for (final modifier in upgrade.modifiers)
+          StatText.formatModifier(modifier),
+      ];
+    case SelectionType.weaponUpgrade:
+      final upgradeId = choice.weaponUpgradeId;
+      if (upgradeId == null) {
+        return const [];
+      }
+      final upgrade = weaponUpgradeDefsById[upgradeId];
       if (upgrade == null) {
         return const [];
       }

@@ -68,6 +68,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 1 (Visual scale & readability pass): applied AOE scaling to Waterjet beam length/width so beam visuals and coverage track area modifiers. Decision: treat Waterjet as an AOE-sensitive beam like other area effects. Follow-up: tune base beam length/width once combat readability playtests resume.
 - ✅ Refactor Plan (Multi-currency progression): added data-driven Currency, Selection Pool, and Progression Track definitions seeded with XP and gold tracks. Decision: keep the new catalogs data-only until multi-track runtime wiring begins. Follow-up: connect the track definitions to progression runtime and HUD bars.
 - ✅ Refactor Plan (Multi-currency progression): added tiered Weapon Upgrade definitions (7 tiers per weapon) and validation for contiguous tier chains across all skills. Decision: keep tier bonuses modest and data-only until the upgrade gating flow is wired. Follow-up: tune per-weapon tier modifiers and names once the multi-track selection flow is implemented.
+- ✅ Refactor Plan (Multi-currency progression): introduced a track-aware progression runtime with per-track level queues, selection pools, and tier-gated weapon upgrade offerings. Decision: keep the XP track as the only active currency while gold drops/UI are pending. Follow-up: add gold pickups and item-track UI so item selections are driven by their own bar.
 
 ---
 
@@ -217,7 +218,7 @@ drop-based progression bars and clear upgrade gating.
    - Add **ItemUpgradeDef** (if needed) as a separate def or reuse skill upgrade structure with type tags.
    - Update any validation/registry code to include new defs and prevent missing tiers.
 
-4. **Refactor progression runtime systems**
+4. ✅ **Refactor progression runtime systems**
    - Replace single XP logic with a **multi-track progression manager**:
      - Track XP and gold bars independently.
      - Emit level-up events scoped to the triggering track.
