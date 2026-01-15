@@ -67,6 +67,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase 6 (Contracts/Heat): added a Radiant Pursuit contract to boost angelic move speed in Halo Breach. Decision: keep it as a higher-heat mobility pressure option for angel areas. Follow-up: tune the move-speed multiplier once Halo Breach dodge windows are playtested.
 - ✅ Phase 1 (Visual scale & readability pass): applied AOE scaling to Waterjet beam length/width so beam visuals and coverage track area modifiers. Decision: treat Waterjet as an AOE-sensitive beam like other area effects. Follow-up: tune base beam length/width once combat readability playtests resume.
 - ✅ Refactor Plan (Multi-currency progression): added data-driven Currency, Selection Pool, and Progression Track definitions seeded with XP and gold tracks. Decision: keep the new catalogs data-only until multi-track runtime wiring begins. Follow-up: connect the track definitions to progression runtime and HUD bars.
+- ✅ Refactor Plan (Multi-currency progression): added tiered Weapon Upgrade definitions (7 tiers per weapon) and validation for contiguous tier chains across all skills. Decision: keep tier bonuses modest and data-only until the upgrade gating flow is wired. Follow-up: tune per-weapon tier modifiers and names once the multi-track selection flow is implemented.
 
 ---
 
@@ -208,7 +209,7 @@ drop-based progression bars and clear upgrade gating.
      - `item_pool` (items + item upgrades)
      - `future_pool` (placeholder for tokens/fusions, etc.)
 
-3. **Split reward types and update data catalogs**
+3. ✅ **Split reward types and update data catalogs**
    - Add **WeaponUpgradeDef** entries to `lib/data/`:
      - Each weapon has a chain of 7+ tiers.
      - Each tier specifies stat deltas + tags, and requires the previous tier.
