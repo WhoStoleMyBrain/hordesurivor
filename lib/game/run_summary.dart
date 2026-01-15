@@ -16,6 +16,7 @@ class RunSummary {
     this.skills = const [],
     this.items = const [],
     this.upgrades = const [],
+    this.weaponUpgrades = const [],
     this.synergyTriggers = 0,
     Map<SynergyId, int>? synergyTriggerCounts,
     this.areaName,
@@ -34,6 +35,7 @@ class RunSummary {
   List<SkillId> skills;
   List<ItemId> items;
   List<SkillUpgradeId> upgrades;
+  List<String> weaponUpgrades;
   int synergyTriggers;
   Map<SynergyId, int> synergyTriggerCounts;
   String? areaName;
@@ -76,6 +78,7 @@ class RunSummary {
     skills = const [];
     items = const [];
     upgrades = const [];
+    weaponUpgrades = const [];
     synergyTriggers = 0;
     synergyTriggerCounts = <SynergyId, int>{};
     areaName = null;

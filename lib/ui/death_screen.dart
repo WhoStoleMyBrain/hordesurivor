@@ -5,6 +5,7 @@ import '../data/item_defs.dart';
 import '../data/skill_defs.dart';
 import '../data/skill_upgrade_defs.dart';
 import '../data/synergy_defs.dart';
+import '../data/weapon_upgrade_defs.dart';
 import '../game/meta_currency_wallet.dart';
 import '../game/run_summary.dart';
 import 'ui_scale.dart';
@@ -59,6 +60,7 @@ class DeathScreen extends StatelessWidget {
     final skillNames = _namesForSkills(summary.skills);
     final itemNames = _namesForItems(summary.items);
     final upgradeNames = _namesForUpgrades(summary.upgrades);
+    final weaponUpgradeNames = _namesForWeaponUpgrades(summary.weaponUpgrades);
     final synergyEntries = _namesForSynergies(summary.synergyTriggerCounts);
     final summaryStats = <_StatEntry>[
       _StatEntry(label: 'Score', value: summary.score.toString()),
@@ -175,6 +177,12 @@ class DeathScreen extends StatelessWidget {
                               entries: upgradeNames,
                               titleStyle: sectionTitleStyle,
                             ),
+                          if (weaponUpgradeNames.isNotEmpty)
+                            _RecapSection(
+                              title: 'Weapon Upgrades',
+                              entries: weaponUpgradeNames,
+                              titleStyle: sectionTitleStyle,
+                            ),
                           if (synergyEntries.isNotEmpty)
                             _RecapSection(
                               title: 'Synergies',
@@ -248,6 +256,17 @@ class DeathScreen extends StatelessWidget {
     final idSet = ids.toSet();
     return [
       for (final def in skillUpgradeDefs)
+        if (idSet.contains(def.id)) def.name,
+    ];
+  }
+
+  List<String> _namesForWeaponUpgrades(List<String> ids) {
+    if (ids.isEmpty) {
+      return const [];
+    }
+    final idSet = ids.toSet();
+    return [
+      for (final def in weaponUpgradeDefs)
         if (idSet.contains(def.id)) def.name,
     ];
   }

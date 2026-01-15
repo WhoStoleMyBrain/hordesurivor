@@ -2,13 +2,15 @@ import 'dart:math' as math;
 
 import '../data/ids.dart';
 import '../data/item_defs.dart';
+import '../data/progression_track_defs.dart';
 import '../data/skill_defs.dart';
 import '../data/skill_upgrade_defs.dart';
 import '../data/stat_defs.dart';
+import '../data/weapon_upgrade_defs.dart';
 import 'player_state.dart';
 import 'skill_system.dart';
 
-enum SelectionType { skill, item, skillUpgrade }
+enum SelectionType { skill, item, skillUpgrade, weaponUpgrade }
 
 class SelectionChoice {
   const SelectionChoice({
@@ -18,6 +20,7 @@ class SelectionChoice {
     this.skillId,
     this.itemId,
     this.skillUpgradeId,
+    this.weaponUpgradeId,
   });
 
   final SelectionType type;
@@ -26,6 +29,7 @@ class SelectionChoice {
   final SkillId? skillId;
   final ItemId? itemId;
   final SkillUpgradeId? skillUpgradeId;
+  final String? weaponUpgradeId;
 }
 
 class LevelUpSystem {
@@ -42,69 +46,111 @@ class LevelUpSystem {
   final int _baseRerolls;
   final List<SelectionChoice> _choices = [];
   final Set<SkillUpgradeId> _appliedUpgrades = {};
+  final Set<String> _appliedWeaponUpgrades = {};
   final Set<ItemId> _appliedItems = {};
-  int _pendingLevels = 0;
+  final Map<ProgressionTrackId, int> _pendingLevels = {};
+  final Map<SkillId, int> _weaponUpgradeTiers = {};
   int _rerollsRemaining = 0;
   int _rerollsMax = 0;
+  ProgressionTrackId? _activeTrackId;
 
   List<SelectionChoice> get choices => List.unmodifiable(_choices);
-  int get pendingLevels => _pendingLevels;
+  int pendingLevels(ProgressionTrackId trackId) => _pendingLevels[trackId] ?? 0;
+  ProgressionTrackId? get activeTrackId => _activeTrackId;
   bool get hasChoices => _choices.isNotEmpty;
   int get rerollsRemaining => _rerollsRemaining;
   int get rerollsMax => _rerollsMax;
   Set<SkillUpgradeId> get appliedUpgrades =>
       Set<SkillUpgradeId>.unmodifiable(_appliedUpgrades);
+  Set<String> get appliedWeaponUpgrades =>
+      Set<String>.unmodifiable(_appliedWeaponUpgrades);
   Set<ItemId> get appliedItems => Set<ItemId>.unmodifiable(_appliedItems);
 
-  void queueLevels(int levelsGained) {
+  ProgressionTrackId? get nextPendingTrackId {
+    for (final track in progressionTrackDefs) {
+      if ((_pendingLevels[track.id] ?? 0) > 0) {
+        return track.id;
+      }
+    }
+    return null;
+  }
+
+  void queueLevels(ProgressionTrackId trackId, int levelsGained) {
     if (levelsGained <= 0) {
       return;
     }
-    _pendingLevels += levelsGained;
+    _pendingLevels[trackId] = (_pendingLevels[trackId] ?? 0) + levelsGained;
   }
 
   void resetForRun({required PlayerState playerState}) {
-    _pendingLevels = 0;
+    _pendingLevels.clear();
     _choices.clear();
     _appliedUpgrades.clear();
+    _appliedWeaponUpgrades.clear();
     _appliedItems.clear();
+    _weaponUpgradeTiers.clear();
     _rerollsRemaining = 0;
     _rerollsMax = 0;
+    _activeTrackId = null;
     _syncRerolls(playerState);
   }
 
   void buildChoices({
+    required ProgressionTrackId trackId,
+    required SelectionPoolId selectionPoolId,
     required PlayerState playerState,
     required SkillSystem skillSystem,
     Set<MetaUnlockId> unlockedMeta = const {},
   }) {
-    if (_pendingLevels <= 0 || _choices.isNotEmpty) {
+    if ((_pendingLevels[trackId] ?? 0) <= 0 || _choices.isNotEmpty) {
       return;
     }
     _choices
       ..clear()
-      ..addAll(_buildChoicesFor(playerState, skillSystem, unlockedMeta));
+      ..addAll(
+        _buildChoicesFor(
+          playerState,
+          skillSystem,
+          selectionPoolId,
+          unlockedMeta,
+        ),
+      );
     if (_choices.isEmpty) {
-      _pendingLevels = 0;
+      _pendingLevels[trackId] = 0;
+      _activeTrackId = null;
+    } else {
+      _activeTrackId = trackId;
     }
   }
 
   bool rerollChoices({
+    required ProgressionTrackId trackId,
+    required SelectionPoolId selectionPoolId,
     required PlayerState playerState,
     required SkillSystem skillSystem,
     Set<MetaUnlockId> unlockedMeta = const {},
   }) {
-    if (_choices.isEmpty || _rerollsRemaining <= 0) {
+    if (_choices.isEmpty ||
+        _rerollsRemaining <= 0 ||
+        _activeTrackId != trackId) {
       return false;
     }
     _rerollsRemaining -= 1;
     _choices
       ..clear()
-      ..addAll(_buildChoicesFor(playerState, skillSystem, unlockedMeta));
+      ..addAll(
+        _buildChoicesFor(
+          playerState,
+          skillSystem,
+          selectionPoolId,
+          unlockedMeta,
+        ),
+      );
     return true;
   }
 
   void applyChoice({
+    required ProgressionTrackId trackId,
     required SelectionChoice choice,
     required PlayerState playerState,
     required SkillSystem skillSystem,
@@ -128,6 +174,19 @@ class LevelUpSystem {
             playerState.applyModifiers(upgrade.modifiers);
           }
         }
+      case SelectionType.weaponUpgrade:
+        final upgradeId = choice.weaponUpgradeId;
+        if (upgradeId != null) {
+          final upgrade = weaponUpgradeDefsById[upgradeId];
+          if (upgrade != null) {
+            _appliedWeaponUpgrades.add(upgrade.id);
+            _weaponUpgradeTiers[upgrade.skillId] = math.max(
+              _weaponUpgradeTiers[upgrade.skillId] ?? 1,
+              upgrade.tier,
+            );
+            playerState.applyModifiers(upgrade.modifiers);
+          }
+        }
       case SelectionType.skill:
         final skillId = choice.skillId;
         if (skillId != null) {
@@ -135,24 +194,34 @@ class LevelUpSystem {
         }
     }
     _syncRerolls(playerState);
-    _pendingLevels = math.max(0, _pendingLevels - 1);
+    _pendingLevels[trackId] = math.max(0, (_pendingLevels[trackId] ?? 0) - 1);
     _choices.clear();
+    _activeTrackId = null;
   }
 
-  void skipChoice({required PlayerState playerState}) {
+  void skipChoice({
+    required ProgressionTrackId trackId,
+    required PlayerState playerState,
+  }) {
     _syncRerolls(playerState);
-    _pendingLevels = math.max(0, _pendingLevels - 1);
+    _pendingLevels[trackId] = math.max(0, (_pendingLevels[trackId] ?? 0) - 1);
     _choices.clear();
+    _activeTrackId = null;
   }
 
   List<SelectionChoice> _buildChoicesFor(
     PlayerState playerState,
     SkillSystem skillSystem,
+    SelectionPoolId selectionPoolId,
     Set<MetaUnlockId> unlockedMeta,
   ) {
     final extraChoices = playerState.stats.value(StatId.choiceCount).round();
     final choiceCount = math.max(1, _baseChoiceCount + extraChoices);
-    final candidates = _buildCandidates(skillSystem, unlockedMeta);
+    final candidates = _buildCandidates(
+      skillSystem,
+      selectionPoolId,
+      unlockedMeta,
+    );
     candidates.shuffle(_random);
     return candidates.take(choiceCount).toList();
   }
@@ -171,38 +240,83 @@ class LevelUpSystem {
 
   List<SelectionChoice> _buildCandidates(
     SkillSystem skillSystem,
+    SelectionPoolId selectionPoolId,
     Set<MetaUnlockId> unlockedMeta,
   ) {
-    final candidates = <SelectionChoice>[
-      for (final skill in skillDefs)
-        if (!skillSystem.hasSkill(skill.id) &&
-            (skill.metaUnlockId == null ||
-                unlockedMeta.contains(skill.metaUnlockId)))
-          SelectionChoice(
-            type: SelectionType.skill,
-            title: skill.name,
-            description: skill.description,
-            skillId: skill.id,
-          ),
-      for (final upgrade in skillUpgradeDefs)
-        if (skillSystem.hasSkill(upgrade.skillId) &&
-            !_appliedUpgrades.contains(upgrade.id))
-          SelectionChoice(
-            type: SelectionType.skillUpgrade,
-            title: '${skillDefsById[upgrade.skillId]?.name}: ${upgrade.name}',
-            description: upgrade.summary,
-            skillUpgradeId: upgrade.id,
-          ),
-      for (final item in itemDefs)
-        if (item.metaUnlockId == null ||
-            unlockedMeta.contains(item.metaUnlockId))
-          SelectionChoice(
-            type: SelectionType.item,
-            title: item.name,
-            description: item.description,
-            itemId: item.id,
-          ),
-    ];
+    switch (selectionPoolId) {
+      case SelectionPoolId.skillPool:
+        return [
+          for (final skill in skillDefs)
+            if (!skillSystem.hasSkill(skill.id) &&
+                (skill.metaUnlockId == null ||
+                    unlockedMeta.contains(skill.metaUnlockId)))
+              SelectionChoice(
+                type: SelectionType.skill,
+                title: skill.name,
+                description: skill.description,
+                skillId: skill.id,
+              ),
+          for (final upgrade in skillUpgradeDefs)
+            if (skillSystem.hasSkill(upgrade.skillId) &&
+                !_appliedUpgrades.contains(upgrade.id))
+              SelectionChoice(
+                type: SelectionType.skillUpgrade,
+                title:
+                    '${skillDefsById[upgrade.skillId]?.name}: ${upgrade.name}',
+                description: upgrade.summary,
+                skillUpgradeId: upgrade.id,
+              ),
+          ..._buildWeaponUpgradeCandidates(skillSystem),
+        ];
+      case SelectionPoolId.itemPool:
+        return [
+          for (final item in itemDefs)
+            if (item.metaUnlockId == null ||
+                unlockedMeta.contains(item.metaUnlockId))
+              SelectionChoice(
+                type: SelectionType.item,
+                title: item.name,
+                description: item.description,
+                itemId: item.id,
+              ),
+        ];
+      case SelectionPoolId.futurePool:
+        return const [];
+    }
+  }
+
+  List<SelectionChoice> _buildWeaponUpgradeCandidates(SkillSystem skillSystem) {
+    if (skillSystem.skillIds.isEmpty) {
+      return const [];
+    }
+    final candidates = <SelectionChoice>[];
+    for (final skillId in skillSystem.skillIds) {
+      final currentTier = _currentWeaponTier(skillId, skillSystem);
+      final nextTier = currentTier + 1;
+      final upgrade = weaponUpgradeDefsBySkillAndTier[skillId]?[nextTier];
+      if (upgrade == null) {
+        continue;
+      }
+      if (_appliedWeaponUpgrades.contains(upgrade.id)) {
+        continue;
+      }
+      final skillName = skillDefsById[skillId]?.name ?? skillId.name;
+      candidates.add(
+        SelectionChoice(
+          type: SelectionType.weaponUpgrade,
+          title: '$skillName: ${upgrade.name}',
+          description: upgrade.summary,
+          weaponUpgradeId: upgrade.id,
+        ),
+      );
+    }
     return candidates;
+  }
+
+  int _currentWeaponTier(SkillId skillId, SkillSystem skillSystem) {
+    if (!skillSystem.hasSkill(skillId)) {
+      return 0;
+    }
+    return math.max(1, _weaponUpgradeTiers[skillId] ?? 1);
   }
 }

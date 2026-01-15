@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import '../data/area_defs.dart';
 import '../data/ids.dart';
 import '../data/tags.dart';
-import 'experience_system.dart';
+import 'progression_system.dart';
 
 class SpawnTuning {
   const SpawnTuning({
@@ -19,12 +19,12 @@ class SpawnTuning {
 
 class SpawnDirector {
   SpawnDirector({
-    required ExperienceSystem experienceSystem,
+    required ProgressionSystem progressionSystem,
     double transitionDuration = 8,
-  }) : _experienceSystem = experienceSystem,
+  }) : _progressionSystem = progressionSystem,
        _transitionDuration = transitionDuration;
 
-  final ExperienceSystem _experienceSystem;
+  final ProgressionSystem _progressionSystem;
   final double _transitionDuration;
 
   SpawnTuning tuneSection({
@@ -55,12 +55,12 @@ class SpawnDirector {
     final tunedRoles = _applyThreatTier(
       blendedRoles,
       section.threatTier,
-      _experienceSystem.level,
+      _progressionSystem.trackForId(ProgressionTrackId.skills).level,
     );
     final resolvedVariants = _resolveVariantWeights(
       blendedVariants,
       section,
-      _experienceSystem.level,
+      _progressionSystem.trackForId(ProgressionTrackId.skills).level,
     );
     return SpawnTuning(
       roleWeights: tunedRoles,

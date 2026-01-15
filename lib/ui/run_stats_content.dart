@@ -5,6 +5,7 @@ import '../data/item_defs.dart';
 import '../data/skill_defs.dart';
 import '../data/skill_upgrade_defs.dart';
 import '../data/stat_defs.dart';
+import '../data/weapon_upgrade_defs.dart';
 import 'stat_text.dart';
 import 'stats_screen_state.dart';
 
@@ -51,6 +52,18 @@ class RunStatsContent extends StatelessWidget {
               _TooltipEntry(
                 label: _upgradeLabel(id),
                 tooltip: skillUpgradeDefsById[id]?.summary,
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _SubsectionHeader(title: 'Weapon Upgrades'),
+        const SizedBox(height: 6),
+        _ChipWrap(
+          entries: [
+            for (final id in state.weaponUpgrades)
+              _TooltipEntry(
+                label: _weaponUpgradeLabel(id),
+                tooltip: weaponUpgradeDefsById[id]?.summary,
               ),
           ],
         ),
@@ -188,6 +201,16 @@ String _upgradeLabel(SkillUpgradeId id) {
   final upgrade = skillUpgradeDefsById[id];
   if (upgrade == null) {
     return id.name;
+  }
+  final skillName =
+      skillDefsById[upgrade.skillId]?.name ?? upgrade.skillId.name;
+  return '$skillName: ${upgrade.name}';
+}
+
+String _weaponUpgradeLabel(String id) {
+  final upgrade = weaponUpgradeDefsById[id];
+  if (upgrade == null) {
+    return id;
   }
   final skillName =
       skillDefsById[upgrade.skillId]?.name ?? upgrade.skillId.name;
