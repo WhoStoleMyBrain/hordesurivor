@@ -96,6 +96,13 @@ class HudOverlay extends StatelessWidget {
                         labelStyle: statLabelStyle,
                         valueStyle: statValueStyle,
                       ),
+                      const SizedBox(height: 2),
+                      _HudStatRow(
+                        label: 'GOLD',
+                        value: '${hudState.gold}/${hudState.goldToNext}',
+                        labelStyle: statLabelStyle,
+                        valueStyle: statValueStyle,
+                      ),
                       if (hudState.contractHeat > 0) ...[
                         const SizedBox(height: 6),
                         _HudStatRow(

@@ -54,10 +54,13 @@ class SelectionOverlay extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              'Choose a reward',
+                              _headerTitleForTrack(selectionState.trackId),
                               style: TextStyle(
                                 fontSize: UiScale.fontSize(18),
                                 fontWeight: FontWeight.bold,
+                                color: _headerColorForTrack(
+                                  selectionState.trackId,
+                                ),
                               ),
                             ),
                           ),
@@ -86,7 +89,9 @@ class SelectionOverlay extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       _SkipButton(
-                        rewardXp: selectionState.skipRewardXp,
+                        rewardCurrencyAmount:
+                            selectionState.skipRewardCurrencyAmount,
+                        rewardCurrencyId: selectionState.skipRewardCurrencyId,
                         rewardMetaShards: selectionState.skipRewardMetaShards,
                         onPressed: onSkip,
                       ),
@@ -203,19 +208,22 @@ class _ChoiceCard extends StatelessWidget {
 
 class _SkipButton extends StatelessWidget {
   const _SkipButton({
-    required this.rewardXp,
+    required this.rewardCurrencyAmount,
+    required this.rewardCurrencyId,
     required this.rewardMetaShards,
     required this.onPressed,
   });
 
-  final int rewardXp;
+  final int rewardCurrencyAmount;
+  final CurrencyId rewardCurrencyId;
   final int rewardMetaShards;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     final label = _skipLabel(
-      rewardXp: rewardXp,
+      rewardCurrencyAmount: rewardCurrencyAmount,
+      rewardCurrencyId: rewardCurrencyId,
       rewardMetaShards: rewardMetaShards,
     );
     return Align(
@@ -225,18 +233,55 @@ class _SkipButton extends StatelessWidget {
   }
 }
 
-String _skipLabel({required int rewardXp, required int rewardMetaShards}) {
-  if (rewardXp <= 0 && rewardMetaShards <= 0) {
+String _skipLabel({
+  required int rewardCurrencyAmount,
+  required CurrencyId rewardCurrencyId,
+  required int rewardMetaShards,
+}) {
+  if (rewardCurrencyAmount <= 0 && rewardMetaShards <= 0) {
     return 'Skip';
   }
   final parts = <String>[];
-  if (rewardXp > 0) {
-    parts.add('+$rewardXp XP');
+  if (rewardCurrencyAmount > 0) {
+    parts.add(
+      '+$rewardCurrencyAmount ${_currencyShortLabel(rewardCurrencyId)}',
+    );
   }
   if (rewardMetaShards > 0) {
     parts.add('+$rewardMetaShards Shards');
   }
   return 'Skip (${parts.join(', ')})';
+}
+
+String _currencyShortLabel(CurrencyId currencyId) {
+  switch (currencyId) {
+    case CurrencyId.xp:
+      return 'XP';
+    case CurrencyId.gold:
+      return 'Gold';
+  }
+}
+
+String _headerTitleForTrack(ProgressionTrackId? trackId) {
+  switch (trackId) {
+    case ProgressionTrackId.skills:
+      return 'Choose a Skill Reward';
+    case ProgressionTrackId.items:
+      return 'Choose an Item Reward';
+    case null:
+      return 'Choose a reward';
+  }
+}
+
+Color _headerColorForTrack(ProgressionTrackId? trackId) {
+  switch (trackId) {
+    case ProgressionTrackId.skills:
+      return Colors.lightBlueAccent;
+    case ProgressionTrackId.items:
+      return Colors.amberAccent;
+    case null:
+      return Colors.white;
+  }
 }
 
 String _labelForChoice(SelectionType type) {

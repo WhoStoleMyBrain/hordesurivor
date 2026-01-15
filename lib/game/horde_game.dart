@@ -1242,12 +1242,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (trackId == null) {
       return;
     }
-    final rewardXp = _skipRewardXpValue(trackId);
+    final rewardCurrencyAmount = _skipRewardCurrencyValue(trackId);
+    final rewardCurrencyId = _currencyIdForTrack(trackId);
     final rewardMetaShards = _skipRewardMetaShardValue();
     _levelUpSystem.skipChoice(trackId: trackId, playerState: _playerState);
-    if (!stressTest && rewardXp > 0) {
-      _runSummary.xpGained += rewardXp;
-      final gain = _progressionSystem.addCurrency(CurrencyId.xp, rewardXp);
+    if (!stressTest && rewardCurrencyAmount > 0) {
+      if (rewardCurrencyId == CurrencyId.xp) {
+        _runSummary.xpGained += rewardCurrencyAmount;
+      }
+      final gain = _progressionSystem.addCurrency(
+        rewardCurrencyId,
+        rewardCurrencyAmount,
+      );
       if (gain != null && gain.levelsGained > 0) {
         _levelUpSystem.queueLevels(gain.trackId, gain.levelsGained);
       }
@@ -1256,7 +1262,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _runSummary.metaCurrencyBonus += rewardMetaShards;
     }
     _hudState.triggerRewardMessage(
-      _skipRewardMessage(rewardXp, rewardMetaShards),
+      _skipRewardMessage(
+        rewardCurrencyAmount,
+        rewardCurrencyId,
+        rewardMetaShards,
+      ),
     );
     _offerSelectionIfNeeded();
   }
@@ -1272,8 +1282,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (rerolled) {
       _selectionState.showChoices(
         _levelUpSystem.choices,
+        trackId: _activeSelectionTrackId ?? ProgressionTrackId.skills,
         rerollsRemaining: _levelUpSystem.rerollsRemaining,
-        skipRewardXp: _skipRewardXpValue(
+        skipRewardCurrencyAmount: _skipRewardCurrencyValue(
+          _activeSelectionTrackId ?? ProgressionTrackId.skills,
+        ),
+        skipRewardCurrencyId: _currencyIdForTrack(
           _activeSelectionTrackId ?? ProgressionTrackId.skills,
         ),
         skipRewardMetaShards: _skipRewardMetaShardValue(),
@@ -1300,8 +1314,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _activeSelectionTrackId = nextTrackId;
       _selectionState.showChoices(
         _levelUpSystem.choices,
+        trackId: nextTrackId,
         rerollsRemaining: _levelUpSystem.rerollsRemaining,
-        skipRewardXp: _skipRewardXpValue(nextTrackId),
+        skipRewardCurrencyAmount: _skipRewardCurrencyValue(nextTrackId),
+        skipRewardCurrencyId: _currencyIdForTrack(nextTrackId),
         skipRewardMetaShards: _skipRewardMetaShardValue(),
       );
       overlays.add(SelectionOverlay.overlayKey);
@@ -1312,12 +1328,16 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
   }
 
-  int _skipRewardXpValue(ProgressionTrackId trackId) {
+  int _skipRewardCurrencyValue(ProgressionTrackId trackId) {
     final track = _progressionSystem.trackForId(trackId);
     final skipFraction =
         progressionTrackDefsById[trackId]?.skipRewardFraction ?? 0.2;
     final reward = (track.currencyToNext * skipFraction).round();
     return math.max(1, reward);
+  }
+
+  CurrencyId _currencyIdForTrack(ProgressionTrackId trackId) {
+    return progressionTrackDefsById[trackId]?.currencyId ?? CurrencyId.xp;
   }
 
   SelectionPoolId _selectionPoolForTrack(ProgressionTrackId trackId) {
@@ -1336,18 +1356,33 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     return math.max(0, reward);
   }
 
-  String _skipRewardMessage(int rewardXp, int rewardMetaShards) {
-    if (rewardXp <= 0 && rewardMetaShards <= 0) {
+  String _skipRewardMessage(
+    int rewardCurrencyAmount,
+    CurrencyId rewardCurrencyId,
+    int rewardMetaShards,
+  ) {
+    if (rewardCurrencyAmount <= 0 && rewardMetaShards <= 0) {
       return 'Skipped reward';
     }
     final parts = <String>[];
-    if (rewardXp > 0) {
-      parts.add('+$rewardXp XP');
+    if (rewardCurrencyAmount > 0) {
+      parts.add(
+        '+$rewardCurrencyAmount ${_currencyShortLabel(rewardCurrencyId)}',
+      );
     }
     if (rewardMetaShards > 0) {
       parts.add('+$rewardMetaShards Shards');
     }
     return 'Skipped reward (${parts.join(', ')})';
+  }
+
+  String _currencyShortLabel(CurrencyId currencyId) {
+    switch (currencyId) {
+      case CurrencyId.xp:
+        return 'XP';
+      case CurrencyId.gold:
+        return 'Gold';
+    }
   }
 
   String _rewardMessageForChoice(SelectionChoice choice) {
@@ -1381,12 +1416,15 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final inStage = _flowState == GameFlowState.stage && stageTimer != null;
     final buildTags = _collectBuildTags();
     final skillTrack = _progressionSystem.trackForId(ProgressionTrackId.skills);
+    final itemTrack = _progressionSystem.trackForId(ProgressionTrackId.items);
     _hudState.update(
       hp: _playerState.hp,
       maxHp: _playerState.maxHp,
       level: skillTrack.level,
       xp: skillTrack.currentCurrency,
       xpToNext: skillTrack.currencyToNext,
+      gold: itemTrack.currentCurrency,
+      goldToNext: itemTrack.currencyToNext,
       score: inStage ? _runSummary.score : 0,
       showPerformance: stressTest,
       fps: _fps,

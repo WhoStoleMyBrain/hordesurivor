@@ -70,6 +70,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Refactor Plan (Multi-currency progression): added tiered Weapon Upgrade definitions (7 tiers per weapon) and validation for contiguous tier chains across all skills. Decision: keep tier bonuses modest and data-only until the upgrade gating flow is wired. Follow-up: tune per-weapon tier modifiers and names once the multi-track selection flow is implemented.
 - ✅ Refactor Plan (Multi-currency progression): introduced a track-aware progression runtime with per-track level queues, selection pools, and tier-gated weapon upgrade offerings. Decision: keep the XP track as the only active currency while gold drops/UI are pending. Follow-up: add gold pickups and item-track UI so item selections are driven by their own bar.
 - ✅ Refactor Plan (Multi-currency progression): added weighted XP/gold pickup drops, routed pickups to the correct currency track, and added a gold pickup sprite. Decision: scale gold pickup value off XP reward for now. Follow-up: tune gold drop values and add HUD bars to surface multi-track fill.
+- ✅ Refactor Plan (Multi-currency progression): updated HUD and selection overlays to show XP and gold progress separately, made reward copy track-aware, and routed skip rewards to the triggering currency track. Decision: use simple text rows and color-tinted headers for now. Follow-up: add iconography and bar styling once the HUD layout pass resumes.
 
 ---
 
@@ -234,7 +235,7 @@ drop-based progression bars and clear upgrade gating.
    - Route pickup collection to the correct currency bar and emit the appropriate track level-up event.
    - Ensure pickup visuals and UI bars are readable and distinct.
 
-6. **Update UI/UX for multi-bar progression**
+6. ✅ **Update UI/UX for multi-bar progression**
    - HUD: add separate bars (XP, gold) with labels/icons.
    - Level-up overlay: adjust copy and visuals based on the triggering track.
    - Add a **skip behavior** for item/gold level-ups that grants currency (or a small stat bonus)
