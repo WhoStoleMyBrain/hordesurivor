@@ -174,6 +174,88 @@ This section verifies what is already implemented in the codebase and lists the 
 
 ---
 
+## Refactor Plan — Multi-currency progression & upgrade pools
+**Goal:** split rewards into distinct leveling tracks (skills, items, and extensible future tracks) with
+drop-based progression bars and clear upgrade gating.
+
+**Problem framing (current state):**
+- Enemies only drop XP; level-ups feed into a mixed skill/item pool.
+- Skill acquisition and upgrades are conflated, and upgrades are not defined in tiered chains.
+- There is no structure for multiple currencies or track-specific leveling.
+
+**Target behavior:**
+- Separate **currencies/bars** (e.g., XP for skills, gold for items) with independent fill + level-up flows.
+- Distinct **selection pools** per track (skills/upgrades vs items).
+- **Weapon upgrades** are tiered (at least 7 levels per weapon), offered only if the weapon is owned and
+  the previous tier is already taken. The initial weapon acquisition counts as tier 1.
+- Drop system spawns **different pickup types** (XP, gold, future tokens), each feeding its bar.
+- System is **extensible** to new currencies (e.g., fusion tokens) with minimal code changes.
+
+**Actionable steps:**
+1. **Audit and diagram the current progression flow**
+   - Map existing XP earn → level-up → selection flow in `lib/game/experience_system.dart`,
+     selection UI in `lib/ui/`, and drop/pickup handling in `lib/game/`.
+   - Document current data structures for skills/items/upgrades in `lib/data/` and how selections are built.
+   - Identify hard-coded assumptions that “level up = XP” and “reward pool = mixed.”
+
+2. **Define a new progression model (data + runtime)**
+   - Introduce a `CurrencyDef` (id, name, icon, color, bar thresholds, drop weights).
+   - Introduce a `ProgressionTrackDef` that binds a currency to a level-up outcome:
+     - `trackId`, `currencyId`, `selectionPoolId`, `levelCurve`, `onSkipReward`.
+   - Define a `SelectionPoolDef` for each track:
+     - `skill_pool` (skills + skill upgrades)
+     - `item_pool` (items + item upgrades)
+     - `future_pool` (placeholder for tokens/fusions, etc.)
+
+3. **Split reward types and update data catalogs**
+   - Add **WeaponUpgradeDef** entries to `lib/data/`:
+     - Each weapon has a chain of 7+ tiers.
+     - Each tier specifies stat deltas + tags, and requires the previous tier.
+   - Ensure **weapon acquisition** is represented as tier 1 in the chain (or a `tier = 1` entry).
+   - Add **ItemUpgradeDef** (if needed) as a separate def or reuse skill upgrade structure with type tags.
+   - Update any validation/registry code to include new defs and prevent missing tiers.
+
+4. **Refactor progression runtime systems**
+   - Replace single XP logic with a **multi-track progression manager**:
+     - Track XP and gold bars independently.
+     - Emit level-up events scoped to the triggering track.
+   - Update the selection system to accept a **track context** and build choices only from
+     that track’s pool (skills/upgrades for XP, items for gold).
+   - Implement **upgrade gating**:
+     - Offer a weapon upgrade only if the player owns the weapon and has the prior tier.
+     - Treat weapon acquisition as tier 1 in the upgrade chain.
+
+5. **Implement drop variety and pickup routing**
+   - Add drop tables that can spawn different pickup types (XP orb, gold coin, future token).
+   - Route pickup collection to the correct currency bar and emit the appropriate track level-up event.
+   - Ensure pickup visuals and UI bars are readable and distinct.
+
+6. **Update UI/UX for multi-bar progression**
+   - HUD: add separate bars (XP, gold) with labels/icons.
+   - Level-up overlay: adjust copy and visuals based on the triggering track.
+   - Add a **skip behavior** for item/gold level-ups that grants currency (or a small stat bonus)
+     rather than an item selection.
+
+7. **Add validation and tests**
+   - Validate that each weapon has 7+ upgrade tiers and that tier chains are contiguous.
+   - Ensure each track has a defined selection pool and level curve.
+   - Add or update tests to ensure:
+     - Upgrades are gated by ownership + previous tier.
+     - Multi-currency bars fill independently and emit the correct level-up events.
+
+8. **Migration & backward compatibility**
+   - Provide migration notes for existing save data or in-progress runs (if persisted).
+   - Ensure the legacy XP-only flow is fully removed or cleanly bridged.
+
+**Exit criteria:**
+- XP and gold are distinct currencies with independent bars and level-up flows.
+- Weapon upgrades are tiered (7+ levels), gated by prior tier + ownership.
+- Drop variety exists with at least XP + gold pickups.
+- Selection pools are track-specific and extensible to future currencies.
+- UI reflects multi-track progression with clear, readable bars and level-up context.
+
+---
+
 ## Phase 5 — Meta currency (earnable) & lateral unlock tree
 **Goal:** introduce meta currency and a **lateral progression** unlock tree aligned with AGENTS.md.
 
