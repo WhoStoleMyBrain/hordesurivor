@@ -3,18 +3,21 @@ import 'package:flutter/material.dart';
 import '../data/area_defs.dart';
 import '../data/contract_defs.dart';
 import '../data/ids.dart';
+import '../game/meta_unlocks.dart';
 
 class AreaSelectScreen extends StatefulWidget {
   const AreaSelectScreen({
     super.key,
     required this.onAreaSelected,
     required this.onReturn,
+    required this.unlocks,
   });
 
   static const String overlayKey = 'area_select_screen';
 
   final void Function(AreaDef area, List<ContractId> contracts) onAreaSelected;
   final VoidCallback onReturn;
+  final MetaUnlocks unlocks;
 
   @override
   State<AreaSelectScreen> createState() => _AreaSelectScreenState();
@@ -26,164 +29,178 @@ class _AreaSelectScreenState extends State<AreaSelectScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Material(
-      color: Colors.black.withValues(alpha: 0.75),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Select Area',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.6,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.separated(
-                  itemCount: areaDefs.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final area = areaDefs[index];
-                    final areaContracts = _contractsForArea(area);
-                    final selectedContracts = _selectedContractsForArea(area);
-                    final allowedContracts = areaContracts
-                        .map((contract) => contract.id)
-                        .toSet();
-                    selectedContracts.removeWhere(
-                      (id) => !allowedContracts.contains(id),
-                    );
-                    return Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF111827),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            area.name,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
+    return AnimatedBuilder(
+      animation: widget.unlocks,
+      builder: (context, _) {
+        return Material(
+          color: Colors.black.withValues(alpha: 0.75),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Select Area',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.6,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView.separated(
+                      itemCount: areaDefs.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final area = areaDefs[index];
+                        final areaContracts = _contractsForArea(area);
+                        final selectedContracts = _selectedContractsForArea(
+                          area,
+                        );
+                        final allowedContracts = areaContracts
+                            .map((contract) => contract.id)
+                            .toSet();
+                        selectedContracts.removeWhere(
+                          (id) => !allowedContracts.contains(id),
+                        );
+                        return Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF111827),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white12),
                           ),
-                          const SizedBox(height: 6),
-                          Text(
-                            area.description,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: Colors.white70,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Wrap(
-                            spacing: 12,
-                            runSpacing: 6,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _InfoChip(
-                                label: 'Duration',
-                                value: '${area.stageDuration}s',
-                              ),
-                              _InfoChip(
-                                label: 'Recommended',
-                                value: 'Lv ${area.recommendedLevel}',
-                              ),
-                              _InfoChip(label: 'Loot', value: area.lootProfile),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          _InfoRow(
-                            label: 'Difficulty',
-                            value: area.difficultyTiers.join(' · '),
-                          ),
-                          const SizedBox(height: 6),
-                          _InfoRow(
-                            label: 'Enemies',
-                            value: area.enemyThemes.isEmpty
-                                ? 'Unknown'
-                                : area.enemyThemes.join(' · '),
-                          ),
-                          if (area.lootModifiers.isNotEmpty) ...[
-                            const SizedBox(height: 6),
-                            _InfoRow(
-                              label: 'Loot Mods',
-                              value: area.lootModifiers.join(' · '),
-                            ),
-                          ],
-                          if (area.mapMutators.isNotEmpty) ...[
-                            const SizedBox(height: 6),
-                            _InfoRow(
-                              label: 'Mutators',
-                              value: area.mapMutators.join(' · '),
-                            ),
-                          ],
-                          const SizedBox(height: 6),
-                          _InfoRow(
-                            label: 'Contracts',
-                            value: selectedContracts.isEmpty
-                                ? 'None selected'
-                                : _contractSummary(selectedContracts),
-                            muted: selectedContracts.isEmpty,
-                          ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 6,
-                            children: [
-                              for (final contract in areaContracts)
-                                Tooltip(
-                                  message: contract.description,
-                                  child: FilterChip(
-                                    label: Text(
-                                      '${contract.name} '
-                                      '(+${contract.heat})',
-                                    ),
-                                    selected: selectedContracts.contains(
-                                      contract.id,
-                                    ),
-                                    onSelected: (selected) {
-                                      setState(() {
-                                        if (selected) {
-                                          selectedContracts.add(contract.id);
-                                        } else {
-                                          selectedContracts.remove(contract.id);
-                                        }
-                                      });
-                                    },
-                                  ),
+                              Text(
+                                area.name,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
                                 ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                area.description,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: Colors.white70,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Wrap(
+                                spacing: 12,
+                                runSpacing: 6,
+                                children: [
+                                  _InfoChip(
+                                    label: 'Duration',
+                                    value: '${area.stageDuration}s',
+                                  ),
+                                  _InfoChip(
+                                    label: 'Recommended',
+                                    value: 'Lv ${area.recommendedLevel}',
+                                  ),
+                                  _InfoChip(
+                                    label: 'Loot',
+                                    value: area.lootProfile,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              _InfoRow(
+                                label: 'Difficulty',
+                                value: area.difficultyTiers.join(' · '),
+                              ),
+                              const SizedBox(height: 6),
+                              _InfoRow(
+                                label: 'Enemies',
+                                value: area.enemyThemes.isEmpty
+                                    ? 'Unknown'
+                                    : area.enemyThemes.join(' · '),
+                              ),
+                              if (area.lootModifiers.isNotEmpty) ...[
+                                const SizedBox(height: 6),
+                                _InfoRow(
+                                  label: 'Loot Mods',
+                                  value: area.lootModifiers.join(' · '),
+                                ),
+                              ],
+                              if (area.mapMutators.isNotEmpty) ...[
+                                const SizedBox(height: 6),
+                                _InfoRow(
+                                  label: 'Mutators',
+                                  value: area.mapMutators.join(' · '),
+                                ),
+                              ],
+                              const SizedBox(height: 6),
+                              _InfoRow(
+                                label: 'Contracts',
+                                value: selectedContracts.isEmpty
+                                    ? 'None selected'
+                                    : _contractSummary(selectedContracts),
+                                muted: selectedContracts.isEmpty,
+                              ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 6,
+                                children: [
+                                  for (final contract in areaContracts)
+                                    Tooltip(
+                                      message: contract.description,
+                                      child: FilterChip(
+                                        label: Text(
+                                          '${contract.name} '
+                                          '(+${contract.heat})',
+                                        ),
+                                        selected: selectedContracts.contains(
+                                          contract.id,
+                                        ),
+                                        onSelected: (selected) {
+                                          setState(() {
+                                            if (selected) {
+                                              selectedContracts.add(
+                                                contract.id,
+                                              );
+                                            } else {
+                                              selectedContracts.remove(
+                                                contract.id,
+                                              );
+                                            }
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () => widget.onAreaSelected(
+                                    area,
+                                    selectedContracts.toList(growable: false),
+                                  ),
+                                  child: const Text('Begin Stage'),
+                                ),
+                              ),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () => widget.onAreaSelected(
-                                area,
-                                selectedContracts.toList(growable: false),
-                              ),
-                              child: const Text('Begin Stage'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton(
+                    onPressed: widget.onReturn,
+                    child: const Text('Return to Home Base'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: widget.onReturn,
-                child: const Text('Return to Home Base'),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -255,7 +272,7 @@ extension on _AreaSelectScreenState {
 
   List<ContractDef> _contractsForArea(AreaDef area) {
     if (area.contractPool.isEmpty) {
-      return contractDefs;
+      return _filterContracts(contractDefs);
     }
     final contracts = <ContractDef>[];
     for (final id in area.contractPool) {
@@ -264,7 +281,19 @@ extension on _AreaSelectScreenState {
         contracts.add(def);
       }
     }
-    return contracts;
+    return _filterContracts(contracts);
+  }
+
+  List<ContractDef> _filterContracts(List<ContractDef> contracts) {
+    return contracts
+        .where((contract) {
+          final unlockId = contract.metaUnlockId;
+          if (unlockId == null) {
+            return true;
+          }
+          return widget.unlocks.isUnlocked(unlockId);
+        })
+        .toList(growable: false);
   }
 
   String _contractSummary(Set<ContractId> contracts) {

@@ -393,6 +393,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
             ],
       onSpawn: _registerEnemyComponent,
       championChance: _baseChampionChance,
+      unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
     );
     _spawnerReady = true;
     if (stressTest) {
@@ -727,6 +728,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void beginStageFromAreaSelect(AreaDef area, List<ContractId> contracts) {
     _activeArea = area;
     _applyContracts(contracts);
+    _spawnerSystem.setUnlockedMeta(_metaUnlocks.unlockedIds.toSet());
     _resetFinaleState();
     _stageTimer = StageTimer(
       duration: area.stageDuration,
@@ -1147,6 +1149,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void skipSelection() {
     final rewardXp = _skipRewardXpValue();
+    final rewardMetaShards = _skipRewardMetaShardValue();
     _levelUpSystem.skipChoice(playerState: _playerState);
     if (!stressTest && rewardXp > 0) {
       _runSummary.xpGained += rewardXp;
@@ -1155,7 +1158,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         _levelUpSystem.queueLevels(levelsGained);
       }
     }
-    _hudState.triggerRewardMessage(_skipRewardMessage(rewardXp));
+    if (!stressTest && rewardMetaShards > 0) {
+      _runSummary.metaCurrencyBonus += rewardMetaShards;
+    }
+    _hudState.triggerRewardMessage(
+      _skipRewardMessage(rewardXp, rewardMetaShards),
+    );
     _offerSelectionIfNeeded();
   }
 
@@ -1170,6 +1178,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         _levelUpSystem.choices,
         rerollsRemaining: _levelUpSystem.rerollsRemaining,
         skipRewardXp: _skipRewardXpValue(),
+        skipRewardMetaShards: _skipRewardMetaShardValue(),
       );
     }
   }
@@ -1185,6 +1194,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         _levelUpSystem.choices,
         rerollsRemaining: _levelUpSystem.rerollsRemaining,
         skipRewardXp: _skipRewardXpValue(),
+        skipRewardMetaShards: _skipRewardMetaShardValue(),
       );
       overlays.add(SelectionOverlay.overlayKey);
     } else {
@@ -1198,11 +1208,23 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     return math.max(1, reward);
   }
 
-  String _skipRewardMessage(int rewardXp) {
-    if (rewardXp <= 0) {
+  int _skipRewardMetaShardValue() {
+    final reward = _playerState.stats.value(StatId.skipMetaShards).round();
+    return math.max(0, reward);
+  }
+
+  String _skipRewardMessage(int rewardXp, int rewardMetaShards) {
+    if (rewardXp <= 0 && rewardMetaShards <= 0) {
       return 'Skipped reward';
     }
-    return 'Skipped reward (+$rewardXp XP)';
+    final parts = <String>[];
+    if (rewardXp > 0) {
+      parts.add('+$rewardXp XP');
+    }
+    if (rewardMetaShards > 0) {
+      parts.add('+$rewardMetaShards Shards');
+    }
+    return 'Skipped reward (${parts.join(', ')})';
   }
 
   String _rewardMessageForChoice(SelectionChoice choice) {

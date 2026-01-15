@@ -10,6 +10,7 @@ class RunSummary {
     this.damageTaken = 0,
     this.metaCurrencyEarned = 0,
     this.metaRewardMultiplier = 1.0,
+    this.metaCurrencyBonus = 0,
     this.contractHeat = 0,
     this.contractNames = const [],
     this.skills = const [],
@@ -27,6 +28,7 @@ class RunSummary {
   double damageTaken;
   int metaCurrencyEarned;
   double metaRewardMultiplier;
+  int metaCurrencyBonus;
   int contractHeat;
   List<String> contractNames;
   List<SkillId> skills;
@@ -53,7 +55,8 @@ class RunSummary {
     final xpBonus = (xpGained / 20).floor();
     final completionBonus = completed ? 6 : 0;
     final total = 2 + timeBonus + xpBonus + completionBonus;
-    return math.max(0, (total * metaRewardMultiplier).round());
+    final scaled = math.max(0, (total * metaRewardMultiplier).round());
+    return math.max(0, scaled + metaCurrencyBonus);
   }
 
   void finalizeMetaCurrency() {
@@ -67,6 +70,7 @@ class RunSummary {
     damageTaken = 0;
     metaCurrencyEarned = 0;
     metaRewardMultiplier = 1.0;
+    metaCurrencyBonus = 0;
     contractHeat = 0;
     contractNames = const [];
     skills = const [];

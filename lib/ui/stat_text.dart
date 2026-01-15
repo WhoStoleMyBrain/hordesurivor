@@ -66,6 +66,8 @@ const Map<StatId, String> _labels = {
   StatId.drops: 'Drop Rate',
   StatId.rerolls: 'Rerolls',
   StatId.choiceCount: 'Choice Count',
+  StatId.banishes: 'Banishes',
+  StatId.skipMetaShards: 'Skip Meta Shards',
   StatId.cooldownRecovery: 'Cooldown Recovery',
   StatId.accuracy: 'Accuracy',
   StatId.pickupRadius: 'Pickup Radius',
@@ -86,4 +88,6 @@ const Set<StatId> _flatStats = {
   StatId.dashTeleport,
   StatId.rerolls,
   StatId.choiceCount,
+  StatId.banishes,
+  StatId.skipMetaShards,
 };

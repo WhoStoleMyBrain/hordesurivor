@@ -7,6 +7,7 @@ class ContractDef {
     required this.description,
     required this.heat,
     required this.rewardMultiplier,
+    this.metaUnlockId,
     this.enemyProjectileSpeedMultiplier = 1.0,
     this.enemyMoveSpeedMultiplier = 1.0,
     this.eliteWeightMultiplier = 1.0,
@@ -18,6 +19,7 @@ class ContractDef {
   final String description;
   final int heat;
   final double rewardMultiplier;
+  final MetaUnlockId? metaUnlockId;
   final double enemyProjectileSpeedMultiplier;
   final double enemyMoveSpeedMultiplier;
   final double eliteWeightMultiplier;
@@ -39,6 +41,7 @@ const List<ContractDef> contractDefs = [
     description: 'Champion enemies appear more frequently.',
     heat: 2,
     rewardMultiplier: 1.2,
+    metaUnlockId: MetaUnlockId.contractEscalation,
     eliteWeightMultiplier: 1.6,
   ),
   ContractDef(
@@ -63,6 +66,7 @@ const List<ContractDef> contractDefs = [
     description: 'Support lines tighten as volleys accelerate.',
     heat: 2,
     rewardMultiplier: 1.2,
+    metaUnlockId: MetaUnlockId.contractPrimer,
     enemyProjectileSpeedMultiplier: 1.2,
     supportRoleWeightMultiplier: 1.4,
   ),
@@ -72,6 +76,7 @@ const List<ContractDef> contractDefs = [
     description: 'Champions surge forward with faster advance.',
     heat: 2,
     rewardMultiplier: 1.2,
+    metaUnlockId: MetaUnlockId.contractEscalation,
     enemyMoveSpeedMultiplier: 1.15,
     eliteWeightMultiplier: 1.4,
   ),
@@ -81,6 +86,7 @@ const List<ContractDef> contractDefs = [
     description: 'Enemy volleys and advances quicken together.',
     heat: 2,
     rewardMultiplier: 1.2,
+    metaUnlockId: MetaUnlockId.contractPrimer,
     enemyProjectileSpeedMultiplier: 1.2,
     enemyMoveSpeedMultiplier: 1.1,
   ),
@@ -90,6 +96,7 @@ const List<ContractDef> contractDefs = [
     description: 'Support lines advance in tighter, faster formations.',
     heat: 2,
     rewardMultiplier: 1.2,
+    metaUnlockId: MetaUnlockId.contractEscalation,
     enemyMoveSpeedMultiplier: 1.15,
     supportRoleWeightMultiplier: 1.5,
   ),
@@ -99,6 +106,7 @@ const List<ContractDef> contractDefs = [
     description: 'Champions rally support units into denser formations.',
     heat: 2,
     rewardMultiplier: 1.2,
+    metaUnlockId: MetaUnlockId.contractEscalation,
     eliteWeightMultiplier: 1.35,
     supportRoleWeightMultiplier: 1.4,
   ),
@@ -108,6 +116,7 @@ const List<ContractDef> contractDefs = [
     description: 'Champion volleys land faster, tightening the front line.',
     heat: 2,
     rewardMultiplier: 1.2,
+    metaUnlockId: MetaUnlockId.contractRadiantMandate,
     enemyProjectileSpeedMultiplier: 1.25,
     eliteWeightMultiplier: 1.35,
   ),
@@ -117,6 +126,7 @@ const List<ContractDef> contractDefs = [
     description: 'Angelic volleys travel faster, tightening light patterns.',
     heat: 1,
     rewardMultiplier: 1.1,
+    metaUnlockId: MetaUnlockId.contractRadiantMandate,
     enemyProjectileSpeedMultiplier: 1.2,
   ),
   ContractDef(
@@ -125,6 +135,7 @@ const List<ContractDef> contractDefs = [
     description: 'Angelic formations advance faster to close the breach.',
     heat: 2,
     rewardMultiplier: 1.2,
+    metaUnlockId: MetaUnlockId.contractRadiantMandate,
     enemyMoveSpeedMultiplier: 1.2,
   ),
 ];

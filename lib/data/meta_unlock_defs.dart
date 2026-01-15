@@ -19,6 +19,8 @@ class MetaUnlockDef {
     this.prerequisites = const [],
     this.unlockedSkills = const [],
     this.unlockedItems = const [],
+    this.unlockedEnemies = const [],
+    this.unlockedContracts = const [],
   });
 
   final MetaUnlockId id;
@@ -30,6 +32,8 @@ class MetaUnlockDef {
   final List<MetaUnlockId> prerequisites;
   final List<SkillId> unlockedSkills;
   final List<ItemId> unlockedItems;
+  final List<EnemyId> unlockedEnemies;
+  final List<ContractId> unlockedContracts;
 }
 
 const List<MetaUnlockDef> metaUnlockDefs = [
@@ -42,6 +46,15 @@ const List<MetaUnlockDef> metaUnlockDefs = [
     unlockedSkills: [SkillId.windCutter],
   ),
   MetaUnlockDef(
+    id: MetaUnlockId.infernalDisruptorDossier,
+    name: 'Infernal Disruptor Dossier',
+    description: 'Authorize disruptor and zoner demon roles to enter runs.',
+    cost: 20,
+    position: MetaUnlockPosition(column: 0, row: 1),
+    prerequisites: [MetaUnlockId.fieldManual],
+    unlockedEnemies: [EnemyId.hexer, EnemyId.brimstoneBrander],
+  ),
+  MetaUnlockDef(
     id: MetaUnlockId.extraReroll,
     name: 'Emergency Reroll Token',
     description: 'Gain +1 reroll for level-up selections each run.',
@@ -51,6 +64,15 @@ const List<MetaUnlockDef> metaUnlockDefs = [
     modifiers: [
       StatModifier(stat: StatId.rerolls, amount: 1, kind: ModifierKind.flat),
     ],
+  ),
+  MetaUnlockDef(
+    id: MetaUnlockId.celestialSupportAccords,
+    name: 'Celestial Support Accords',
+    description: 'Allow angelic support units to reinforce Halo Breach.',
+    cost: 20,
+    position: MetaUnlockPosition(column: 5, row: 1),
+    prerequisites: [MetaUnlockId.fieldManual],
+    unlockedEnemies: [EnemyId.seraphMedic, EnemyId.herald],
   ),
   MetaUnlockDef(
     id: MetaUnlockId.steelShardsLicense,
@@ -69,6 +91,18 @@ const List<MetaUnlockDef> metaUnlockDefs = [
     position: MetaUnlockPosition(column: 3, row: 1),
     prerequisites: [MetaUnlockId.fieldManual],
     unlockedItems: [ItemId.thermalCoil],
+  ),
+  MetaUnlockDef(
+    id: MetaUnlockId.contractPrimer,
+    name: 'Contract Primer',
+    description: 'Unlock coordinated Contracts for seasoned operators.',
+    cost: 30,
+    position: MetaUnlockPosition(column: 4, row: 1),
+    prerequisites: [MetaUnlockId.fieldManual],
+    unlockedContracts: [
+      ContractId.coordinatedAssault,
+      ContractId.crossfireRush,
+    ],
   ),
   MetaUnlockDef(
     id: MetaUnlockId.sporeSatchelKit,
@@ -92,6 +126,17 @@ const List<MetaUnlockDef> metaUnlockDefs = [
         amount: 1,
         kind: ModifierKind.flat,
       ),
+    ],
+  ),
+  MetaUnlockDef(
+    id: MetaUnlockId.reserveRerollCache,
+    name: 'Reserve Reroll Cache',
+    description: 'Gain +1 additional reroll each run.',
+    cost: 90,
+    position: MetaUnlockPosition(column: 1, row: 4),
+    prerequisites: [MetaUnlockId.extraReroll],
+    modifiers: [
+      StatModifier(stat: StatId.rerolls, amount: 1, kind: ModifierKind.flat),
     ],
   ),
   MetaUnlockDef(
@@ -120,6 +165,29 @@ const List<MetaUnlockDef> metaUnlockDefs = [
     position: MetaUnlockPosition(column: 4, row: 2),
     prerequisites: [MetaUnlockId.thermalCoilBlueprint],
     unlockedItems: [ItemId.gravelBoots],
+  ),
+  MetaUnlockDef(
+    id: MetaUnlockId.contractEscalation,
+    name: 'Contract Escalation',
+    description: 'Unlock escalation Contracts with elite and support pressure.',
+    cost: 75,
+    position: MetaUnlockPosition(column: 5, row: 2),
+    prerequisites: [MetaUnlockId.contractPrimer],
+    unlockedContracts: [
+      ContractId.eliteSurge,
+      ContractId.hardenedOnslaught,
+      ContractId.siegeFormation,
+      ContractId.commandingPresence,
+    ],
+  ),
+  MetaUnlockDef(
+    id: MetaUnlockId.celestialWardEdict,
+    name: 'Celestial Ward Edict',
+    description: 'Authorize angelic wardens to deploy light zones.',
+    cost: 40,
+    position: MetaUnlockPosition(column: 6, row: 2),
+    prerequisites: [MetaUnlockId.celestialSupportAccords],
+    unlockedEnemies: [EnemyId.warden],
   ),
   MetaUnlockDef(
     id: MetaUnlockId.sporeBurstCulture,
@@ -174,6 +242,74 @@ const List<MetaUnlockDef> metaUnlockDefs = [
     position: MetaUnlockPosition(column: 2, row: 4),
     prerequisites: [MetaUnlockId.frostNovaDiagram],
     unlockedSkills: [SkillId.earthSpikes],
+  ),
+  MetaUnlockDef(
+    id: MetaUnlockId.infernalAnnihilatorDossier,
+    name: 'Infernal Annihilator Dossier',
+    description: 'Authorize elite and exploder demon roles to deploy.',
+    cost: 45,
+    position: MetaUnlockPosition(column: 0, row: 4),
+    prerequisites: [MetaUnlockId.infernalDisruptorDossier],
+    unlockedEnemies: [EnemyId.cinderling, EnemyId.hellknight],
+  ),
+  MetaUnlockDef(
+    id: MetaUnlockId.celestialVanguardWarrant,
+    name: 'Celestial Vanguard Warrant',
+    description: 'Unlock angelic vanguard patrols and elite lancers.',
+    cost: 55,
+    position: MetaUnlockPosition(column: 6, row: 3),
+    prerequisites: [MetaUnlockId.celestialWardEdict],
+    unlockedEnemies: [EnemyId.sentinel, EnemyId.archonLancer],
+  ),
+  MetaUnlockDef(
+    id: MetaUnlockId.contractRadiantMandate,
+    name: 'Radiant Mandate',
+    description: 'Unlock radiant Contracts to intensify volley pressure.',
+    cost: 85,
+    position: MetaUnlockPosition(column: 5, row: 3),
+    prerequisites: [MetaUnlockId.contractPrimer],
+    unlockedContracts: [
+      ContractId.vanguardVolley,
+      ContractId.radiantBarrage,
+      ContractId.radiantPursuit,
+    ],
+  ),
+  MetaUnlockDef(
+    id: MetaUnlockId.banishWrit,
+    name: 'Banish Writ',
+    description: 'Gain +1 banish for future level-up selections.',
+    cost: 50,
+    position: MetaUnlockPosition(column: 3, row: 4),
+    prerequisites: [MetaUnlockId.extraChoice],
+    modifiers: [
+      StatModifier(stat: StatId.banishes, amount: 1, kind: ModifierKind.flat),
+    ],
+  ),
+  MetaUnlockDef(
+    id: MetaUnlockId.salvageProtocol,
+    name: 'Salvage Protocol',
+    description: 'Skipping a reward grants +1 Meta Shard on the run.',
+    cost: 70,
+    position: MetaUnlockPosition(column: 4, row: 4),
+    prerequisites: [MetaUnlockId.extraChoice],
+    modifiers: [
+      StatModifier(
+        stat: StatId.skipMetaShards,
+        amount: 1,
+        kind: ModifierKind.flat,
+      ),
+    ],
+  ),
+  MetaUnlockDef(
+    id: MetaUnlockId.banishCodex,
+    name: 'Banish Codex',
+    description: 'Gain +1 additional banish for level-up selections.',
+    cost: 80,
+    position: MetaUnlockPosition(column: 5, row: 4),
+    prerequisites: [MetaUnlockId.banishWrit],
+    modifiers: [
+      StatModifier(stat: StatId.banishes, amount: 1, kind: ModifierKind.flat),
+    ],
   ),
 ];
 

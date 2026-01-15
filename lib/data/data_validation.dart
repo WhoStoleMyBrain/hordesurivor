@@ -157,7 +157,9 @@ DataValidationResult validateGameData() {
     }
     if (def.modifiers.isEmpty &&
         def.unlockedSkills.isEmpty &&
-        def.unlockedItems.isEmpty) {
+        def.unlockedItems.isEmpty &&
+        def.unlockedEnemies.isEmpty &&
+        def.unlockedContracts.isEmpty) {
       result.errors.add('MetaUnlockDef ${def.id} has no effects.');
     }
     for (final prereq in def.prerequisites) {
@@ -193,6 +195,32 @@ DataValidationResult validateGameData() {
         );
       }
     }
+    for (final enemyId in def.unlockedEnemies) {
+      final enemy = enemyDefsById[enemyId];
+      if (enemy == null) {
+        result.errors.add(
+          'MetaUnlockDef ${def.id} unlocks missing enemy $enemyId.',
+        );
+      } else if (enemy.metaUnlockId != def.id) {
+        result.errors.add(
+          'MetaUnlockDef ${def.id} unlocks enemy $enemyId without matching '
+          'metaUnlockId.',
+        );
+      }
+    }
+    for (final contractId in def.unlockedContracts) {
+      final contract = contractDefsById[contractId];
+      if (contract == null) {
+        result.errors.add(
+          'MetaUnlockDef ${def.id} unlocks missing contract $contractId.',
+        );
+      } else if (contract.metaUnlockId != def.id) {
+        result.errors.add(
+          'MetaUnlockDef ${def.id} unlocks contract $contractId without '
+          'matching metaUnlockId.',
+        );
+      }
+    }
   }
 
   for (final def in contractDefs) {
@@ -201,6 +229,13 @@ DataValidationResult validateGameData() {
     }
     if (def.rewardMultiplier < 1) {
       result.errors.add('ContractDef ${def.id} has rewardMultiplier below 1.');
+    }
+    if (def.metaUnlockId != null &&
+        !metaUnlockDefsById.containsKey(def.metaUnlockId)) {
+      result.errors.add(
+        'ContractDef ${def.id} references missing meta unlock '
+        '${def.metaUnlockId}.',
+      );
     }
   }
 
@@ -243,6 +278,13 @@ DataValidationResult validateGameData() {
     }
     if (def.weight <= 0) {
       result.errors.add('EnemyDef ${def.id} has non-positive weight.');
+    }
+    if (def.metaUnlockId != null &&
+        !metaUnlockDefsById.containsKey(def.metaUnlockId)) {
+      result.errors.add(
+        'EnemyDef ${def.id} references missing meta unlock '
+        '${def.metaUnlockId}.',
+      );
     }
     if (def.role == EnemyRole.spawner && def.spawnCount > 0) {
       if (def.spawnEnemyId == null) {

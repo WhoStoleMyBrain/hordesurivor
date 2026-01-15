@@ -94,6 +94,10 @@ enum MetaUnlockId {
   fieldManual,
   extraReroll,
   extraChoice,
+  reserveRerollCache,
+  banishWrit,
+  banishCodex,
+  salvageProtocol,
   steelShardsLicense,
   thermalCoilBlueprint,
   sporeSatchelKit,
@@ -106,6 +110,14 @@ enum MetaUnlockId {
   serratedEdgeRecipe,
   mercyCharmVow,
   earthSpikesSurvey,
+  infernalDisruptorDossier,
+  infernalAnnihilatorDossier,
+  celestialSupportAccords,
+  celestialWardEdict,
+  celestialVanguardWarrant,
+  contractPrimer,
+  contractEscalation,
+  contractRadiantMandate,
 }
 
 enum ContractId {

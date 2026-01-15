@@ -170,6 +170,7 @@ class HordeSurvivorApp extends StatelessWidget {
         AreaSelectScreen.overlayKey: (_, game) => AreaSelectScreen(
           onAreaSelected: game.beginStageFromAreaSelect,
           onReturn: game.returnToHomeBase,
+          unlocks: game.metaUnlocks,
         ),
         DeathScreen.overlayKey: (_, game) => DeathScreen(
           summary: game.runSummary,
