@@ -14,6 +14,11 @@ enum SkillId {
   frostNova,
   earthSpikes,
   sporeBurst,
+  scrapRover,
+  arcTurret,
+  guardianOrbs,
+  menderOrb,
+  mineLayer,
 }
 
 enum SkillUpgradeId {

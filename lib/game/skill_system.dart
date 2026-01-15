@@ -15,14 +15,18 @@ import 'projectile_pool.dart';
 import 'projectile_state.dart';
 import 'spatial_grid.dart';
 import 'stat_sheet.dart';
+import 'summon_pool.dart';
+import 'summon_state.dart';
 
 class SkillSystem {
   SkillSystem({
     required EffectPool effectPool,
     required ProjectilePool projectilePool,
+    required SummonPool summonPool,
     List<SkillSlot>? skillSlots,
   }) : _effectPool = effectPool,
        _projectilePool = projectilePool,
+       _summonPool = summonPool,
        _skills = skillSlots ?? _defaultSkillSlots();
 
   static const Map<SkillId, double> _baseCooldowns = {
@@ -41,15 +45,23 @@ class SkillSystem {
     SkillId.frostNova: 1.4,
     SkillId.earthSpikes: 1.3,
     SkillId.sporeBurst: 1.0,
+    SkillId.scrapRover: 1.3,
+    SkillId.arcTurret: 1.6,
+    SkillId.guardianOrbs: 1.4,
+    SkillId.menderOrb: 1.5,
+    SkillId.mineLayer: 1.0,
   };
 
   final EffectPool _effectPool;
   final ProjectilePool _projectilePool;
+  final SummonPool _summonPool;
   final List<SkillSlot> _skills;
   final Vector2 _aimBuffer = Vector2.zero();
   final Vector2 _fallbackDirection = Vector2(1, 0);
   final List<EnemyState> _queryBuffer = [];
   final List<ProjectileState> _projectileQueryBuffer = [];
+  final Vector2 _spawnOffset = Vector2.zero();
+  double _orbitSeed = 0;
 
   static List<SkillSlot> _defaultSkillSlots() {
     return [
@@ -95,6 +107,7 @@ class SkillSystem {
     required void Function(ProjectileState) onProjectileSpawn,
     required void Function(EffectState) onEffectSpawn,
     required void Function(ProjectileState) onProjectileDespawn,
+    required void Function(SummonState) onSummonSpawn,
     required void Function({required double radius, required double duration})
     onPlayerDeflect,
     required void Function(
@@ -236,6 +249,37 @@ class SkillSystem {
               onProjectileSpawn: onProjectileSpawn,
             );
             break;
+          case SkillId.scrapRover:
+            _castScrapRover(
+              playerPosition: playerPosition,
+              stats: stats,
+              onSummonSpawn: onSummonSpawn,
+            );
+          case SkillId.arcTurret:
+            _castArcTurret(
+              playerPosition: playerPosition,
+              stats: stats,
+              onSummonSpawn: onSummonSpawn,
+            );
+          case SkillId.guardianOrbs:
+            _castGuardianOrbs(
+              playerPosition: playerPosition,
+              stats: stats,
+              onSummonSpawn: onSummonSpawn,
+            );
+          case SkillId.menderOrb:
+            _castMenderOrb(
+              playerPosition: playerPosition,
+              stats: stats,
+              onSummonSpawn: onSummonSpawn,
+            );
+          case SkillId.mineLayer:
+            _castMineLayer(
+              playerPosition: playerPosition,
+              aimDirection: aimDirection,
+              stats: stats,
+              onSummonSpawn: onSummonSpawn,
+            );
         }
         skill.cooldownRemaining += skill.cooldown;
       }
@@ -789,6 +833,130 @@ class SkillSystem {
     );
   }
 
+  void _castScrapRover({
+    required Vector2 playerPosition,
+    required StatSheet stats,
+    required void Function(SummonState) onSummonSpawn,
+  }) {
+    final summon = _summonPool.acquire();
+    final damage = 9 * _damageMultiplierFor(SkillId.scrapRover, stats);
+    _orbitSeed += math.pi * 0.7;
+    summon.reset(
+      kind: SummonKind.scrapRover,
+      sourceSkillId: SkillId.scrapRover,
+      position: playerPosition,
+      radius: 10,
+      orbitAngle: _orbitSeed,
+      orbitRadius: 36,
+      orbitSpeed: 2.4,
+      moveSpeed: 120,
+      damagePerSecond: damage,
+      range: 160,
+      lifespan: 6,
+    );
+    onSummonSpawn(summon);
+  }
+
+  void _castArcTurret({
+    required Vector2 playerPosition,
+    required StatSheet stats,
+    required void Function(SummonState) onSummonSpawn,
+  }) {
+    final summon = _summonPool.acquire();
+    final damage = 6 * _damageMultiplierFor(SkillId.arcTurret, stats);
+    _orbitSeed += math.pi * 0.5;
+    summon.reset(
+      kind: SummonKind.arcTurret,
+      sourceSkillId: SkillId.arcTurret,
+      position: playerPosition,
+      radius: 8,
+      orbitAngle: _orbitSeed,
+      orbitRadius: 44,
+      orbitSpeed: 1.6,
+      projectileDamage: damage,
+      projectileSpeed: 260,
+      projectileRadius: GameSizes.projectileRadius(3),
+      range: 220,
+      lifespan: 7,
+      attackCooldown: 0.75 / _attackSpeedScale(stats),
+    );
+    onSummonSpawn(summon);
+  }
+
+  void _castGuardianOrbs({
+    required Vector2 playerPosition,
+    required StatSheet stats,
+    required void Function(SummonState) onSummonSpawn,
+  }) {
+    final damage = 5 * _damageMultiplierFor(SkillId.guardianOrbs, stats);
+    for (var index = 0; index < 2; index++) {
+      final summon = _summonPool.acquire();
+      _orbitSeed += math.pi;
+      summon.reset(
+        kind: SummonKind.guardianOrb,
+        sourceSkillId: SkillId.guardianOrbs,
+        position: playerPosition,
+        radius: 18,
+        orbitAngle: _orbitSeed,
+        orbitRadius: 34,
+        orbitSpeed: 2.8,
+        damagePerSecond: damage,
+        lifespan: 5,
+      );
+      onSummonSpawn(summon);
+    }
+  }
+
+  void _castMenderOrb({
+    required Vector2 playerPosition,
+    required StatSheet stats,
+    required void Function(SummonState) onSummonSpawn,
+  }) {
+    final summon = _summonPool.acquire();
+    _orbitSeed += math.pi * 0.35;
+    summon.reset(
+      kind: SummonKind.menderOrb,
+      sourceSkillId: SkillId.menderOrb,
+      position: playerPosition,
+      radius: 14,
+      orbitAngle: _orbitSeed,
+      orbitRadius: 38,
+      orbitSpeed: 2.2,
+      healingPerSecond: 3.2 * _supportMultiplier(stats),
+      lifespan: 6,
+    );
+    onSummonSpawn(summon);
+  }
+
+  void _castMineLayer({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required StatSheet stats,
+    required void Function(SummonState) onSummonSpawn,
+  }) {
+    final direction = _resolveAim(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: null,
+    );
+    _spawnOffset
+      ..setFrom(direction)
+      ..scale(28);
+    final summon = _summonPool.acquire();
+    summon.reset(
+      kind: SummonKind.mine,
+      sourceSkillId: SkillId.mineLayer,
+      position: playerPosition + _spawnOffset,
+      radius: 6,
+      lifespan: 5,
+      triggerRadius: 22,
+      blastRadius: 36,
+      blastDamage: 12 * _damageMultiplierFor(SkillId.mineLayer, stats),
+      armDuration: 0.25,
+    );
+    onSummonSpawn(summon);
+  }
+
   void _castMeleeArc({
     required Vector2 playerPosition,
     required Vector2 aimDirection,
@@ -875,21 +1043,23 @@ class SkillSystem {
   Vector2 _resolveAim({
     required Vector2 playerPosition,
     required Vector2 aimDirection,
-    required EnemyPool enemyPool,
+    required EnemyPool? enemyPool,
   }) {
     var closestDistance = double.infinity;
     var closestDx = 0.0;
     var closestDy = 0.0;
     var hasTarget = false;
-    for (final enemy in enemyPool.active) {
-      final dx = enemy.position.x - playerPosition.x;
-      final dy = enemy.position.y - playerPosition.y;
-      final distance = dx * dx + dy * dy;
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestDx = dx;
-        closestDy = dy;
-        hasTarget = true;
+    if (enemyPool != null) {
+      for (final enemy in enemyPool.active) {
+        final dx = enemy.position.x - playerPosition.x;
+        final dy = enemy.position.y - playerPosition.y;
+        final distance = dx * dx + dy * dy;
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestDx = dx;
+          closestDy = dy;
+          hasTarget = true;
+        }
       }
     }
 
@@ -909,6 +1079,15 @@ class SkillSystem {
     final attackSpeed = stats.value(StatId.attackSpeed);
     final cooldownRecovery = stats.value(StatId.cooldownRecovery);
     return math.max(0.1, 1 + attackSpeed + cooldownRecovery);
+  }
+
+  double _attackSpeedScale(StatSheet stats) {
+    final attackSpeed = stats.value(StatId.attackSpeed);
+    return math.max(0.1, 1 + attackSpeed);
+  }
+
+  double _supportMultiplier(StatSheet stats) {
+    return math.max(0.1, 1 + stats.value(StatId.healingReceived));
   }
 
   double _aoeScale(StatSheet stats) {
