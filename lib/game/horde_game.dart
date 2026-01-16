@@ -86,7 +86,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   static const double _fixedDelta = 1 / 60;
   static const double _playerRadius = GameSizes.playerRadius;
-  static const double _playerSpeed = 80;
+  static const double _playerSpeed = 120;
   static const double _playerMaxHp = 100;
   static const double _enemyRadius = GameSizes.enemyRadius;
   static const double _enemyContactDamagePerSecond = 12;
