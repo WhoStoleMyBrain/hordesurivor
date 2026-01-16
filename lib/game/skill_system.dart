@@ -45,17 +45,22 @@ class SkillSystem {
     SkillId.frostNova: 1.4,
     SkillId.earthSpikes: 1.3,
     SkillId.sporeBurst: 1.0,
-    SkillId.scrapRover: 1.3,
+    SkillId.scrapRover: 9.5,
     SkillId.arcTurret: 1.6,
     SkillId.guardianOrbs: 1.4,
-    SkillId.menderOrb: 1.5,
-    SkillId.mineLayer: 1.0,
+    SkillId.menderOrb: 9.5,
+    SkillId.mineLayer: 8.0,
   };
 
   final EffectPool _effectPool;
   final ProjectilePool _projectilePool;
   final SummonPool _summonPool;
   final List<SkillSlot> _skills;
+  final Set<SkillId> _passiveSummonSkills = {
+    SkillId.arcTurret,
+    SkillId.guardianOrbs,
+  };
+  final List<SkillId> _pendingPassiveSummons = [];
   final Vector2 _aimBuffer = Vector2.zero();
   final Vector2 _fallbackDirection = Vector2(1, 0);
   final List<EnemyState> _queryBuffer = [];
@@ -89,12 +94,16 @@ class SkillSystem {
     }
     final cooldown = _baseCooldowns[id] ?? 1.0;
     _skills.add(SkillSlot(id: id, cooldown: cooldown));
+    if (_passiveSummonSkills.contains(id)) {
+      _pendingPassiveSummons.add(id);
+    }
   }
 
   void resetToDefaults() {
     _skills
       ..clear()
       ..addAll(_defaultSkillSlots());
+    _pendingPassiveSummons.clear();
   }
 
   void update({
@@ -122,7 +131,22 @@ class SkillSystem {
   }) {
     final cooldownSpeed = _cooldownSpeed(stats);
     final adjustedDt = dt * cooldownSpeed;
+    if (_pendingPassiveSummons.isNotEmpty) {
+      final pending = List<SkillId>.from(_pendingPassiveSummons);
+      _pendingPassiveSummons.clear();
+      for (final skillId in pending) {
+        _spawnPassiveSummon(
+          skillId: skillId,
+          playerPosition: playerPosition,
+          stats: stats,
+          onSummonSpawn: onSummonSpawn,
+        );
+      }
+    }
     for (final skill in _skills) {
+      if (_passiveSummonSkills.contains(skill.id)) {
+        continue;
+      }
       skill.cooldownRemaining -= adjustedDt;
       while (skill.cooldownRemaining < 0) {
         switch (skill.id) {
@@ -877,7 +901,7 @@ class SkillSystem {
       projectileSpeed: 260,
       projectileRadius: GameSizes.projectileRadius(3),
       range: 220,
-      lifespan: 7,
+      lifespan: double.infinity,
       attackCooldown: 0.75 / _attackSpeedScale(stats),
     );
     onSummonSpawn(summon);
@@ -901,7 +925,7 @@ class SkillSystem {
         orbitRadius: 34,
         orbitSpeed: 2.8,
         damagePerSecond: damage,
-        lifespan: 5,
+        lifespan: double.infinity,
       );
       onSummonSpawn(summon);
     }
@@ -955,6 +979,47 @@ class SkillSystem {
       armDuration: 0.25,
     );
     onSummonSpawn(summon);
+  }
+
+  void _spawnPassiveSummon({
+    required SkillId skillId,
+    required Vector2 playerPosition,
+    required StatSheet stats,
+    required void Function(SummonState) onSummonSpawn,
+  }) {
+    switch (skillId) {
+      case SkillId.arcTurret:
+        _castArcTurret(
+          playerPosition: playerPosition,
+          stats: stats,
+          onSummonSpawn: onSummonSpawn,
+        );
+      case SkillId.guardianOrbs:
+        _castGuardianOrbs(
+          playerPosition: playerPosition,
+          stats: stats,
+          onSummonSpawn: onSummonSpawn,
+        );
+      case SkillId.fireball:
+      case SkillId.swordCut:
+      case SkillId.waterjet:
+      case SkillId.oilBombs:
+      case SkillId.swordThrust:
+      case SkillId.swordSwing:
+      case SkillId.swordDeflect:
+      case SkillId.poisonGas:
+      case SkillId.roots:
+      case SkillId.windCutter:
+      case SkillId.steelShards:
+      case SkillId.flameWave:
+      case SkillId.frostNova:
+      case SkillId.earthSpikes:
+      case SkillId.sporeBurst:
+      case SkillId.scrapRover:
+      case SkillId.menderOrb:
+      case SkillId.mineLayer:
+        break;
+    }
   }
 
   void _castMeleeArc({
