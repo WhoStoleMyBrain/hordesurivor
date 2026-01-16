@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 
+import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/text.dart';
@@ -310,6 +311,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
     _playerComponent.syncWithState();
     await add(_playerComponent);
+    camera.viewfinder.anchor = Anchor.center;
+    _syncCamera();
 
     _updatePortalPosition();
     _portalComponent.position.setFrom(_portalPosition);
@@ -461,10 +464,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         _stepHomeBase(_fixedDelta);
         _accumulator -= _fixedDelta;
       }
+      _syncCamera();
       super.update(dt);
       return;
     }
     if (_flowState != GameFlowState.stage) {
+      _syncCamera();
       super.update(dt);
       return;
     }
@@ -476,6 +481,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _step(_fixedDelta);
       _accumulator -= _fixedDelta;
     }
+    _syncCamera();
     super.update(dt);
   }
 
@@ -611,6 +617,17 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _syncHudState();
 
     _playerComponent.syncWithState();
+  }
+
+  void _syncCamera() {
+    camera.viewfinder.position.setFrom(_playerState.position);
+    final fovScale = (1 + _playerState.stats.value(StatId.fieldOfView))
+        .clamp(0.5, 1.75)
+        .toDouble();
+    final zoom = (GameSizes.baseCameraZoom / fovScale)
+        .clamp(GameSizes.minCameraZoom, GameSizes.maxCameraZoom)
+        .toDouble();
+    camera.viewfinder.zoom = zoom;
   }
 
   void beginHomeBaseFromStartScreen() {

@@ -38,6 +38,7 @@ enum StatId {
   accuracy,
   pickupRadius,
   selfExplosionDamageTaken,
+  fieldOfView,
 }
 
 enum ModifierKind { flat, percent }
