@@ -72,6 +72,7 @@ const Map<StatId, String> _labels = {
   StatId.accuracy: 'Accuracy',
   StatId.pickupRadius: 'Pickup Radius',
   StatId.selfExplosionDamageTaken: 'Self Explosion Damage Taken',
+  StatId.fieldOfView: 'Field of View',
 };
 
 const Set<StatId> _flatStats = {

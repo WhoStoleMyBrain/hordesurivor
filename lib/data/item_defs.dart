@@ -73,9 +73,10 @@ const List<ItemDef> itemDefs = [
   ItemDef(
     id: ItemId.wideLens,
     name: 'Wide Lens',
-    description: 'Broader impact area with slower cadence.',
+    description: 'Broader impact area and view with slower cadence.',
     modifiers: [
       StatModifier(stat: StatId.aoeSize, amount: 0.25),
+      StatModifier(stat: StatId.fieldOfView, amount: 0.1),
       StatModifier(stat: StatId.attackSpeed, amount: -0.15),
     ],
     tags: TagSet(effects: {EffectTag.aoe}),
