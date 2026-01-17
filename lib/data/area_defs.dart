@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'ids.dart';
+import 'map_size.dart';
 import 'tags.dart';
 
 class StageSection {
@@ -60,6 +63,8 @@ class AreaDef {
     required this.description,
     required this.recommendedLevel,
     required this.lootProfile,
+    required this.mapSize,
+    required this.backgroundColor,
     required this.stageDuration,
     required this.sections,
     this.spriteId,
@@ -78,6 +83,8 @@ class AreaDef {
   final String? spriteId;
   final int recommendedLevel;
   final String lootProfile;
+  final MapSize mapSize;
+  final Color backgroundColor;
   final List<String> enemyThemes;
   final List<String> difficultyTiers;
   final List<String> lootModifiers;
@@ -97,6 +104,8 @@ const List<AreaDef> areaDefs = [
     spriteId: 'area_ashen_outskirts',
     recommendedLevel: 1,
     lootProfile: 'embers',
+    mapSize: MapSize(width: 2400, height: 1700),
+    backgroundColor: Color(0xFF17120F),
     enemyThemes: ['Demons'],
     lootModifiers: ['+Ember shards'],
     mapMutators: ['Falling embers'],
@@ -171,6 +180,8 @@ const List<AreaDef> areaDefs = [
     spriteId: 'area_halo_breach',
     recommendedLevel: 2,
     lootProfile: 'radiance',
+    mapSize: MapSize(width: 2600, height: 1900),
+    backgroundColor: Color(0xFF101722),
     enemyThemes: ['Angels'],
     lootModifiers: ['+Radiant sigils'],
     mapMutators: ['Unstable light zones'],

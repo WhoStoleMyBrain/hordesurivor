@@ -426,6 +426,9 @@ DataValidationResult validateGameData() {
     if (def.recommendedLevel < 0) {
       result.errors.add('AreaDef ${def.id} has negative recommendedLevel.');
     }
+    if (def.mapSize.width <= 0 || def.mapSize.height <= 0) {
+      result.errors.add('AreaDef ${def.id} has invalid map size.');
+    }
     if (def.sections.isEmpty) {
       result.errors.add('AreaDef ${def.id} has no stage sections.');
     }

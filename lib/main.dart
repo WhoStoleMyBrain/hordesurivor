@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart' hide SelectionOverlay;
 
@@ -16,6 +18,7 @@ import 'ui/options_screen.dart';
 import 'ui/selection_overlay.dart';
 import 'ui/start_screen.dart';
 import 'ui/stats_overlay.dart';
+import 'ui/run_stats_panel.dart';
 import 'ui/ui_scale.dart';
 import 'ui/virtual_stick_overlay.dart';
 import 'game/game_flow_state.dart';
@@ -106,90 +109,138 @@ class HordeSurvivorApp extends StatelessWidget {
     );
   }
 
-  GameWidget<HordeGame> _buildGame({required bool stressTest}) {
-    return GameWidget<HordeGame>(
-      game: HordeGame(stressTest: stressTest),
-      overlayBuilderMap: {
-        HudOverlay.overlayKey: (context, game) => HudOverlay(
-          hudState: game.hudState,
-          onExitStressTest: game.stressTest
-              ? () => Navigator.of(context).pushReplacementNamed('/')
-              : null,
-        ),
-        VirtualStickOverlay.overlayKey: (_, game) =>
-            VirtualStickOverlay(state: game.virtualStickState),
-        SelectionOverlay.overlayKey: (_, game) => SelectionOverlay(
-          selectionState: game.selectionState,
-          onSelected: game.selectChoice,
-          onReroll: game.rerollSelection,
-          onSkip: game.skipSelection,
-        ),
-        StatsOverlay.overlayKey: (_, game) => StatsOverlay(
-          state: game.statsScreenState,
-          onClose: game.toggleStatsOverlay,
-        ),
-        StartScreen.overlayKey: (context, game) => StartScreen(
-          onStart: game.beginHomeBaseFromStartScreen,
-          onOptions: game.openOptionsFromStartScreen,
-          onCompendium: game.openCompendiumFromStartScreen,
-          onMetaUnlocks: game.openMetaUnlocksFromStartScreen,
-          onStressTest: () =>
-              Navigator.of(context).pushReplacementNamed('/stress'),
-          wallet: game.metaWallet,
-        ),
-        OptionsScreen.overlayKey: (_, game) => OptionsScreen(
-          onClose: game.closeOptionsScreen,
-          highContrastTelegraphs: game.highContrastTelegraphs,
-          onHighContrastTelegraphsChanged: game.setHighContrastTelegraphs,
-          textScale: UiScale.textScaleListenable,
-          onTextScaleChanged: UiScale.setTextScale,
-        ),
-        CompendiumScreen.overlayKey: (_, game) =>
-            CompendiumScreen(onClose: game.closeCompendiumScreen),
-        MetaUnlockScreen.overlayKey: (_, game) => MetaUnlockScreen(
-          wallet: game.metaWallet,
-          unlocks: game.metaUnlocks,
-          onClose: game.closeMetaUnlocksScreen,
-        ),
-        EscapeMenuOverlay.overlayKey: (context, game) => EscapeMenuOverlay(
-          inRun: game.flowState == GameFlowState.stage,
-          wallet: game.metaWallet,
-          onClose: game.closeEscapeMenu,
-          onEnterHomeBase: game.enterHomeBaseFromMenu,
-          onOptions: game.openOptionsFromMenu,
-          onCompendium: game.openCompendiumFromMenu,
-          onMetaUnlocks: game.openMetaUnlocksFromMenu,
-          onStressTest: () =>
-              Navigator.of(context).pushReplacementNamed('/stress'),
-          statsState: game.statsScreenState,
-          onContinue: game.continueRunFromMenu,
-          onAbort: game.abortRunFromMenu,
-        ),
-        HomeBaseOverlay.overlayKey: (_, game) =>
-            HomeBaseOverlay(wallet: game.metaWallet),
-        AreaSelectScreen.overlayKey: (_, game) => AreaSelectScreen(
-          onAreaSelected: game.beginStageFromAreaSelect,
-          onReturn: game.returnToHomeBase,
-          unlocks: game.metaUnlocks,
-        ),
-        DeathScreen.overlayKey: (_, game) => DeathScreen(
-          summary: game.runSummary,
-          completed: game.runCompleted,
-          onRestart: game.restartRunFromDeath,
-          onReturn: game.returnToHomeBaseFromDeath,
-          wallet: game.metaWallet,
-        ),
-        FirstRunHintsOverlay.overlayKey: (_, game) =>
-            FirstRunHintsOverlay(onDismiss: game.dismissFirstRunHints),
-        FlowDebugOverlay.overlayKey: (_, game) => FlowDebugOverlay(
-          flowState: game.flowState,
-          onSelectState: game.debugJumpToState,
-          onClose: game.toggleFlowDebugOverlay,
-        ),
+  Widget _buildGame({required bool stressTest}) {
+    return _GameShell(stressTest: stressTest);
+  }
+}
+
+class _GameShell extends StatefulWidget {
+  const _GameShell({required this.stressTest});
+
+  final bool stressTest;
+
+  @override
+  State<_GameShell> createState() => _GameShellState();
+}
+
+class _GameShellState extends State<_GameShell> {
+  late final HordeGame _game;
+
+  @override
+  void initState() {
+    super.initState();
+    _game = HordeGame(stressTest: widget.stressTest);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final targetWidth = constraints.maxWidth * 0.28;
+        final panelWidth = math.min(360.0, math.max(240.0, targetWidth));
+        return Row(
+          children: [
+            SizedBox(
+              width: panelWidth,
+              child: RunStatsPanel(state: _game.statsScreenState),
+            ),
+            Expanded(
+              child: GameWidget<HordeGame>(
+                game: _game,
+                overlayBuilderMap: {
+                  HudOverlay.overlayKey: (context, game) => HudOverlay(
+                    hudState: game.hudState,
+                    onExitStressTest: game.stressTest
+                        ? () => Navigator.of(context).pushReplacementNamed('/')
+                        : null,
+                  ),
+                  VirtualStickOverlay.overlayKey: (_, game) =>
+                      VirtualStickOverlay(state: game.virtualStickState),
+                  SelectionOverlay.overlayKey: (_, game) => SelectionOverlay(
+                    selectionState: game.selectionState,
+                    onSelected: game.selectChoice,
+                    onReroll: game.rerollSelection,
+                    onSkip: game.skipSelection,
+                  ),
+                  StatsOverlay.overlayKey: (_, game) => StatsOverlay(
+                    state: game.statsScreenState,
+                    onClose: game.toggleStatsOverlay,
+                  ),
+                  StartScreen.overlayKey: (context, game) => StartScreen(
+                    onStart: game.beginHomeBaseFromStartScreen,
+                    onOptions: game.openOptionsFromStartScreen,
+                    onCompendium: game.openCompendiumFromStartScreen,
+                    onMetaUnlocks: game.openMetaUnlocksFromStartScreen,
+                    onStressTest: () =>
+                        Navigator.of(context).pushReplacementNamed('/stress'),
+                    wallet: game.metaWallet,
+                  ),
+                  OptionsScreen.overlayKey: (_, game) => OptionsScreen(
+                    onClose: game.closeOptionsScreen,
+                    highContrastTelegraphs: game.highContrastTelegraphs,
+                    onHighContrastTelegraphsChanged:
+                        game.setHighContrastTelegraphs,
+                    textScale: UiScale.textScaleListenable,
+                    onTextScaleChanged: UiScale.setTextScale,
+                  ),
+                  CompendiumScreen.overlayKey: (_, game) =>
+                      CompendiumScreen(onClose: game.closeCompendiumScreen),
+                  MetaUnlockScreen.overlayKey: (_, game) => MetaUnlockScreen(
+                    wallet: game.metaWallet,
+                    unlocks: game.metaUnlocks,
+                    onClose: game.closeMetaUnlocksScreen,
+                  ),
+                  EscapeMenuOverlay.overlayKey: (context, game) =>
+                      EscapeMenuOverlay(
+                        inRun: game.flowState == GameFlowState.stage,
+                        wallet: game.metaWallet,
+                        onClose: game.closeEscapeMenu,
+                        onEnterHomeBase: game.enterHomeBaseFromMenu,
+                        onOptions: game.openOptionsFromMenu,
+                        onCompendium: game.openCompendiumFromMenu,
+                        onMetaUnlocks: game.openMetaUnlocksFromMenu,
+                        onStressTest: () => Navigator.of(
+                          context,
+                        ).pushReplacementNamed('/stress'),
+                        statsState: game.statsScreenState,
+                        onContinue: game.continueRunFromMenu,
+                        onAbort: game.abortRunFromMenu,
+                      ),
+                  HomeBaseOverlay.overlayKey: (_, game) =>
+                      HomeBaseOverlay(wallet: game.metaWallet),
+                  AreaSelectScreen.overlayKey: (_, game) => AreaSelectScreen(
+                    onAreaSelected: game.beginStageFromAreaSelect,
+                    onReturn: game.returnToHomeBase,
+                    unlocks: game.metaUnlocks,
+                  ),
+                  DeathScreen.overlayKey: (_, game) => DeathScreen(
+                    summary: game.runSummary,
+                    completed: game.runCompleted,
+                    onRestart: game.restartRunFromDeath,
+                    onReturn: game.returnToHomeBaseFromDeath,
+                    wallet: game.metaWallet,
+                  ),
+                  FirstRunHintsOverlay.overlayKey: (_, game) =>
+                      FirstRunHintsOverlay(
+                        onDismiss: game.dismissFirstRunHints,
+                      ),
+                  FlowDebugOverlay.overlayKey: (_, game) => FlowDebugOverlay(
+                    flowState: game.flowState,
+                    onSelectState: game.debugJumpToState,
+                    onClose: game.toggleFlowDebugOverlay,
+                  ),
+                },
+                initialActiveOverlays: widget.stressTest
+                    ? const [
+                        HudOverlay.overlayKey,
+                        VirtualStickOverlay.overlayKey,
+                      ]
+                    : const [StartScreen.overlayKey],
+              ),
+            ),
+          ],
+        );
       },
-      initialActiveOverlays: stressTest
-          ? const [HudOverlay.overlayKey, VirtualStickOverlay.overlayKey]
-          : const [StartScreen.overlayKey],
     );
   }
 }
