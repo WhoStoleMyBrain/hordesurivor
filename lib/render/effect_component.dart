@@ -42,11 +42,7 @@ class EffectComponent extends PositionComponent {
       case EffectShape.ground:
         canvas.drawCircle(Offset.zero, _state.radius, _paint);
       case EffectShape.beam:
-        final rect = Rect.fromCenter(
-          center: Offset.zero,
-          width: size.x,
-          height: size.y,
-        );
+        final rect = Rect.fromLTWH(0, -size.y * 0.5, size.x, size.y);
         canvas.drawRRect(
           RRect.fromRectAndRadius(rect, const Radius.circular(4)),
           _paint,
