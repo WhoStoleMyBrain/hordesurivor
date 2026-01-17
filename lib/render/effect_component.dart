@@ -27,6 +27,13 @@ class EffectComponent extends PositionComponent {
       position.setFrom(_state.position);
       size.setValues(_state.length, _state.width);
       angle = math.atan2(_state.direction.y, _state.direction.x);
+    } else if (_state.shape == EffectShape.ground &&
+        _state.kind == EffectKind.poisonAura) {
+      // Poison aura effect follows the player position.
+      anchor = Anchor.topLeft;
+      position.setFrom(_state.position);
+      size.setValues(_state.radius * 2, _state.radius * 2);
+      angle = 0;
     } else {
       anchor = Anchor.center;
       position.setFrom(_state.position);
@@ -44,8 +51,8 @@ class EffectComponent extends PositionComponent {
       case EffectShape.beam:
         final rect = Rect.fromCenter(
           center: Offset.zero,
-          width: size.x,
-          height: size.y,
+          width: -size.x,
+          height: -size.y,
         );
         canvas.drawRRect(
           RRect.fromRectAndRadius(rect, const Radius.circular(4)),

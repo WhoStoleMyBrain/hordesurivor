@@ -381,6 +381,7 @@ class SkillSystem {
       damagePerSecond: damage / duration,
       slowMultiplier: 0.7,
       slowDuration: duration * 0.9,
+      followsPlayer: true,
     );
     onEffectSpawn(effect);
   }
