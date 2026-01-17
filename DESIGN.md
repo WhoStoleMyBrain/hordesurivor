@@ -1,7 +1,7 @@
 # HordeSurvivor Design Document
 
 ## 1) Project summary
-HordeSurvivor is a pixel-style horde survivor centered on readable combat, distinct enemy roles, and build identity through tags and tradeoffs rather than permanent power creep. The current codebase targets desktop platforms (Windows/macOS/Linux/Web) with mobile expansion in mind through scalable UI and touch-ready input handling.
+HordeSurvivor is a pixel-style horde survivor centered on readable combat, distinct enemy roles, and build identity through tags and tradeoffs rather than permanent power creep. The current codebase uses a desktop-style layout (persistent side panel) while supporting Android/mobile input via scalable UI and touch-ready controls; web builds exist but are not a primary target yet.
 
 ## 2) Core design pillars (implemented guardrails)
 - **No stat meta-progression:** permanent “+HP/+DMG” unlocks are avoided in favor of lateral options.
@@ -11,7 +11,8 @@ HordeSurvivor is a pixel-style horde survivor centered on readable combat, disti
 - **Build identity via tags + tradeoffs:** synergy uses tags and clear upsides/downsides.
 
 ## 3) Platform & input strategy
-- **Current target:** desktop platforms (Windows/macOS/Linux/Web) for early iteration.
+- **Current focus:** Android-first with desktop as the primary debug target; web is optional.
+- **Layout reality today:** the UI uses a wide-screen side panel layout for HUD and hub screens.
 - **Mobile-ready design:**
   - Touch-friendly input pathways exist (pan gestures) alongside keyboard input.
   - A virtual stick overlay renders at touch origin during pan input to show dead zone
@@ -100,12 +101,12 @@ Spawner waves are resolved into weighted picks across roles/enemies/variants, re
 Areas can define a **stage finale** that starts after the timer completes, triggers a final burst wave, and holds the run open briefly before ending. This keeps the end-of-run moment readable without introducing permanent boss progression yet.
 
 ## 10) Progression systems
-### 10.1 XP & leveling
-- XP is earned during combat and processed by `ExperienceSystem`.
-- Level-up triggers a selection flow that offers skills, skill upgrades, and items.
+### 10.1 XP, gold & leveling tracks
+- XP and gold pickups drop during combat and feed a multi-track `ProgressionSystem`.
+- Each track has its own level curve and selection pool: XP powers skills/skill upgrades, gold offers items.
 
 ### 10.2 Selection & rerolls
-The selection system supports rerolls and dynamic choice counts, influenced by stats and meta unlocks.
+The selection system is track-aware (skills vs items), supports rerolls and dynamic choice counts, and applies track-specific skip rewards influenced by stats and meta unlocks.
 
 ### 10.3 Items & upgrades
 Items and upgrades apply explicit stat modifiers with tradeoffs. These are surfaced in the selection UI for clarity.
