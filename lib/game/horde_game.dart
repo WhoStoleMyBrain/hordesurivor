@@ -5,28 +5,31 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
+import 'package:flame/experimental.dart';
 import 'package:flame/text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show KeyEventResult;
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/area_defs.dart';
 import '../data/contract_defs.dart';
 import '../data/currency_defs.dart';
 import '../data/enemy_defs.dart';
 import '../data/ids.dart';
 import '../data/item_defs.dart';
-import '../data/skill_defs.dart';
+import '../data/map_size.dart';
 import '../data/progression_track_defs.dart';
+import '../data/skill_defs.dart';
 import '../data/skill_upgrade_defs.dart';
 import '../data/stat_defs.dart';
 import '../data/synergy_defs.dart';
 import '../data/tags.dart';
 import '../data/weapon_upgrade_defs.dart';
-import '../data/area_defs.dart';
 import '../render/damage_number_component.dart';
 import '../render/enemy_component.dart';
 import '../render/effect_component.dart';
+import '../render/map_background_component.dart';
 import '../render/player_component.dart';
 import '../render/portal_component.dart';
 import '../render/projectile_batch_component.dart';
@@ -83,7 +86,14 @@ import 'summon_state.dart';
 import 'summon_system.dart';
 
 class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
-  HordeGame({this.stressTest = false}) : super();
+  HordeGame({this.stressTest = false})
+    : super(
+        world: World(),
+        camera: CameraComponent.withFixedResolution(
+          width: GameSizes.cameraViewportSize.width,
+          height: GameSizes.cameraViewportSize.height,
+        ),
+      );
 
   static const double _fixedDelta = 1 / 60;
   static const double _playerRadius = GameSizes.playerRadius;
@@ -141,6 +151,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final PlayerState _playerState;
   late final PlayerComponent _playerComponent;
   final SpritePipeline _spritePipeline = SpritePipeline();
+  final Vector2 _mapSize = Vector2.zero();
+  late final MapBackgroundComponent _mapBackground;
+  MapSize _currentMapSize = GameSizes.homeBaseMapSize;
+  Color _currentMapBackground = GameSizes.homeBaseBackgroundColor;
   final Map<EnemyId, Image> _enemySprites = {};
   Image? _projectileSprite;
   final Map<PickupKind, Image?> _pickupSprites = {};
@@ -296,8 +310,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       }
       _pickupSprites[entry.key] = image;
     }
+    _mapSize.setValues(_currentMapSize.width, _currentMapSize.height);
+    _mapBackground = MapBackgroundComponent(
+      size: _mapSize,
+      color: _currentMapBackground,
+    );
+    await world.add(_mapBackground);
     _playerState = PlayerState(
-      position: size / 2,
+      position: _mapSize / 2,
       maxHp: _playerMaxHp,
       moveSpeed: _playerSpeed,
     );
@@ -310,13 +330,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       spriteImage: playerSprite,
     );
     _playerComponent.syncWithState();
-    await add(_playerComponent);
+    await world.add(_playerComponent);
     camera.viewfinder.anchor = Anchor.center;
+    camera.setBounds(
+      Rectangle.fromRect(_currentMapSize.toRect()),
+      considerViewport: true,
+    );
+    camera.follow(_playerComponent, snap: true);
     _syncCamera();
 
     _updatePortalPosition();
     _portalComponent.position.setFrom(_portalPosition);
-    await add(_portalComponent);
+    await world.add(_portalComponent);
 
     _enemyPool = EnemyPool(initialCapacity: stressTest ? 600 : 48);
     _projectilePool = ProjectilePool(initialCapacity: stressTest ? 1400 : 64);
@@ -336,7 +361,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         spriteImage: _projectileSprite!,
         color: const Color(0xFFFF8C3B),
       );
-      await add(_projectileBatchComponent!);
+      await world.add(_projectileBatchComponent!);
     }
     _enemySystem = EnemySystem(
       pool: _enemyPool,
@@ -368,7 +393,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _spawnerSystem = SpawnerSystem(
       pool: _enemyPool,
       random: math.Random(7),
-      arenaSize: size,
+      arenaSize: _mapSize,
       waves: stressTest
           ? const [
               SpawnWave(
@@ -502,7 +527,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _playerState.step(dt);
     _playerState.clampToBounds(
       min: Vector2(_playerRadius, _playerRadius),
-      max: Vector2(size.x - _playerRadius, size.y - _playerRadius),
+      max: Vector2(_mapSize.x - _playerRadius, _mapSize.y - _playerRadius),
     );
     if (!stressTest && _stageTimer != null) {
       final stageUpdate = _stageTimer!.update(dt);
@@ -537,7 +562,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       }
     }
     _spawnerSystem.update(dt, _playerState.position);
-    _enemySystem.update(dt, _playerState.position, size);
+    _enemySystem.update(dt, _playerState.position, _mapSize);
     _enemyGrid.rebuild(_enemyPool.active);
     _skillSystem.update(
       dt: dt,
@@ -586,7 +611,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     _projectileSystem.update(
       dt,
-      size,
+      _mapSize,
       onDespawn: _handleProjectileDespawn,
       onEnemyHit: _damageSystem.queueEnemyDamage,
       enemyGrid: _enemyGrid,
@@ -620,7 +645,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _syncCamera() {
-    camera.viewfinder.position.setFrom(_playerState.position);
     final fovScale = (1 + _playerState.stats.value(StatId.fieldOfView))
         .clamp(0.5, 1.75)
         .toDouble();
@@ -634,6 +658,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (_flowState == GameFlowState.homeBase) {
       return;
     }
+    _applyMapVisuals(
+      mapSize: GameSizes.homeBaseMapSize,
+      backgroundColor: GameSizes.homeBaseBackgroundColor,
+    );
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(StartScreen.overlayKey);
     overlays.remove(OptionsScreen.overlayKey);
@@ -793,6 +821,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void beginStageFromAreaSelect(AreaDef area, List<ContractId> contracts) {
     _activeArea = area;
+    _applyMapVisuals(
+      mapSize: area.mapSize,
+      backgroundColor: area.backgroundColor,
+    );
     _applyContracts(contracts);
     _spawnerSystem.setUnlockedMeta(_metaUnlocks.unlockedIds.toSet());
     _resetFinaleState();
@@ -832,6 +864,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _activeArea = null;
     _stageTimer = null;
     _resetFinaleState();
+    _applyMapVisuals(
+      mapSize: GameSizes.homeBaseMapSize,
+      backgroundColor: GameSizes.homeBaseBackgroundColor,
+    );
     _portalLockoutTimer = _portalLockoutDuration;
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(AreaSelectScreen.overlayKey);
@@ -859,6 +895,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _activeArea = null;
     _stageTimer = null;
     _resetFinaleState();
+    _applyMapVisuals(
+      mapSize: GameSizes.homeBaseMapSize,
+      backgroundColor: GameSizes.homeBaseBackgroundColor,
+    );
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(HudOverlay.overlayKey);
@@ -868,16 +908,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(EscapeMenuOverlay.overlayKey);
     overlays.add(HomeBaseOverlay.overlayKey);
     _syncHudState();
-  }
-
-  @override
-  void onGameResize(Vector2 size) {
-    super.onGameResize(size);
-    if (_spawnerReady) {
-      _spawnerSystem.updateArenaSize(size);
-    }
-    _updatePortalPosition();
-    _portalComponent.position.setFrom(_portalPosition);
   }
 
   void _applyInput() {
@@ -1025,7 +1055,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       spriteImage: projectile.fromEnemy ? null : _projectileSprite,
     );
     _projectileComponents[projectile] = component;
-    add(component);
+    world.add(component);
   }
 
   void _handleProjectileDespawn(ProjectileState projectile) {
@@ -1054,7 +1084,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _handleEffectSpawn(EffectState effect) {
     final component = EffectComponent(state: effect);
     _effectComponents[effect] = component;
-    add(component);
+    world.add(component);
   }
 
   void _handleEffectDespawn(EffectState effect) {
@@ -1065,7 +1095,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _handleSummonSpawn(SummonState summon) {
     final component = SummonComponent(state: summon);
     _summonComponents[summon] = component;
-    add(component);
+    world.add(component);
   }
 
   void _handleSummonDespawn(SummonState summon) {
@@ -1107,7 +1137,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       telegraphOpacityMultiplier: _telegraphOpacityMultiplier,
     );
     _enemyComponents[enemy] = component;
-    add(component);
+    world.add(component);
   }
 
   void _registerPickupComponent(PickupState pickup) {
@@ -1116,7 +1146,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       spriteImages: _pickupSprites,
     );
     _pickupComponents[pickup] = component;
-    add(component);
+    world.add(component);
   }
 
   PickupKind _rollPickupKind() {
@@ -1164,7 +1194,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       velocity: _damageNumberVelocity,
     );
     if (!component.isMounted) {
-      add(component);
+      world.add(component);
     }
   }
 
@@ -1192,7 +1222,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       lifespan: 0.6,
     );
     if (!component.isMounted) {
-      add(component);
+      world.add(component);
     }
   }
 
@@ -1208,7 +1238,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _pickupSparkPosition.setFrom(position);
     component.reset(position: _pickupSparkPosition);
     if (!component.isMounted) {
-      add(component);
+      world.add(component);
     }
   }
 
@@ -1676,6 +1706,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _resetFinaleState();
     _runCompleted = false;
     _menuReturnPending = false;
+    _applyMapVisuals(
+      mapSize: GameSizes.homeBaseMapSize,
+      backgroundColor: GameSizes.homeBaseBackgroundColor,
+    );
     _setFlowState(GameFlowState.start);
     overlays.remove(HudOverlay.overlayKey);
     overlays.remove(VirtualStickOverlay.overlayKey);
@@ -1713,8 +1747,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _stressPosition
         ..setValues(math.cos(angle) * radius, math.sin(angle) * radius)
         ..add(_playerState.position);
-      _stressPosition.x = _stressPosition.x.clamp(0.0, size.x);
-      _stressPosition.y = _stressPosition.y.clamp(0.0, size.y);
+      _stressPosition.x = _stressPosition.x.clamp(0.0, _mapSize.x);
+      _stressPosition.y = _stressPosition.y.clamp(0.0, _mapSize.y);
       _stressVelocity.setValues(math.cos(angle) * 180, math.sin(angle) * 180);
 
       final projectile = _projectilePool.acquire();
@@ -1735,7 +1769,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _playerState.step(dt);
     _playerState.clampToBounds(
       min: Vector2(_playerRadius, _playerRadius),
-      max: Vector2(size.x - _playerRadius, size.y - _playerRadius),
+      max: Vector2(_mapSize.x - _playerRadius, _mapSize.y - _playerRadius),
     );
     _playerComponent.syncWithState();
     _syncHudState();
@@ -1763,8 +1797,35 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.add(AreaSelectScreen.overlayKey);
   }
 
+  void _applyMapVisuals({
+    required MapSize mapSize,
+    required Color backgroundColor,
+  }) {
+    _currentMapSize = mapSize;
+    _currentMapBackground = backgroundColor;
+    _mapSize.setValues(mapSize.width, mapSize.height);
+    _mapBackground.updateAppearance(size: _mapSize, color: backgroundColor);
+    _playerState.position.x = _playerState.position.x.clamp(
+      _playerRadius,
+      _mapSize.x - _playerRadius,
+    );
+    _playerState.position.y = _playerState.position.y.clamp(
+      _playerRadius,
+      _mapSize.y - _playerRadius,
+    );
+    camera.setBounds(
+      Rectangle.fromRect(mapSize.toRect()),
+      considerViewport: true,
+    );
+    if (_spawnerReady) {
+      _spawnerSystem.updateArenaSize(_mapSize);
+    }
+    _updatePortalPosition();
+    _portalComponent.position.setFrom(_portalPosition);
+  }
+
   void _updatePortalPosition() {
-    _portalPosition.setValues(size.x * 0.78, size.y * 0.25);
+    _portalPosition.setValues(_mapSize.x * 0.78, _mapSize.y * 0.25);
   }
 
   void _syncPortalVisibility() {
@@ -2008,12 +2069,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _enemyPool.release(enemy);
     }
     for (final component
-        in children.whereType<DamageNumberComponent>().toList()) {
+        in world.children.whereType<DamageNumberComponent>().toList()) {
       component.removeFromParent();
       _damageNumberPool.add(component);
     }
     for (final component
-        in children.whereType<PickupSparkComponent>().toList()) {
+        in world.children.whereType<PickupSparkComponent>().toList()) {
       component.removeFromParent();
       _pickupSparkPool.add(component);
     }
@@ -2196,7 +2257,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _revivePlayer() {
     _playerState.hp = _playerState.maxHp;
     _playerState.movementIntent.setZero();
-    _playerState.position.setFrom(size / 2);
+    _playerState.position.setFrom(_mapSize / 2);
     _playerComponent.syncWithState();
   }
 
