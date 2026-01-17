@@ -49,7 +49,8 @@ class HudOverlay extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (hudState.buildTags.isNotEmpty) ...[
+                      // ignore: dead_code
+                      if (false) ...[
                         Wrap(
                           spacing: 6,
                           runSpacing: 6,

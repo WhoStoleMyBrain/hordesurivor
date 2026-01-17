@@ -72,24 +72,75 @@ void main() {
   });
 
   test('sprite generation is deterministic for the same seed', () async {
-    const recipe = SpriteRecipe(
+    SpriteRecipe recipe = SpriteRecipe(
       id: 'deterministic',
       kind: SpriteKind.player,
       outputName: 'deterministic.png',
-      size: 8,
-      seed: 7,
-      palette: {'main': '#FFFFFF'},
+      size: 16,
+      seed: 23,
+      palette: {
+        "primary": "#7BD389",
+        "shadow": "#4D8B5C",
+        "accent": "#F4E06D",
+        "outline": "#1E2B22",
+        "highlight": "#CFF7D7",
+      },
       shapes: [
-        SpriteShape(
-          type: 'pixels',
-          colorKey: 'main',
-          offset: [0, 0],
-          points: [
-            [0, 0],
-            [1, 0],
-            [0, 1],
+        SpriteShape.fromJson({
+          "type": "bitmap",
+          "offset": [0, 0],
+          "map": [
+            "................",
+            "......oooo......",
+            ".....oppppo.....",
+            "....oppppppo....",
+            "...oppppppppo...",
+            "...oppphppppo...",
+            "...oppppppppo...",
+            "....oppppppo....",
+            ".....oppppo.....",
+            "......oooo......",
+            "......o..o......",
+            ".....oo..oo.....",
+            ".....o....o.....",
+            "................",
+            "................",
+            "................",
           ],
-        ),
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "o": "shadow",
+            "h": "highlight",
+          },
+        }),
+        SpriteShape.fromJson({
+          "type": "patch",
+          "offset": [0, 0],
+          "edits": [
+            {"x": -2, "y": -1, "color": "accent"},
+            {"x": 2, "y": -1, "color": "accent"},
+          ],
+        }),
+      ],
+      post: [
+        SpritePostProcess.fromJson({
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow",
+        }),
+        SpritePostProcess.fromJson({
+          "type": "highlight",
+          "dx": -1,
+          "dy": -1,
+          "color": "highlight",
+        }),
+        SpritePostProcess.fromJson({
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true,
+        }),
       ],
     );
     final generator = SpriteGenerator();
