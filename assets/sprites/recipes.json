@@ -10,12 +10,80 @@
       "palette": {
         "primary": "#7BD389",
         "shadow": "#4D8B5C",
-        "accent": "#F4E06D"
+        "accent": "#F4E06D",
+        "outline": "#1E2B22",
+        "highlight": "#CFF7D7"
       },
       "shapes": [
-        { "type": "circle", "color": "primary", "radius": 7, "offset": [0, 0] },
-        { "type": "circle", "color": "shadow", "radius": 4, "offset": [-2, 2] },
-        { "type": "pixels", "color": "accent", "points": [[-2, -2], [2, -2]] }
+        {
+          "type": "bitmap",
+          "offset": [
+            0,
+            0
+          ],
+          "map": [
+            "................",
+            "......oooo......",
+            ".....oppppo.....",
+            "....oppppppo....",
+            "...oppppppppo...",
+            "...oppphppppo...",
+            "...oppppppppo...",
+            "....oppppppo....",
+            ".....oppppo.....",
+            "......oooo......",
+            "......o..o......",
+            ".....oo..oo.....",
+            ".....o....o.....",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "o": "shadow",
+            "h": "highlight"
+          }
+        },
+        {
+          "type": "patch",
+          "offset": [
+            0,
+            0
+          ],
+          "edits": [
+            {
+              "x": -2,
+              "y": -1,
+              "color": "accent"
+            },
+            {
+              "x": 2,
+              "y": -1,
+              "color": "accent"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "highlight",
+          "dx": -1,
+          "dy": -1,
+          "color": "highlight"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
       ]
     },
     {
@@ -27,19 +95,78 @@
       "palette": {
         "primary": "#D96C6C",
         "shadow": "#8C3E3E",
-        "accent": "#F2C94C"
+        "accent": "#F2C94C",
+        "outline": "#2A1010",
+        "highlight": "#FFD0D0"
       },
       "shapes": [
-        { "type": "circle", "color": "primary", "radius": 6, "offset": [0, 1] },
-        { "type": "circle", "color": "shadow", "radius": 3, "offset": [2, 3] },
-        { "type": "pixels", "color": "accent", "points": [[-4, -6], [-3, -5]] },
-        { "type": "pixels", "color": "accent", "points": [[4, -6], [3, -5]] },
         {
-          "type": "line",
-          "color": "shadow",
-          "start": [0, 4],
-          "end": [2, 7],
-          "thickness": 1
+          "type": "bitmap",
+          "offset": [
+            0,
+            1
+          ],
+          "map": [
+            "................",
+            "....a......a....",
+            "...aa......aa...",
+            "...aappppppaa...",
+            "..aappppppppaa..",
+            "..apppphhppppaa.",
+            "..appppppppppaa.",
+            "...pppppppppp...",
+            "....pppppppp....",
+            ".....pppppp.....",
+            "......p..p......",
+            ".....pp..pp.....",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "a": "accent",
+            "h": "highlight"
+          }
+        },
+        {
+          "type": "patch",
+          "offset": [
+            0,
+            1
+          ],
+          "edits": [
+            {
+              "x": -1,
+              "y": 1,
+              "color": "shadow"
+            },
+            {
+              "x": 1,
+              "y": 1,
+              "color": "shadow"
+            },
+            {
+              "x": 0,
+              "y": 3,
+              "color": "shadow"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
         }
       ]
     },
@@ -52,19 +179,75 @@
       "palette": {
         "primary": "#B85C6E",
         "shadow": "#6E2F3C",
-        "accent": "#F2994A"
+        "accent": "#F2994A",
+        "outline": "#220E13",
+        "highlight": "#FFC2CD"
       },
       "shapes": [
-        { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 1] },
-        { "type": "rect", "color": "shadow", "size": [4, 5], "offset": [-3, -1] },
         {
-          "type": "line",
-          "color": "accent",
-          "start": [2, 0],
-          "end": [6, 0],
-          "thickness": 1
+          "type": "bitmap",
+          "offset": [
+            0,
+            1
+          ],
+          "map": [
+            "................",
+            "......hhhh......",
+            ".....hpppph.....",
+            "....hpppppph....",
+            "...hpppppppph...",
+            "...hppsspppph...",
+            "...hppsspppph...",
+            "....hpppppph....",
+            ".....hpppph.....",
+            "......pppp......",
+            ".......aa.......",
+            "......aaaa......",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent",
+            "h": "highlight"
+          }
         },
-        { "type": "pixels", "color": "accent", "points": [[4, -1], [5, 1]] }
+        {
+          "type": "patch",
+          "offset": [
+            0,
+            1
+          ],
+          "edits": [
+            {
+              "x": 4,
+              "y": 0,
+              "color": "accent"
+            },
+            {
+              "x": 5,
+              "y": 0,
+              "color": "accent"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
       ]
     },
     {
@@ -76,20 +259,78 @@
       "palette": {
         "primary": "#7A3E55",
         "shadow": "#4A1F2B",
-        "accent": "#F2C94C"
+        "accent": "#F2C94C",
+        "outline": "#190A0F",
+        "highlight": "#E7B6C8"
       },
       "shapes": [
-        { "type": "rect", "color": "primary", "size": [10, 8], "offset": [0, 1] },
-        { "type": "rect", "color": "shadow", "size": [6, 4], "offset": [0, 2] },
-        { "type": "pixels", "color": "accent", "points": [[-3, -3], [3, -3]] },
         {
-          "type": "arc",
-          "color": "accent",
-          "radius": 5,
-          "offset": [0, 0],
-          "startAngle": 0,
-          "sweepAngle": 360,
-          "thickness": 1
+          "type": "bitmap",
+          "offset": [
+            0,
+            1
+          ],
+          "map": [
+            "................",
+            ".....aaaaaa.....",
+            "...aappppppaa...",
+            "..aappppppppaa..",
+            "..apppsssspppa..",
+            "..appsssssppa...",
+            "..apppsssspppa..",
+            "..aappppppppaa..",
+            "...aappppppaa...",
+            ".....aaaaaa.....",
+            "......a..a......",
+            ".....aa..aa.....",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent"
+          }
+        },
+        {
+          "type": "patch",
+          "offset": [
+            0,
+            1
+          ],
+          "edits": [
+            {
+              "x": 0,
+              "y": -1,
+              "color": "highlight"
+            },
+            {
+              "x": -1,
+              "y": 0,
+              "color": "highlight"
+            },
+            {
+              "x": 1,
+              "y": 0,
+              "color": "highlight"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
         }
       ]
     },
@@ -102,21 +343,55 @@
       "palette": {
         "primary": "#9250A4",
         "shadow": "#5A2D6B",
-        "accent": "#D4A6FF"
+        "accent": "#D4A6FF",
+        "outline": "#1B0E20",
+        "highlight": "#EAD6FF"
       },
       "shapes": [
-        { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 0] },
-        { "type": "pixels", "color": "shadow", "points": [[-4, -4], [4, -4], [0, 4]] },
         {
-          "type": "arc",
-          "color": "accent",
-          "radius": 4,
-          "offset": [0, 0],
-          "startAngle": 220,
-          "sweepAngle": 200,
-          "thickness": 1
+          "type": "bitmap",
+          "offset": [
+            0,
+            0
+          ],
+          "map": [
+            "................",
+            "......aaaa......",
+            ".....appppa.....",
+            "....appppppa....",
+            "...apppsspppa...",
+            "...appssspppa...",
+            "...apppsspppa...",
+            "....appppppa....",
+            ".....appppa.....",
+            "......aaaa......",
+            "........a.......",
+            ".......aaa......",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent"
+          }
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
         },
-        { "type": "rect", "color": "accent", "size": [2, 4], "offset": [0, -2] }
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
       ]
     },
     {
@@ -128,20 +403,78 @@
       "palette": {
         "primary": "#C8643C",
         "shadow": "#7A3924",
-        "accent": "#F2C94C"
+        "accent": "#F2C94C",
+        "outline": "#24120B",
+        "highlight": "#FFD7C7"
       },
       "shapes": [
-        { "type": "rect", "color": "primary", "size": [8, 6], "offset": [0, 1] },
-        { "type": "rect", "color": "shadow", "size": [6, 3], "offset": [0, 3] },
-        { "type": "pixels", "color": "accent", "points": [[-4, -2], [0, -5], [4, -2]] },
         {
-          "type": "arc",
-          "color": "accent",
-          "radius": 4,
-          "offset": [0, -1],
-          "startAngle": 200,
-          "sweepAngle": 140,
-          "thickness": 1
+          "type": "bitmap",
+          "offset": [
+            0,
+            1
+          ],
+          "map": [
+            "................",
+            "......aaaa......",
+            ".....appppa.....",
+            "....appppppa....",
+            "...apppsspppa...",
+            "...appssspppa...",
+            "...apppsspppa...",
+            "....appppppa....",
+            ".....appppa.....",
+            "......pppp......",
+            ".......aa.......",
+            "......a..a......",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent"
+          }
+        },
+        {
+          "type": "patch",
+          "offset": [
+            0,
+            1
+          ],
+          "edits": [
+            {
+              "x": -2,
+              "y": -3,
+              "color": "accent"
+            },
+            {
+              "x": 0,
+              "y": -4,
+              "color": "accent"
+            },
+            {
+              "x": 2,
+              "y": -3,
+              "color": "accent"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
         }
       ]
     },
@@ -154,19 +487,78 @@
       "palette": {
         "primary": "#8C2F39",
         "shadow": "#4A131A",
-        "accent": "#D96C6C"
+        "accent": "#D96C6C",
+        "outline": "#180609",
+        "highlight": "#F7B5B9"
       },
       "shapes": [
-        { "type": "rect", "color": "primary", "size": [10, 10], "offset": [0, 0] },
-        { "type": "rect", "color": "shadow", "size": [6, 8], "offset": [-2, 2] },
-        { "type": "rect", "color": "accent", "size": [2, 6], "offset": [4, -2] },
-        { "type": "pixels", "color": "accent", "points": [[-5, -5], [5, -5], [0, -7]] },
         {
-          "type": "line",
-          "color": "accent",
-          "start": [5, -2],
-          "end": [7, 4],
-          "thickness": 1
+          "type": "bitmap",
+          "offset": [
+            0,
+            0
+          ],
+          "map": [
+            "................",
+            "...aaaa...aaaa..",
+            "..aapppaaapppaa.",
+            "..apppppppppppa.",
+            ".apppssppssppppa",
+            ".apppssppssppppa",
+            ".apppppppppppppa",
+            "..pppppppppppp..",
+            "...pppppppppp...",
+            "....pppppppp....",
+            ".....pp..pp.....",
+            "....ppp..ppp....",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent"
+          }
+        },
+        {
+          "type": "patch",
+          "offset": [
+            0,
+            0
+          ],
+          "edits": [
+            {
+              "x": 4,
+              "y": -2,
+              "color": "accent"
+            },
+            {
+              "x": 5,
+              "y": -1,
+              "color": "accent"
+            },
+            {
+              "x": 4,
+              "y": 0,
+              "color": "accent"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
         }
       ]
     },
@@ -179,22 +571,68 @@
       "palette": {
         "primary": "#D76A3B",
         "shadow": "#8C3E2A",
-        "accent": "#F2C94C"
+        "accent": "#F2C94C",
+        "outline": "#24110B",
+        "highlight": "#FFD0B8"
       },
       "shapes": [
-        { "type": "circle", "color": "primary", "radius": 4, "offset": [0, 1] },
-        { "type": "pixels", "color": "shadow", "points": [[-3, 3], [3, 3]] },
         {
-          "type": "pixels",
-          "color": "accent",
-          "points": [[0, -5], [-3, -1], [3, -1], [-1, 1], [1, 1]]
+          "type": "bitmap",
+          "offset": [
+            0,
+            1
+          ],
+          "map": [
+            "................",
+            ".......a........",
+            "......aaa.......",
+            ".....apppa......",
+            "....apppppa.....",
+            "....pppsppp.....",
+            "....ppppppp.....",
+            ".....ppppp......",
+            "......ppp.......",
+            ".......p........",
+            "......s.s.......",
+            ".....ss.ss......",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent"
+          }
         },
         {
-          "type": "line",
-          "color": "accent",
-          "start": [-2, 4],
-          "end": [2, 4],
-          "thickness": 1
+          "type": "patch",
+          "offset": [
+            0,
+            1
+          ],
+          "edits": [
+            {
+              "x": 0,
+              "y": -2,
+              "color": "accent"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
         }
       ]
     },
@@ -207,20 +645,54 @@
       "palette": {
         "primary": "#8FB3FF",
         "shadow": "#4D6BA3",
-        "accent": "#E0F7FF"
+        "accent": "#E0F7FF",
+        "outline": "#0B1222",
+        "highlight": "#D9E7FF"
       },
       "shapes": [
-        { "type": "circle", "color": "primary", "radius": 6, "offset": [0, 1] },
-        { "type": "circle", "color": "shadow", "radius": 3, "offset": [2, 2] },
-        { "type": "pixels", "color": "accent", "points": [[-2, -3], [2, -3]] },
         {
-          "type": "arc",
-          "color": "accent",
-          "radius": 6,
-          "offset": [0, -2],
-          "startAngle": 200,
-          "sweepAngle": 140,
-          "thickness": 1
+          "type": "bitmap",
+          "offset": [
+            0,
+            1
+          ],
+          "map": [
+            "................",
+            "......aaaa......",
+            ".....appppa.....",
+            "....appppppa....",
+            "...appphhpppa...",
+            "...appphhpppa...",
+            "...appppppppa...",
+            "....appppppa....",
+            ".....appppa.....",
+            "......pppp......",
+            "......p..p......",
+            ".....pp..pp.....",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "a": "accent",
+            "h": "highlight"
+          }
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
         }
       ]
     },
@@ -233,19 +705,55 @@
       "palette": {
         "primary": "#7FD0FF",
         "shadow": "#3E78A8",
-        "accent": "#F4E06D"
+        "accent": "#F4E06D",
+        "outline": "#0A1C2A",
+        "highlight": "#D7F2FF"
       },
       "shapes": [
-        { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 0] },
-        { "type": "rect", "color": "shadow", "size": [6, 2], "offset": [0, 4] },
-        { "type": "pixels", "color": "accent", "points": [[-6, -1], [-4, -2]] },
-        { "type": "pixels", "color": "accent", "points": [[6, -1], [4, -2]] },
         {
-          "type": "line",
-          "color": "accent",
-          "start": [-3, 1],
-          "end": [3, 1],
-          "thickness": 1
+          "type": "bitmap",
+          "offset": [
+            0,
+            0
+          ],
+          "map": [
+            "................",
+            "......a..a......",
+            ".....aa..aa.....",
+            "....hpppppph....",
+            "...hpppppppph...",
+            "...hpppppppph...",
+            "....hpppppph....",
+            ".....hpppph.....",
+            "......pppp......",
+            ".....ssssss.....",
+            "......s..s......",
+            "......s..s......",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent",
+            "h": "highlight"
+          }
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
         }
       ]
     },
@@ -258,24 +766,54 @@
       "palette": {
         "primary": "#9BD9C7",
         "shadow": "#4E8B78",
-        "accent": "#E8F3F1"
+        "accent": "#E8F3F1",
+        "outline": "#0B201A",
+        "highlight": "#D7FFF4"
       },
       "shapes": [
-        { "type": "rect", "color": "primary", "size": [8, 8], "offset": [0, 0] },
-        { "type": "rect", "color": "shadow", "size": [4, 6], "offset": [-2, 2] },
         {
-          "type": "line",
-          "color": "accent",
-          "start": [0, -5],
-          "end": [0, 5],
-          "thickness": 1
+          "type": "bitmap",
+          "offset": [
+            0,
+            0
+          ],
+          "map": [
+            "................",
+            "......hhhh......",
+            ".....hpppph.....",
+            "....hpppppph....",
+            "...hpppppppph...",
+            "...hpppaappph...",
+            "...hpppaappph...",
+            "....hpppppph....",
+            ".....hpppph.....",
+            "......pppp......",
+            ".......a........",
+            "......aaa.......",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "a": "accent",
+            "h": "highlight"
+          }
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
         },
         {
-          "type": "line",
-          "color": "accent",
-          "start": [-3, 0],
-          "end": [3, 0],
-          "thickness": 1
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
         }
       ]
     },
@@ -288,18 +826,55 @@
       "palette": {
         "primary": "#B9A3F8",
         "shadow": "#6A5AA6",
-        "accent": "#F4E06D"
+        "accent": "#F4E06D",
+        "outline": "#120C22",
+        "highlight": "#E7DDFF"
       },
       "shapes": [
-        { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 1] },
-        { "type": "rect", "color": "shadow", "size": [2, 6], "offset": [-4, 1] },
-        { "type": "rect", "color": "accent", "size": [2, 6], "offset": [4, 1] },
         {
-          "type": "line",
-          "color": "accent",
-          "start": [2, -5],
-          "end": [5, -7],
-          "thickness": 1
+          "type": "bitmap",
+          "offset": [
+            0,
+            1
+          ],
+          "map": [
+            "................",
+            "......a..a......",
+            ".....aa..aa.....",
+            "....hpppppph....",
+            "...hpppppppph...",
+            "...hpppppppph...",
+            "....hpppppph....",
+            ".....hpppph.....",
+            "......pppp......",
+            "......s..s......",
+            "......s..s......",
+            ".....ss..ss.....",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent",
+            "h": "highlight"
+          }
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
         }
       ]
     },
@@ -312,20 +887,55 @@
       "palette": {
         "primary": "#6EC6FF",
         "shadow": "#2F6B9E",
-        "accent": "#E0F7FF"
+        "accent": "#E0F7FF",
+        "outline": "#071A26",
+        "highlight": "#CDEBFF"
       },
       "shapes": [
-        { "type": "rect", "color": "primary", "size": [8, 10], "offset": [0, 1] },
-        { "type": "rect", "color": "shadow", "size": [6, 6], "offset": [0, 3] },
-        { "type": "pixels", "color": "accent", "points": [[-3, -4], [3, -4]] },
         {
-          "type": "arc",
-          "color": "accent",
-          "radius": 4,
-          "offset": [0, -3],
-          "startAngle": 200,
-          "sweepAngle": 140,
-          "thickness": 1
+          "type": "bitmap",
+          "offset": [
+            0,
+            1
+          ],
+          "map": [
+            "................",
+            "......aaaa......",
+            ".....appppa.....",
+            "....appppppa....",
+            "...appphhpppa...",
+            "...appphhpppa...",
+            "...appppppppa...",
+            "....appppppa....",
+            ".....appppa.....",
+            "......pppp......",
+            ".....ssssss.....",
+            "......s..s......",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent",
+            "h": "highlight"
+          }
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
         }
       ]
     },
@@ -338,17 +948,55 @@
       "palette": {
         "primary": "#7FB8D9",
         "shadow": "#3E6A82",
-        "accent": "#C9E8FF"
+        "accent": "#C9E8FF",
+        "outline": "#071721",
+        "highlight": "#D9F2FF"
       },
       "shapes": [
-        { "type": "rect", "color": "primary", "size": [6, 10], "offset": [0, 0] },
-        { "type": "rect", "color": "shadow", "size": [2, 8], "offset": [-2, 2] },
         {
-          "type": "line",
-          "color": "accent",
-          "start": [-4, 0],
-          "end": [4, 0],
-          "thickness": 1
+          "type": "bitmap",
+          "offset": [
+            0,
+            0
+          ],
+          "map": [
+            "................",
+            "......hhhh......",
+            ".....hpppph.....",
+            ".....hpppph.....",
+            "....hpppppph....",
+            "....hppsspph....",
+            "....hppsspph....",
+            "....hpppppph....",
+            ".....hpppph.....",
+            ".....hpppph.....",
+            "......pppp......",
+            ".......aa.......",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent",
+            "h": "highlight"
+          }
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
         }
       ]
     },
@@ -361,18 +1009,79 @@
       "palette": {
         "primary": "#9BC3FF",
         "shadow": "#4E6FA8",
-        "accent": "#F4E06D"
+        "accent": "#F4E06D",
+        "outline": "#0B1222",
+        "highlight": "#DCE9FF"
       },
       "shapes": [
-        { "type": "rect", "color": "primary", "size": [8, 10], "offset": [0, 0] },
-        { "type": "rect", "color": "shadow", "size": [4, 8], "offset": [-2, 2] },
-        { "type": "rect", "color": "accent", "size": [2, 6], "offset": [4, -2] },
         {
-          "type": "line",
-          "color": "accent",
-          "start": [2, -6],
-          "end": [6, -2],
-          "thickness": 1
+          "type": "bitmap",
+          "offset": [
+            0,
+            0
+          ],
+          "map": [
+            "................",
+            "......a.........",
+            ".....aa.........",
+            "....hpppppph....",
+            "...hpppppppph...",
+            "...hpppppppph...",
+            "...hpppssppph...",
+            "....hpppspph....",
+            ".....hpppph.....",
+            "......pppp......",
+            "......p..p......",
+            ".....pp..pp.....",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent",
+            "h": "highlight"
+          }
+        },
+        {
+          "type": "patch",
+          "offset": [
+            0,
+            0
+          ],
+          "edits": [
+            {
+              "x": 4,
+              "y": -2,
+              "color": "accent"
+            },
+            {
+              "x": 5,
+              "y": -1,
+              "color": "accent"
+            },
+            {
+              "x": 6,
+              "y": 0,
+              "color": "accent"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
         }
       ]
     },
@@ -385,12 +1094,50 @@
       "palette": {
         "primary": "#9DD9D2",
         "shadow": "#4A9C8E",
-        "accent": "#E8F3F1"
+        "accent": "#E8F3F1",
+        "outline": "#0A1F1B",
+        "highlight": "#D9FFF8"
       },
       "shapes": [
-        { "type": "rect", "color": "primary", "size": [6, 8], "offset": [0, 0] },
-        { "type": "rect", "color": "shadow", "size": [2, 8], "offset": [-2, 0] },
-        { "type": "rect", "color": "accent", "size": [2, 2], "offset": [2, -2] }
+        {
+          "type": "bitmap",
+          "offset": [
+            0,
+            0
+          ],
+          "map": [
+            "................",
+            "......hhhh......",
+            ".....hpppph.....",
+            ".....hpppph.....",
+            ".....hpssph.....",
+            ".....hpssph.....",
+            ".....hpppph.....",
+            ".....hpppph.....",
+            "......hhhh......",
+            ".......aa.......",
+            "......a..a......",
+            ".......aa.......",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent",
+            "h": "highlight"
+          }
+        }
+      ],
+      "post": [
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
       ]
     },
     {
@@ -402,12 +1149,56 @@
       "palette": {
         "primary": "#F2994A",
         "shadow": "#C65A14",
-        "accent": "#F2C94C"
+        "accent": "#F2C94C",
+        "outline": "#2A1408",
+        "highlight": "#FFD6AE"
       },
       "shapes": [
-        { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 1] },
-        { "type": "circle", "color": "accent", "radius": 2, "offset": [-2, -2] },
-        { "type": "pixels", "color": "shadow", "points": [[-4, 4], [-3, 5], [-2, 6]] }
+        {
+          "type": "bitmap",
+          "offset": [
+            0,
+            0
+          ],
+          "map": [
+            "................",
+            ".......a........",
+            "......aaa.......",
+            ".....ahhha......",
+            "....apppppa.....",
+            "....pppsppp.....",
+            "...pppsssppp....",
+            "...pppsssppp....",
+            "....pppsppp.....",
+            ".....ppppp......",
+            "......ppp.......",
+            ".......p........",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent",
+            "h": "highlight"
+          }
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
       ]
     },
     {
@@ -419,12 +1210,68 @@
       "palette": {
         "primary": "#5C3B23",
         "shadow": "#3A2416",
-        "accent": "#C65A14"
+        "accent": "#C65A14",
+        "outline": "#140C07",
+        "highlight": "#FFB37A"
       },
       "shapes": [
-        { "type": "rect", "color": "primary", "size": [10, 6], "offset": [0, 2] },
-        { "type": "rect", "color": "shadow", "size": [6, 4], "offset": [2, 3] },
-        { "type": "pixels", "color": "accent", "points": [[-3, 0], [0, 1], [3, 0]] }
+        {
+          "type": "bitmap",
+          "offset": [
+            0,
+            3
+          ],
+          "map": [
+            "................",
+            "................",
+            "................",
+            "....ssssssss....",
+            "...ssppppppss...",
+            "..ssppppppppss..",
+            "..spppppppppps..",
+            "..spppaappppps..",
+            "..spppaappppps..",
+            "..ssppppppppss..",
+            "...ssppppppss...",
+            "....ssssssss....",
+            "................",
+            "................",
+            "................",
+            "................"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent"
+          }
+        },
+        {
+          "type": "patch",
+          "offset": [
+            0,
+            3
+          ],
+          "edits": [
+            {
+              "x": -1,
+              "y": -1,
+              "color": "highlight"
+            },
+            {
+              "x": 1,
+              "y": -1,
+              "color": "highlight"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": false
+        }
       ]
     },
     {
@@ -436,12 +1283,46 @@
       "palette": {
         "primary": "#F2994A",
         "shadow": "#C65A14",
-        "accent": "#F2C94C"
+        "accent": "#F2C94C",
+        "outline": "#2A1408",
+        "highlight": "#FFD6AE"
       },
       "shapes": [
-        { "type": "rect", "color": "primary", "size": [4, 6], "offset": [0, 0] },
-        { "type": "rect", "color": "shadow", "size": [2, 6], "offset": [-1, 1] },
-        { "type": "pixels", "color": "accent", "points": [[0, -4]] }
+        {
+          "type": "bitmap",
+          "offset": [
+            0,
+            0
+          ],
+          "map": [
+            "............",
+            "....a.......",
+            "...aaa......",
+            "..ahhha.....",
+            "..ppppp.....",
+            "..psssp.....",
+            "..psssp.....",
+            "..ppppp.....",
+            "...ppp......",
+            "....p.......",
+            "............",
+            "............"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent",
+            "h": "highlight"
+          }
+        }
+      ],
+      "post": [
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
       ]
     },
     {
@@ -453,12 +1334,46 @@
       "palette": {
         "primary": "#56CCF2",
         "shadow": "#2F80ED",
-        "accent": "#E0F7FF"
+        "accent": "#E0F7FF",
+        "outline": "#071A26",
+        "highlight": "#D7F6FF"
       },
       "shapes": [
-        { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 0] },
-        { "type": "circle", "color": "shadow", "radius": 3, "offset": [2, 2] },
-        { "type": "pixels", "color": "accent", "points": [[-2, -2]] }
+        {
+          "type": "bitmap",
+          "offset": [
+            0,
+            0
+          ],
+          "map": [
+            "............",
+            "....hhhh....",
+            "...hpppph...",
+            "..hpppppph..",
+            "..hppsspph..",
+            "..hppsspph..",
+            "..hpppppph..",
+            "...hpppph...",
+            "....hhhh....",
+            ".....aa.....",
+            "............",
+            "............"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent",
+            "h": "highlight"
+          }
+        }
+      ],
+      "post": [
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
       ]
     },
     {
@@ -470,12 +1385,46 @@
       "palette": {
         "primary": "#F2C94C",
         "shadow": "#C58B2F",
-        "accent": "#FFE9A8"
+        "accent": "#FFE9A8",
+        "outline": "#261A07",
+        "highlight": "#FFF3C7"
       },
       "shapes": [
-        { "type": "circle", "color": "primary", "radius": 5, "offset": [0, 0] },
-        { "type": "circle", "color": "shadow", "radius": 3, "offset": [2, 2] },
-        { "type": "pixels", "color": "accent", "points": [[-2, -2]] }
+        {
+          "type": "bitmap",
+          "offset": [
+            0,
+            0
+          ],
+          "map": [
+            "............",
+            "....hhhh....",
+            "...hpppph...",
+            "..hpppppph..",
+            "..hppsspph..",
+            "..hppsspph..",
+            "..hpppppph..",
+            "...hpppph...",
+            "....hhhh....",
+            ".....aa.....",
+            "............",
+            "............"
+          ],
+          "legend": {
+            ".": "transparent",
+            "p": "primary",
+            "s": "shadow",
+            "a": "accent",
+            "h": "highlight"
+          }
+        }
+      ],
+      "post": [
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
       ]
     }
   ]
