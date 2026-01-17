@@ -44,7 +44,6 @@ import '../ui/death_screen.dart';
 import '../ui/escape_menu_overlay.dart';
 import '../ui/first_run_hints_overlay.dart';
 import '../ui/flow_debug_overlay.dart';
-import '../ui/hud_overlay.dart';
 import '../ui/hud_state.dart';
 import '../ui/home_base_overlay.dart';
 import '../ui/meta_unlock_screen.dart';
@@ -234,6 +233,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Vector2 _portalPosition = Vector2.zero();
   double _portalLockoutTimer = 0;
   GameFlowState _flowState = GameFlowState.start;
+  final ValueNotifier<GameFlowState> _flowStateNotifier = ValueNotifier(
+    GameFlowState.start,
+  );
   bool _inputLocked = false;
   VoidCallback? _selectionListener;
   StageTimer? _stageTimer;
@@ -259,6 +261,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   SelectionState get selectionState => _selectionState;
   StatsScreenState get statsScreenState => _statsScreenState;
   GameFlowState get flowState => _flowState;
+  ValueListenable<GameFlowState> get flowStateListenable => _flowStateNotifier;
   RunSummary get runSummary => _runSummary;
   bool get runCompleted => _runCompleted;
   MetaCurrencyWallet get metaWallet => _metaWallet;
@@ -279,6 +282,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _selectionState.addListener(_selectionListener!);
     if (stressTest) {
       _flowState = GameFlowState.stage;
+      _flowStateNotifier.value = _flowState;
     }
     await _spritePipeline.loadAndGenerateFromAsset(
       'assets/sprites/recipes.json',
@@ -853,7 +857,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(HomeBaseOverlay.overlayKey);
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(EscapeMenuOverlay.overlayKey);
-    overlays.add(HudOverlay.overlayKey);
     overlays.add(VirtualStickOverlay.overlayKey);
     _showFirstRunHintsIfNeeded();
     _syncHudState();
@@ -871,7 +874,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _portalLockoutTimer = _portalLockoutDuration;
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(AreaSelectScreen.overlayKey);
-    overlays.remove(HudOverlay.overlayKey);
     overlays.remove(VirtualStickOverlay.overlayKey);
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
@@ -901,7 +903,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(DeathScreen.overlayKey);
-    overlays.remove(HudOverlay.overlayKey);
     overlays.remove(VirtualStickOverlay.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
@@ -1608,6 +1609,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       return;
     }
     _flowState = state;
+    _flowStateNotifier.value = state;
     _syncPortalVisibility();
     _updateInputLock();
   }
@@ -1711,7 +1713,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       backgroundColor: GameSizes.homeBaseBackgroundColor,
     );
     _setFlowState(GameFlowState.start);
-    overlays.remove(HudOverlay.overlayKey);
     overlays.remove(VirtualStickOverlay.overlayKey);
     overlays.remove(HomeBaseOverlay.overlayKey);
     overlays.remove(AreaSelectScreen.overlayKey);
@@ -2110,7 +2111,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(EscapeMenuOverlay.overlayKey);
     _setFlowState(GameFlowState.death);
-    overlays.remove(HudOverlay.overlayKey);
     overlays.remove(VirtualStickOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
     overlays.add(DeathScreen.overlayKey);

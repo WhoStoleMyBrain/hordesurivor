@@ -11,14 +11,13 @@ import 'ui/death_screen.dart';
 import 'ui/escape_menu_overlay.dart';
 import 'ui/first_run_hints_overlay.dart';
 import 'ui/flow_debug_overlay.dart';
-import 'ui/hud_overlay.dart';
 import 'ui/home_base_overlay.dart';
 import 'ui/meta_unlock_screen.dart';
 import 'ui/options_screen.dart';
 import 'ui/selection_overlay.dart';
 import 'ui/start_screen.dart';
 import 'ui/stats_overlay.dart';
-import 'ui/run_stats_panel.dart';
+import 'ui/side_panel.dart';
 import 'ui/ui_scale.dart';
 import 'ui/virtual_stick_overlay.dart';
 import 'game/game_flow_state.dart';
@@ -142,18 +141,19 @@ class _GameShellState extends State<_GameShell> {
           children: [
             SizedBox(
               width: panelWidth,
-              child: RunStatsPanel(state: _game.statsScreenState),
+              child: SidePanel(
+                flowStateListenable: _game.flowStateListenable,
+                hudState: _game.hudState,
+                wallet: _game.metaWallet,
+                onExitStressTest: _game.stressTest
+                    ? () => Navigator.of(context).pushReplacementNamed('/')
+                    : null,
+              ),
             ),
             Expanded(
               child: GameWidget<HordeGame>(
                 game: _game,
                 overlayBuilderMap: {
-                  HudOverlay.overlayKey: (context, game) => HudOverlay(
-                    hudState: game.hudState,
-                    onExitStressTest: game.stressTest
-                        ? () => Navigator.of(context).pushReplacementNamed('/')
-                        : null,
-                  ),
                   VirtualStickOverlay.overlayKey: (_, game) =>
                       VirtualStickOverlay(state: game.virtualStickState),
                   SelectionOverlay.overlayKey: (_, game) => SelectionOverlay(
@@ -231,10 +231,7 @@ class _GameShellState extends State<_GameShell> {
                   ),
                 },
                 initialActiveOverlays: widget.stressTest
-                    ? const [
-                        HudOverlay.overlayKey,
-                        VirtualStickOverlay.overlayKey,
-                      ]
+                    ? const [VirtualStickOverlay.overlayKey]
                     : const [StartScreen.overlayKey],
               ),
             ),
