@@ -23,6 +23,8 @@ class PickupComponent extends PositionComponent {
   final Paint _paint;
   PickupKind? _lastKind;
   Image? _spriteImage;
+  Rect _spriteSourceRect = Rect.zero;
+  Rect _spriteDestRect = Rect.zero;
 
   void _syncSprite() {
     _spriteImage = _spriteImages[_state.kind];
@@ -31,8 +33,21 @@ class PickupComponent extends PositionComponent {
         _spriteImage!.width.toDouble(),
         _spriteImage!.height.toDouble(),
       );
+      _spriteSourceRect = Rect.fromLTWH(
+        0,
+        0,
+        _spriteImage!.width.toDouble(),
+        _spriteImage!.height.toDouble(),
+      );
+      _spriteDestRect = Rect.fromCenter(
+        center: Offset.zero,
+        width: size.x,
+        height: size.y,
+      );
     } else {
       size = Vector2.all(10);
+      _spriteSourceRect = Rect.zero;
+      _spriteDestRect = Rect.zero;
     }
   }
 
@@ -50,18 +65,7 @@ class PickupComponent extends PositionComponent {
   void render(Canvas canvas) {
     final image = _spriteImage;
     if (image != null) {
-      final destRect = Rect.fromCenter(
-        center: Offset.zero,
-        width: size.x,
-        height: size.y,
-      );
-      final srcRect = Rect.fromLTWH(
-        0,
-        0,
-        image.width.toDouble(),
-        image.height.toDouble(),
-      );
-      canvas.drawImageRect(image, srcRect, destRect, _paint);
+      canvas.drawImageRect(image, _spriteSourceRect, _spriteDestRect, _paint);
     } else {
       canvas.drawCircle(Offset.zero, size.x * 0.5, _paint);
     }

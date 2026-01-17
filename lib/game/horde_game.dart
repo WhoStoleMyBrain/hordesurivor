@@ -204,6 +204,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       maxRadius: _panMaxRadius,
     ),
   );
+  static const bool _damageNumbersEnabled = false;
   final List<DamageNumberComponent> _damageNumberPool = [];
   final List<PickupSparkComponent> _pickupSparkPool = [];
   final TextPaint _enemyDamagePaint = TextPaint(
@@ -386,13 +387,15 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       summonPool: _summonPool,
     );
     _damageSystem = DamageSystem(DamageEventPool(initialCapacity: 64));
-    for (var i = 0; i < 32; i++) {
-      _damageNumberPool.add(
-        DamageNumberComponent(
-          textPaint: _enemyDamagePaint,
-          onComplete: _releaseDamageNumber,
-        ),
-      );
+    if (_damageNumbersEnabled) {
+      for (var i = 0; i < 32; i++) {
+        _damageNumberPool.add(
+          DamageNumberComponent(
+            textPaint: _enemyDamagePaint,
+            onComplete: _releaseDamageNumber,
+          ),
+        );
+      }
     }
     _spawnerSystem = SpawnerSystem(
       pool: _enemyPool,
@@ -1177,6 +1180,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (amount <= 0) {
       return;
     }
+    if (!_damageNumbersEnabled) {
+      return;
+    }
     final component = _acquireDamageNumber();
     final jitterX = (_damageNumberRandom.nextDouble() - 0.5) * 10;
     final jitterY = (_damageNumberRandom.nextDouble() - 0.5) * 6;
@@ -1203,6 +1209,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _runSummary.synergyTriggers += 1;
     final counts = _runSummary.synergyTriggerCounts;
     counts[synergy.id] = (counts[synergy.id] ?? 0) + 1;
+    if (!_damageNumbersEnabled) {
+      return;
+    }
     final component = _acquireDamageNumber();
     final jitterX = (_damageNumberRandom.nextDouble() - 0.5) * 8;
     final jitterY = (_damageNumberRandom.nextDouble() - 0.5) * 6;
