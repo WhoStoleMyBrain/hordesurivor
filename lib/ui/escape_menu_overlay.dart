@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../game/stress_stats.dart';
 import '../game/meta_currency_wallet.dart';
 import 'run_stats_content.dart';
 import 'start_menu_entries.dart';
@@ -17,6 +18,7 @@ class EscapeMenuOverlay extends StatelessWidget {
     required this.onCompendium,
     required this.onMetaUnlocks,
     this.onStressTest,
+    this.stressStats,
     this.statsState,
     this.onContinue,
     this.onAbort,
@@ -35,6 +37,7 @@ class EscapeMenuOverlay extends StatelessWidget {
   final VoidCallback onCompendium;
   final VoidCallback onMetaUnlocks;
   final VoidCallback? onStressTest;
+  final StressStatsSnapshot? stressStats;
   final StatsScreenState? statsState;
   final VoidCallback? onContinue;
   final VoidCallback? onAbort;
@@ -80,7 +83,16 @@ class EscapeMenuOverlay extends StatelessWidget {
                           animation: statsState!,
                           builder: (context, _) {
                             return SingleChildScrollView(
-                              child: RunStatsContent(state: statsState!),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (stressStats != null) ...[
+                                    _StressStatsSection(stats: stressStats!),
+                                    const SizedBox(height: 16),
+                                  ],
+                                  RunStatsContent(state: statsState!),
+                                ],
+                              ),
                             );
                           },
                         ),
@@ -142,6 +154,86 @@ class EscapeMenuOverlay extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _StressStatsSection extends StatelessWidget {
+  const _StressStatsSection({required this.stats});
+
+  final StressStatsSnapshot stats;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Stress Metrics',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        _StressStatRow(label: 'Frames', value: '${stats.frameCount}'),
+        _StressStatRow(
+          label: 'Avg FPS',
+          value: stats.averageFps.toStringAsFixed(1),
+        ),
+        _StressStatRow(
+          label: 'Min / Max FPS',
+          value:
+              '${stats.minFps.toStringAsFixed(1)}'
+              ' / ${stats.maxFps.toStringAsFixed(1)}',
+        ),
+        _StressStatRow(
+          label: 'Avg Frame',
+          value: '${stats.averageFrameMs.toStringAsFixed(1)} ms',
+        ),
+        _StressStatRow(
+          label: 'Worst Frame',
+          value: '${stats.worstFrameMs.toStringAsFixed(1)} ms',
+        ),
+        _StressStatRow(
+          label: 'Slow Frames',
+          value:
+              '${stats.slowFrameCount}'
+              ' (>${stats.slowFrameThresholdMs.toStringAsFixed(1)} ms)',
+        ),
+      ],
+    );
+  }
+}
+
+class _StressStatRow extends StatelessWidget {
+  const _StressStatRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: theme.bodySmall?.copyWith(color: Colors.white70),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: theme.bodyMedium?.copyWith(color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }
