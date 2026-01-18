@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flame/extensions.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -131,7 +133,10 @@ void main() {
     );
     final playerState = buildPlayer();
 
-    final damageSystem = DamageSystem(DamageEventPool(initialCapacity: 4));
+    final damageSystem = DamageSystem(
+      DamageEventPool(initialCapacity: 4),
+      random: math.Random(5),
+    );
     system.update(
       dt: 0.2,
       playerPosition: Vector2.zero(),
@@ -191,7 +196,10 @@ void main() {
     final playerState = buildPlayer();
 
     var defeatedCount = 0;
-    final damageSystem = DamageSystem(DamageEventPool(initialCapacity: 4));
+    final damageSystem = DamageSystem(
+      DamageEventPool(initialCapacity: 4),
+      random: math.Random(6),
+    );
     system.update(
       dt: 0.2,
       playerPosition: Vector2.zero(),

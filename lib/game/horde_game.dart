@@ -233,6 +233,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final math.Random _damageNumberRandom = math.Random(29);
   final math.Random _pickupRandom = math.Random(17);
   final math.Random _lifestealRandom = math.Random(23);
+  final math.Random _combatRandom = math.Random(31);
+  final math.Random _skillRandom = math.Random(37);
+  final math.Random _summonRandom = math.Random(43);
   final Vector2 _damageNumberPosition = Vector2.zero();
   final Vector2 _damageNumberVelocity = Vector2.zero();
   final Vector2 _pickupSparkPosition = Vector2.zero();
@@ -386,13 +389,17 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _enemyGrid = SpatialGrid(cellSize: 64);
     _projectileSystem = ProjectileSystem(_projectilePool);
     _effectSystem = EffectSystem(_effectPool);
-    _summonSystem = SummonSystem(_summonPool);
+    _summonSystem = SummonSystem(_summonPool, random: _summonRandom);
     _skillSystem = SkillSystem(
       projectilePool: _projectilePool,
       effectPool: _effectPool,
       summonPool: _summonPool,
+      random: _skillRandom,
     );
-    _damageSystem = DamageSystem(DamageEventPool(initialCapacity: 64));
+    _damageSystem = DamageSystem(
+      DamageEventPool(initialCapacity: 64),
+      random: _combatRandom,
+    );
     if (_damageNumbersEnabled) {
       for (var i = 0; i < 32; i++) {
         _damageNumberPool.add(
@@ -605,6 +612,15 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       onProjectileSpawn: _handleProjectileSpawn,
       onDespawn: _handleSummonDespawn,
       onEnemyDamaged: _damageSystem.queueEnemyDamage,
+      onPlayerDamaged:
+          (amount, {tags = const TagSet(), selfInflicted = false}) {
+            _damageSystem.queuePlayerDamage(
+              _playerState,
+              amount,
+              tags: tags,
+              selfInflicted: selfInflicted,
+            );
+          },
     );
     if (stressTest) {
       _spawnStressProjectiles(dt);

@@ -49,6 +49,7 @@ enum SynergyId { igniteOnOil, igniteOnRoot }
 enum ItemId {
   glassCatalyst,
   heavyPlate,
+  reinforcedPlating,
   featherBoots,
   overclockedTrigger,
   slowCooker,
@@ -64,6 +65,7 @@ enum ItemId {
   luckyCoin,
   gamblersDie,
   reactiveShield,
+  evasiveTalisman,
   ritualCandle,
   slickSoles,
   backpackOfGlass,

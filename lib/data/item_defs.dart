@@ -47,6 +47,15 @@ const List<ItemDef> itemDefs = [
     ],
   ),
   ItemDef(
+    id: ItemId.reinforcedPlating,
+    name: 'Reinforced Plating',
+    description: 'Thicker armor trades off some mobility.',
+    modifiers: [
+      StatModifier(stat: StatId.armor, amount: 2, kind: ModifierKind.flat),
+      StatModifier(stat: StatId.moveSpeedPercent, amount: -0.1),
+    ],
+  ),
+  ItemDef(
     id: ItemId.featherBoots,
     name: 'Feather Boots',
     description: 'Swift steps with reduced protection.',
@@ -202,6 +211,16 @@ const List<ItemDef> itemDefs = [
       StatModifier(stat: StatId.cooldownRecovery, amount: -0.15),
     ],
     tags: TagSet(effects: {EffectTag.support}),
+  ),
+  ItemDef(
+    id: ItemId.evasiveTalisman,
+    name: 'Evasive Talisman',
+    description: 'Sharper dodges leave you more fragile.',
+    modifiers: [
+      StatModifier(stat: StatId.dodgeChance, amount: 0.12),
+      StatModifier(stat: StatId.maxHp, amount: -0.1),
+    ],
+    tags: TagSet(effects: {EffectTag.mobility}),
   ),
   ItemDef(
     id: ItemId.ritualCandle,
