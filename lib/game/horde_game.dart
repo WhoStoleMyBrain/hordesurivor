@@ -80,6 +80,7 @@ import 'spawner_system.dart';
 import 'game_flow_state.dart';
 import 'run_summary.dart';
 import 'stage_timer.dart';
+import 'stress_stats.dart';
 import 'summon_pool.dart';
 import 'summon_state.dart';
 import 'summon_system.dart';
@@ -147,6 +148,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   double _stressProjectileTimer = 0;
   double _telegraphOpacityMultiplier = 1.0;
   final bool stressTest;
+  final StressStatsTracker _stressStatsTracker = StressStatsTracker();
+  StressStatsSnapshot? _stressStatsSnapshot;
   late final PlayerState _playerState;
   late final PlayerComponent _playerComponent;
   final SpritePipeline _spritePipeline = SpritePipeline();
@@ -269,6 +272,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   MetaUnlocks get metaUnlocks => _metaUnlocks;
   ValueListenable<VirtualStickState> get virtualStickState =>
       _virtualStickState;
+  StressStatsSnapshot? get stressStatsSnapshot => _stressStatsSnapshot;
 
   @override
   backgroundColor() => const Color(0xFF0F1117);
@@ -487,6 +491,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final clampedDt = math.min(dt, 0.25);
     _frameTimeMs = clampedDt * 1000;
     _fps = clampedDt > 0 ? 1 / clampedDt : 0;
+    if (stressTest) {
+      _stressStatsTracker.recordFrame(clampedDt);
+    }
     if (_flowState == GameFlowState.homeBase) {
       _accumulator = math.min(
         _accumulator + clampedDt,
@@ -717,6 +724,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void closeOptionsScreen() {
     overlays.remove(OptionsScreen.overlayKey);
     if (_menuReturnPending) {
+      _captureStressMenuStats();
       overlays.add(EscapeMenuOverlay.overlayKey);
       _menuReturnPending = false;
       _updateInputLock();
@@ -731,6 +739,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void closeCompendiumScreen() {
     overlays.remove(CompendiumScreen.overlayKey);
     if (_menuReturnPending) {
+      _captureStressMenuStats();
       overlays.add(EscapeMenuOverlay.overlayKey);
       _menuReturnPending = false;
       _updateInputLock();
@@ -745,6 +754,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void closeMetaUnlocksScreen() {
     overlays.remove(MetaUnlockScreen.overlayKey);
     if (_menuReturnPending) {
+      _captureStressMenuStats();
       overlays.add(EscapeMenuOverlay.overlayKey);
       _menuReturnPending = false;
       _updateInputLock();
@@ -1672,6 +1682,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     if (_flowState == GameFlowState.stage) {
       overlays.remove(StatsOverlay.overlayKey);
+      _captureStressMenuStats();
       overlays.add(EscapeMenuOverlay.overlayKey);
       _updateInputLock();
       return;
@@ -1679,8 +1690,16 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (_flowState == GameFlowState.start) {
       return;
     }
+    _captureStressMenuStats();
     overlays.add(EscapeMenuOverlay.overlayKey);
     _updateInputLock();
+  }
+
+  void _captureStressMenuStats() {
+    if (!stressTest) {
+      return;
+    }
+    _stressStatsSnapshot = _stressStatsTracker.snapshot();
   }
 
   void debugJumpToState(GameFlowState state) {

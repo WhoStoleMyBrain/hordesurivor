@@ -202,6 +202,7 @@ class _GameShellState extends State<_GameShell> {
                         onStressTest: () => Navigator.of(
                           context,
                         ).pushReplacementNamed('/stress'),
+                        stressStats: game.stressStatsSnapshot,
                         statsState: game.statsScreenState,
                         onContinue: game.continueRunFromMenu,
                         onAbort: game.abortRunFromMenu,
