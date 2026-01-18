@@ -63,7 +63,12 @@ class PlayerState {
   int dashMaxCharges = 0;
 
   double get maxHp => math.max(1, stats.value(StatId.maxHp));
-  double get moveSpeed => math.max(0, stats.value(StatId.moveSpeed));
+  double get moveSpeed {
+    final baseSpeed = stats.value(StatId.moveSpeed);
+    final speedBonus = stats.value(StatId.moveSpeedPercent);
+    return math.max(0, baseSpeed * (1 + speedBonus));
+  }
+
   bool get isInvulnerable => invulnerabilityTimeRemaining > 0;
   bool get isDashing => dashTimeRemaining > 0;
   double get hitEffectProgress {
@@ -112,6 +117,10 @@ class PlayerState {
   }
 
   void step(double dt) {
+    final regen = stats.value(StatId.hpRegen);
+    if (regen > 0) {
+      heal(regen * dt);
+    }
     _syncDashChargeLimits();
     if (dashCooldownRemaining > 0) {
       dashCooldownRemaining = math.max(0, dashCooldownRemaining - dt);

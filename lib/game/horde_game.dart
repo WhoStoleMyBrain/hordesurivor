@@ -2186,7 +2186,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (_pickupPool.active.isEmpty) {
       return;
     }
-    final pickupBonus = _playerState.stats.value(StatId.pickupRadius);
+    final pickupBonus = _playerState.stats.value(StatId.pickupRadiusPercent);
     final pickupRadius = math.max(0, _pickupRadiusBase * (1 + pickupBonus));
     final collectRadius = _playerRadius + pickupRadius;
     final collectRadiusSquared = collectRadius * collectRadius;
