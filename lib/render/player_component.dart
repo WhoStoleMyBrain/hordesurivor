@@ -24,8 +24,21 @@ class PlayerComponent extends PositionComponent {
         spriteImage.width.toDouble(),
         spriteImage.height.toDouble(),
       );
+      _spriteSourceRect = Rect.fromLTWH(
+        0,
+        0,
+        spriteImage.width.toDouble(),
+        spriteImage.height.toDouble(),
+      );
+      _spriteDestRect = Rect.fromCenter(
+        center: Offset.zero,
+        width: size.x,
+        height: size.y,
+      );
     } else {
       size = Vector2.all(radius * 2);
+      _spriteSourceRect = Rect.zero;
+      _spriteDestRect = Rect.zero;
     }
   }
 
@@ -34,22 +47,18 @@ class PlayerComponent extends PositionComponent {
   final Image? _spriteImage;
   final HitEffectRenderer _hitEffectRenderer;
   final Paint _paint;
+  late final Rect _spriteSourceRect;
+  late final Rect _spriteDestRect;
 
   @override
   void render(Canvas canvas) {
     if (_spriteImage != null) {
-      final destRect = Rect.fromCenter(
-        center: Offset.zero,
-        width: size.x,
-        height: size.y,
+      canvas.drawImageRect(
+        _spriteImage,
+        _spriteSourceRect,
+        _spriteDestRect,
+        _paint,
       );
-      final srcRect = Rect.fromLTWH(
-        0,
-        0,
-        _spriteImage.width.toDouble(),
-        _spriteImage.height.toDouble(),
-      );
-      canvas.drawImageRect(_spriteImage, srcRect, destRect, _paint);
     } else {
       canvas.drawCircle(Offset.zero, _radius, _paint);
     }

@@ -152,6 +152,23 @@ V0.1 aims to be a playable skeleton with at least:
 
 Agents may propose a slightly different structure if they also migrate existing code consistently.
 
+### 2.3.1 Technical overview (where to look first)
+Quick orientation for cloud agents; use this as the “map” when a task arrives:
+- **Entry point & routing:** `lib/main.dart` initializes UI scale + data validation, wires routes (stress scene), and attaches overlays to the `GameWidget`.
+- **Core game loop:** `lib/game/horde_game.dart` runs the fixed timestep, owns pools, systems, input handling, run flow, and HUD state.
+- **Game flow states:** `lib/game/game_flow_state.dart` defines the Start → Home Base → Area Select → Stage → Death lifecycle.
+- **Systems (simulation):**
+  - **Skills/combat:** `lib/game/skill_system.dart`, `lib/game/projectile_system.dart`, `lib/game/effect_system.dart`, `lib/game/damage_system.dart`.
+  - **Enemies & spawns:** `lib/game/enemy_system.dart`, `lib/game/spawner_system.dart`, `lib/game/spawn_director.dart`.
+  - **Progression & rewards:** `lib/game/progression_system.dart`, `lib/game/level_up_system.dart`, plus reward handling in `lib/game/horde_game.dart`.
+  - **Summons & pickups:** `lib/game/summon_system.dart` and pool classes in `lib/game/*_pool.dart`.
+  - **Spatial queries:** `lib/game/spatial_grid.dart` for proximity checks.
+- **Data catalogs:** definitions live in `lib/data/` (`skill_defs.dart`, `item_defs.dart`, `enemy_defs.dart`, `area_defs.dart`, `contract_defs.dart`, `currency_defs.dart`, `progression_track_defs.dart`, `selection_pool_defs.dart`, `synergy_defs.dart`, `weapon_upgrade_defs.dart`) and are validated by `lib/data/data_validation.dart`.
+- **Rendering:** Flame components + visuals in `lib/render/` (e.g., `player_component.dart`, `enemy_component.dart`, `projectile_batch_component.dart`, `render_scale.dart`, `sprite_pipeline.dart`).
+- **UI & overlays:** screens/overlays in `lib/ui/` (Start, Options, Area Select, Selection, HUD, Meta Unlocks, Death, etc.); `lib/ui/side_panel.dart` hosts the persistent HUD panel layout.
+- **Input:** keyboard handling lives in `lib/game/horde_game.dart`; touch stick visualization in `lib/ui/virtual_stick_overlay.dart` + state in `lib/ui/virtual_stick_state.dart`.
+- **Persistence:** meta currency + unlocks in `lib/game/meta_currency_wallet.dart` and `lib/game/meta_unlocks.dart`; UI scale persistence in `lib/ui/ui_scale.dart`.
+
 ### 2.4 Data-driven content
 V0.1 content should be definable as data objects, not hard-coded behavior:
 - `SkillDef`, `ItemDef`, `EnemyDef` with:

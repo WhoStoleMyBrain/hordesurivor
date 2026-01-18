@@ -84,8 +84,21 @@ class EnemyComponent extends PositionComponent {
         spriteImage.width.toDouble(),
         spriteImage.height.toDouble(),
       );
+      _spriteSourceRect = Rect.fromLTWH(
+        0,
+        0,
+        spriteImage.width.toDouble(),
+        spriteImage.height.toDouble(),
+      );
+      _spriteDestRect = Rect.fromCenter(
+        center: Offset.zero,
+        width: size.x,
+        height: size.y,
+      );
     } else {
       size = Vector2.all(radius * 2);
+      _spriteSourceRect = Rect.zero;
+      _spriteDestRect = Rect.zero;
     }
     final shapeRadius = size.x > 0 ? size.x / 2 : radius;
     _shapeRadius = math.max(radius, shapeRadius);
@@ -127,6 +140,8 @@ class EnemyComponent extends PositionComponent {
   final Paint? _zoneFillPaint;
   final Paint? _zoneStrokePaint;
   final Paint? _variantRingPaint;
+  late final Rect _spriteSourceRect;
+  late final Rect _spriteDestRect;
   late final double _shapeRadius;
   late final Rect _squareRect;
   late final Path _diamondPath;
@@ -168,18 +183,12 @@ class EnemyComponent extends PositionComponent {
       }
     }
     if (_spriteImage != null) {
-      final destRect = Rect.fromCenter(
-        center: Offset.zero,
-        width: size.x,
-        height: size.y,
+      canvas.drawImageRect(
+        _spriteImage,
+        _spriteSourceRect,
+        _spriteDestRect,
+        _paint,
       );
-      final srcRect = Rect.fromLTWH(
-        0,
-        0,
-        _spriteImage.width.toDouble(),
-        _spriteImage.height.toDouble(),
-      );
-      canvas.drawImageRect(_spriteImage, srcRect, destRect, _paint);
       _renderRoleBadge(canvas);
       return;
     }
