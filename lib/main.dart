@@ -160,6 +160,7 @@ class _GameShellState extends State<_GameShell> {
                     selectionState: game.selectionState,
                     onSelected: game.selectChoice,
                     onReroll: game.rerollSelection,
+                    onBanish: game.banishSelection,
                     onSkip: game.skipSelection,
                   ),
                   StatsOverlay.overlayKey: (_, game) => StatsOverlay(

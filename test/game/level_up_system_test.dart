@@ -285,4 +285,67 @@ void main() {
       isTrue,
     );
   });
+
+  test('LevelUpSystem banishes choices from future selections', () {
+    final system = LevelUpSystem(random: math.Random(6), baseChoiceCount: 999);
+    final playerState = PlayerState(
+      position: Vector2.zero(),
+      maxHp: 100,
+      moveSpeed: 10,
+    );
+    playerState.applyModifiers(const [
+      StatModifier(stat: StatId.banishes, amount: 1, kind: ModifierKind.flat),
+    ]);
+    system.resetForRun(playerState: playerState);
+    final skillSystem = SkillSystem(
+      projectilePool: ProjectilePool(),
+      effectPool: EffectPool(),
+      summonPool: SummonPool(),
+    );
+
+    system.queueLevels(ProgressionTrackId.skills, 1);
+    system.buildChoices(
+      trackId: ProgressionTrackId.skills,
+      selectionPoolId: SelectionPoolId.skillPool,
+      playerState: playerState,
+      skillSystem: skillSystem,
+    );
+
+    final choice = system.choices.firstWhere(
+      (choice) => choice.type == SelectionType.skill && choice.skillId != null,
+    );
+    final banishedId = choice.skillId;
+
+    final banished = system.banishChoice(
+      trackId: ProgressionTrackId.skills,
+      selectionPoolId: SelectionPoolId.skillPool,
+      choice: choice,
+      playerState: playerState,
+      skillSystem: skillSystem,
+    );
+
+    expect(banished, isTrue);
+    expect(system.banishesRemaining, 0);
+    expect(
+      system.choices.any((choice) => choice.skillId == banishedId),
+      isFalse,
+    );
+
+    system.skipChoice(
+      trackId: ProgressionTrackId.skills,
+      playerState: playerState,
+    );
+    system.queueLevels(ProgressionTrackId.skills, 1);
+    system.buildChoices(
+      trackId: ProgressionTrackId.skills,
+      selectionPoolId: SelectionPoolId.skillPool,
+      playerState: playerState,
+      skillSystem: skillSystem,
+    );
+
+    expect(
+      system.choices.any((choice) => choice.skillId == banishedId),
+      isFalse,
+    );
+  });
 }

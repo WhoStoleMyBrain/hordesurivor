@@ -78,6 +78,7 @@ import 'spatial_grid.dart';
 import 'spawn_director.dart';
 import 'spawner_system.dart';
 import 'game_flow_state.dart';
+import 'lifesteal.dart';
 import 'run_summary.dart';
 import 'stage_timer.dart';
 import 'stress_stats.dart';
@@ -231,6 +232,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Vector2 _stressVelocity = Vector2.zero();
   final math.Random _damageNumberRandom = math.Random(29);
   final math.Random _pickupRandom = math.Random(17);
+  final math.Random _lifestealRandom = math.Random(23);
   final Vector2 _damageNumberPosition = Vector2.zero();
   final Vector2 _damageNumberVelocity = Vector2.zero();
   final Vector2 _pickupSparkPosition = Vector2.zero();
@@ -1190,6 +1192,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (amount <= 0) {
       return;
     }
+    tryLifesteal(
+      player: _playerState,
+      chance: _playerState.stats.value(StatId.lifeSteal),
+      random: _lifestealRandom,
+    );
     if (!_damageNumbersEnabled) {
       return;
     }
@@ -1351,12 +1358,36 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         _levelUpSystem.choices,
         trackId: _activeSelectionTrackId ?? ProgressionTrackId.skills,
         rerollsRemaining: _levelUpSystem.rerollsRemaining,
+        banishesRemaining: _levelUpSystem.banishesRemaining,
         skipRewardCurrencyAmount: _skipRewardCurrencyValue(
           _activeSelectionTrackId ?? ProgressionTrackId.skills,
         ),
         skipRewardCurrencyId: _currencyIdForTrack(
           _activeSelectionTrackId ?? ProgressionTrackId.skills,
         ),
+        skipRewardMetaShards: _skipRewardMetaShardValue(),
+      );
+    }
+  }
+
+  void banishSelection(SelectionChoice choice) {
+    final trackId = _activeSelectionTrackId ?? ProgressionTrackId.skills;
+    final banished = _levelUpSystem.banishChoice(
+      trackId: trackId,
+      selectionPoolId: _activeSelectionPoolId(),
+      choice: choice,
+      playerState: _playerState,
+      skillSystem: _skillSystem,
+      unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
+    );
+    if (banished) {
+      _selectionState.showChoices(
+        _levelUpSystem.choices,
+        trackId: trackId,
+        rerollsRemaining: _levelUpSystem.rerollsRemaining,
+        banishesRemaining: _levelUpSystem.banishesRemaining,
+        skipRewardCurrencyAmount: _skipRewardCurrencyValue(trackId),
+        skipRewardCurrencyId: _currencyIdForTrack(trackId),
         skipRewardMetaShards: _skipRewardMetaShardValue(),
       );
     }
@@ -1383,6 +1414,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         _levelUpSystem.choices,
         trackId: nextTrackId,
         rerollsRemaining: _levelUpSystem.rerollsRemaining,
+        banishesRemaining: _levelUpSystem.banishesRemaining,
         skipRewardCurrencyAmount: _skipRewardCurrencyValue(nextTrackId),
         skipRewardCurrencyId: _currencyIdForTrack(nextTrackId),
         skipRewardMetaShards: _skipRewardMetaShardValue(),

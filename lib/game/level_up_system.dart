@@ -48,10 +48,16 @@ class LevelUpSystem {
   final Set<SkillUpgradeId> _appliedUpgrades = {};
   final Set<String> _appliedWeaponUpgrades = {};
   final Set<ItemId> _appliedItems = {};
+  final Set<SkillId> _banishedSkills = {};
+  final Set<ItemId> _banishedItems = {};
+  final Set<SkillUpgradeId> _banishedSkillUpgrades = {};
+  final Set<String> _banishedWeaponUpgrades = {};
   final Map<ProgressionTrackId, int> _pendingLevels = {};
   final Map<SkillId, int> _weaponUpgradeTiers = {};
   int _rerollsRemaining = 0;
   int _rerollsMax = 0;
+  int _banishesRemaining = 0;
+  int _banishesMax = 0;
   ProgressionTrackId? _activeTrackId;
 
   List<SelectionChoice> get choices => List.unmodifiable(_choices);
@@ -60,6 +66,8 @@ class LevelUpSystem {
   bool get hasChoices => _choices.isNotEmpty;
   int get rerollsRemaining => _rerollsRemaining;
   int get rerollsMax => _rerollsMax;
+  int get banishesRemaining => _banishesRemaining;
+  int get banishesMax => _banishesMax;
   Set<SkillUpgradeId> get appliedUpgrades =>
       Set<SkillUpgradeId>.unmodifiable(_appliedUpgrades);
   Set<String> get appliedWeaponUpgrades =>
@@ -88,11 +96,18 @@ class LevelUpSystem {
     _appliedUpgrades.clear();
     _appliedWeaponUpgrades.clear();
     _appliedItems.clear();
+    _banishedSkills.clear();
+    _banishedItems.clear();
+    _banishedSkillUpgrades.clear();
+    _banishedWeaponUpgrades.clear();
     _weaponUpgradeTiers.clear();
     _rerollsRemaining = 0;
     _rerollsMax = 0;
+    _banishesRemaining = 0;
+    _banishesMax = 0;
     _activeTrackId = null;
     _syncRerolls(playerState);
+    _syncBanishes(playerState);
   }
 
   void buildChoices({
@@ -194,6 +209,7 @@ class LevelUpSystem {
         }
     }
     _syncRerolls(playerState);
+    _syncBanishes(playerState);
     _pendingLevels[trackId] = math.max(0, (_pendingLevels[trackId] ?? 0) - 1);
     _choices.clear();
     _activeTrackId = null;
@@ -204,9 +220,67 @@ class LevelUpSystem {
     required PlayerState playerState,
   }) {
     _syncRerolls(playerState);
+    _syncBanishes(playerState);
     _pendingLevels[trackId] = math.max(0, (_pendingLevels[trackId] ?? 0) - 1);
     _choices.clear();
     _activeTrackId = null;
+  }
+
+  bool banishChoice({
+    required ProgressionTrackId trackId,
+    required SelectionPoolId selectionPoolId,
+    required SelectionChoice choice,
+    required PlayerState playerState,
+    required SkillSystem skillSystem,
+    Set<MetaUnlockId> unlockedMeta = const {},
+  }) {
+    if (_choices.isEmpty ||
+        _banishesRemaining <= 0 ||
+        _activeTrackId != trackId) {
+      return false;
+    }
+    switch (choice.type) {
+      case SelectionType.skill:
+        final skillId = choice.skillId;
+        if (skillId == null) {
+          return false;
+        }
+        _banishedSkills.add(skillId);
+      case SelectionType.item:
+        final itemId = choice.itemId;
+        if (itemId == null) {
+          return false;
+        }
+        _banishedItems.add(itemId);
+      case SelectionType.skillUpgrade:
+        final upgradeId = choice.skillUpgradeId;
+        if (upgradeId == null) {
+          return false;
+        }
+        _banishedSkillUpgrades.add(upgradeId);
+      case SelectionType.weaponUpgrade:
+        final upgradeId = choice.weaponUpgradeId;
+        if (upgradeId == null) {
+          return false;
+        }
+        _banishedWeaponUpgrades.add(upgradeId);
+    }
+    _banishesRemaining = math.max(0, _banishesRemaining - 1);
+    _choices
+      ..clear()
+      ..addAll(
+        _buildChoicesFor(
+          playerState,
+          skillSystem,
+          selectionPoolId,
+          unlockedMeta,
+        ),
+      );
+    if (_choices.isEmpty) {
+      _pendingLevels[trackId] = 0;
+      _activeTrackId = null;
+    }
+    return true;
   }
 
   List<SelectionChoice> _buildChoicesFor(
@@ -238,6 +312,18 @@ class LevelUpSystem {
     }
   }
 
+  void _syncBanishes(PlayerState playerState) {
+    final bonus = playerState.stats.value(StatId.banishes).round();
+    final maxBanishes = math.max(0, bonus);
+    if (maxBanishes > _banishesMax) {
+      _banishesRemaining += maxBanishes - _banishesMax;
+    }
+    _banishesMax = maxBanishes;
+    if (_banishesRemaining > _banishesMax) {
+      _banishesRemaining = _banishesMax;
+    }
+  }
+
   List<SelectionChoice> _buildCandidates(
     SkillSystem skillSystem,
     SelectionPoolId selectionPoolId,
@@ -248,6 +334,7 @@ class LevelUpSystem {
         return [
           for (final skill in skillDefs)
             if (!skillSystem.hasSkill(skill.id) &&
+                !_banishedSkills.contains(skill.id) &&
                 (skill.metaUnlockId == null ||
                     unlockedMeta.contains(skill.metaUnlockId)))
               SelectionChoice(
@@ -258,7 +345,8 @@ class LevelUpSystem {
               ),
           for (final upgrade in skillUpgradeDefs)
             if (skillSystem.hasSkill(upgrade.skillId) &&
-                !_appliedUpgrades.contains(upgrade.id))
+                !_appliedUpgrades.contains(upgrade.id) &&
+                !_banishedSkillUpgrades.contains(upgrade.id))
               SelectionChoice(
                 type: SelectionType.skillUpgrade,
                 title:
@@ -271,8 +359,9 @@ class LevelUpSystem {
       case SelectionPoolId.itemPool:
         return [
           for (final item in itemDefs)
-            if (item.metaUnlockId == null ||
-                unlockedMeta.contains(item.metaUnlockId))
+            if (!_banishedItems.contains(item.id) &&
+                (item.metaUnlockId == null ||
+                    unlockedMeta.contains(item.metaUnlockId)))
               SelectionChoice(
                 type: SelectionType.item,
                 title: item.name,
@@ -295,6 +384,9 @@ class LevelUpSystem {
       final nextTier = currentTier + 1;
       final upgrade = weaponUpgradeDefsBySkillAndTier[skillId]?[nextTier];
       if (upgrade == null) {
+        continue;
+      }
+      if (_banishedWeaponUpgrades.contains(upgrade.id)) {
         continue;
       }
       if (_appliedWeaponUpgrades.contains(upgrade.id)) {
