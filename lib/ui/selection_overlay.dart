@@ -19,6 +19,7 @@ class SelectionOverlay extends StatelessWidget {
     required this.selectionState,
     required this.onSelected,
     required this.onReroll,
+    required this.onBanish,
     required this.onSkip,
   });
 
@@ -27,6 +28,7 @@ class SelectionOverlay extends StatelessWidget {
   final SelectionState selectionState;
   final void Function(SelectionChoice choice) onSelected;
   final VoidCallback onReroll;
+  final void Function(SelectionChoice choice) onBanish;
   final VoidCallback onSkip;
 
   @override
@@ -83,6 +85,11 @@ class SelectionOverlay extends StatelessWidget {
                             return _ChoiceCard(
                               choice: choice,
                               onPressed: () => onSelected(choice),
+                              banishesRemaining:
+                                  selectionState.banishesRemaining,
+                              onBanish: selectionState.banishesRemaining > 0
+                                  ? () => onBanish(choice)
+                                  : null,
                             );
                           },
                         ),
@@ -120,10 +127,17 @@ class _RerollButton extends StatelessWidget {
 }
 
 class _ChoiceCard extends StatelessWidget {
-  const _ChoiceCard({required this.choice, required this.onPressed});
+  const _ChoiceCard({
+    required this.choice,
+    required this.onPressed,
+    required this.banishesRemaining,
+    this.onBanish,
+  });
 
   final SelectionChoice choice;
   final VoidCallback onPressed;
+  final int banishesRemaining;
+  final VoidCallback? onBanish;
 
   @override
   Widget build(BuildContext context) {
@@ -199,6 +213,16 @@ class _ChoiceCard extends StatelessWidget {
                   color: Colors.white70,
                 ),
               ),
+          ],
+          if (onBanish != null) ...[
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: onBanish,
+                child: Text('Banish ($banishesRemaining)'),
+              ),
+            ),
           ],
         ],
       ),

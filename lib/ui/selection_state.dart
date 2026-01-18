@@ -6,6 +6,7 @@ import '../game/level_up_system.dart';
 class SelectionState extends ChangeNotifier {
   List<SelectionChoice> _choices = const [];
   int _rerollsRemaining = 0;
+  int _banishesRemaining = 0;
   int _skipRewardCurrencyAmount = 0;
   CurrencyId _skipRewardCurrencyId = CurrencyId.xp;
   int _skipRewardMetaShards = 0;
@@ -14,6 +15,7 @@ class SelectionState extends ChangeNotifier {
   List<SelectionChoice> get choices => _choices;
   bool get active => _choices.isNotEmpty;
   int get rerollsRemaining => _rerollsRemaining;
+  int get banishesRemaining => _banishesRemaining;
   int get skipRewardCurrencyAmount => _skipRewardCurrencyAmount;
   CurrencyId get skipRewardCurrencyId => _skipRewardCurrencyId;
   int get skipRewardMetaShards => _skipRewardMetaShards;
@@ -23,6 +25,7 @@ class SelectionState extends ChangeNotifier {
     List<SelectionChoice> choices, {
     required ProgressionTrackId trackId,
     int rerollsRemaining = 0,
+    int banishesRemaining = 0,
     int skipRewardCurrencyAmount = 0,
     CurrencyId skipRewardCurrencyId = CurrencyId.xp,
     int skipRewardMetaShards = 0,
@@ -30,6 +33,7 @@ class SelectionState extends ChangeNotifier {
     _choices = List<SelectionChoice>.from(choices);
     _trackId = trackId;
     _rerollsRemaining = rerollsRemaining;
+    _banishesRemaining = banishesRemaining;
     _skipRewardCurrencyAmount = skipRewardCurrencyAmount;
     _skipRewardCurrencyId = skipRewardCurrencyId;
     _skipRewardMetaShards = skipRewardMetaShards;
@@ -47,6 +51,7 @@ class SelectionState extends ChangeNotifier {
   void clear() {
     if (_choices.isEmpty &&
         _rerollsRemaining == 0 &&
+        _banishesRemaining == 0 &&
         _skipRewardCurrencyAmount == 0 &&
         _skipRewardMetaShards == 0 &&
         _trackId == null) {
@@ -55,6 +60,7 @@ class SelectionState extends ChangeNotifier {
     _choices = const [];
     _trackId = null;
     _rerollsRemaining = 0;
+    _banishesRemaining = 0;
     _skipRewardCurrencyAmount = 0;
     _skipRewardCurrencyId = CurrencyId.xp;
     _skipRewardMetaShards = 0;
