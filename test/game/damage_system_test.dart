@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flame/extensions.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -32,7 +34,10 @@ void main() {
       spawnEnemyId: def.spawnEnemyId,
     );
 
-    final damageSystem = DamageSystem(DamageEventPool(initialCapacity: 2));
+    final damageSystem = DamageSystem(
+      DamageEventPool(initialCapacity: 2),
+      random: math.Random(3),
+    );
     var defeatedCount = 0;
     damageSystem.queueEnemyDamage(enemy, 12);
     damageSystem.resolve(onEnemyDefeated: (_) => defeatedCount++);
@@ -47,7 +52,10 @@ void main() {
       maxHp: 5,
       moveSpeed: 0,
     );
-    final damageSystem = DamageSystem(DamageEventPool(initialCapacity: 1));
+    final damageSystem = DamageSystem(
+      DamageEventPool(initialCapacity: 1),
+      random: math.Random(4),
+    );
     damageSystem.queuePlayerDamage(player, 12);
     damageSystem.resolve(onEnemyDefeated: (_) {});
 

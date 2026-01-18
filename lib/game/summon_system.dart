@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flame/extensions.dart';
 
+import '../data/stat_defs.dart';
+import '../data/tags.dart';
 import 'enemy_pool.dart';
 import 'enemy_state.dart';
 import 'game_sizes.dart';
@@ -9,16 +11,23 @@ import 'player_state.dart';
 import 'projectile_pool.dart';
 import 'projectile_state.dart';
 import 'spatial_grid.dart';
+import 'stat_sheet.dart';
 import 'summon_pool.dart';
 import 'summon_state.dart';
 
 class SummonSystem {
-  SummonSystem(this._pool);
+  SummonSystem(this._pool, {math.Random? random})
+    : _random = random ?? math.Random();
 
   final SummonPool _pool;
+  final math.Random _random;
   final List<EnemyState> _queryBuffer = [];
   final Vector2 _orbitOffset = Vector2.zero();
   final Vector2 _aimDirection = Vector2.zero();
+  static const TagSet _mineExplosionTags = TagSet(
+    deliveries: {DeliveryTag.ground},
+    effects: {EffectTag.aoe},
+  );
 
   void update(
     double dt, {
@@ -37,6 +46,8 @@ class SummonSystem {
       double knockbackDuration,
     })
     onEnemyDamaged,
+    required void Function(double, {TagSet tags, bool selfInflicted})
+    onPlayerDamaged,
   }) {
     final active = _pool.active;
     for (var index = active.length - 1; index >= 0; index--) {
@@ -64,6 +75,7 @@ class SummonSystem {
           _updateOrbitingSummon(summon, playerState.position, dt);
           _updateRangedSummon(
             summon,
+            playerState.stats,
             enemyPool,
             enemyGrid,
             projectilePool,
@@ -80,7 +92,15 @@ class SummonSystem {
             onEnemyDamaged,
           );
         case SummonKind.mine:
-          _updateMine(summon, enemyPool, enemyGrid, onEnemyDamaged, onDespawn);
+          _updateMine(
+            summon,
+            playerState,
+            enemyPool,
+            enemyGrid,
+            onEnemyDamaged,
+            onPlayerDamaged,
+            onDespawn,
+          );
       }
     }
   }
@@ -136,6 +156,7 @@ class SummonSystem {
 
   void _updateRangedSummon(
     SummonState summon,
+    StatSheet stats,
     EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
     ProjectilePool projectilePool,
@@ -164,6 +185,7 @@ class SummonSystem {
     } else {
       _aimDirection.normalize();
     }
+    _applyAccuracyJitter(_aimDirection, stats);
     final projectile = projectilePool.acquire();
     projectile.reset(
       position: summon.position,
@@ -218,6 +240,7 @@ class SummonSystem {
 
   void _updateMine(
     SummonState summon,
+    PlayerState playerState,
     EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
     void Function(
@@ -229,6 +252,7 @@ class SummonSystem {
       double knockbackDuration,
     })
     onEnemyDamaged,
+    void Function(double, {TagSet tags, bool selfInflicted}) onPlayerDamaged,
     void Function(SummonState) onDespawn,
   ) {
     if (summon.age < summon.armDuration) {
@@ -246,7 +270,14 @@ class SummonSystem {
       final dx = enemy.position.x - summon.position.x;
       final dy = enemy.position.y - summon.position.y;
       if (dx * dx + dy * dy <= triggerRadiusSquared) {
-        _detonateMine(summon, enemyPool, enemyGrid, onEnemyDamaged);
+        _detonateMine(
+          summon,
+          playerState,
+          enemyPool,
+          enemyGrid,
+          onEnemyDamaged,
+          onPlayerDamaged,
+        );
         onDespawn(summon);
         _pool.release(summon);
         return;
@@ -256,6 +287,7 @@ class SummonSystem {
 
   void _detonateMine(
     SummonState summon,
+    PlayerState playerState,
     EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
     void Function(
@@ -267,6 +299,7 @@ class SummonSystem {
       double knockbackDuration,
     })
     onEnemyDamaged,
+    void Function(double, {TagSet tags, bool selfInflicted}) onPlayerDamaged,
   ) {
     final blastRadius = summon.blastRadius;
     final blastRadiusSquared = blastRadius * blastRadius;
@@ -283,6 +316,31 @@ class SummonSystem {
         onEnemyDamaged(enemy, summon.blastDamage);
       }
     }
+    final playerDx = playerState.position.x - summon.position.x;
+    final playerDy = playerState.position.y - summon.position.y;
+    if (playerDx * playerDx + playerDy * playerDy <= blastRadiusSquared) {
+      onPlayerDamaged(
+        summon.blastDamage,
+        tags: _mineExplosionTags,
+        selfInflicted: true,
+      );
+    }
+  }
+
+  double _spreadScale(StatSheet stats) {
+    final accuracy = stats.value(StatId.accuracy);
+    return (1 - accuracy).clamp(0.0, 2.5).toDouble();
+  }
+
+  void _applyAccuracyJitter(Vector2 direction, StatSheet stats) {
+    const baseJitter = 0.05;
+    final spreadScale = _spreadScale(stats);
+    final jitter = baseJitter * spreadScale;
+    if (jitter <= 0.0001) {
+      return;
+    }
+    final angle = (_random.nextDouble() * 2 - 1) * jitter;
+    direction.rotate(angle);
   }
 
   EnemyState? _findNearestEnemy(

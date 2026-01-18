@@ -1,11 +1,15 @@
+import 'dart:math' as math;
+
+import '../data/stat_defs.dart';
 import '../data/tags.dart';
 import 'enemy_state.dart';
 import 'player_state.dart';
 
 class DamageSystem {
-  DamageSystem(this._pool);
+  DamageSystem(this._pool, {required math.Random random}) : _random = random;
 
   final DamageEventPool _pool;
+  final math.Random _random;
   final List<DamageEvent> _active = [];
 
   void queueEnemyDamage(
@@ -37,12 +41,13 @@ class DamageSystem {
     PlayerState player,
     double amount, {
     TagSet tags = const TagSet(),
+    bool selfInflicted = false,
   }) {
     if (amount <= 0) {
       return;
     }
     final event = _pool.acquire();
-    event.resetForPlayer(player, amount, tags);
+    event.resetForPlayer(player, amount, tags, selfInflicted: selfInflicted);
     _active.add(event);
   }
 
@@ -83,9 +88,13 @@ class DamageSystem {
       if (player.isInvulnerable) {
         continue;
       }
-      player.hp -= event.amount;
+      final mitigatedDamage = _mitigatePlayerDamage(player, event);
+      if (mitigatedDamage <= 0) {
+        continue;
+      }
+      player.hp -= mitigatedDamage;
       player.registerHit();
-      onPlayerDamaged?.call(event.amount);
+      onPlayerDamaged?.call(mitigatedDamage);
       if (player.hp <= 0) {
         player.hp = 0;
         onPlayerDefeated?.call();
@@ -96,6 +105,36 @@ class DamageSystem {
       _pool.release(event);
     }
     _active.clear();
+  }
+
+  double _mitigatePlayerDamage(PlayerState player, DamageEvent event) {
+    var damage = event.amount;
+    if (damage <= 0) {
+      return 0;
+    }
+    final stats = player.stats;
+    final dodgeChance = stats.value(StatId.dodgeChance).clamp(0.0, 0.85);
+    if (dodgeChance > 0 && _random.nextDouble() < dodgeChance) {
+      return 0;
+    }
+    final defense = stats.value(StatId.defense);
+    final defenseMultiplier = (1 - defense).clamp(0.05, 3.0).toDouble();
+    damage *= defenseMultiplier;
+    final armor = stats.value(StatId.armor);
+    if (armor != 0) {
+      damage -= armor;
+    }
+    if (event.tags.hasElement(ElementTag.poison)) {
+      final resistance = stats.value(StatId.poisonResistance);
+      final resistanceMultiplier = (1 - resistance).clamp(0.05, 3.0).toDouble();
+      damage *= resistanceMultiplier;
+    }
+    if (event.selfInflicted && event.tags.hasDelivery(DeliveryTag.ground)) {
+      final selfExplosion = stats.value(StatId.selfExplosionDamageTaken);
+      final selfMultiplier = (1 + selfExplosion).clamp(0.1, 3.0).toDouble();
+      damage *= selfMultiplier;
+    }
+    return math.max(0, damage);
   }
 }
 
@@ -108,6 +147,7 @@ class DamageEvent {
   double knockbackY = 0;
   double knockbackForce = 0;
   double knockbackDuration = 0;
+  bool selfInflicted = false;
 
   void resetForEnemy(
     EnemyState enemy,
@@ -128,7 +168,12 @@ class DamageEvent {
     this.knockbackDuration = knockbackDuration;
   }
 
-  void resetForPlayer(PlayerState player, double amount, TagSet tags) {
+  void resetForPlayer(
+    PlayerState player,
+    double amount,
+    TagSet tags, {
+    required bool selfInflicted,
+  }) {
     enemy = null;
     this.player = player;
     this.amount = amount;
@@ -137,6 +182,7 @@ class DamageEvent {
     knockbackY = 0;
     knockbackForce = 0;
     knockbackDuration = 0;
+    this.selfInflicted = selfInflicted;
   }
 
   void clear() {
@@ -148,6 +194,7 @@ class DamageEvent {
     knockbackY = 0;
     knockbackForce = 0;
     knockbackDuration = 0;
+    selfInflicted = false;
   }
 }
 

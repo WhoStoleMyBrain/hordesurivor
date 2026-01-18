@@ -24,10 +24,12 @@ class SkillSystem {
     required ProjectilePool projectilePool,
     required SummonPool summonPool,
     List<SkillSlot>? skillSlots,
+    math.Random? random,
   }) : _effectPool = effectPool,
        _projectilePool = projectilePool,
        _summonPool = summonPool,
-       _skills = skillSlots ?? _defaultSkillSlots();
+       _skills = skillSlots ?? _defaultSkillSlots(),
+       _random = random ?? math.Random();
 
   static const Map<SkillId, double> _baseCooldowns = {
     SkillId.fireball: 0.6,
@@ -56,6 +58,7 @@ class SkillSystem {
   final ProjectilePool _projectilePool;
   final SummonPool _summonPool;
   final List<SkillSlot> _skills;
+  final math.Random _random;
   final Set<SkillId> _passiveSummonSkills = {
     SkillId.arcTurret,
     SkillId.guardianOrbs,
@@ -319,10 +322,13 @@ class SkillSystem {
   }) {
     final def = skillDefsById[SkillId.fireball];
     final knockbackScale = _knockbackScale(stats);
-    final direction = _resolveAim(
-      playerPosition: playerPosition,
-      aimDirection: aimDirection,
-      enemyPool: enemyPool,
+    final direction = _applyAccuracyJitter(
+      _resolveAim(
+        playerPosition: playerPosition,
+        aimDirection: aimDirection,
+        enemyPool: enemyPool,
+      ),
+      stats,
     );
     final damage = _scaledDamageFor(SkillId.fireball, stats, 8);
     const igniteDuration = 1.4;
@@ -397,10 +403,13 @@ class SkillSystem {
   }) {
     final def = skillDefsById[SkillId.oilBombs];
     final knockbackScale = _knockbackScale(stats);
-    final direction = _resolveAim(
-      playerPosition: playerPosition,
-      aimDirection: aimDirection,
-      enemyPool: enemyPool,
+    final direction = _applyAccuracyJitter(
+      _resolveAim(
+        playerPosition: playerPosition,
+        aimDirection: aimDirection,
+        enemyPool: enemyPool,
+      ),
+      stats,
     ).clone();
     final damage = _scaledDamageFor(SkillId.oilBombs, stats, 4);
     final projectile = _projectilePool.acquire();
@@ -665,10 +674,13 @@ class SkillSystem {
   }) {
     final def = skillDefsById[SkillId.windCutter];
     final knockbackScale = _knockbackScale(stats);
-    final direction = _resolveAim(
-      playerPosition: playerPosition,
-      aimDirection: aimDirection,
-      enemyPool: enemyPool,
+    final direction = _applyAccuracyJitter(
+      _resolveAim(
+        playerPosition: playerPosition,
+        aimDirection: aimDirection,
+        enemyPool: enemyPool,
+      ),
+      stats,
     );
     final damage = _scaledDamageFor(SkillId.windCutter, stats, 7);
     final projectile = _projectilePool.acquire();
@@ -704,10 +716,11 @@ class SkillSystem {
     );
     final damage = _scaledDamageFor(SkillId.steelShards, stats, 6);
     const spread = [-0.2, 0.0, 0.2];
+    final spreadScale = _spreadScale(stats);
     for (final angle in spread) {
       final projectile = _projectilePool.acquire();
       final velocity = direction.clone()
-        ..rotate(angle)
+        ..rotate(angle * spreadScale)
         ..scale(200);
       projectile.reset(
         position: playerPosition,
@@ -823,10 +836,13 @@ class SkillSystem {
     required EnemyPool enemyPool,
     required void Function(ProjectileState) onProjectileSpawn,
   }) {
-    final direction = _resolveAim(
-      playerPosition: playerPosition,
-      aimDirection: aimDirection,
-      enemyPool: enemyPool,
+    final direction = _applyAccuracyJitter(
+      _resolveAim(
+        playerPosition: playerPosition,
+        aimDirection: aimDirection,
+        enemyPool: enemyPool,
+      ),
+      stats,
     ).clone();
     final damage = _scaledDamageFor(SkillId.sporeBurst, stats, 5);
     final projectile = _projectilePool.acquire();
@@ -1235,6 +1251,23 @@ class SkillSystem {
 
   double _knockbackScale(StatSheet stats) {
     return math.max(0.1, 1 + stats.value(StatId.knockbackStrength));
+  }
+
+  double _spreadScale(StatSheet stats) {
+    final accuracy = stats.value(StatId.accuracy);
+    return (1 - accuracy).clamp(0.0, 2.5).toDouble();
+  }
+
+  Vector2 _applyAccuracyJitter(Vector2 direction, StatSheet stats) {
+    const baseJitter = 0.05;
+    final spreadScale = _spreadScale(stats);
+    final jitter = baseJitter * spreadScale;
+    if (jitter <= 0.0001) {
+      return direction;
+    }
+    final angle = (_random.nextDouble() * 2 - 1) * jitter;
+    direction.rotate(angle);
+    return direction;
   }
 }
 

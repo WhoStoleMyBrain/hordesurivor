@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flame/extensions.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -81,6 +83,7 @@ void main() {
             double knockbackX = 0,
             double knockbackY = 0,
           }) {},
+      onPlayerDamaged: (_, {tags = const TagSet(), selfInflicted = false}) {},
     );
 
     expect(fired, isTrue);
@@ -102,7 +105,10 @@ void main() {
     final enemy = spawnEnemy(enemyPool, Vector2(10, 0));
     enemy.hp = 20;
 
-    final damageSystem = DamageSystem(DamageEventPool(initialCapacity: 4));
+    final damageSystem = DamageSystem(
+      DamageEventPool(initialCapacity: 4),
+      random: math.Random(1),
+    );
     final system = SummonSystem(summonPool);
 
     system.update(
@@ -117,6 +123,7 @@ void main() {
       onProjectileSpawn: (_) {},
       onDespawn: (_) {},
       onEnemyDamaged: damageSystem.queueEnemyDamage,
+      onPlayerDamaged: (_, {tags = const TagSet(), selfInflicted = false}) {},
     );
     damageSystem.resolve(onEnemyDefeated: (_) {});
 
@@ -159,6 +166,7 @@ void main() {
             double knockbackX = 0,
             double knockbackY = 0,
           }) {},
+      onPlayerDamaged: (_, {tags = const TagSet(), selfInflicted = false}) {},
     );
 
     expect(player.hp, greaterThan(60));
@@ -182,7 +190,10 @@ void main() {
     final enemy = spawnEnemy(enemyPool, Vector2(10, 0));
     enemy.hp = 20;
 
-    final damageSystem = DamageSystem(DamageEventPool(initialCapacity: 4));
+    final damageSystem = DamageSystem(
+      DamageEventPool(initialCapacity: 4),
+      random: math.Random(2),
+    );
     final system = SummonSystem(summonPool);
     var despawned = false;
 
@@ -200,6 +211,7 @@ void main() {
         despawned = true;
       },
       onEnemyDamaged: damageSystem.queueEnemyDamage,
+      onPlayerDamaged: (_, {tags = const TagSet(), selfInflicted = false}) {},
     );
     damageSystem.resolve(onEnemyDefeated: (_) {});
 

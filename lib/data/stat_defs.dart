@@ -17,6 +17,8 @@ enum StatId {
   dashInvulnerability,
   dashTeleport,
   defense,
+  armor,
+  dodgeChance,
   attackSpeed,
   dotDamage,
   dotDuration,
