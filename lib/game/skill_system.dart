@@ -324,15 +324,17 @@ class SkillSystem {
       aimDirection: aimDirection,
       enemyPool: enemyPool,
     );
-    final damage = 8 * _damageMultiplierFor(SkillId.fireball, stats);
+    final damage = _scaledDamageFor(SkillId.fireball, stats, 8);
     const igniteDuration = 1.4;
-    final igniteMultiplier =
-        1 +
-        stats.value(StatId.damage) +
-        stats.value(StatId.dotDamage) +
-        stats.value(StatId.fireDamage);
-    final igniteDamagePerSecond =
-        3 * math.max(0.1, igniteMultiplier).toDouble();
+    const igniteTags = TagSet(
+      elements: {ElementTag.fire},
+      effects: {EffectTag.dot},
+    );
+    final igniteDamagePerSecond = _scaledDamageForTags(
+      igniteTags,
+      stats,
+      3,
+    ).toDouble();
     final projectile = _projectilePool.acquire();
     projectile.reset(
       position: playerPosition,
@@ -367,7 +369,7 @@ class SkillSystem {
     );
     const duration = 0.35;
     final aoeScale = _aoeScale(stats);
-    final damage = 6 * _damageMultiplierFor(SkillId.waterjet, stats);
+    final damage = _scaledDamageFor(SkillId.waterjet, stats, 6);
     final effect = _effectPool.acquire();
     effect.reset(
       kind: EffectKind.waterjetBeam,
@@ -400,7 +402,7 @@ class SkillSystem {
       aimDirection: aimDirection,
       enemyPool: enemyPool,
     ).clone();
-    final damage = 4 * _damageMultiplierFor(SkillId.oilBombs, stats);
+    final damage = _scaledDamageFor(SkillId.oilBombs, stats, 4);
     final projectile = _projectilePool.acquire();
     projectile.reset(
       position: playerPosition,
@@ -421,7 +423,7 @@ class SkillSystem {
     final aoeScale = _aoeScale(stats);
     final radius = 46 * aoeScale;
     final groundDamage =
-        (4 * _damageMultiplierFor(SkillId.oilBombs, stats)) / duration;
+        _scaledDamageFor(SkillId.oilBombs, stats, 4) / duration;
     projectile.setImpactEffect(
       kind: EffectKind.oilGround,
       shape: EffectShape.ground,
@@ -455,7 +457,7 @@ class SkillSystem {
   }) {
     final def = skillDefsById[SkillId.swordCut];
     final knockbackScale = _knockbackScale(stats);
-    final damage = 12 * _damageMultiplierFor(SkillId.swordCut, stats);
+    final damage = _scaledDamageFor(SkillId.swordCut, stats, 12);
     _castMeleeArc(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
@@ -489,7 +491,7 @@ class SkillSystem {
   }) {
     final def = skillDefsById[SkillId.swordThrust];
     final knockbackScale = _knockbackScale(stats);
-    final damage = 10 * _damageMultiplierFor(SkillId.swordThrust, stats);
+    final damage = _scaledDamageFor(SkillId.swordThrust, stats, 10);
     _castMeleeArc(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
@@ -523,7 +525,7 @@ class SkillSystem {
   }) {
     final def = skillDefsById[SkillId.swordSwing];
     final knockbackScale = _knockbackScale(stats);
-    final damage = 14 * _damageMultiplierFor(SkillId.swordSwing, stats);
+    final damage = _scaledDamageFor(SkillId.swordSwing, stats, 14);
     _castMeleeArc(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
@@ -560,7 +562,7 @@ class SkillSystem {
   }) {
     final def = skillDefsById[SkillId.swordDeflect];
     final knockbackScale = _knockbackScale(stats);
-    final damage = 8 * _damageMultiplierFor(SkillId.swordDeflect, stats);
+    final damage = _scaledDamageFor(SkillId.swordDeflect, stats, 8);
     _castMeleeArc(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
@@ -593,7 +595,7 @@ class SkillSystem {
     final aoeScale = _aoeScale(stats);
     final radius = 70 * aoeScale;
     const duration = 0.8;
-    final damage = 4 * _damageMultiplierFor(SkillId.poisonGas, stats);
+    final damage = _scaledDamageFor(SkillId.poisonGas, stats, 4);
     final effect = _effectPool.acquire();
     effect.reset(
       kind: EffectKind.poisonAura,
@@ -632,7 +634,7 @@ class SkillSystem {
       0.9,
     );
     final rootSlowMultiplier = (1 - rootStrength).clamp(0.05, 1.0);
-    final damage = 7 * _damageMultiplierFor(SkillId.roots, stats);
+    final damage = _scaledDamageFor(SkillId.roots, stats, 7);
     final target = Vector2(
       playerPosition.x + direction.x * 60,
       playerPosition.y + direction.y * 60,
@@ -668,7 +670,7 @@ class SkillSystem {
       aimDirection: aimDirection,
       enemyPool: enemyPool,
     );
-    final damage = 7 * _damageMultiplierFor(SkillId.windCutter, stats);
+    final damage = _scaledDamageFor(SkillId.windCutter, stats, 7);
     final projectile = _projectilePool.acquire();
     projectile.reset(
       position: playerPosition,
@@ -700,7 +702,7 @@ class SkillSystem {
       aimDirection: aimDirection,
       enemyPool: enemyPool,
     );
-    final damage = 6 * _damageMultiplierFor(SkillId.steelShards, stats);
+    final damage = _scaledDamageFor(SkillId.steelShards, stats, 6);
     const spread = [-0.2, 0.0, 0.2];
     for (final angle in spread) {
       final projectile = _projectilePool.acquire();
@@ -738,7 +740,7 @@ class SkillSystem {
     );
     const duration = 0.45;
     final aoeScale = _aoeScale(stats);
-    final damage = 10 * _damageMultiplierFor(SkillId.flameWave, stats);
+    final damage = _scaledDamageFor(SkillId.flameWave, stats, 10);
     final effect = _effectPool.acquire();
     effect.reset(
       kind: EffectKind.flameWave,
@@ -761,7 +763,7 @@ class SkillSystem {
   }) {
     final aoeScale = _aoeScale(stats);
     const duration = 0.6;
-    final damage = 5 * _damageMultiplierFor(SkillId.frostNova, stats);
+    final damage = _scaledDamageFor(SkillId.frostNova, stats, 5);
     final effect = _effectPool.acquire();
     effect.reset(
       kind: EffectKind.frostNova,
@@ -794,7 +796,7 @@ class SkillSystem {
     );
     final aoeScale = _aoeScale(stats);
     const duration = 0.7;
-    final damage = 9 * _damageMultiplierFor(SkillId.earthSpikes, stats);
+    final damage = _scaledDamageFor(SkillId.earthSpikes, stats, 9);
     final target = Vector2(
       playerPosition.x + direction.x * 72,
       playerPosition.y + direction.y * 72,
@@ -826,7 +828,7 @@ class SkillSystem {
       aimDirection: aimDirection,
       enemyPool: enemyPool,
     ).clone();
-    final damage = 5 * _damageMultiplierFor(SkillId.sporeBurst, stats);
+    final damage = _scaledDamageFor(SkillId.sporeBurst, stats, 5);
     final projectile = _projectilePool.acquire();
     projectile.reset(
       position: playerPosition,
@@ -843,7 +845,7 @@ class SkillSystem {
     const duration = 1.4;
     final radius = 50 * aoeScale;
     final cloudDamage =
-        (4 * _damageMultiplierFor(SkillId.sporeBurst, stats)) / duration;
+        _scaledDamageFor(SkillId.sporeBurst, stats, 4) / duration;
     projectile.setImpactEffect(
       kind: EffectKind.sporeCloud,
       shape: EffectShape.ground,
@@ -864,7 +866,7 @@ class SkillSystem {
     required void Function(SummonState) onSummonSpawn,
   }) {
     final summon = _summonPool.acquire();
-    final damage = 9 * _damageMultiplierFor(SkillId.scrapRover, stats);
+    final damage = _scaledDamageFor(SkillId.scrapRover, stats, 9);
     _orbitSeed += math.pi * 0.7;
     summon.reset(
       kind: SummonKind.scrapRover,
@@ -888,7 +890,7 @@ class SkillSystem {
     required void Function(SummonState) onSummonSpawn,
   }) {
     final summon = _summonPool.acquire();
-    final damage = 6 * _damageMultiplierFor(SkillId.arcTurret, stats);
+    final damage = _scaledDamageFor(SkillId.arcTurret, stats, 6);
     _orbitSeed += math.pi * 0.5;
     summon.reset(
       kind: SummonKind.arcTurret,
@@ -913,7 +915,7 @@ class SkillSystem {
     required StatSheet stats,
     required void Function(SummonState) onSummonSpawn,
   }) {
-    final damage = 5 * _damageMultiplierFor(SkillId.guardianOrbs, stats);
+    final damage = _scaledDamageFor(SkillId.guardianOrbs, stats, 5);
     for (var index = 0; index < 2; index++) {
       final summon = _summonPool.acquire();
       _orbitSeed += math.pi;
@@ -976,7 +978,7 @@ class SkillSystem {
       lifespan: 5,
       triggerRadius: 22,
       blastRadius: 36,
-      blastDamage: 12 * _damageMultiplierFor(SkillId.mineLayer, stats),
+      blastDamage: _scaledDamageFor(SkillId.mineLayer, stats, 12),
       armDuration: 0.25,
     );
     onSummonSpawn(summon);
@@ -1160,34 +1162,75 @@ class SkillSystem {
     return math.max(0.25, 1 + stats.value(StatId.aoeSize));
   }
 
-  double _damageMultiplierFor(SkillId id, StatSheet stats) {
-    final def = skillDefsById[id];
-    final tags = def?.tags;
-    var multiplier =
-        1 + stats.value(StatId.damage) + stats.value(StatId.directHitDamage);
+  TagSet _tagsForSkill(SkillId id) {
+    return skillDefsById[id]?.tags ?? const TagSet();
+  }
 
-    if (tags != null) {
-      if (tags.hasDelivery(DeliveryTag.projectile)) {
-        multiplier += stats.value(StatId.projectileDamage);
-      }
-      if (tags.hasDelivery(DeliveryTag.melee)) {
-        multiplier += stats.value(StatId.meleeDamage);
-      }
-      if (tags.hasDelivery(DeliveryTag.beam)) {
-        multiplier += stats.value(StatId.beamDamage);
-      }
-      if (tags.hasEffect(EffectTag.dot)) {
-        multiplier += stats.value(StatId.dotDamage);
-      }
-      if (tags.hasElement(ElementTag.fire)) {
-        multiplier += stats.value(StatId.fireDamage);
-      }
-      if (tags.hasElement(ElementTag.water)) {
-        multiplier += stats.value(StatId.waterDamage);
-      }
+  double _scaledDamageFor(SkillId id, StatSheet stats, double baseDamage) {
+    return _scaledDamageForTags(_tagsForSkill(id), stats, baseDamage);
+  }
+
+  double _scaledDamageForTags(TagSet tags, StatSheet stats, double baseDamage) {
+    final multiplier = _damageMultiplierForTags(tags, stats);
+    final flat = _flatDamageForTags(tags, stats);
+    return math.max(0, baseDamage * multiplier + flat);
+  }
+
+  double _damageMultiplierForTags(TagSet tags, StatSheet stats) {
+    var multiplier = 1 + stats.value(StatId.damage);
+    if (tags.hasEffect(EffectTag.dot)) {
+      multiplier += stats.value(StatId.dotDamage);
+    } else {
+      multiplier += stats.value(StatId.directHitDamage);
+    }
+
+    if (tags.hasDelivery(DeliveryTag.projectile)) {
+      multiplier += stats.value(StatId.projectileDamage);
+    }
+    if (tags.hasDelivery(DeliveryTag.melee)) {
+      multiplier += stats.value(StatId.meleeDamage);
+    }
+    if (tags.hasDelivery(DeliveryTag.beam)) {
+      multiplier += stats.value(StatId.beamDamage);
+    }
+    if (tags.hasDelivery(DeliveryTag.ground)) {
+      multiplier += stats.value(StatId.explosionDamage);
+    }
+
+    if (tags.elements.isNotEmpty) {
+      multiplier += stats.value(StatId.elementalDamage);
+    }
+    if (tags.hasElement(ElementTag.fire)) {
+      multiplier += stats.value(StatId.fireDamage);
+    }
+    if (tags.hasElement(ElementTag.water)) {
+      multiplier += stats.value(StatId.waterDamage);
+    }
+    if (tags.hasElement(ElementTag.earth)) {
+      multiplier += stats.value(StatId.earthDamage);
+    }
+    if (tags.hasElement(ElementTag.wind)) {
+      multiplier += stats.value(StatId.windDamage);
+    }
+    if (tags.hasElement(ElementTag.poison)) {
+      multiplier += stats.value(StatId.poisonDamage);
+    }
+    if (tags.hasElement(ElementTag.steel)) {
+      multiplier += stats.value(StatId.steelDamage);
+    }
+    if (tags.hasElement(ElementTag.wood)) {
+      multiplier += stats.value(StatId.woodDamage);
     }
 
     return math.max(0.1, multiplier);
+  }
+
+  double _flatDamageForTags(TagSet tags, StatSheet stats) {
+    var flat = stats.value(StatId.flatDamage);
+    if (tags.elements.isNotEmpty) {
+      flat += stats.value(StatId.flatElementalDamage);
+    }
+    return flat;
   }
 
   double _knockbackScale(StatSheet stats) {

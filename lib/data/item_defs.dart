@@ -29,6 +29,11 @@ const List<ItemDef> itemDefs = [
     description: 'High output at the cost of survivability.',
     modifiers: [
       StatModifier(stat: StatId.damage, amount: 0.2),
+      StatModifier(
+        stat: StatId.flatDamage,
+        amount: 1.0,
+        kind: ModifierKind.flat,
+      ),
       StatModifier(stat: StatId.maxHp, amount: -0.2),
     ],
   ),
@@ -38,7 +43,7 @@ const List<ItemDef> itemDefs = [
     description: 'Armored weight slows movement.',
     modifiers: [
       StatModifier(stat: StatId.maxHp, amount: 0.25),
-      StatModifier(stat: StatId.moveSpeed, amount: -0.15),
+      StatModifier(stat: StatId.moveSpeedPercent, amount: -0.15),
     ],
   ),
   ItemDef(
@@ -46,7 +51,7 @@ const List<ItemDef> itemDefs = [
     name: 'Feather Boots',
     description: 'Swift steps with reduced protection.',
     modifiers: [
-      StatModifier(stat: StatId.moveSpeed, amount: 0.2),
+      StatModifier(stat: StatId.moveSpeedPercent, amount: 0.2),
       StatModifier(stat: StatId.defense, amount: -0.15),
     ],
   ),
@@ -107,6 +112,12 @@ const List<ItemDef> itemDefs = [
     modifiers: [
       StatModifier(stat: StatId.explosionDamage, amount: 0.3),
       StatModifier(stat: StatId.fireDamage, amount: 0.15),
+      StatModifier(stat: StatId.elementalDamage, amount: 0.05),
+      StatModifier(
+        stat: StatId.flatElementalDamage,
+        amount: 0.8,
+        kind: ModifierKind.flat,
+      ),
       StatModifier(stat: StatId.selfExplosionDamageTaken, amount: 0.2),
     ],
     tags: TagSet(elements: {ElementTag.fire}),
@@ -138,7 +149,7 @@ const List<ItemDef> itemDefs = [
     modifiers: [
       StatModifier(stat: StatId.rootDuration, amount: 0.25),
       StatModifier(stat: StatId.rootStrength, amount: 0.2),
-      StatModifier(stat: StatId.moveSpeed, amount: -0.1),
+      StatModifier(stat: StatId.moveSpeedPercent, amount: -0.1),
     ],
     tags: TagSet(elements: {ElementTag.earth, ElementTag.wood}),
   ),
@@ -199,6 +210,7 @@ const List<ItemDef> itemDefs = [
     modifiers: [
       StatModifier(stat: StatId.dotDamage, amount: 0.2),
       StatModifier(stat: StatId.fireDamage, amount: 0.2),
+      StatModifier(stat: StatId.elementalDamage, amount: 0.05),
       StatModifier(stat: StatId.waterDamage, amount: -0.15),
     ],
     tags: TagSet(elements: {ElementTag.fire}),
@@ -208,7 +220,7 @@ const List<ItemDef> itemDefs = [
     name: 'Slick Soles',
     description: 'Mobility effects intensify but aim falters.',
     modifiers: [
-      StatModifier(stat: StatId.moveSpeed, amount: 0.15),
+      StatModifier(stat: StatId.moveSpeedPercent, amount: 0.15),
       StatModifier(stat: StatId.accuracy, amount: -0.2),
     ],
     tags: TagSet(effects: {EffectTag.mobility}),
@@ -218,7 +230,7 @@ const List<ItemDef> itemDefs = [
     name: 'Backpack of Glass',
     description: 'Extra pickup reach with fragile capacity.',
     modifiers: [
-      StatModifier(stat: StatId.pickupRadius, amount: 0.25),
+      StatModifier(stat: StatId.pickupRadiusPercent, amount: 0.25),
       StatModifier(stat: StatId.maxHp, amount: -0.2),
     ],
   ),
@@ -229,6 +241,7 @@ const List<ItemDef> itemDefs = [
     modifiers: [
       StatModifier(stat: StatId.dotDuration, amount: 0.25),
       StatModifier(stat: StatId.fireDamage, amount: 0.15),
+      StatModifier(stat: StatId.elementalDamage, amount: 0.05),
       StatModifier(stat: StatId.projectileDamage, amount: -0.15),
     ],
     metaUnlockId: MetaUnlockId.thermalCoilBlueprint,
@@ -241,7 +254,7 @@ const List<ItemDef> itemDefs = [
     modifiers: [
       StatModifier(stat: StatId.beamDamage, amount: 0.25),
       StatModifier(stat: StatId.aoeSize, amount: 0.15),
-      StatModifier(stat: StatId.moveSpeed, amount: -0.1),
+      StatModifier(stat: StatId.moveSpeedPercent, amount: -0.1),
     ],
     metaUnlockId: MetaUnlockId.hydraulicStabilizerPermit,
     tags: TagSet(deliveries: {DeliveryTag.beam}),
@@ -275,6 +288,7 @@ const List<ItemDef> itemDefs = [
     modifiers: [
       StatModifier(stat: StatId.explosionDamage, amount: 0.25),
       StatModifier(stat: StatId.fireDamage, amount: 0.2),
+      StatModifier(stat: StatId.elementalDamage, amount: 0.05),
       StatModifier(stat: StatId.selfExplosionDamageTaken, amount: 0.25),
     ],
     metaUnlockId: MetaUnlockId.moltenBuckleForge,
@@ -295,10 +309,12 @@ const List<ItemDef> itemDefs = [
   ItemDef(
     id: ItemId.mercyCharm,
     name: 'Mercy Charm',
-    description: 'Healing strengthens, raw damage softens.',
+    description:
+        'Healing strengthens with steady recovery, raw damage softens.',
     modifiers: [
       StatModifier(stat: StatId.healingReceived, amount: 0.25),
       StatModifier(stat: StatId.damage, amount: -0.15),
+      StatModifier(stat: StatId.hpRegen, amount: 0.6, kind: ModifierKind.flat),
     ],
     metaUnlockId: MetaUnlockId.mercyCharmVow,
     tags: TagSet(effects: {EffectTag.support}),
