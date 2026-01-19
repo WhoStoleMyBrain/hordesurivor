@@ -1,5 +1,7 @@
 import 'package:flame/extensions.dart';
 
+import '../data/ids.dart';
+
 enum EffectKind {
   waterjetBeam,
   oilGround,
@@ -29,6 +31,7 @@ class EffectState {
   double slowMultiplier = 1;
   double slowDuration = 0;
   double oilDuration = 0;
+  SkillId? sourceSkillId;
   bool followsPlayer = false;
   bool active = false;
 
@@ -45,6 +48,7 @@ class EffectState {
     double slowMultiplier = 1,
     double slowDuration = 0,
     double oilDuration = 0,
+    SkillId? sourceSkillId,
     bool followsPlayer = false,
   }) {
     this.kind = kind;
@@ -64,6 +68,7 @@ class EffectState {
     this.slowMultiplier = slowMultiplier;
     this.slowDuration = slowDuration;
     this.oilDuration = oilDuration;
+    this.sourceSkillId = sourceSkillId;
     this.followsPlayer = followsPlayer;
     age = 0;
     active = true;

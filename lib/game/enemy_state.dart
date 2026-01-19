@@ -44,6 +44,7 @@ class EnemyState {
   double oilTimer = 0;
   double igniteTimer = 0;
   double igniteDamagePerSecond = 0;
+  SkillId? igniteSourceSkillId;
   double speedMultiplier = 1;
   bool behaviorInitialized = false;
   double knockbackTimer = 0;
@@ -103,6 +104,7 @@ class EnemyState {
     oilTimer = 0;
     igniteTimer = 0;
     igniteDamagePerSecond = 0;
+    igniteSourceSkillId = null;
     speedMultiplier = 1;
     behaviorInitialized = false;
     dashDirection.setZero();
@@ -152,6 +154,7 @@ class EnemyState {
   void applyIgnite({
     required double duration,
     required double damagePerSecond,
+    SkillId? sourceSkillId,
   }) {
     if (duration <= 0 || damagePerSecond <= 0) {
       return;
@@ -161,6 +164,9 @@ class EnemyState {
     }
     if (duration > igniteTimer) {
       igniteTimer = duration;
+    }
+    if (sourceSkillId != null) {
+      igniteSourceSkillId = sourceSkillId;
     }
   }
 
@@ -196,6 +202,7 @@ class EnemyState {
       if (igniteTimer <= 0) {
         igniteTimer = 0;
         igniteDamagePerSecond = 0;
+        igniteSourceSkillId = null;
       }
     }
   }

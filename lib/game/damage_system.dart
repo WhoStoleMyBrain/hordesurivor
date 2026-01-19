@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import '../data/ids.dart';
 import '../data/stat_defs.dart';
 import '../data/tags.dart';
 import 'enemy_state.dart';
@@ -15,6 +16,7 @@ class DamageSystem {
   void queueEnemyDamage(
     EnemyState enemy,
     double amount, {
+    SkillId? sourceSkillId,
     TagSet tags = const TagSet(),
     double knockbackX = 0,
     double knockbackY = 0,
@@ -29,6 +31,7 @@ class DamageSystem {
       enemy,
       amount,
       tags,
+      sourceSkillId: sourceSkillId,
       knockbackX: knockbackX,
       knockbackY: knockbackY,
       knockbackForce: knockbackForce,
@@ -53,7 +56,7 @@ class DamageSystem {
 
   void resolve({
     required void Function(EnemyState) onEnemyDefeated,
-    void Function(EnemyState, double)? onEnemyDamaged,
+    void Function(EnemyState, double, SkillId?)? onEnemyDamaged,
     void Function(double)? onPlayerDamaged,
     void Function()? onPlayerDefeated,
   }) {
@@ -72,7 +75,7 @@ class DamageSystem {
             duration: event.knockbackDuration,
           );
         }
-        onEnemyDamaged?.call(enemy, event.amount);
+        onEnemyDamaged?.call(enemy, event.amount, event.sourceSkillId);
         if (enemy.hp <= 0) {
           enemy.hp = 0;
           enemy.active = false;
@@ -143,6 +146,7 @@ class DamageEvent {
   PlayerState? player;
   double amount = 0;
   TagSet tags = const TagSet();
+  SkillId? sourceSkillId;
   double knockbackX = 0;
   double knockbackY = 0;
   double knockbackForce = 0;
@@ -153,6 +157,7 @@ class DamageEvent {
     EnemyState enemy,
     double amount,
     TagSet tags, {
+    SkillId? sourceSkillId,
     double knockbackX = 0,
     double knockbackY = 0,
     double knockbackForce = 0,
@@ -162,6 +167,7 @@ class DamageEvent {
     player = null;
     this.amount = amount;
     this.tags = tags;
+    this.sourceSkillId = sourceSkillId;
     this.knockbackX = knockbackX;
     this.knockbackY = knockbackY;
     this.knockbackForce = knockbackForce;
@@ -178,6 +184,7 @@ class DamageEvent {
     this.player = player;
     this.amount = amount;
     this.tags = tags;
+    sourceSkillId = null;
     knockbackX = 0;
     knockbackY = 0;
     knockbackForce = 0;
@@ -190,6 +197,7 @@ class DamageEvent {
     player = null;
     amount = 0;
     tags = const TagSet();
+    sourceSkillId = null;
     knockbackX = 0;
     knockbackY = 0;
     knockbackForce = 0;

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flame/extensions.dart';
 
+import '../data/ids.dart';
 import '../data/stat_defs.dart';
 import '../data/tags.dart';
 import 'enemy_pool.dart';
@@ -40,6 +41,7 @@ class SummonSystem {
     required void Function(
       EnemyState,
       double, {
+      SkillId? sourceSkillId,
       double knockbackX,
       double knockbackY,
       double knockbackForce,
@@ -127,6 +129,7 @@ class SummonSystem {
     void Function(
       EnemyState,
       double, {
+      SkillId? sourceSkillId,
       double knockbackX,
       double knockbackY,
       double knockbackForce,
@@ -149,7 +152,11 @@ class SummonSystem {
       final dx = enemy.position.x - summon.position.x;
       final dy = enemy.position.y - summon.position.y;
       if (dx * dx + dy * dy <= radiusSquared) {
-        onEnemyDamaged(enemy, summon.damagePerSecond * dt);
+        onEnemyDamaged(
+          enemy,
+          summon.damagePerSecond * dt,
+          sourceSkillId: summon.sourceSkillId,
+        );
       }
     }
   }
@@ -208,6 +215,7 @@ class SummonSystem {
     void Function(
       EnemyState,
       double, {
+      SkillId? sourceSkillId,
       double knockbackX,
       double knockbackY,
       double knockbackForce,
@@ -246,6 +254,7 @@ class SummonSystem {
     void Function(
       EnemyState,
       double, {
+      SkillId? sourceSkillId,
       double knockbackX,
       double knockbackY,
       double knockbackForce,
@@ -293,6 +302,7 @@ class SummonSystem {
     void Function(
       EnemyState,
       double, {
+      SkillId? sourceSkillId,
       double knockbackX,
       double knockbackY,
       double knockbackForce,
@@ -313,7 +323,11 @@ class SummonSystem {
       final dx = enemy.position.x - summon.position.x;
       final dy = enemy.position.y - summon.position.y;
       if (dx * dx + dy * dy <= blastRadiusSquared) {
-        onEnemyDamaged(enemy, summon.blastDamage);
+        onEnemyDamaged(
+          enemy,
+          summon.blastDamage,
+          sourceSkillId: summon.sourceSkillId,
+        );
       }
     }
     final playerDx = playerState.position.x - summon.position.x;

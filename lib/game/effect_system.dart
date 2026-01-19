@@ -1,5 +1,6 @@
 import 'package:flame/extensions.dart';
 
+import '../data/ids.dart';
 import 'effect_pool.dart';
 import 'effect_state.dart';
 import 'enemy_pool.dart';
@@ -22,6 +23,7 @@ class EffectSystem {
     required void Function(
       EnemyState,
       double, {
+      SkillId? sourceSkillId,
       double knockbackX,
       double knockbackY,
       double knockbackForce,
@@ -79,6 +81,7 @@ class EffectSystem {
     void Function(
       EnemyState,
       double, {
+      SkillId? sourceSkillId,
       double knockbackX,
       double knockbackY,
       double knockbackForce,
@@ -99,7 +102,7 @@ class EffectSystem {
       final dy = enemy.position.y - effect.position.y;
       if (dx * dx + dy * dy <= radiusSquared) {
         _applyStatus(effect, enemy);
-        onEnemyDamaged(enemy, damage);
+        onEnemyDamaged(enemy, damage, sourceSkillId: effect.sourceSkillId);
       }
     }
   }
@@ -112,6 +115,7 @@ class EffectSystem {
     void Function(
       EnemyState,
       double, {
+      SkillId? sourceSkillId,
       double knockbackX,
       double knockbackY,
       double knockbackForce,
@@ -142,7 +146,7 @@ class EffectSystem {
       final perpendicular = (dx * dir.y - dy * dir.x).abs();
       if (perpendicular <= halfWidth) {
         _applyStatus(effect, enemy);
-        onEnemyDamaged(enemy, damage);
+        onEnemyDamaged(enemy, damage, sourceSkillId: effect.sourceSkillId);
       }
     }
   }
