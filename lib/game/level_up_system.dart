@@ -45,6 +45,11 @@ class LevelUpSystem {
   final math.Random _random;
   final int _baseChoiceCount;
   final int _baseRerolls;
+  static const SelectionChoice _shopPlaceholderChoice = SelectionChoice(
+    type: SelectionType.item,
+    title: 'Empty Slot',
+    description: 'Purchased item.',
+  );
   final List<SelectionChoice> _choices = [];
   final Set<SkillUpgradeId> _appliedUpgrades = {};
   final Set<String> _appliedWeaponUpgrades = {};
@@ -180,18 +185,33 @@ class LevelUpSystem {
     if (!ignoreRerollLimit) {
       _rerollsRemaining -= 1;
     }
+    final newChoices = _buildChoicesFor(
+      playerState,
+      skillSystem,
+      selectionPoolId,
+      trackLevel,
+      unlockedMeta,
+      shopBonusChoices: shopBonusChoices,
+    ).choices;
+    if (selectionPoolId == SelectionPoolId.itemPool) {
+      final placeholderCount = _shopPlaceholderCount();
+      if (placeholderCount > 0) {
+        if (newChoices.length > placeholderCount) {
+          newChoices.removeRange(
+            newChoices.length - placeholderCount,
+            newChoices.length,
+          );
+        } else {
+          newChoices.clear();
+        }
+        for (var i = 0; i < placeholderCount; i++) {
+          newChoices.add(_shopPlaceholderChoice);
+        }
+      }
+    }
     _choices
       ..clear()
-      ..addAll(
-        _buildChoicesFor(
-          playerState,
-          skillSystem,
-          selectionPoolId,
-          trackLevel,
-          unlockedMeta,
-          shopBonusChoices: shopBonusChoices,
-        ).choices,
-      );
+      ..addAll(newChoices);
     if (selectionPoolId == SelectionPoolId.itemPool) {
       _shopRerollCount += 1;
     }
@@ -279,6 +299,30 @@ class LevelUpSystem {
     _pendingLevels[trackId] = math.max(0, (_pendingLevels[trackId] ?? 0) - 1);
     _choices.clear();
     _activeTrackId = null;
+  }
+
+  bool applyShopPurchase({
+    required SelectionChoice choice,
+    required PlayerState playerState,
+  }) {
+    if (choice.type != SelectionType.item) {
+      return false;
+    }
+    final itemId = choice.itemId;
+    if (itemId == null) {
+      return false;
+    }
+    _lockedItems.remove(itemId);
+    final item = itemDefsById[itemId];
+    if (item != null && !_isItemCapped(item)) {
+      _appliedItems.add(item.id);
+      _appliedItemCounts[item.id] = _itemCount(item.id) + 1;
+      playerState.applyModifiers(item.modifiers);
+    }
+    _syncRerolls(playerState);
+    _syncBanishes(playerState);
+    _replaceChoiceWithPlaceholder(choice);
+    return true;
   }
 
   void skipChoice({
@@ -409,6 +453,34 @@ class LevelUpSystem {
     if (_banishesRemaining > _banishesMax) {
       _banishesRemaining = _banishesMax;
     }
+  }
+
+  void _replaceChoiceWithPlaceholder(SelectionChoice choice) {
+    final index = _choices.indexOf(choice);
+    if (index != -1) {
+      _choices[index] = _shopPlaceholderChoice;
+      return;
+    }
+    final itemId = choice.itemId;
+    if (itemId == null) {
+      return;
+    }
+    final fallbackIndex = _choices.indexWhere(
+      (entry) => entry.type == SelectionType.item && entry.itemId == itemId,
+    );
+    if (fallbackIndex != -1) {
+      _choices[fallbackIndex] = _shopPlaceholderChoice;
+    }
+  }
+
+  int _shopPlaceholderCount() {
+    var count = 0;
+    for (final choice in _choices) {
+      if (choice.type == SelectionType.item && choice.itemId == null) {
+        count += 1;
+      }
+    }
+    return count;
   }
 
   List<SelectionChoice> _buildCandidates(

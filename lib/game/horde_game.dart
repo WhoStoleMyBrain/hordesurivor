@@ -151,6 +151,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const int _shopExitBonusSlots = 1;
   static const double _shopExitXpBuffPercent = 0.2;
   static const double _shopExitXpBuffDuration = 45;
+  static const double _shopPendingXpScale = 0.5;
   static const String _tutorialSeenPrefsKey = 'tutorial_seen';
   static const TagSet _igniteDamageTags = TagSet(
     elements: {ElementTag.fire},
@@ -1393,6 +1394,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       if (usedDiscount) {
         _shopDiscountTokens = math.max(0, _shopDiscountTokens - 1);
       }
+      final purchased = _levelUpSystem.applyShopPurchase(
+        choice: choice,
+        playerState: _playerState,
+      );
+      if (!purchased) {
+        return;
+      }
+      _syncSelectionState(trackId);
+      _runAnalysisState.recordPick(choice);
+      _runAnalysisState.setActiveSkills(_skillSystem.skillIds);
+      _hudState.triggerRewardMessage(_rewardMessageForChoice(choice));
+      return;
     }
     _levelUpSystem.applyChoice(
       trackId: trackId,
@@ -1671,6 +1684,17 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     final boosted = (baseValue * (1 + _shopExitXpBuffPercent)).round();
     return math.max(1, boosted);
+  }
+
+  int _applyShopPendingXpRate(int baseValue) {
+    if (baseValue <= 0) {
+      return baseValue;
+    }
+    if (!_shopPending || _isShopReady() || _shopSessionActive) {
+      return baseValue;
+    }
+    final reduced = (baseValue * _shopPendingXpScale).round();
+    return math.max(1, reduced);
   }
 
   void _startShopSession() {
@@ -2554,6 +2578,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       final currencyId = _currencyByPickupKind[pickup.kind] ?? CurrencyId.xp;
       final adjustedValue = currencyId == CurrencyId.xp
           ? _applyXpBoost(pickup.value)
+          : currencyId == CurrencyId.gold
+          ? _applyShopPendingXpRate(pickup.value)
           : pickup.value;
       if (currencyId == CurrencyId.xp) {
         _runSummary.xpGained += adjustedValue;
