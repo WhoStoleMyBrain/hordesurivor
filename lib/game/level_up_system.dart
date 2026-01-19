@@ -125,37 +125,41 @@ class LevelUpSystem {
     _syncBanishes(playerState);
   }
 
-  void buildChoices({
+  int buildChoices({
     required ProgressionTrackId trackId,
     required SelectionPoolId selectionPoolId,
     required PlayerState playerState,
     required SkillSystem skillSystem,
     required int trackLevel,
+    int shopBonusChoices = 0,
+    int rarityBoosts = 0,
     Set<MetaUnlockId> unlockedMeta = const {},
   }) {
     if ((_pendingLevels[trackId] ?? 0) <= 0 || _choices.isNotEmpty) {
-      return;
+      return 0;
     }
     if (selectionPoolId == SelectionPoolId.itemPool) {
       _shopRerollCount = 0;
     }
+    final result = _buildChoicesFor(
+      playerState,
+      skillSystem,
+      selectionPoolId,
+      trackLevel,
+      unlockedMeta,
+      shopBonusChoices: shopBonusChoices,
+      rarityBoosts: rarityBoosts,
+    );
     _choices
       ..clear()
-      ..addAll(
-        _buildChoicesFor(
-          playerState,
-          skillSystem,
-          selectionPoolId,
-          trackLevel,
-          unlockedMeta,
-        ),
-      );
+      ..addAll(result.choices);
     if (_choices.isEmpty) {
       _pendingLevels[trackId] = 0;
       _activeTrackId = null;
     } else {
       _activeTrackId = trackId;
     }
+    return result.rarityBoostsApplied;
   }
 
   bool rerollChoices({
@@ -164,14 +168,18 @@ class LevelUpSystem {
     required PlayerState playerState,
     required SkillSystem skillSystem,
     required int trackLevel,
+    int shopBonusChoices = 0,
+    bool ignoreRerollLimit = false,
     Set<MetaUnlockId> unlockedMeta = const {},
   }) {
     if (_choices.isEmpty ||
-        _rerollsRemaining <= 0 ||
+        (!_shouldAllowReroll(ignoreRerollLimit)) ||
         _activeTrackId != trackId) {
       return false;
     }
-    _rerollsRemaining -= 1;
+    if (!ignoreRerollLimit) {
+      _rerollsRemaining -= 1;
+    }
     _choices
       ..clear()
       ..addAll(
@@ -181,7 +189,8 @@ class LevelUpSystem {
           selectionPoolId,
           trackLevel,
           unlockedMeta,
-        ),
+          shopBonusChoices: shopBonusChoices,
+        ).choices,
       );
     if (selectionPoolId == SelectionPoolId.itemPool) {
       _shopRerollCount += 1;
@@ -334,7 +343,7 @@ class LevelUpSystem {
           selectionPoolId,
           trackLevel,
           unlockedMeta,
-        ),
+        ).choices,
       );
     if (_choices.isEmpty) {
       _pendingLevels[trackId] = 0;
@@ -343,21 +352,30 @@ class LevelUpSystem {
     return true;
   }
 
-  List<SelectionChoice> _buildChoicesFor(
+  _ChoiceBuildResult _buildChoicesFor(
     PlayerState playerState,
     SkillSystem skillSystem,
     SelectionPoolId selectionPoolId,
     int trackLevel,
-    Set<MetaUnlockId> unlockedMeta,
-  ) {
+    Set<MetaUnlockId> unlockedMeta, {
+    int shopBonusChoices = 0,
+    int rarityBoosts = 0,
+  }) {
     final extraChoices = playerState.stats.value(StatId.choiceCount).round();
-    final choiceCount = math.max(1, _baseChoiceCount + extraChoices);
+    final bonusChoices = selectionPoolId == SelectionPoolId.itemPool
+        ? shopBonusChoices
+        : 0;
+    final choiceCount = math.max(
+      1,
+      _baseChoiceCount + extraChoices + bonusChoices,
+    );
     if (selectionPoolId == SelectionPoolId.itemPool) {
       return _buildItemChoices(
         skillSystem,
         choiceCount,
         trackLevel,
         unlockedMeta,
+        rarityBoosts: rarityBoosts,
       );
     }
     final candidates = _buildCandidates(
@@ -366,7 +384,7 @@ class LevelUpSystem {
       unlockedMeta,
     );
     candidates.shuffle(_random);
-    return candidates.take(choiceCount).toList();
+    return _ChoiceBuildResult(candidates.take(choiceCount).toList());
   }
 
   void _syncRerolls(PlayerState playerState) {
@@ -434,12 +452,13 @@ class LevelUpSystem {
     }
   }
 
-  List<SelectionChoice> _buildItemChoices(
+  _ChoiceBuildResult _buildItemChoices(
     SkillSystem skillSystem,
     int choiceCount,
     int trackLevel,
-    Set<MetaUnlockId> unlockedMeta,
-  ) {
+    Set<MetaUnlockId> unlockedMeta, {
+    int rarityBoosts = 0,
+  }) {
     final tagBias = _buildShopTagBias(skillSystem);
     final rarityWeights = _itemRarityWeightsForLevel(trackLevel);
     _applyPityRoll(rarityWeights);
@@ -474,7 +493,7 @@ class LevelUpSystem {
       availableByRarity[item.rarity]?.add(item);
     }
     if (availableByRarity.values.every((items) => items.isEmpty)) {
-      return [
+      return _ChoiceBuildResult([
         for (final item in lockedItems)
           SelectionChoice(
             type: SelectionType.item,
@@ -482,7 +501,7 @@ class LevelUpSystem {
             description: item.description,
             itemId: item.id,
           ),
-      ];
+      ]);
     }
     final choices = <SelectionChoice>[];
     for (final item in lockedItems) {
@@ -522,7 +541,109 @@ class LevelUpSystem {
       );
       _resetPityForItem(item);
     }
-    return choices;
+    final rarityBoostsApplied = _applyRarityBoosts(
+      choices,
+      availableByRarity,
+      tagBias,
+      lockedIds,
+      rarityBoosts,
+    );
+    return _ChoiceBuildResult(
+      choices,
+      rarityBoostsApplied: rarityBoostsApplied,
+    );
+  }
+
+  int _applyRarityBoosts(
+    List<SelectionChoice> choices,
+    Map<ItemRarity, List<ItemDef>> availableByRarity,
+    _TagBias tagBias,
+    Set<ItemId> lockedIds,
+    int rarityBoosts,
+  ) {
+    if (rarityBoosts <= 0 || choices.isEmpty) {
+      return 0;
+    }
+    final boostableIndexes = <int>[];
+    for (var i = 0; i < choices.length; i++) {
+      final choice = choices[i];
+      if (choice.type != SelectionType.item) {
+        continue;
+      }
+      final itemId = choice.itemId;
+      if (itemId == null || lockedIds.contains(itemId)) {
+        continue;
+      }
+      final item = itemDefsById[itemId];
+      if (item == null) {
+        continue;
+      }
+      final nextRarity = _nextRarity(item.rarity);
+      if (nextRarity == null) {
+        continue;
+      }
+      final candidates = availableByRarity[nextRarity];
+      if (candidates == null || candidates.isEmpty) {
+        continue;
+      }
+      boostableIndexes.add(i);
+    }
+    var boostsApplied = 0;
+    while (boostsApplied < rarityBoosts && boostableIndexes.isNotEmpty) {
+      final pickIndex = _random.nextInt(boostableIndexes.length);
+      final choiceIndex = boostableIndexes.removeAt(pickIndex);
+      final choice = choices[choiceIndex];
+      final itemId = choice.itemId;
+      if (itemId == null) {
+        continue;
+      }
+      final item = itemDefsById[itemId];
+      if (item == null) {
+        continue;
+      }
+      final nextRarity = _nextRarity(item.rarity);
+      if (nextRarity == null) {
+        continue;
+      }
+      final candidates = availableByRarity[nextRarity];
+      if (candidates == null || candidates.isEmpty) {
+        continue;
+      }
+      final boostedItem = _pickWeightedItem(candidates, tagBias);
+      if (boostedItem == null) {
+        continue;
+      }
+      candidates.remove(boostedItem);
+      choices[choiceIndex] = SelectionChoice(
+        type: SelectionType.item,
+        title: boostedItem.name,
+        description: boostedItem.description,
+        itemId: boostedItem.id,
+      );
+      _resetPityForItem(boostedItem);
+      boostsApplied += 1;
+    }
+    return boostsApplied;
+  }
+
+  ItemRarity? _nextRarity(ItemRarity rarity) {
+    switch (rarity) {
+      case ItemRarity.common:
+        return ItemRarity.uncommon;
+      case ItemRarity.uncommon:
+        return ItemRarity.rare;
+      case ItemRarity.rare:
+        return ItemRarity.epic;
+      case ItemRarity.epic:
+        return null;
+    }
+  }
+
+  bool _shouldAllowReroll(bool ignoreRerollLimit) {
+    if (ignoreRerollLimit) {
+      return true;
+    }
+    return _rerollsRemaining > 0;
   }
 
   List<ItemDef> _resolveLockedItems(Set<MetaUnlockId> unlockedMeta) {
@@ -832,6 +953,13 @@ class LevelUpSystem {
     }
     return math.max(1, _weaponUpgradeTiers[skillId] ?? 1);
   }
+}
+
+class _ChoiceBuildResult {
+  const _ChoiceBuildResult(this.choices, {this.rarityBoostsApplied = 0});
+
+  final List<SelectionChoice> choices;
+  final int rarityBoostsApplied;
 }
 
 class _TagBias {
