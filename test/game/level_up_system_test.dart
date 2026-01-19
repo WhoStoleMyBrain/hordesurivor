@@ -402,4 +402,78 @@ void main() {
       isFalse,
     );
   });
+
+  test('LevelUpSystem caps item offerings by max stacks', () {
+    final system = LevelUpSystem(random: math.Random(7), baseChoiceCount: 999);
+    final playerState = PlayerState(
+      position: Vector2.zero(),
+      maxHp: 100,
+      moveSpeed: 10,
+    );
+    final skillSystem = SkillSystem(
+      projectilePool: ProjectilePool(),
+      effectPool: EffectPool(),
+      summonPool: SummonPool(),
+    );
+
+    for (var i = 0; i < 4; i += 1) {
+      system.applyChoice(
+        trackId: ProgressionTrackId.items,
+        choice: const SelectionChoice(
+          type: SelectionType.item,
+          title: 'Glass Catalyst',
+          description: 'High output at the cost of survivability.',
+          itemId: ItemId.glassCatalyst,
+        ),
+        playerState: playerState,
+        skillSystem: skillSystem,
+      );
+    }
+    expect(system.appliedItemCounts[ItemId.glassCatalyst], 4);
+
+    system.queueLevels(ProgressionTrackId.items, 1);
+    system.buildChoices(
+      trackId: ProgressionTrackId.items,
+      selectionPoolId: SelectionPoolId.itemPool,
+      playerState: playerState,
+      skillSystem: skillSystem,
+      trackLevel: 6,
+    );
+
+    expect(
+      system.choices.any((choice) => choice.itemId == ItemId.glassCatalyst),
+      isFalse,
+    );
+
+    system.skipChoice(
+      trackId: ProgressionTrackId.items,
+      playerState: playerState,
+    );
+
+    system.applyChoice(
+      trackId: ProgressionTrackId.items,
+      choice: const SelectionChoice(
+        type: SelectionType.item,
+        title: 'Volatile Mixture',
+        description: 'Explosions hit harder but hurt you too.',
+        itemId: ItemId.volatileMixture,
+      ),
+      playerState: playerState,
+      skillSystem: skillSystem,
+    );
+
+    system.queueLevels(ProgressionTrackId.items, 1);
+    system.buildChoices(
+      trackId: ProgressionTrackId.items,
+      selectionPoolId: SelectionPoolId.itemPool,
+      playerState: playerState,
+      skillSystem: skillSystem,
+      trackLevel: 12,
+    );
+
+    expect(
+      system.choices.any((choice) => choice.itemId == ItemId.volatileMixture),
+      isFalse,
+    );
+  });
 }

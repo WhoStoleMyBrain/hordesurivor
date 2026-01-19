@@ -47,7 +47,8 @@ class LevelUpSystem {
   final List<SelectionChoice> _choices = [];
   final Set<SkillUpgradeId> _appliedUpgrades = {};
   final Set<String> _appliedWeaponUpgrades = {};
-  final Set<ItemId> _appliedItems = {};
+  final List<ItemId> _appliedItems = [];
+  final Map<ItemId, int> _appliedItemCounts = {};
   final Set<SkillId> _banishedSkills = {};
   final Set<ItemId> _banishedItems = {};
   final Set<SkillUpgradeId> _banishedSkillUpgrades = {};
@@ -72,7 +73,9 @@ class LevelUpSystem {
       Set<SkillUpgradeId>.unmodifiable(_appliedUpgrades);
   Set<String> get appliedWeaponUpgrades =>
       Set<String>.unmodifiable(_appliedWeaponUpgrades);
-  Set<ItemId> get appliedItems => Set<ItemId>.unmodifiable(_appliedItems);
+  List<ItemId> get appliedItems => List<ItemId>.unmodifiable(_appliedItems);
+  Map<ItemId, int> get appliedItemCounts =>
+      Map<ItemId, int>.unmodifiable(_appliedItemCounts);
 
   ProgressionTrackId? get nextPendingTrackId {
     for (final track in progressionTrackDefs) {
@@ -96,6 +99,7 @@ class LevelUpSystem {
     _appliedUpgrades.clear();
     _appliedWeaponUpgrades.clear();
     _appliedItems.clear();
+    _appliedItemCounts.clear();
     _banishedSkills.clear();
     _banishedItems.clear();
     _banishedSkillUpgrades.clear();
@@ -179,8 +183,9 @@ class LevelUpSystem {
         final itemId = choice.itemId;
         if (itemId != null) {
           final item = itemDefsById[itemId];
-          if (item != null) {
+          if (item != null && !_isItemCapped(item)) {
             _appliedItems.add(item.id);
+            _appliedItemCounts[item.id] = _itemCount(item.id) + 1;
             playerState.applyModifiers(item.modifiers);
           }
         }
@@ -391,6 +396,9 @@ class LevelUpSystem {
           !unlockedMeta.contains(item.metaUnlockId)) {
         continue;
       }
+      if (_isItemCapped(item)) {
+        continue;
+      }
       availableByRarity[item.rarity]?.add(item);
     }
     if (availableByRarity.values.every((items) => items.isEmpty)) {
@@ -502,6 +510,16 @@ class LevelUpSystem {
     }
     return null;
   }
+
+  bool _isItemCapped(ItemDef item) {
+    final maxStacks = item.maxStacks;
+    if (maxStacks == null) {
+      return false;
+    }
+    return _itemCount(item.id) >= maxStacks;
+  }
+
+  int _itemCount(ItemId itemId) => _appliedItemCounts[itemId] ?? 0;
 
   List<SelectionChoice> _buildWeaponUpgradeCandidates(SkillSystem skillSystem) {
     if (skillSystem.skillIds.isEmpty) {
