@@ -543,4 +543,23 @@ void main() {
 
     expect(summonCount, greaterThan(0));
   });
+
+  test('SkillSystem limits the number of skill slots', () {
+    final system = SkillSystem(
+      effectPool: EffectPool(initialCapacity: 0),
+      projectilePool: ProjectilePool(initialCapacity: 0),
+      summonPool: SummonPool(initialCapacity: 0),
+      skillSlots: [],
+    );
+
+    system
+      ..addSkill(SkillId.fireball)
+      ..addSkill(SkillId.swordCut)
+      ..addSkill(SkillId.waterjet)
+      ..addSkill(SkillId.oilBombs)
+      ..addSkill(SkillId.swordThrust);
+
+    expect(system.skillIds.length, SkillSystem.maxSkillSlots);
+    expect(system.skillIds.contains(SkillId.swordThrust), isFalse);
+  });
 }

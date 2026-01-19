@@ -210,6 +210,48 @@ void main() {
     );
   });
 
+  test('LevelUpSystem skips new skills when slots are full', () {
+    final system = LevelUpSystem(random: math.Random(5), baseChoiceCount: 999);
+    final playerState = PlayerState(
+      position: Vector2.zero(),
+      maxHp: 100,
+      moveSpeed: 10,
+    );
+    final skillSystem = SkillSystem(
+      projectilePool: ProjectilePool(),
+      effectPool: EffectPool(),
+      summonPool: SummonPool(),
+      skillSlots: [],
+    );
+    skillSystem
+      ..addSkill(SkillId.fireball)
+      ..addSkill(SkillId.swordCut)
+      ..addSkill(SkillId.waterjet)
+      ..addSkill(SkillId.oilBombs);
+
+    system.queueLevels(ProgressionTrackId.skills, 1);
+    system.buildChoices(
+      trackId: ProgressionTrackId.skills,
+      selectionPoolId: SelectionPoolId.skillPool,
+      playerState: playerState,
+      skillSystem: skillSystem,
+      trackLevel: 1,
+    );
+
+    expect(
+      system.choices.any((choice) => choice.type == SelectionType.skill),
+      isFalse,
+    );
+    expect(
+      system.choices.any(
+        (choice) =>
+            choice.type == SelectionType.skillUpgrade ||
+            choice.type == SelectionType.weaponUpgrade,
+      ),
+      isTrue,
+    );
+  });
+
   test('LevelUpSystem gates weapon upgrades by ownership and tier', () {
     final system = LevelUpSystem(random: math.Random(5), baseChoiceCount: 999);
     final playerState = PlayerState(

@@ -341,18 +341,20 @@ class LevelUpSystem {
   ) {
     switch (selectionPoolId) {
       case SelectionPoolId.skillPool:
+        final allowNewSkills = skillSystem.hasOpenSkillSlot;
         return [
-          for (final skill in skillDefs)
-            if (!skillSystem.hasSkill(skill.id) &&
-                !_banishedSkills.contains(skill.id) &&
-                (skill.metaUnlockId == null ||
-                    unlockedMeta.contains(skill.metaUnlockId)))
-              SelectionChoice(
-                type: SelectionType.skill,
-                title: skill.name,
-                description: skill.description,
-                skillId: skill.id,
-              ),
+          if (allowNewSkills)
+            for (final skill in skillDefs)
+              if (!skillSystem.hasSkill(skill.id) &&
+                  !_banishedSkills.contains(skill.id) &&
+                  (skill.metaUnlockId == null ||
+                      unlockedMeta.contains(skill.metaUnlockId)))
+                SelectionChoice(
+                  type: SelectionType.skill,
+                  title: skill.name,
+                  description: skill.description,
+                  skillId: skill.id,
+                ),
           for (final upgrade in skillUpgradeDefs)
             if (skillSystem.hasSkill(upgrade.skillId) &&
                 !_appliedUpgrades.contains(upgrade.id) &&
