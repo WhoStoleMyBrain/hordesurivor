@@ -7,6 +7,7 @@ class RunSummary {
     this.timeAlive = 0,
     this.enemiesDefeated = 0,
     this.xpGained = 0,
+    this.goldGained = 0,
     this.damageTaken = 0,
     this.metaCurrencyEarned = 0,
     this.metaRewardMultiplier = 1.0,
@@ -26,6 +27,7 @@ class RunSummary {
   double timeAlive;
   int enemiesDefeated;
   int xpGained;
+  int goldGained;
   double damageTaken;
   int metaCurrencyEarned;
   double metaRewardMultiplier;
@@ -69,6 +71,7 @@ class RunSummary {
     timeAlive = 0;
     enemiesDefeated = 0;
     xpGained = 0;
+    goldGained = 0;
     damageTaken = 0;
     metaCurrencyEarned = 0;
     metaRewardMultiplier = 1.0;
