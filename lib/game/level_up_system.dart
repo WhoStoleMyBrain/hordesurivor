@@ -63,6 +63,8 @@ class LevelUpSystem {
   int _banishesMax = 0;
   ProgressionTrackId? _activeTrackId;
   int _shopRerollCount = 0;
+  int _rarePityChance = 0;
+  int _epicPityChance = 0;
 
   List<SelectionChoice> get choices => List.unmodifiable(_choices);
   int pendingLevels(ProgressionTrackId trackId) => _pendingLevels[trackId] ?? 0;
@@ -117,6 +119,8 @@ class LevelUpSystem {
     _banishesMax = 0;
     _activeTrackId = null;
     _shopRerollCount = 0;
+    _rarePityChance = 0;
+    _epicPityChance = 0;
     _syncRerolls(playerState);
     _syncBanishes(playerState);
   }
@@ -437,7 +441,12 @@ class LevelUpSystem {
     Set<MetaUnlockId> unlockedMeta,
   ) {
     final tagBias = _buildShopTagBias(skillSystem);
+    final rarityWeights = _itemRarityWeightsForLevel(trackLevel);
+    _applyPityRoll(rarityWeights);
     final lockedItems = _resolveLockedItems(unlockedMeta);
+    for (final item in lockedItems) {
+      _resetPityForItem(item);
+    }
     if (lockedItems.length > choiceCount) {
       lockedItems.removeRange(choiceCount, lockedItems.length);
       _lockedItems
@@ -475,7 +484,6 @@ class LevelUpSystem {
           ),
       ];
     }
-    final rarityWeights = _itemRarityWeightsForLevel(trackLevel);
     final choices = <SelectionChoice>[];
     for (final item in lockedItems) {
       choices.add(
@@ -488,7 +496,10 @@ class LevelUpSystem {
       );
     }
     while (choices.length < choiceCount) {
-      final rarity = _pickWeightedRarity(availableByRarity, rarityWeights);
+      _applyPityRoll(rarityWeights);
+      final rarity =
+          _pickForcedPityRarity(availableByRarity) ??
+          _pickWeightedRarity(availableByRarity, rarityWeights);
       if (rarity == null) {
         break;
       }
@@ -509,6 +520,7 @@ class LevelUpSystem {
           itemId: item.id,
         ),
       );
+      _resetPityForItem(item);
     }
     return choices;
   }
@@ -546,7 +558,16 @@ class LevelUpSystem {
   }
 
   Map<ItemRarity, int> _itemRarityWeightsForLevel(int level) {
-    if (level <= 3) {
+    final normalizedLevel = math.max(1, level);
+    if (normalizedLevel == 1) {
+      return const {
+        ItemRarity.common: 75,
+        ItemRarity.uncommon: 22,
+        ItemRarity.rare: 3,
+        ItemRarity.epic: 0,
+      };
+    }
+    if (normalizedLevel == 2) {
       return const {
         ItemRarity.common: 70,
         ItemRarity.uncommon: 25,
@@ -554,26 +575,66 @@ class LevelUpSystem {
         ItemRarity.epic: 0,
       };
     }
-    if (level <= 6) {
+    if (normalizedLevel == 3) {
       return const {
-        ItemRarity.common: 55,
+        ItemRarity.common: 64,
+        ItemRarity.uncommon: 28,
+        ItemRarity.rare: 7,
+        ItemRarity.epic: 1,
+      };
+    }
+    if (normalizedLevel == 4) {
+      return const {
+        ItemRarity.common: 58,
         ItemRarity.uncommon: 30,
-        ItemRarity.rare: 12,
+        ItemRarity.rare: 10,
+        ItemRarity.epic: 2,
+      };
+    }
+    if (normalizedLevel == 5) {
+      return const {
+        ItemRarity.common: 52,
+        ItemRarity.uncommon: 32,
+        ItemRarity.rare: 13,
         ItemRarity.epic: 3,
       };
     }
-    if (level <= 10) {
+    if (normalizedLevel == 6) {
       return const {
-        ItemRarity.common: 40,
-        ItemRarity.uncommon: 35,
+        ItemRarity.common: 46,
+        ItemRarity.uncommon: 34,
+        ItemRarity.rare: 16,
+        ItemRarity.epic: 4,
+      };
+    }
+    if (normalizedLevel == 7) {
+      return const {
+        ItemRarity.common: 42,
+        ItemRarity.uncommon: 34,
+        ItemRarity.rare: 18,
+        ItemRarity.epic: 6,
+      };
+    }
+    if (normalizedLevel == 8) {
+      return const {
+        ItemRarity.common: 38,
+        ItemRarity.uncommon: 34,
         ItemRarity.rare: 20,
-        ItemRarity.epic: 5,
+        ItemRarity.epic: 8,
+      };
+    }
+    if (normalizedLevel == 9) {
+      return const {
+        ItemRarity.common: 34,
+        ItemRarity.uncommon: 34,
+        ItemRarity.rare: 22,
+        ItemRarity.epic: 10,
       };
     }
     return const {
-      ItemRarity.common: 25,
-      ItemRarity.uncommon: 35,
-      ItemRarity.rare: 28,
+      ItemRarity.common: 30,
+      ItemRarity.uncommon: 34,
+      ItemRarity.rare: 24,
       ItemRarity.epic: 12,
     };
   }
@@ -602,6 +663,20 @@ class LevelUpSystem {
       if (roll < 0) {
         return rarity;
       }
+    }
+    return null;
+  }
+
+  ItemRarity? _pickForcedPityRarity(
+    Map<ItemRarity, List<ItemDef>> availableByRarity,
+  ) {
+    if (_epicPityChance > 300 &&
+        (availableByRarity[ItemRarity.epic]?.isNotEmpty ?? false)) {
+      return ItemRarity.epic;
+    }
+    if (_rarePityChance > 300 &&
+        (availableByRarity[ItemRarity.rare]?.isNotEmpty ?? false)) {
+      return ItemRarity.rare;
     }
     return null;
   }
@@ -696,6 +771,26 @@ class LevelUpSystem {
       return false;
     }
     return _itemCount(item.id) >= maxStacks;
+  }
+
+  void _applyPityRoll(Map<ItemRarity, int> rarityWeights) {
+    const pityMultiplier = 2;
+    _rarePityChance += (rarityWeights[ItemRarity.rare] ?? 0) * pityMultiplier;
+    _epicPityChance += (rarityWeights[ItemRarity.epic] ?? 0) * pityMultiplier;
+  }
+
+  void _resetPityForItem(ItemDef item) {
+    switch (item.rarity) {
+      case ItemRarity.rare:
+        _rarePityChance = 0;
+        break;
+      case ItemRarity.epic:
+        _epicPityChance = 0;
+        break;
+      case ItemRarity.common:
+      case ItemRarity.uncommon:
+        break;
+    }
   }
 
   int _itemCount(ItemId itemId) => _appliedItemCounts[itemId] ?? 0;
