@@ -31,6 +31,8 @@ class SkillSystem {
        _skills = skillSlots ?? _defaultSkillSlots(),
        _random = random ?? math.Random();
 
+  static const int maxSkillSlots = 4;
+
   static const Map<SkillId, double> _baseCooldowns = {
     SkillId.fireball: 0.6,
     SkillId.swordCut: 0.9,
@@ -88,11 +90,16 @@ class SkillSystem {
     return _skills.any((skill) => skill.id == id);
   }
 
+  bool get hasOpenSkillSlot => _skills.length < maxSkillSlots;
+
   List<SkillId> get skillIds =>
       _skills.map((skill) => skill.id).toList(growable: false);
 
   void addSkill(SkillId id) {
     if (hasSkill(id)) {
+      return;
+    }
+    if (!hasOpenSkillSlot) {
       return;
     }
     final cooldown = _baseCooldowns[id] ?? 1.0;
