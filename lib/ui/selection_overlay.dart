@@ -89,10 +89,12 @@ class SelectionOverlay extends StatelessWidget {
                                 ProgressionTrackId.items,
                             freeRerolls: selectionState.shopFreeRerolls,
                             onPressed:
-                                selectionState.rerollsRemaining > 0 ||
-                                    (selectionState.trackId ==
-                                            ProgressionTrackId.items &&
-                                        selectionState.shopFreeRerolls > 0)
+                                (selectionState.trackId ==
+                                        ProgressionTrackId.items
+                                    ? (selectionState.shopFreeRerolls > 0 ||
+                                          selectionState.goldAvailable >=
+                                              selectionState.rerollCost)
+                                    : selectionState.rerollsRemaining > 0)
                                 ? onReroll
                                 : null,
                           ),
@@ -181,8 +183,8 @@ class _RerollButton extends StatelessWidget {
     final canAfford = !isShop || freeRerolls > 0 || goldAvailable >= cost;
     final label = isShop
         ? freeRerolls > 0
-              ? 'Reroll ($remaining) - Free x$freeRerolls'
-              : 'Reroll ($remaining) - ${cost}g'
+              ? 'Reroll - Free x$freeRerolls'
+              : 'Reroll - ${cost}g'
         : 'Reroll ($remaining)';
     return TextButton(
       onPressed: canAfford ? onPressed : null,
