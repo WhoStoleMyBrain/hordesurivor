@@ -193,22 +193,6 @@ class LevelUpSystem {
       unlockedMeta,
       shopBonusChoices: shopBonusChoices,
     ).choices;
-    if (selectionPoolId == SelectionPoolId.itemPool) {
-      final placeholderCount = _shopPlaceholderCount();
-      if (placeholderCount > 0) {
-        if (newChoices.length > placeholderCount) {
-          newChoices.removeRange(
-            newChoices.length - placeholderCount,
-            newChoices.length,
-          );
-        } else {
-          newChoices.clear();
-        }
-        for (var i = 0; i < placeholderCount; i++) {
-          newChoices.add(_shopPlaceholderChoice);
-        }
-      }
-    }
     _choices
       ..clear()
       ..addAll(newChoices);
@@ -471,16 +455,6 @@ class LevelUpSystem {
     if (fallbackIndex != -1) {
       _choices[fallbackIndex] = _shopPlaceholderChoice;
     }
-  }
-
-  int _shopPlaceholderCount() {
-    var count = 0;
-    for (final choice in _choices) {
-      if (choice.type == SelectionType.item && choice.itemId == null) {
-        count += 1;
-      }
-    }
-    return count;
   }
 
   List<SelectionChoice> _buildCandidates(

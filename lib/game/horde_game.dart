@@ -1467,7 +1467,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         skillSystem: _skillSystem,
         trackLevel: _progressionSystem.trackForId(trackId).level,
         shopBonusChoices: _activeShopBonusChoices,
-        ignoreRerollLimit: hasFreeReroll,
+        ignoreRerollLimit: true,
         unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
       );
       if (rerolled) {
