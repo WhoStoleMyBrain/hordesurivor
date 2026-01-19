@@ -199,6 +199,9 @@ DataValidationResult validateGameData() {
     if (def.weight <= 0) {
       result.errors.add('ItemDef ${def.id} has non-positive weight.');
     }
+    if (def.maxStacks != null && def.maxStacks! <= 0) {
+      result.errors.add('ItemDef ${def.id} has invalid max stacks.');
+    }
     if (def.metaUnlockId != null &&
         !metaUnlockDefsById.containsKey(def.metaUnlockId)) {
       result.errors.add(

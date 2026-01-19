@@ -12,6 +12,7 @@ class ItemDef {
     this.metaUnlockId,
     this.tags = const TagSet(),
     this.weight = 1,
+    this.maxStacks,
   });
 
   final ItemId id;
@@ -22,6 +23,7 @@ class ItemDef {
   final MetaUnlockId? metaUnlockId;
   final TagSet tags;
   final int weight;
+  final int? maxStacks;
 }
 
 const List<ItemDef> itemDefs = [
@@ -39,6 +41,7 @@ const List<ItemDef> itemDefs = [
       StatModifier(stat: StatId.maxHp, amount: -0.2),
     ],
     rarity: ItemRarity.uncommon,
+    maxStacks: 4,
   ),
   ItemDef(
     id: ItemId.heavyPlate,
@@ -142,6 +145,7 @@ const List<ItemDef> itemDefs = [
     ],
     tags: TagSet(elements: {ElementTag.fire}),
     rarity: ItemRarity.epic,
+    maxStacks: 1,
   ),
   ItemDef(
     id: ItemId.insulatedFlask,
@@ -206,6 +210,7 @@ const List<ItemDef> itemDefs = [
       StatModifier(stat: StatId.damage, amount: -0.1),
     ],
     rarity: ItemRarity.common,
+    maxStacks: 4,
   ),
   ItemDef(
     id: ItemId.gamblersDie,
@@ -341,6 +346,7 @@ const List<ItemDef> itemDefs = [
     metaUnlockId: MetaUnlockId.moltenBuckleForge,
     tags: TagSet(elements: {ElementTag.fire}),
     rarity: ItemRarity.epic,
+    maxStacks: 1,
   ),
   ItemDef(
     id: ItemId.serratedEdge,
