@@ -198,6 +198,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final StatsScreenState _statsScreenState = StatsScreenState();
   final RunSummary _runSummary = RunSummary();
   final RunAnalysisState _runAnalysisState = RunAnalysisState();
+  int _goldWallet = 0;
   final MetaCurrencyWallet _metaWallet = MetaCurrencyWallet();
   final MetaUnlocks _metaUnlocks = MetaUnlocks();
   final List<ContractId> _activeContracts = [];
@@ -1343,6 +1344,20 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (trackId == null) {
       return;
     }
+    if (trackId == ProgressionTrackId.items &&
+        choice.type == SelectionType.item) {
+      final itemId = choice.itemId;
+      final shopLevel = _progressionSystem.trackForId(trackId).level;
+      final item = itemId != null ? itemDefsById[itemId] : null;
+      if (item == null) {
+        return;
+      }
+      final cost = _levelUpSystem.itemPriceForRarity(item.rarity, shopLevel);
+      if (_goldWallet < cost) {
+        return;
+      }
+      _goldWallet -= cost;
+    }
     _levelUpSystem.applyChoice(
       trackId: trackId,
       choice: choice,
@@ -1392,6 +1407,27 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void rerollSelection() {
     final trackId = _activeSelectionTrackId ?? ProgressionTrackId.skills;
+    if (trackId == ProgressionTrackId.items) {
+      final shopLevel = _progressionSystem.trackForId(trackId).level;
+      final cost = _levelUpSystem.shopRerollCost(shopLevel);
+      if (_goldWallet < cost) {
+        return;
+      }
+      final rerolled = _levelUpSystem.rerollChoices(
+        trackId: trackId,
+        selectionPoolId: _activeSelectionPoolId(),
+        playerState: _playerState,
+        skillSystem: _skillSystem,
+        trackLevel: _progressionSystem.trackForId(trackId).level,
+        unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
+      );
+      if (rerolled) {
+        _goldWallet = math.max(0, _goldWallet - cost);
+        _syncSelectionState(trackId);
+        _runAnalysisState.recordOffer(_levelUpSystem.choices);
+      }
+      return;
+    }
     final rerolled = _levelUpSystem.rerollChoices(
       trackId: trackId,
       selectionPoolId: _activeSelectionPoolId(),
@@ -1401,15 +1437,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
     );
     if (rerolled) {
-      _selectionState.showChoices(
-        _levelUpSystem.choices,
-        trackId: trackId,
-        rerollsRemaining: _levelUpSystem.rerollsRemaining,
-        banishesRemaining: _levelUpSystem.banishesRemaining,
-        skipRewardCurrencyAmount: _skipRewardCurrencyValue(trackId),
-        skipRewardCurrencyId: _currencyIdForTrack(trackId),
-        skipRewardMetaShards: _skipRewardMetaShardValue(),
-      );
+      _syncSelectionState(trackId);
       _runAnalysisState.recordOffer(_levelUpSystem.choices);
     }
   }
@@ -1426,17 +1454,23 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
     );
     if (banished) {
-      _selectionState.showChoices(
-        _levelUpSystem.choices,
-        trackId: trackId,
-        rerollsRemaining: _levelUpSystem.rerollsRemaining,
-        banishesRemaining: _levelUpSystem.banishesRemaining,
-        skipRewardCurrencyAmount: _skipRewardCurrencyValue(trackId),
-        skipRewardCurrencyId: _currencyIdForTrack(trackId),
-        skipRewardMetaShards: _skipRewardMetaShardValue(),
-      );
+      _syncSelectionState(trackId);
       _runAnalysisState.recordOffer(_levelUpSystem.choices);
     }
+  }
+
+  void toggleShopLock(SelectionChoice choice) {
+    final trackId = _activeSelectionTrackId;
+    if (trackId == null || trackId != ProgressionTrackId.items) {
+      return;
+    }
+    final itemId = choice.itemId;
+    if (itemId == null) {
+      return;
+    }
+    final locked = _levelUpSystem.isItemLocked(itemId);
+    _levelUpSystem.setItemLocked(itemId, !locked);
+    _syncSelectionState(trackId);
   }
 
   void _offerSelectionIfNeeded() {
@@ -1457,15 +1491,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
     if (_levelUpSystem.hasChoices) {
       _activeSelectionTrackId = nextTrackId;
-      _selectionState.showChoices(
-        _levelUpSystem.choices,
-        trackId: nextTrackId,
-        rerollsRemaining: _levelUpSystem.rerollsRemaining,
-        banishesRemaining: _levelUpSystem.banishesRemaining,
-        skipRewardCurrencyAmount: _skipRewardCurrencyValue(nextTrackId),
-        skipRewardCurrencyId: _currencyIdForTrack(nextTrackId),
-        skipRewardMetaShards: _skipRewardMetaShardValue(),
-      );
+      _syncSelectionState(nextTrackId);
       _runAnalysisState.recordOffer(_levelUpSystem.choices);
       overlays.add(SelectionOverlay.overlayKey);
     } else {
@@ -1473,6 +1499,53 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       overlays.remove(SelectionOverlay.overlayKey);
       _activeSelectionTrackId = null;
     }
+  }
+
+  void _syncSelectionState(ProgressionTrackId trackId) {
+    final isShop = trackId == ProgressionTrackId.items;
+    final shopLevel = _progressionSystem.trackForId(trackId).level;
+    final itemPrices = isShop
+        ? _buildShopPriceMap(_levelUpSystem.choices, shopLevel)
+        : const <ItemId, int>{};
+    _selectionState.showChoices(
+      _levelUpSystem.choices,
+      trackId: trackId,
+      rerollsRemaining: _levelUpSystem.rerollsRemaining,
+      banishesRemaining: _levelUpSystem.banishesRemaining,
+      skipRewardCurrencyAmount: _skipRewardCurrencyValue(trackId),
+      skipRewardCurrencyId: _currencyIdForTrack(trackId),
+      skipRewardMetaShards: _skipRewardMetaShardValue(),
+      goldAvailable: isShop ? _goldWallet : 0,
+      rerollCost: isShop ? _levelUpSystem.shopRerollCost(shopLevel) : 0,
+      shopLevel: isShop ? shopLevel : 0,
+      itemPrices: itemPrices,
+      lockedItems: isShop ? _levelUpSystem.lockedItems : const <ItemId>{},
+    );
+  }
+
+  Map<ItemId, int> _buildShopPriceMap(
+    List<SelectionChoice> choices,
+    int shopLevel,
+  ) {
+    final prices = <ItemId, int>{};
+    for (final choice in choices) {
+      if (choice.type != SelectionType.item) {
+        continue;
+      }
+      final itemId = choice.itemId;
+      if (itemId == null) {
+        continue;
+      }
+      final item = itemDefsById[itemId];
+      if (item == null) {
+        continue;
+      }
+      prices[itemId] = _levelUpSystem.itemPriceForRarity(
+        item.rarity,
+        shopLevel,
+      );
+    }
+    return prices;
   }
 
   int _skipRewardCurrencyValue(ProgressionTrackId trackId) {
@@ -2309,6 +2382,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         _offerSelectionIfNeeded();
       }
       if (pickup.kind == PickupKind.goldCoin && pickup.bonusValue > 0) {
+        _goldWallet += pickup.bonusValue;
         _runSummary.goldGained += pickup.bonusValue;
       }
     }
@@ -2367,6 +2441,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _playerState.applyModifiers(_metaUnlocks.activeModifiers);
     _levelUpSystem.resetForRun(playerState: _playerState);
     _activeSelectionTrackId = null;
+    _goldWallet = 0;
   }
 
   void _revivePlayer() {
