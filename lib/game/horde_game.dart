@@ -131,8 +131,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     PickupKind.xpOrb: CurrencyId.xp,
     PickupKind.goldCoin: CurrencyId.gold,
   };
-  static const int _goldShopXpValue = 8;
-  static const int _goldCurrencyBaseValue = 4;
+  static const int _goldShopXpValue = 1;
+  static const int _goldCurrencyBaseValue = 1;
   static const double _goldCurrencyXpRewardMultiplier = 0.3;
   static const double _goldCurrencyTimeStepSeconds = 45;
   static const double _portalRadius = 26;

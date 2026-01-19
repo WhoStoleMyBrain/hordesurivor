@@ -33,7 +33,7 @@ const List<CurrencyDef> currencyDefs = [
     description: 'Funds item acquisition and refinements.',
     iconId: 'icon_gold',
     colorKey: 'gold',
-    dropWeight: 0.2,
+    dropWeight: 0.75,
   ),
 ];
 
