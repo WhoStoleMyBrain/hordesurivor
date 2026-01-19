@@ -6,6 +6,7 @@ import '../data/progression_track_defs.dart';
 import '../data/skill_defs.dart';
 import '../data/skill_upgrade_defs.dart';
 import '../data/stat_defs.dart';
+import '../data/tags.dart';
 import '../data/weapon_upgrade_defs.dart';
 import 'player_state.dart';
 import 'skill_system.dart';
@@ -304,7 +305,12 @@ class LevelUpSystem {
     final extraChoices = playerState.stats.value(StatId.choiceCount).round();
     final choiceCount = math.max(1, _baseChoiceCount + extraChoices);
     if (selectionPoolId == SelectionPoolId.itemPool) {
-      return _buildItemChoices(choiceCount, trackLevel, unlockedMeta);
+      return _buildItemChoices(
+        skillSystem,
+        choiceCount,
+        trackLevel,
+        unlockedMeta,
+      );
     }
     final candidates = _buildCandidates(
       skillSystem,
@@ -381,10 +387,12 @@ class LevelUpSystem {
   }
 
   List<SelectionChoice> _buildItemChoices(
+    SkillSystem skillSystem,
     int choiceCount,
     int trackLevel,
     Set<MetaUnlockId> unlockedMeta,
   ) {
+    final tagBias = _buildShopTagBias(skillSystem);
     final availableByRarity = <ItemRarity, List<ItemDef>>{
       for (final rarity in ItemRarity.values) rarity: <ItemDef>[],
     };
@@ -415,7 +423,7 @@ class LevelUpSystem {
       if (items == null || items.isEmpty) {
         continue;
       }
-      final item = _pickWeightedItem(items);
+      final item = _pickWeightedItem(items, tagBias);
       if (item == null) {
         break;
       }
@@ -493,22 +501,88 @@ class LevelUpSystem {
     return null;
   }
 
-  ItemDef? _pickWeightedItem(List<ItemDef> items) {
-    var totalWeight = 0;
+  ItemDef? _pickWeightedItem(List<ItemDef> items, _TagBias tagBias) {
+    var totalWeight = 0.0;
     for (final item in items) {
-      totalWeight += item.weight;
+      totalWeight += _weightedItemWeight(item, tagBias);
     }
     if (totalWeight <= 0) {
       return null;
     }
-    var roll = _random.nextInt(totalWeight);
+    var roll = _random.nextDouble() * totalWeight;
     for (final item in items) {
-      roll -= item.weight;
+      roll -= _weightedItemWeight(item, tagBias);
       if (roll < 0) {
         return item;
       }
     }
     return null;
+  }
+
+  _TagBias _buildShopTagBias(SkillSystem skillSystem) {
+    final elementCounts = <ElementTag, int>{};
+    final effectCounts = <EffectTag, int>{};
+    final deliveryCounts = <DeliveryTag, int>{};
+
+    void addTags(TagSet tags, [int count = 1]) {
+      for (final tag in tags.elements) {
+        elementCounts[tag] = (elementCounts[tag] ?? 0) + count;
+      }
+      for (final tag in tags.effects) {
+        effectCounts[tag] = (effectCounts[tag] ?? 0) + count;
+      }
+      for (final tag in tags.deliveries) {
+        deliveryCounts[tag] = (deliveryCounts[tag] ?? 0) + count;
+      }
+    }
+
+    for (final skillId in skillSystem.skillIds) {
+      final skill = skillDefsById[skillId];
+      if (skill != null) {
+        addTags(skill.tags);
+      }
+    }
+    for (final entry in _appliedItemCounts.entries) {
+      final item = itemDefsById[entry.key];
+      if (item != null) {
+        addTags(item.tags, entry.value);
+      }
+    }
+    for (final upgradeId in _appliedUpgrades) {
+      final upgrade = skillUpgradeDefsById[upgradeId];
+      if (upgrade != null) {
+        addTags(upgrade.tags);
+      }
+    }
+    for (final upgradeId in _appliedWeaponUpgrades) {
+      final upgrade = weaponUpgradeDefsById[upgradeId];
+      if (upgrade != null) {
+        addTags(upgrade.tags);
+      }
+    }
+
+    return _TagBias(
+      elements: {
+        for (final entry in elementCounts.entries)
+          if (entry.value >= 2) entry.key,
+      },
+      effects: {
+        for (final entry in effectCounts.entries)
+          if (entry.value >= 2) entry.key,
+      },
+      deliveries: {
+        for (final entry in deliveryCounts.entries)
+          if (entry.value >= 2) entry.key,
+      },
+    );
+  }
+
+  double _weightedItemWeight(ItemDef item, _TagBias tagBias) {
+    const tagBiasPerMatch = 0.15;
+    const tagBiasMax = 0.35;
+    final tagMatches = tagBias.matchCount(item.tags);
+    final boost = math.min(tagBiasPerMatch * tagMatches, tagBiasMax);
+    return math.max(0.0, item.weight.toDouble() * (1 + boost));
   }
 
   bool _isItemCapped(ItemDef item) {
@@ -557,5 +631,37 @@ class LevelUpSystem {
       return 0;
     }
     return math.max(1, _weaponUpgradeTiers[skillId] ?? 1);
+  }
+}
+
+class _TagBias {
+  const _TagBias({
+    required this.elements,
+    required this.effects,
+    required this.deliveries,
+  });
+
+  final Set<ElementTag> elements;
+  final Set<EffectTag> effects;
+  final Set<DeliveryTag> deliveries;
+
+  int matchCount(TagSet tags) {
+    var matches = 0;
+    for (final tag in tags.elements) {
+      if (elements.contains(tag)) {
+        matches += 1;
+      }
+    }
+    for (final tag in tags.effects) {
+      if (effects.contains(tag)) {
+        matches += 1;
+      }
+    }
+    for (final tag in tags.deliveries) {
+      if (deliveries.contains(tag)) {
+        matches += 1;
+      }
+    }
+    return matches;
   }
 }
