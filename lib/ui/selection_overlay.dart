@@ -87,12 +87,22 @@ class SelectionOverlay extends StatelessWidget {
                             isShop:
                                 selectionState.trackId ==
                                 ProgressionTrackId.items,
-                            onPressed: selectionState.rerollsRemaining > 0
+                            freeRerolls: selectionState.shopFreeRerolls,
+                            onPressed:
+                                selectionState.rerollsRemaining > 0 ||
+                                    (selectionState.trackId ==
+                                            ProgressionTrackId.items &&
+                                        selectionState.shopFreeRerolls > 0)
                                 ? onReroll
                                 : null,
                           ),
                         ],
                       ),
+                      if (selectionState.trackId ==
+                          ProgressionTrackId.items) ...[
+                        const SizedBox(height: 8),
+                        _ShopBonusRow(selectionState: selectionState),
+                      ],
                       const SizedBox(height: 12),
                       Flexible(
                         child: ListView.separated(
@@ -125,10 +135,7 @@ class SelectionOverlay extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       _SkipButton(
-                        rewardCurrencyAmount:
-                            selectionState.skipRewardCurrencyAmount,
-                        rewardCurrencyId: selectionState.skipRewardCurrencyId,
-                        rewardMetaShards: selectionState.skipRewardMetaShards,
+                        label: selectionState.skipRewardLabel,
                         onPressed: onSkip,
                       ),
                     ],
@@ -150,6 +157,7 @@ class _RerollButton extends StatelessWidget {
     required this.cost,
     required this.goldAvailable,
     required this.isShop,
+    required this.freeRerolls,
   });
 
   final int remaining;
@@ -157,16 +165,61 @@ class _RerollButton extends StatelessWidget {
   final int cost;
   final int goldAvailable;
   final bool isShop;
+  final int freeRerolls;
 
   @override
   Widget build(BuildContext context) {
-    final canAfford = !isShop || goldAvailable >= cost;
+    final canAfford = !isShop || freeRerolls > 0 || goldAvailable >= cost;
     final label = isShop
-        ? 'Reroll ($remaining) - ${cost}g'
+        ? freeRerolls > 0
+              ? 'Reroll ($remaining) - Free x$freeRerolls'
+              : 'Reroll ($remaining) - ${cost}g'
         : 'Reroll ($remaining)';
     return TextButton(
       onPressed: canAfford ? onPressed : null,
       child: Text(label),
+    );
+  }
+}
+
+class _ShopBonusRow extends StatelessWidget {
+  const _ShopBonusRow({required this.selectionState});
+
+  final SelectionState selectionState;
+
+  @override
+  Widget build(BuildContext context) {
+    final labels = <String>[];
+    if (selectionState.shopFreeRerolls > 0) {
+      labels.add('Free rerolls: ${selectionState.shopFreeRerolls}');
+    }
+    if (selectionState.shopDiscountTokens > 0) {
+      labels.add(
+        'Discount tokens: ${selectionState.shopDiscountTokens} (-25%)',
+      );
+    }
+    if (selectionState.shopRarityBoostsApplied > 0) {
+      labels.add(
+        'Rarity boosts: +${selectionState.shopRarityBoostsApplied} tier',
+      );
+    }
+    if (selectionState.shopBonusChoices > 0) {
+      labels.add('Bonus slots: +${selectionState.shopBonusChoices}');
+    }
+    if (labels.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final theme = Theme.of(context);
+    return Wrap(
+      spacing: 12,
+      runSpacing: 4,
+      children: [
+        for (final label in labels)
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
+          ),
+      ],
     );
   }
 }
@@ -312,58 +365,17 @@ class _ChoiceCard extends StatelessWidget {
 }
 
 class _SkipButton extends StatelessWidget {
-  const _SkipButton({
-    required this.rewardCurrencyAmount,
-    required this.rewardCurrencyId,
-    required this.rewardMetaShards,
-    required this.onPressed,
-  });
+  const _SkipButton({required this.label, required this.onPressed});
 
-  final int rewardCurrencyAmount;
-  final CurrencyId rewardCurrencyId;
-  final int rewardMetaShards;
+  final String label;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    final label = _skipLabel(
-      rewardCurrencyAmount: rewardCurrencyAmount,
-      rewardCurrencyId: rewardCurrencyId,
-      rewardMetaShards: rewardMetaShards,
-    );
     return Align(
       alignment: Alignment.centerRight,
       child: TextButton(onPressed: onPressed, child: Text(label)),
     );
-  }
-}
-
-String _skipLabel({
-  required int rewardCurrencyAmount,
-  required CurrencyId rewardCurrencyId,
-  required int rewardMetaShards,
-}) {
-  if (rewardCurrencyAmount <= 0 && rewardMetaShards <= 0) {
-    return 'Skip';
-  }
-  final parts = <String>[];
-  if (rewardCurrencyAmount > 0) {
-    parts.add(
-      '+$rewardCurrencyAmount ${_currencyShortLabel(rewardCurrencyId)}',
-    );
-  }
-  if (rewardMetaShards > 0) {
-    parts.add('+$rewardMetaShards Shards');
-  }
-  return 'Skip (${parts.join(', ')})';
-}
-
-String _currencyShortLabel(CurrencyId currencyId) {
-  switch (currencyId) {
-    case CurrencyId.xp:
-      return 'XP';
-    case CurrencyId.gold:
-      return 'Gold';
   }
 }
 

@@ -87,6 +87,10 @@ import 'summon_pool.dart';
 import 'summon_state.dart';
 import 'summon_system.dart';
 
+enum SkipRewardTokenType { shopReroll, shopDiscount, rarityBoost }
+
+enum ShopExitRewardType { extraItemSlot, experienceBoost, goldPayout }
+
 class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   HordeGame({this.stressTest = false})
     : super(
@@ -142,6 +146,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _pickupMagnetAcceleration = 560;
   static const double _pickupMagnetMaxSpeed = 520;
   static const double _shopCooldownSeconds = 60;
+  static const double _shopDiscountPercent = 0.25;
+  static const int _shopExitGoldReward = 20;
+  static const int _shopExitBonusSlots = 1;
+  static const double _shopExitXpBuffPercent = 0.2;
+  static const double _shopExitXpBuffDuration = 45;
   static const String _tutorialSeenPrefsKey = 'tutorial_seen';
   static const TagSet _igniteDamageTags = TagSet(
     elements: {ElementTag.fire},
@@ -202,6 +211,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   int _goldWallet = 0;
   double _lastShopSelectionTime = 0;
   bool _shopPending = false;
+  bool _shopSessionActive = false;
+  bool _shopRerolled = false;
+  int _pendingShopRerollTokens = 0;
+  int _pendingShopRarityBoostTokens = 0;
+  int _pendingShopBonusChoices = 0;
+  int _shopDiscountTokens = 0;
+  int _activeShopFreeRerolls = 0;
+  int _activeShopBonusChoices = 0;
+  int _shopRarityBoostsApplied = 0;
+  SkipRewardTokenType? _activeSkipReward;
+  ShopExitRewardType? _activeShopExitReward;
+  double _xpBoostRemaining = 0;
   final MetaCurrencyWallet _metaWallet = MetaCurrencyWallet();
   final MetaUnlocks _metaUnlocks = MetaUnlocks();
   final List<ContractId> _activeContracts = [];
@@ -245,6 +266,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final math.Random _combatRandom = math.Random(31);
   final math.Random _skillRandom = math.Random(37);
   final math.Random _summonRandom = math.Random(43);
+  final math.Random _rewardRandom = math.Random(47);
   final Vector2 _damageNumberPosition = Vector2.zero();
   final Vector2 _damageNumberVelocity = Vector2.zero();
   final Vector2 _pickupSparkPosition = Vector2.zero();
@@ -556,6 +578,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       return;
     }
     _runSummary.timeAlive += dt;
+    if (_xpBoostRemaining > 0) {
+      _xpBoostRemaining = math.max(0, _xpBoostRemaining - dt);
+    }
     _tryOpenPendingShop();
     _applyInput();
     _playerState.step(dt);
@@ -1356,11 +1381,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       if (item == null) {
         return;
       }
-      final cost = _levelUpSystem.itemPriceForRarity(item.rarity, shopLevel);
+      var cost = _levelUpSystem.itemPriceForRarity(item.rarity, shopLevel);
+      final usedDiscount = _shopDiscountTokens > 0;
+      if (usedDiscount) {
+        cost = _discountedItemCost(cost);
+      }
       if (_goldWallet < cost) {
         return;
       }
       _goldWallet -= cost;
+      if (usedDiscount) {
+        _shopDiscountTokens = math.max(0, _shopDiscountTokens - 1);
+      }
     }
     _levelUpSystem.applyChoice(
       trackId: trackId,
@@ -1370,6 +1402,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
     if (trackId == ProgressionTrackId.items) {
       _recordShopSelection();
+      _closeShopSession();
+    } else {
+      _activeSkipReward = null;
     }
     _runAnalysisState.recordPick(choice);
     _runAnalysisState.setActiveSkills(_skillSystem.skillIds);
@@ -1382,35 +1417,23 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (trackId == null) {
       return;
     }
-    final rewardCurrencyAmount = _skipRewardCurrencyValue(trackId);
-    final rewardCurrencyId = _currencyIdForTrack(trackId);
-    final rewardMetaShards = _skipRewardMetaShardValue();
     _levelUpSystem.skipChoice(trackId: trackId, playerState: _playerState);
     if (trackId == ProgressionTrackId.items) {
       _recordShopSelection();
+      final rewardAvailable = _shopExitRewardAvailable();
+      final message = rewardAvailable && !stressTest
+          ? _applyShopExitReward()
+          : 'Skipped shop';
+      _hudState.triggerRewardMessage(message);
+      _closeShopSession();
+    } else {
+      final reward = _activeSkipReward ?? _rollSkipRewardToken();
+      _activeSkipReward = null;
+      final message = !stressTest
+          ? _applySkipRewardToken(reward)
+          : 'Skipped reward';
+      _hudState.triggerRewardMessage(message);
     }
-    if (!stressTest && rewardCurrencyAmount > 0) {
-      if (rewardCurrencyId == CurrencyId.xp) {
-        _runSummary.xpGained += rewardCurrencyAmount;
-      }
-      final gain = _progressionSystem.addCurrency(
-        rewardCurrencyId,
-        rewardCurrencyAmount,
-      );
-      if (gain != null && gain.levelsGained > 0) {
-        _levelUpSystem.queueLevels(gain.trackId, gain.levelsGained);
-      }
-    }
-    if (!stressTest && rewardMetaShards > 0) {
-      _runSummary.metaCurrencyBonus += rewardMetaShards;
-    }
-    _hudState.triggerRewardMessage(
-      _skipRewardMessage(
-        rewardCurrencyAmount,
-        rewardCurrencyId,
-        rewardMetaShards,
-      ),
-    );
     _runAnalysisState.recordDeadOffer();
     _offerSelectionIfNeeded();
   }
@@ -1419,8 +1442,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final trackId = _activeSelectionTrackId ?? ProgressionTrackId.skills;
     if (trackId == ProgressionTrackId.items) {
       final shopLevel = _progressionSystem.trackForId(trackId).level;
+      final hasFreeReroll = _activeShopFreeRerolls > 0;
       final cost = _levelUpSystem.shopRerollCost(shopLevel);
-      if (_goldWallet < cost) {
+      if (!hasFreeReroll && _goldWallet < cost) {
         return;
       }
       final rerolled = _levelUpSystem.rerollChoices(
@@ -1429,10 +1453,17 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         playerState: _playerState,
         skillSystem: _skillSystem,
         trackLevel: _progressionSystem.trackForId(trackId).level,
+        shopBonusChoices: _activeShopBonusChoices,
+        ignoreRerollLimit: hasFreeReroll,
         unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
       );
       if (rerolled) {
-        _goldWallet = math.max(0, _goldWallet - cost);
+        if (hasFreeReroll) {
+          _activeShopFreeRerolls = math.max(0, _activeShopFreeRerolls - 1);
+        } else {
+          _goldWallet = math.max(0, _goldWallet - cost);
+        }
+        _shopRerolled = true;
         _syncSelectionState(trackId);
         _runAnalysisState.recordOffer(_levelUpSystem.choices);
       }
@@ -1499,14 +1530,30 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _activeSelectionTrackId = null;
       return;
     }
-    _levelUpSystem.buildChoices(
+    if (nextTrackId == ProgressionTrackId.items) {
+      _startShopSession();
+    } else {
+      _activeSkipReward ??= _rollSkipRewardToken();
+    }
+    final rarityBoosts = nextTrackId == ProgressionTrackId.items
+        ? _pendingShopRarityBoostTokens
+        : 0;
+    final rarityBoostsApplied = _levelUpSystem.buildChoices(
       trackId: nextTrackId,
       selectionPoolId: _selectionPoolForTrack(nextTrackId),
       playerState: _playerState,
       skillSystem: _skillSystem,
       trackLevel: _progressionSystem.trackForId(nextTrackId).level,
+      shopBonusChoices: nextTrackId == ProgressionTrackId.items
+          ? _activeShopBonusChoices
+          : 0,
+      rarityBoosts: rarityBoosts,
       unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
     );
+    if (nextTrackId == ProgressionTrackId.items) {
+      _shopRarityBoostsApplied = rarityBoostsApplied;
+      _pendingShopRarityBoostTokens = 0;
+    }
     if (_levelUpSystem.hasChoices) {
       if (nextTrackId == ProgressionTrackId.items) {
         _shopPending = false;
@@ -1519,6 +1566,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _selectionState.clear();
       overlays.remove(SelectionOverlay.overlayKey);
       _activeSelectionTrackId = null;
+      if (nextTrackId == ProgressionTrackId.items) {
+        _closeShopSession();
+      } else {
+        _activeSkipReward = null;
+      }
     }
   }
 
@@ -1526,21 +1578,30 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final isShop = trackId == ProgressionTrackId.items;
     final shopLevel = _progressionSystem.trackForId(trackId).level;
     final itemPrices = isShop
-        ? _buildShopPriceMap(_levelUpSystem.choices, shopLevel)
+        ? _buildShopPriceMap(
+            _levelUpSystem.choices,
+            shopLevel,
+            applyDiscount: _shopDiscountTokens > 0,
+          )
         : const <ItemId, int>{};
     _selectionState.showChoices(
       _levelUpSystem.choices,
       trackId: trackId,
       rerollsRemaining: _levelUpSystem.rerollsRemaining,
       banishesRemaining: _levelUpSystem.banishesRemaining,
-      skipRewardCurrencyAmount: _skipRewardCurrencyValue(trackId),
-      skipRewardCurrencyId: _currencyIdForTrack(trackId),
-      skipRewardMetaShards: _skipRewardMetaShardValue(),
+      skipRewardLabel: _skipRewardLabelForTrack(
+        trackId,
+        _levelUpSystem.lockedItems,
+      ),
       goldAvailable: isShop ? _goldWallet : 0,
       rerollCost: isShop ? _levelUpSystem.shopRerollCost(shopLevel) : 0,
       shopLevel: isShop ? shopLevel : 0,
       itemPrices: itemPrices,
       lockedItems: isShop ? _levelUpSystem.lockedItems : const <ItemId>{},
+      shopFreeRerolls: isShop ? _activeShopFreeRerolls : 0,
+      shopDiscountTokens: isShop ? _shopDiscountTokens : 0,
+      shopRarityBoostsApplied: isShop ? _shopRarityBoostsApplied : 0,
+      shopBonusChoices: isShop ? _activeShopBonusChoices : 0,
     );
   }
 
@@ -1563,8 +1624,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   Map<ItemId, int> _buildShopPriceMap(
     List<SelectionChoice> choices,
-    int shopLevel,
-  ) {
+    int shopLevel, {
+    bool applyDiscount = false,
+  }) {
     final prices = <ItemId, int>{};
     for (final choice in choices) {
       if (choice.type != SelectionType.item) {
@@ -1578,24 +1640,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       if (item == null) {
         continue;
       }
-      prices[itemId] = _levelUpSystem.itemPriceForRarity(
-        item.rarity,
-        shopLevel,
-      );
+      var price = _levelUpSystem.itemPriceForRarity(item.rarity, shopLevel);
+      if (applyDiscount) {
+        price = _discountedItemCost(price);
+      }
+      prices[itemId] = price;
     }
     return prices;
-  }
-
-  int _skipRewardCurrencyValue(ProgressionTrackId trackId) {
-    final track = _progressionSystem.trackForId(trackId);
-    final skipFraction =
-        progressionTrackDefsById[trackId]?.skipRewardFraction ?? 0.2;
-    final reward = (track.currencyToNext * skipFraction).round();
-    return math.max(1, reward);
-  }
-
-  CurrencyId _currencyIdForTrack(ProgressionTrackId trackId) {
-    return progressionTrackDefsById[trackId]?.currencyId ?? CurrencyId.xp;
   }
 
   SelectionPoolId _selectionPoolForTrack(ProgressionTrackId trackId) {
@@ -1609,37 +1660,127 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
   }
 
-  int _skipRewardMetaShardValue() {
-    final reward = _playerState.stats.value(StatId.skipMetaShards).round();
-    return math.max(0, reward);
+  int _discountedItemCost(int cost) {
+    final discounted = (cost * (1 - _shopDiscountPercent)).round();
+    return math.max(1, discounted);
   }
 
-  String _skipRewardMessage(
-    int rewardCurrencyAmount,
-    CurrencyId rewardCurrencyId,
-    int rewardMetaShards,
+  int _applyXpBoost(int baseValue) {
+    if (_xpBoostRemaining <= 0) {
+      return baseValue;
+    }
+    final boosted = (baseValue * (1 + _shopExitXpBuffPercent)).round();
+    return math.max(1, boosted);
+  }
+
+  void _startShopSession() {
+    if (_shopSessionActive) {
+      return;
+    }
+    _shopSessionActive = true;
+    _shopRerolled = false;
+    _activeShopExitReward = _rollShopExitReward();
+    _activeShopFreeRerolls = _pendingShopRerollTokens;
+    _pendingShopRerollTokens = 0;
+    _activeShopBonusChoices = _pendingShopBonusChoices;
+    _pendingShopBonusChoices = 0;
+    _shopRarityBoostsApplied = 0;
+  }
+
+  void _closeShopSession() {
+    _shopSessionActive = false;
+    _shopRerolled = false;
+    _activeShopFreeRerolls = 0;
+    _activeShopBonusChoices = 0;
+    _shopRarityBoostsApplied = 0;
+    _activeShopExitReward = null;
+  }
+
+  bool _shopExitRewardAvailable([Set<ItemId>? lockedItems]) {
+    final locked = lockedItems ?? _levelUpSystem.lockedItems;
+    return !_shopRerolled && locked.isEmpty;
+  }
+
+  String _skipRewardLabelForTrack(
+    ProgressionTrackId trackId,
+    Set<ItemId> lockedItems,
   ) {
-    if (rewardCurrencyAmount <= 0 && rewardMetaShards <= 0) {
-      return 'Skipped reward';
+    if (trackId == ProgressionTrackId.items) {
+      final reward = _activeShopExitReward ?? _rollShopExitReward();
+      _activeShopExitReward ??= reward;
+      if (!_shopExitRewardAvailable(lockedItems)) {
+        return 'Skip';
+      }
+      return 'Skip (${_shopExitRewardLabel(reward)})';
     }
-    final parts = <String>[];
-    if (rewardCurrencyAmount > 0) {
-      parts.add(
-        '+$rewardCurrencyAmount ${_currencyShortLabel(rewardCurrencyId)}',
-      );
-    }
-    if (rewardMetaShards > 0) {
-      parts.add('+$rewardMetaShards Shards');
-    }
-    return 'Skipped reward (${parts.join(', ')})';
+    final reward = _activeSkipReward ?? _rollSkipRewardToken();
+    _activeSkipReward ??= reward;
+    return 'Skip (${_skipRewardLabel(reward)})';
   }
 
-  String _currencyShortLabel(CurrencyId currencyId) {
-    switch (currencyId) {
-      case CurrencyId.xp:
-        return 'XP';
-      case CurrencyId.gold:
-        return 'Gold';
+  SkipRewardTokenType _rollSkipRewardToken() {
+    const rewards = SkipRewardTokenType.values;
+    return rewards[_rewardRandom.nextInt(rewards.length)];
+  }
+
+  ShopExitRewardType _rollShopExitReward() {
+    const rewards = ShopExitRewardType.values;
+    return rewards[_rewardRandom.nextInt(rewards.length)];
+  }
+
+  String _skipRewardLabel(SkipRewardTokenType reward) {
+    switch (reward) {
+      case SkipRewardTokenType.shopReroll:
+        return 'Free shop reroll (next shop)';
+      case SkipRewardTokenType.shopDiscount:
+        return 'Shop discount (-25% next item)';
+      case SkipRewardTokenType.rarityBoost:
+        return 'Rarity boost (+1 item tier next shop)';
+    }
+  }
+
+  String _shopExitRewardLabel(ShopExitRewardType reward) {
+    switch (reward) {
+      case ShopExitRewardType.extraItemSlot:
+        return '+$_shopExitBonusSlots item slot next shop';
+      case ShopExitRewardType.experienceBoost:
+        final percent = (_shopExitXpBuffPercent * 100).round();
+        return '+$percent% XP for ${_shopExitXpBuffDuration.round()}s';
+      case ShopExitRewardType.goldPayout:
+        return '+$_shopExitGoldReward gold';
+    }
+  }
+
+  String _applySkipRewardToken(SkipRewardTokenType reward) {
+    switch (reward) {
+      case SkipRewardTokenType.shopReroll:
+        _pendingShopRerollTokens += 1;
+        return 'Skip reward: Free shop reroll token';
+      case SkipRewardTokenType.shopDiscount:
+        _shopDiscountTokens += 1;
+        return 'Skip reward: Shop discount token (-25% next item)';
+      case SkipRewardTokenType.rarityBoost:
+        _pendingShopRarityBoostTokens += 1;
+        return 'Skip reward: Rarity boost token (+1 item tier)';
+    }
+  }
+
+  String _applyShopExitReward() {
+    final reward = _activeShopExitReward ?? _rollShopExitReward();
+    _activeShopExitReward = null;
+    switch (reward) {
+      case ShopExitRewardType.extraItemSlot:
+        _pendingShopBonusChoices += _shopExitBonusSlots;
+        return 'Shop reward: +$_shopExitBonusSlots item slot next shop';
+      case ShopExitRewardType.experienceBoost:
+        _xpBoostRemaining += _shopExitXpBuffDuration;
+        final percent = (_shopExitXpBuffPercent * 100).round();
+        return 'Shop reward: +$percent% XP for '
+            '${_shopExitXpBuffDuration.round()}s';
+      case ShopExitRewardType.goldPayout:
+        _goldWallet += _shopExitGoldReward;
+        _runSummary.goldGained += _shopExitGoldReward;
+        return 'Shop reward: +$_shopExitGoldReward gold';
     }
   }
 
@@ -2411,10 +2552,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _collectPickup(PickupState pickup) {
     if (!stressTest) {
       final currencyId = _currencyByPickupKind[pickup.kind] ?? CurrencyId.xp;
+      final adjustedValue = currencyId == CurrencyId.xp
+          ? _applyXpBoost(pickup.value)
+          : pickup.value;
       if (currencyId == CurrencyId.xp) {
-        _runSummary.xpGained += pickup.value;
+        _runSummary.xpGained += adjustedValue;
       }
-      final gain = _progressionSystem.addCurrency(currencyId, pickup.value);
+      final gain = _progressionSystem.addCurrency(currencyId, adjustedValue);
       if (gain != null && gain.levelsGained > 0) {
         _levelUpSystem.queueLevels(gain.trackId, gain.levelsGained);
         _offerSelectionIfNeeded();
@@ -2482,6 +2626,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _goldWallet = 0;
     _lastShopSelectionTime = 0;
     _shopPending = false;
+    _shopSessionActive = false;
+    _shopRerolled = false;
+    _pendingShopRerollTokens = 0;
+    _pendingShopRarityBoostTokens = 0;
+    _pendingShopBonusChoices = 0;
+    _shopDiscountTokens = 0;
+    _activeShopFreeRerolls = 0;
+    _activeShopBonusChoices = 0;
+    _shopRarityBoostsApplied = 0;
+    _activeSkipReward = null;
+    _activeShopExitReward = null;
+    _xpBoostRemaining = 0;
   }
 
   void _revivePlayer() {
