@@ -20,6 +20,7 @@ class SelectionOverlay extends StatelessWidget {
     required this.onSelected,
     required this.onReroll,
     required this.onBanish,
+    required this.onToggleLock,
     required this.onSkip,
   });
 
@@ -29,6 +30,7 @@ class SelectionOverlay extends StatelessWidget {
   final void Function(SelectionChoice choice) onSelected;
   final VoidCallback onReroll;
   final void Function(SelectionChoice choice) onBanish;
+  final void Function(SelectionChoice choice) onToggleLock;
   final VoidCallback onSkip;
 
   @override
@@ -66,8 +68,25 @@ class SelectionOverlay extends StatelessWidget {
                               ),
                             ),
                           ),
+                          if (selectionState.trackId ==
+                              ProgressionTrackId.items)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: Text(
+                                'Gold: ${selectionState.goldAvailable}',
+                                style: TextStyle(
+                                  fontSize: UiScale.fontSize(13),
+                                  color: Colors.amberAccent,
+                                ),
+                              ),
+                            ),
                           _RerollButton(
                             remaining: selectionState.rerollsRemaining,
+                            cost: selectionState.rerollCost,
+                            goldAvailable: selectionState.goldAvailable,
+                            isShop:
+                                selectionState.trackId ==
+                                ProgressionTrackId.items,
                             onPressed: selectionState.rerollsRemaining > 0
                                 ? onReroll
                                 : null,
@@ -87,8 +106,18 @@ class SelectionOverlay extends StatelessWidget {
                               onPressed: () => onSelected(choice),
                               banishesRemaining:
                                   selectionState.banishesRemaining,
+                              goldAvailable: selectionState.goldAvailable,
+                              price: selectionState.priceForChoice(choice),
+                              locked: selectionState.lockedItems.contains(
+                                choice.itemId,
+                              ),
                               onBanish: selectionState.banishesRemaining > 0
                                   ? () => onBanish(choice)
+                                  : null,
+                              onToggleLock:
+                                  selectionState.trackId ==
+                                      ProgressionTrackId.items
+                                  ? () => onToggleLock(choice)
                                   : null,
                             );
                           },
@@ -115,14 +144,30 @@ class SelectionOverlay extends StatelessWidget {
 }
 
 class _RerollButton extends StatelessWidget {
-  const _RerollButton({required this.remaining, required this.onPressed});
+  const _RerollButton({
+    required this.remaining,
+    required this.onPressed,
+    required this.cost,
+    required this.goldAvailable,
+    required this.isShop,
+  });
 
   final int remaining;
   final VoidCallback? onPressed;
+  final int cost;
+  final int goldAvailable;
+  final bool isShop;
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(onPressed: onPressed, child: Text('Reroll ($remaining)'));
+    final canAfford = !isShop || goldAvailable >= cost;
+    final label = isShop
+        ? 'Reroll ($remaining) - ${cost}g'
+        : 'Reroll ($remaining)';
+    return TextButton(
+      onPressed: canAfford ? onPressed : null,
+      child: Text(label),
+    );
   }
 }
 
@@ -131,13 +176,21 @@ class _ChoiceCard extends StatelessWidget {
     required this.choice,
     required this.onPressed,
     required this.banishesRemaining,
+    required this.goldAvailable,
+    required this.price,
+    required this.locked,
     this.onBanish,
+    this.onToggleLock,
   });
 
   final SelectionChoice choice;
   final VoidCallback onPressed;
   final int banishesRemaining;
+  final int goldAvailable;
+  final int? price;
+  final bool locked;
   final VoidCallback? onBanish;
+  final VoidCallback? onToggleLock;
 
   @override
   Widget build(BuildContext context) {
@@ -148,13 +201,15 @@ class _ChoiceCard extends StatelessWidget {
     final statusBadges = statusBadgesForEffects(statusEffects);
     final statChanges = _statChangesForChoice(choice);
     final synergies = _synergyHintsForTags(tags);
+    final canAfford = price == null || goldAvailable >= price!;
+    final priceLabel = price == null ? null : '${price}g';
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.all(12),
         side: const BorderSide(color: Colors.white24),
         foregroundColor: Colors.white,
       ),
-      onPressed: onPressed,
+      onPressed: canAfford ? onPressed : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -163,6 +218,21 @@ class _ChoiceCard extends StatelessWidget {
               Expanded(
                 child: Text(choice.title, style: theme.textTheme.titleMedium),
               ),
+              if (locked)
+                const Padding(
+                  padding: EdgeInsets.only(right: 6),
+                  child: Icon(Icons.lock, size: 14, color: Colors.amberAccent),
+                ),
+              if (priceLabel != null)
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: Text(
+                    priceLabel,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: canAfford ? Colors.amberAccent : Colors.redAccent,
+                    ),
+                  ),
+                ),
               Text(
                 _labelForChoice(choice.type),
                 style: theme.textTheme.labelMedium?.copyWith(
@@ -214,13 +284,24 @@ class _ChoiceCard extends StatelessWidget {
                 ),
               ),
           ],
-          if (onBanish != null) ...[
+          if (onBanish != null || onToggleLock != null) ...[
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: onBanish,
-                child: Text('Banish ($banishesRemaining)'),
+              child: Wrap(
+                spacing: 8,
+                children: [
+                  if (onToggleLock != null)
+                    TextButton(
+                      onPressed: onToggleLock,
+                      child: Text(locked ? 'Unlock' : 'Lock'),
+                    ),
+                  if (onBanish != null)
+                    TextButton(
+                      onPressed: onBanish,
+                      child: Text('Banish ($banishesRemaining)'),
+                    ),
+                ],
               ),
             ),
           ],

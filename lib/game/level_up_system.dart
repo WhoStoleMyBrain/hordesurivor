@@ -54,6 +54,7 @@ class LevelUpSystem {
   final Set<ItemId> _banishedItems = {};
   final Set<SkillUpgradeId> _banishedSkillUpgrades = {};
   final Set<String> _banishedWeaponUpgrades = {};
+  final List<ItemId> _lockedItems = [];
   final Map<ProgressionTrackId, int> _pendingLevels = {};
   final Map<SkillId, int> _weaponUpgradeTiers = {};
   int _rerollsRemaining = 0;
@@ -61,6 +62,7 @@ class LevelUpSystem {
   int _banishesRemaining = 0;
   int _banishesMax = 0;
   ProgressionTrackId? _activeTrackId;
+  int _shopRerollCount = 0;
 
   List<SelectionChoice> get choices => List.unmodifiable(_choices);
   int pendingLevels(ProgressionTrackId trackId) => _pendingLevels[trackId] ?? 0;
@@ -77,6 +79,8 @@ class LevelUpSystem {
   List<ItemId> get appliedItems => List<ItemId>.unmodifiable(_appliedItems);
   Map<ItemId, int> get appliedItemCounts =>
       Map<ItemId, int>.unmodifiable(_appliedItemCounts);
+  Set<ItemId> get lockedItems => Set<ItemId>.unmodifiable(_lockedItems);
+  int get shopRerollCount => _shopRerollCount;
 
   ProgressionTrackId? get nextPendingTrackId {
     for (final track in progressionTrackDefs) {
@@ -106,11 +110,13 @@ class LevelUpSystem {
     _banishedSkillUpgrades.clear();
     _banishedWeaponUpgrades.clear();
     _weaponUpgradeTiers.clear();
+    _lockedItems.clear();
     _rerollsRemaining = 0;
     _rerollsMax = 0;
     _banishesRemaining = 0;
     _banishesMax = 0;
     _activeTrackId = null;
+    _shopRerollCount = 0;
     _syncRerolls(playerState);
     _syncBanishes(playerState);
   }
@@ -125,6 +131,9 @@ class LevelUpSystem {
   }) {
     if ((_pendingLevels[trackId] ?? 0) <= 0 || _choices.isNotEmpty) {
       return;
+    }
+    if (selectionPoolId == SelectionPoolId.itemPool) {
+      _shopRerollCount = 0;
     }
     _choices
       ..clear()
@@ -170,7 +179,40 @@ class LevelUpSystem {
           unlockedMeta,
         ),
       );
+    if (selectionPoolId == SelectionPoolId.itemPool) {
+      _shopRerollCount += 1;
+    }
     return true;
+  }
+
+  bool isItemLocked(ItemId itemId) => _lockedItems.contains(itemId);
+
+  void setItemLocked(ItemId itemId, bool locked) {
+    if (locked) {
+      if (!_lockedItems.contains(itemId)) {
+        _lockedItems.add(itemId);
+      }
+    } else {
+      _lockedItems.remove(itemId);
+    }
+  }
+
+  int shopRerollCost(int shopLevel) {
+    final rerollBase = 5 + (shopLevel ~/ 3);
+    return rerollBase + 4 * _shopRerollCount;
+  }
+
+  int itemPriceForRarity(ItemRarity rarity, int shopLevel) {
+    switch (rarity) {
+      case ItemRarity.common:
+        return 6 + (shopLevel ~/ 3);
+      case ItemRarity.uncommon:
+        return 10 + (shopLevel ~/ 2);
+      case ItemRarity.rare:
+        return 16 + shopLevel;
+      case ItemRarity.epic:
+        return 26 + (2 * shopLevel);
+    }
   }
 
   void applyChoice({
@@ -183,6 +225,7 @@ class LevelUpSystem {
       case SelectionType.item:
         final itemId = choice.itemId;
         if (itemId != null) {
+          _lockedItems.remove(itemId);
           final item = itemDefsById[itemId];
           if (item != null && !_isItemCapped(item)) {
             _appliedItems.add(item.id);
@@ -263,6 +306,7 @@ class LevelUpSystem {
           return false;
         }
         _banishedItems.add(itemId);
+        _lockedItems.remove(itemId);
       case SelectionType.skillUpgrade:
         final upgradeId = choice.skillUpgradeId;
         if (upgradeId == null) {
@@ -393,11 +437,22 @@ class LevelUpSystem {
     Set<MetaUnlockId> unlockedMeta,
   ) {
     final tagBias = _buildShopTagBias(skillSystem);
+    final lockedItems = _resolveLockedItems(unlockedMeta);
+    if (lockedItems.length > choiceCount) {
+      lockedItems.removeRange(choiceCount, lockedItems.length);
+      _lockedItems
+        ..clear()
+        ..addAll(lockedItems.map((item) => item.id));
+    }
+    final lockedIds = lockedItems.map((item) => item.id).toSet();
     final availableByRarity = <ItemRarity, List<ItemDef>>{
       for (final rarity in ItemRarity.values) rarity: <ItemDef>[],
     };
     for (final item in itemDefs) {
       if (_banishedItems.contains(item.id)) {
+        continue;
+      }
+      if (lockedIds.contains(item.id)) {
         continue;
       }
       if (item.metaUnlockId != null &&
@@ -410,10 +465,28 @@ class LevelUpSystem {
       availableByRarity[item.rarity]?.add(item);
     }
     if (availableByRarity.values.every((items) => items.isEmpty)) {
-      return const [];
+      return [
+        for (final item in lockedItems)
+          SelectionChoice(
+            type: SelectionType.item,
+            title: item.name,
+            description: item.description,
+            itemId: item.id,
+          ),
+      ];
     }
     final rarityWeights = _itemRarityWeightsForLevel(trackLevel);
     final choices = <SelectionChoice>[];
+    for (final item in lockedItems) {
+      choices.add(
+        SelectionChoice(
+          type: SelectionType.item,
+          title: item.name,
+          description: item.description,
+          itemId: item.id,
+        ),
+      );
+    }
     while (choices.length < choiceCount) {
       final rarity = _pickWeightedRarity(availableByRarity, rarityWeights);
       if (rarity == null) {
@@ -438,6 +511,38 @@ class LevelUpSystem {
       );
     }
     return choices;
+  }
+
+  List<ItemDef> _resolveLockedItems(Set<MetaUnlockId> unlockedMeta) {
+    if (_lockedItems.isEmpty) {
+      return <ItemDef>[];
+    }
+    final locked = <ItemDef>[];
+    final nextLockedIds = <ItemId>[];
+    for (final itemId in _lockedItems) {
+      final item = itemDefsById[itemId];
+      if (item == null) {
+        continue;
+      }
+      if (_banishedItems.contains(item.id)) {
+        continue;
+      }
+      if (item.metaUnlockId != null &&
+          !unlockedMeta.contains(item.metaUnlockId)) {
+        continue;
+      }
+      if (_isItemCapped(item)) {
+        continue;
+      }
+      nextLockedIds.add(item.id);
+      locked.add(item);
+    }
+    if (nextLockedIds.length != _lockedItems.length) {
+      _lockedItems
+        ..clear()
+        ..addAll(nextLockedIds);
+    }
+    return locked;
   }
 
   Map<ItemRarity, int> _itemRarityWeightsForLevel(int level) {
