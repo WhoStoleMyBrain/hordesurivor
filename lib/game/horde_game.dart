@@ -1362,25 +1362,23 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void rerollSelection() {
+    final trackId = _activeSelectionTrackId ?? ProgressionTrackId.skills;
     final rerolled = _levelUpSystem.rerollChoices(
-      trackId: _activeSelectionTrackId ?? ProgressionTrackId.skills,
+      trackId: trackId,
       selectionPoolId: _activeSelectionPoolId(),
       playerState: _playerState,
       skillSystem: _skillSystem,
+      trackLevel: _progressionSystem.trackForId(trackId).level,
       unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
     );
     if (rerolled) {
       _selectionState.showChoices(
         _levelUpSystem.choices,
-        trackId: _activeSelectionTrackId ?? ProgressionTrackId.skills,
+        trackId: trackId,
         rerollsRemaining: _levelUpSystem.rerollsRemaining,
         banishesRemaining: _levelUpSystem.banishesRemaining,
-        skipRewardCurrencyAmount: _skipRewardCurrencyValue(
-          _activeSelectionTrackId ?? ProgressionTrackId.skills,
-        ),
-        skipRewardCurrencyId: _currencyIdForTrack(
-          _activeSelectionTrackId ?? ProgressionTrackId.skills,
-        ),
+        skipRewardCurrencyAmount: _skipRewardCurrencyValue(trackId),
+        skipRewardCurrencyId: _currencyIdForTrack(trackId),
         skipRewardMetaShards: _skipRewardMetaShardValue(),
       );
     }
@@ -1394,6 +1392,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       choice: choice,
       playerState: _playerState,
       skillSystem: _skillSystem,
+      trackLevel: _progressionSystem.trackForId(trackId).level,
       unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
     );
     if (banished) {
@@ -1422,6 +1421,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       selectionPoolId: _selectionPoolForTrack(nextTrackId),
       playerState: _playerState,
       skillSystem: _skillSystem,
+      trackLevel: _progressionSystem.trackForId(nextTrackId).level,
       unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
     );
     if (_levelUpSystem.hasChoices) {

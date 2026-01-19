@@ -40,6 +40,7 @@ void main() {
       selectionPoolId: SelectionPoolId.skillPool,
       playerState: playerState,
       skillSystem: skillSystem,
+      trackLevel: 1,
     );
 
     expect(system.choices.length, 4);
@@ -95,6 +96,7 @@ void main() {
       playerState: playerState,
       skillSystem: skillSystem,
       unlockedMeta: const {},
+      trackLevel: 1,
     );
 
     expect(
@@ -117,6 +119,7 @@ void main() {
       playerState: playerState,
       skillSystem: skillSystem,
       unlockedMeta: const {},
+      trackLevel: 1,
     );
 
     expect(
@@ -135,6 +138,7 @@ void main() {
       playerState: playerState,
       skillSystem: skillSystem,
       unlockedMeta: const {MetaUnlockId.fieldManual},
+      trackLevel: 1,
     );
 
     expect(
@@ -153,6 +157,7 @@ void main() {
       playerState: playerState,
       skillSystem: skillSystem,
       unlockedMeta: const {MetaUnlockId.thermalCoilBlueprint},
+      trackLevel: 1,
     );
 
     expect(
@@ -180,6 +185,7 @@ void main() {
       selectionPoolId: SelectionPoolId.skillPool,
       playerState: playerState,
       skillSystem: skillSystem,
+      trackLevel: 1,
     );
 
     expect(
@@ -224,6 +230,7 @@ void main() {
       selectionPoolId: SelectionPoolId.skillPool,
       playerState: playerState,
       skillSystem: skillSystem,
+      trackLevel: 1,
     );
 
     expect(
@@ -244,6 +251,7 @@ void main() {
       selectionPoolId: SelectionPoolId.skillPool,
       playerState: playerState,
       skillSystem: skillSystem,
+      trackLevel: 1,
     );
 
     final tier2 = weaponUpgradeDefsBySkillAndTier[SkillId.fireball]?[2];
@@ -274,6 +282,7 @@ void main() {
       selectionPoolId: SelectionPoolId.skillPool,
       playerState: playerState,
       skillSystem: skillSystem,
+      trackLevel: 1,
     );
 
     expect(
@@ -309,6 +318,7 @@ void main() {
       selectionPoolId: SelectionPoolId.skillPool,
       playerState: playerState,
       skillSystem: skillSystem,
+      trackLevel: 1,
     );
 
     final choice = system.choices.firstWhere(
@@ -322,6 +332,7 @@ void main() {
       choice: choice,
       playerState: playerState,
       skillSystem: skillSystem,
+      trackLevel: 1,
     );
 
     expect(banished, isTrue);
@@ -341,6 +352,7 @@ void main() {
       selectionPoolId: SelectionPoolId.skillPool,
       playerState: playerState,
       skillSystem: skillSystem,
+      trackLevel: 1,
     );
 
     expect(
