@@ -141,6 +141,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _pickupMagnetStartSpeed = 120;
   static const double _pickupMagnetAcceleration = 560;
   static const double _pickupMagnetMaxSpeed = 520;
+  static const double _shopCooldownSeconds = 60;
   static const String _tutorialSeenPrefsKey = 'tutorial_seen';
   static const TagSet _igniteDamageTags = TagSet(
     elements: {ElementTag.fire},
@@ -199,6 +200,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final RunSummary _runSummary = RunSummary();
   final RunAnalysisState _runAnalysisState = RunAnalysisState();
   int _goldWallet = 0;
+  double _lastShopSelectionTime = 0;
+  bool _shopPending = false;
   final MetaCurrencyWallet _metaWallet = MetaCurrencyWallet();
   final MetaUnlocks _metaUnlocks = MetaUnlocks();
   final List<ContractId> _activeContracts = [];
@@ -553,6 +556,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       return;
     }
     _runSummary.timeAlive += dt;
+    _tryOpenPendingShop();
     _applyInput();
     _playerState.step(dt);
     _playerState.clampToBounds(
@@ -1364,6 +1368,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       playerState: _playerState,
       skillSystem: _skillSystem,
     );
+    if (trackId == ProgressionTrackId.items) {
+      _recordShopSelection();
+    }
     _runAnalysisState.recordPick(choice);
     _runAnalysisState.setActiveSkills(_skillSystem.skillIds);
     _hudState.triggerRewardMessage(_rewardMessageForChoice(choice));
@@ -1379,6 +1386,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final rewardCurrencyId = _currencyIdForTrack(trackId);
     final rewardMetaShards = _skipRewardMetaShardValue();
     _levelUpSystem.skipChoice(trackId: trackId, playerState: _playerState);
+    if (trackId == ProgressionTrackId.items) {
+      _recordShopSelection();
+    }
     if (!stressTest && rewardCurrencyAmount > 0) {
       if (rewardCurrencyId == CurrencyId.xp) {
         _runSummary.xpGained += rewardCurrencyAmount;
@@ -1476,6 +1486,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _offerSelectionIfNeeded() {
     final nextTrackId = _levelUpSystem.nextPendingTrackId;
     if (nextTrackId == null) {
+      _shopPending = false;
+      _selectionState.clear();
+      overlays.remove(SelectionOverlay.overlayKey);
+      _activeSelectionTrackId = null;
+      return;
+    }
+    if (nextTrackId == ProgressionTrackId.items && !_isShopReady()) {
+      _shopPending = true;
       _selectionState.clear();
       overlays.remove(SelectionOverlay.overlayKey);
       _activeSelectionTrackId = null;
@@ -1490,6 +1508,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
     );
     if (_levelUpSystem.hasChoices) {
+      if (nextTrackId == ProgressionTrackId.items) {
+        _shopPending = false;
+      }
       _activeSelectionTrackId = nextTrackId;
       _syncSelectionState(nextTrackId);
       _runAnalysisState.recordOffer(_levelUpSystem.choices);
@@ -1521,6 +1542,23 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       itemPrices: itemPrices,
       lockedItems: isShop ? _levelUpSystem.lockedItems : const <ItemId>{},
     );
+  }
+
+  bool _isShopReady() {
+    return (_runSummary.timeAlive - _lastShopSelectionTime) >=
+        _shopCooldownSeconds;
+  }
+
+  void _recordShopSelection() {
+    _lastShopSelectionTime = _runSummary.timeAlive;
+    _shopPending = false;
+  }
+
+  void _tryOpenPendingShop() {
+    if (!_shopPending || !_isShopReady()) {
+      return;
+    }
+    _offerSelectionIfNeeded();
   }
 
   Map<ItemId, int> _buildShopPriceMap(
@@ -2442,6 +2480,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _levelUpSystem.resetForRun(playerState: _playerState);
     _activeSelectionTrackId = null;
     _goldWallet = 0;
+    _lastShopSelectionTime = 0;
+    _shopPending = false;
   }
 
   void _revivePlayer() {
