@@ -78,6 +78,8 @@ enum ItemId {
   mercyCharm,
 }
 
+enum ItemRarity { common, uncommon, rare, epic }
+
 enum EnemyId {
   imp,
   spitter,

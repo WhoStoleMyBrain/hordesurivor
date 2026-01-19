@@ -115,6 +115,7 @@ class LevelUpSystem {
     required SelectionPoolId selectionPoolId,
     required PlayerState playerState,
     required SkillSystem skillSystem,
+    required int trackLevel,
     Set<MetaUnlockId> unlockedMeta = const {},
   }) {
     if ((_pendingLevels[trackId] ?? 0) <= 0 || _choices.isNotEmpty) {
@@ -127,6 +128,7 @@ class LevelUpSystem {
           playerState,
           skillSystem,
           selectionPoolId,
+          trackLevel,
           unlockedMeta,
         ),
       );
@@ -143,6 +145,7 @@ class LevelUpSystem {
     required SelectionPoolId selectionPoolId,
     required PlayerState playerState,
     required SkillSystem skillSystem,
+    required int trackLevel,
     Set<MetaUnlockId> unlockedMeta = const {},
   }) {
     if (_choices.isEmpty ||
@@ -158,6 +161,7 @@ class LevelUpSystem {
           playerState,
           skillSystem,
           selectionPoolId,
+          trackLevel,
           unlockedMeta,
         ),
       );
@@ -232,6 +236,7 @@ class LevelUpSystem {
     required SelectionChoice choice,
     required PlayerState playerState,
     required SkillSystem skillSystem,
+    required int trackLevel,
     Set<MetaUnlockId> unlockedMeta = const {},
   }) {
     if (_choices.isEmpty ||
@@ -273,6 +278,7 @@ class LevelUpSystem {
           playerState,
           skillSystem,
           selectionPoolId,
+          trackLevel,
           unlockedMeta,
         ),
       );
@@ -287,10 +293,14 @@ class LevelUpSystem {
     PlayerState playerState,
     SkillSystem skillSystem,
     SelectionPoolId selectionPoolId,
+    int trackLevel,
     Set<MetaUnlockId> unlockedMeta,
   ) {
     final extraChoices = playerState.stats.value(StatId.choiceCount).round();
     final choiceCount = math.max(1, _baseChoiceCount + extraChoices);
+    if (selectionPoolId == SelectionPoolId.itemPool) {
+      return _buildItemChoices(choiceCount, trackLevel, unlockedMeta);
+    }
     final candidates = _buildCandidates(
       skillSystem,
       selectionPoolId,
@@ -357,21 +367,138 @@ class LevelUpSystem {
           ..._buildWeaponUpgradeCandidates(skillSystem),
         ];
       case SelectionPoolId.itemPool:
-        return [
-          for (final item in itemDefs)
-            if (!_banishedItems.contains(item.id) &&
-                (item.metaUnlockId == null ||
-                    unlockedMeta.contains(item.metaUnlockId)))
-              SelectionChoice(
-                type: SelectionType.item,
-                title: item.name,
-                description: item.description,
-                itemId: item.id,
-              ),
-        ];
+        return const [];
       case SelectionPoolId.futurePool:
         return const [];
     }
+  }
+
+  List<SelectionChoice> _buildItemChoices(
+    int choiceCount,
+    int trackLevel,
+    Set<MetaUnlockId> unlockedMeta,
+  ) {
+    final availableByRarity = <ItemRarity, List<ItemDef>>{
+      for (final rarity in ItemRarity.values) rarity: <ItemDef>[],
+    };
+    for (final item in itemDefs) {
+      if (_banishedItems.contains(item.id)) {
+        continue;
+      }
+      if (item.metaUnlockId != null &&
+          !unlockedMeta.contains(item.metaUnlockId)) {
+        continue;
+      }
+      availableByRarity[item.rarity]?.add(item);
+    }
+    if (availableByRarity.values.every((items) => items.isEmpty)) {
+      return const [];
+    }
+    final rarityWeights = _itemRarityWeightsForLevel(trackLevel);
+    final choices = <SelectionChoice>[];
+    while (choices.length < choiceCount) {
+      final rarity = _pickWeightedRarity(availableByRarity, rarityWeights);
+      if (rarity == null) {
+        break;
+      }
+      final items = availableByRarity[rarity];
+      if (items == null || items.isEmpty) {
+        continue;
+      }
+      final item = _pickWeightedItem(items);
+      if (item == null) {
+        break;
+      }
+      items.remove(item);
+      choices.add(
+        SelectionChoice(
+          type: SelectionType.item,
+          title: item.name,
+          description: item.description,
+          itemId: item.id,
+        ),
+      );
+    }
+    return choices;
+  }
+
+  Map<ItemRarity, int> _itemRarityWeightsForLevel(int level) {
+    if (level <= 3) {
+      return const {
+        ItemRarity.common: 70,
+        ItemRarity.uncommon: 25,
+        ItemRarity.rare: 5,
+        ItemRarity.epic: 0,
+      };
+    }
+    if (level <= 6) {
+      return const {
+        ItemRarity.common: 55,
+        ItemRarity.uncommon: 30,
+        ItemRarity.rare: 12,
+        ItemRarity.epic: 3,
+      };
+    }
+    if (level <= 10) {
+      return const {
+        ItemRarity.common: 40,
+        ItemRarity.uncommon: 35,
+        ItemRarity.rare: 20,
+        ItemRarity.epic: 5,
+      };
+    }
+    return const {
+      ItemRarity.common: 25,
+      ItemRarity.uncommon: 35,
+      ItemRarity.rare: 28,
+      ItemRarity.epic: 12,
+    };
+  }
+
+  ItemRarity? _pickWeightedRarity(
+    Map<ItemRarity, List<ItemDef>> availableByRarity,
+    Map<ItemRarity, int> rarityWeights,
+  ) {
+    var totalWeight = 0;
+    for (final rarity in ItemRarity.values) {
+      if ((availableByRarity[rarity]?.isNotEmpty ?? false) &&
+          (rarityWeights[rarity] ?? 0) > 0) {
+        totalWeight += rarityWeights[rarity] ?? 0;
+      }
+    }
+    if (totalWeight <= 0) {
+      return null;
+    }
+    var roll = _random.nextInt(totalWeight);
+    for (final rarity in ItemRarity.values) {
+      final rarityWeight = rarityWeights[rarity] ?? 0;
+      if (rarityWeight <= 0 || (availableByRarity[rarity]?.isEmpty ?? true)) {
+        continue;
+      }
+      roll -= rarityWeight;
+      if (roll < 0) {
+        return rarity;
+      }
+    }
+    return null;
+  }
+
+  ItemDef? _pickWeightedItem(List<ItemDef> items) {
+    var totalWeight = 0;
+    for (final item in items) {
+      totalWeight += item.weight;
+    }
+    if (totalWeight <= 0) {
+      return null;
+    }
+    var roll = _random.nextInt(totalWeight);
+    for (final item in items) {
+      roll -= item.weight;
+      if (roll < 0) {
+        return item;
+      }
+    }
+    return null;
   }
 
   List<SelectionChoice> _buildWeaponUpgradeCandidates(SkillSystem skillSystem) {
