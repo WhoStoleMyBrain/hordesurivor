@@ -40,6 +40,16 @@ void main() {
     return enemy;
   }
 
+  void noopEnemyDamaged(
+    EnemyState enemy,
+    double damage, {
+    SkillId? sourceSkillId,
+    double knockbackDuration = 0,
+    double knockbackForce = 0,
+    double knockbackX = 0,
+    double knockbackY = 0,
+  }) {}
+
   test('arc turret fires at nearby enemies', () {
     final summonPool = SummonPool(initialCapacity: 0);
     final summon = summonPool.acquire();
@@ -74,15 +84,7 @@ void main() {
         fired = true;
       },
       onDespawn: (_) {},
-      onEnemyDamaged:
-          (
-            enemy,
-            damage, {
-            double knockbackDuration = 0,
-            double knockbackForce = 0,
-            double knockbackX = 0,
-            double knockbackY = 0,
-          }) {},
+      onEnemyDamaged: noopEnemyDamaged,
       onPlayerDamaged: (_, {tags = const TagSet(), selfInflicted = false}) {},
     );
 
@@ -157,15 +159,7 @@ void main() {
       projectilePool: ProjectilePool(initialCapacity: 0),
       onProjectileSpawn: (_) {},
       onDespawn: (_) {},
-      onEnemyDamaged:
-          (
-            enemy,
-            damage, {
-            double knockbackDuration = 0,
-            double knockbackForce = 0,
-            double knockbackX = 0,
-            double knockbackY = 0,
-          }) {},
+      onEnemyDamaged: noopEnemyDamaged,
       onPlayerDamaged: (_, {tags = const TagSet(), selfInflicted = false}) {},
     );
 

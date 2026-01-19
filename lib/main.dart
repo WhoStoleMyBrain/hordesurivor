@@ -144,6 +144,7 @@ class _GameShellState extends State<_GameShell> {
               child: SidePanel(
                 flowStateListenable: _game.flowStateListenable,
                 hudState: _game.hudState,
+                runAnalysisState: _game.runAnalysisState,
                 wallet: _game.metaWallet,
                 onExitStressTest: _game.stressTest
                     ? () => Navigator.of(context).pushReplacementNamed('/')
@@ -221,6 +222,7 @@ class _GameShellState extends State<_GameShell> {
                     onRestart: game.restartRunFromDeath,
                     onReturn: game.returnToHomeBaseFromDeath,
                     wallet: game.metaWallet,
+                    analysisState: game.runAnalysisState,
                   ),
                   FirstRunHintsOverlay.overlayKey: (_, game) =>
                       FirstRunHintsOverlay(

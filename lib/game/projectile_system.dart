@@ -22,6 +22,7 @@ class ProjectileSystem {
     required void Function(
       EnemyState,
       double, {
+      SkillId? sourceSkillId,
       double knockbackX,
       double knockbackY,
       double knockbackForce,
@@ -88,6 +89,7 @@ class ProjectileSystem {
             onEnemyHit(
               enemy,
               projectile.damage,
+              sourceSkillId: projectile.sourceSkillId,
               knockbackX: projectile.velocity.x,
               knockbackY: projectile.velocity.y,
               knockbackForce: projectile.knockbackForce,
@@ -144,6 +146,7 @@ class ProjectileSystem {
         enemy.applyIgnite(
           duration: projectile.igniteDuration,
           damagePerSecond: projectile.igniteDamagePerSecond,
+          sourceSkillId: sourceSkillId,
         );
         onSynergyTriggered?.call(synergy, enemy);
       }

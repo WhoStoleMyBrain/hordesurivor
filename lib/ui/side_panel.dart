@@ -3,21 +3,25 @@ import 'package:flutter/material.dart';
 
 import '../game/game_flow_state.dart';
 import '../game/meta_currency_wallet.dart';
+import '../game/run_analysis_state.dart';
 import 'hud_overlay.dart';
 import 'hud_state.dart';
 import 'meta_shard_badge.dart';
+import 'run_analysis_overview.dart';
 
 class SidePanel extends StatelessWidget {
   const SidePanel({
     super.key,
     required this.flowStateListenable,
     required this.hudState,
+    required this.runAnalysisState,
     required this.wallet,
     this.onExitStressTest,
   });
 
   final ValueListenable<GameFlowState> flowStateListenable;
   final PlayerHudState hudState;
+  final RunAnalysisState runAnalysisState;
   final MetaCurrencyWallet wallet;
   final VoidCallback? onExitStressTest;
 
@@ -34,6 +38,7 @@ class SidePanel extends StatelessWidget {
               ? HudSidePanel(
                   key: const ValueKey('hud'),
                   hudState: hudState,
+                  runAnalysisState: runAnalysisState,
                   onExitStressTest: onExitStressTest,
                 )
               : HubSidePanel(
@@ -51,10 +56,12 @@ class HudSidePanel extends StatelessWidget {
   const HudSidePanel({
     super.key,
     required this.hudState,
+    required this.runAnalysisState,
     this.onExitStressTest,
   });
 
   final PlayerHudState hudState;
+  final RunAnalysisState runAnalysisState;
   final VoidCallback? onExitStressTest;
 
   @override
@@ -94,6 +101,35 @@ class HudSidePanel extends StatelessWidget {
                     horizontal: 12,
                     vertical: 10,
                   ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white24),
+                ),
+                child: AnimatedBuilder(
+                  animation: hudState,
+                  builder: (context, _) {
+                    return Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: RunAnalysisOverview(
+                        timeAlive: hudState.stageElapsed,
+                        damageTaken: runAnalysisState.damageTaken,
+                        totalDamageDealt: runAnalysisState.totalDamageDealt,
+                        damageBySkill: runAnalysisState.damageBySkill,
+                        activeSkills: runAnalysisState.activeSkills,
+                        skillOffers: runAnalysisState.skillOffers,
+                        skillPicks: runAnalysisState.skillPicks,
+                        itemOffers: runAnalysisState.itemOffers,
+                        itemPicks: runAnalysisState.itemPicks,
+                        totalOffers: runAnalysisState.totalOffers,
+                        deadOffers: runAnalysisState.deadOffers,
+                      ),
+                    );
+                  },
                 ),
               ),
             ],

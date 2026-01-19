@@ -79,6 +79,7 @@ import 'spawn_director.dart';
 import 'spawner_system.dart';
 import 'game_flow_state.dart';
 import 'lifesteal.dart';
+import 'run_analysis_state.dart';
 import 'run_summary.dart';
 import 'stage_timer.dart';
 import 'stress_stats.dart';
@@ -193,6 +194,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   ProgressionTrackId? _activeSelectionTrackId;
   final StatsScreenState _statsScreenState = StatsScreenState();
   final RunSummary _runSummary = RunSummary();
+  final RunAnalysisState _runAnalysisState = RunAnalysisState();
   final MetaCurrencyWallet _metaWallet = MetaCurrencyWallet();
   final MetaUnlocks _metaUnlocks = MetaUnlocks();
   final List<ContractId> _activeContracts = [];
@@ -272,6 +274,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   GameFlowState get flowState => _flowState;
   ValueListenable<GameFlowState> get flowStateListenable => _flowStateNotifier;
   RunSummary get runSummary => _runSummary;
+  RunAnalysisState get runAnalysisState => _runAnalysisState;
   bool get runCompleted => _runCompleted;
   MetaCurrencyWallet get metaWallet => _metaWallet;
   MetaUnlocks get metaUnlocks => _metaUnlocks;
@@ -875,6 +878,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(StatsOverlay.overlayKey);
     _resetPlayerProgression();
     _resetRunSummary();
+    _runAnalysisState.setActiveSkills(_skillSystem.skillIds);
     _runSummary.areaName = area.name;
     _runSummary.contractHeat = _contractHeat;
     _runSummary.metaRewardMultiplier = _contractRewardMultiplier;
@@ -1106,6 +1110,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         slowMultiplier: projectile.impactEffectSlowMultiplier,
         slowDuration: projectile.impactEffectSlowDuration,
         oilDuration: projectile.impactEffectOilDuration,
+        sourceSkillId: projectile.sourceSkillId,
       );
       _handleEffectSpawn(effect);
     }
@@ -1204,10 +1209,15 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     return baseValue;
   }
 
-  void _handleEnemyDamaged(EnemyState enemy, double amount) {
+  void _handleEnemyDamaged(
+    EnemyState enemy,
+    double amount,
+    SkillId? sourceSkillId,
+  ) {
     if (amount <= 0) {
       return;
     }
+    _runAnalysisState.recordEnemyDamage(amount, sourceSkillId: sourceSkillId);
     tryLifesteal(
       player: _playerState,
       chance: _playerState.stats.value(StatId.lifeSteal),
@@ -1274,6 +1284,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       return;
     }
     _runSummary.damageTaken += amount;
+    _runAnalysisState.recordDamageTaken(amount);
   }
 
   void _spawnPickupSpark(Vector2 position) {
@@ -1323,6 +1334,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       playerState: _playerState,
       skillSystem: _skillSystem,
     );
+    _runAnalysisState.recordPick(choice);
+    _runAnalysisState.setActiveSkills(_skillSystem.skillIds);
     _hudState.triggerRewardMessage(_rewardMessageForChoice(choice));
     _offerSelectionIfNeeded();
   }
@@ -1358,6 +1371,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         rewardMetaShards,
       ),
     );
+    _runAnalysisState.recordDeadOffer();
     _offerSelectionIfNeeded();
   }
 
@@ -1381,6 +1395,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         skipRewardCurrencyId: _currencyIdForTrack(trackId),
         skipRewardMetaShards: _skipRewardMetaShardValue(),
       );
+      _runAnalysisState.recordOffer(_levelUpSystem.choices);
     }
   }
 
@@ -1405,6 +1420,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         skipRewardCurrencyId: _currencyIdForTrack(trackId),
         skipRewardMetaShards: _skipRewardMetaShardValue(),
       );
+      _runAnalysisState.recordOffer(_levelUpSystem.choices);
     }
   }
 
@@ -1435,6 +1451,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         skipRewardCurrencyId: _currencyIdForTrack(nextTrackId),
         skipRewardMetaShards: _skipRewardMetaShardValue(),
       );
+      _runAnalysisState.recordOffer(_levelUpSystem.choices);
       overlays.add(SelectionOverlay.overlayKey);
     } else {
       _selectionState.clear();
@@ -1605,6 +1622,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
             enemy,
             enemy.igniteDamagePerSecond * tickDuration,
             tags: _igniteDamageTags,
+            sourceSkillId: enemy.igniteSourceSkillId,
           );
         }
       }
@@ -2196,6 +2214,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _resetRunSummary() {
     _runSummary.reset();
     _runCompleted = false;
+    _runAnalysisState.reset();
   }
 
   void _updatePickups(double dt) {

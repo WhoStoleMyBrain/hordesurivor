@@ -132,6 +132,7 @@ class SkillSystem {
     required void Function(
       EnemyState,
       double, {
+      SkillId? sourceSkillId,
       double knockbackX,
       double knockbackY,
       double knockbackForce,
@@ -396,6 +397,7 @@ class SkillSystem {
       damagePerSecond: damage / duration,
       slowMultiplier: 0.7,
       slowDuration: duration * 0.9,
+      sourceSkillId: SkillId.waterjet,
       followsPlayer: true,
     );
     onEffectSpawn(effect);
@@ -464,6 +466,7 @@ class SkillSystem {
     required void Function(
       EnemyState,
       double, {
+      SkillId? sourceSkillId,
       double knockbackX,
       double knockbackY,
       double knockbackForce,
@@ -485,6 +488,7 @@ class SkillSystem {
       damage: damage,
       knockbackForce: (def?.knockbackForce ?? 0) * knockbackScale,
       knockbackDuration: def?.knockbackDuration ?? 0,
+      sourceSkillId: SkillId.swordCut,
       onEnemyDamaged: onEnemyDamaged,
     );
   }
@@ -498,6 +502,7 @@ class SkillSystem {
     required void Function(
       EnemyState,
       double, {
+      SkillId? sourceSkillId,
       double knockbackX,
       double knockbackY,
       double knockbackForce,
@@ -519,6 +524,7 @@ class SkillSystem {
       damage: damage,
       knockbackForce: (def?.knockbackForce ?? 0) * knockbackScale,
       knockbackDuration: def?.knockbackDuration ?? 0,
+      sourceSkillId: SkillId.swordThrust,
       onEnemyDamaged: onEnemyDamaged,
     );
   }
@@ -532,6 +538,7 @@ class SkillSystem {
     required void Function(
       EnemyState,
       double, {
+      SkillId? sourceSkillId,
       double knockbackX,
       double knockbackY,
       double knockbackForce,
@@ -553,6 +560,7 @@ class SkillSystem {
       damage: damage,
       knockbackForce: (def?.knockbackForce ?? 0) * knockbackScale,
       knockbackDuration: def?.knockbackDuration ?? 0,
+      sourceSkillId: SkillId.swordSwing,
       onEnemyDamaged: onEnemyDamaged,
     );
   }
@@ -566,6 +574,7 @@ class SkillSystem {
     required void Function(
       EnemyState,
       double, {
+      SkillId? sourceSkillId,
       double knockbackX,
       double knockbackY,
       double knockbackForce,
@@ -590,6 +599,7 @@ class SkillSystem {
       damage: damage,
       knockbackForce: (def?.knockbackForce ?? 0) * knockbackScale,
       knockbackDuration: def?.knockbackDuration ?? 0,
+      sourceSkillId: SkillId.swordDeflect,
       onEnemyDamaged: onEnemyDamaged,
     );
     final aoeScale = _aoeScale(stats);
@@ -623,6 +633,7 @@ class SkillSystem {
       width: 0,
       duration: duration,
       damagePerSecond: damage / duration,
+      sourceSkillId: SkillId.poisonGas,
       followsPlayer: true,
     );
     onEffectSpawn(effect);
@@ -668,6 +679,7 @@ class SkillSystem {
       damagePerSecond: damage / rootDuration,
       slowMultiplier: rootSlowMultiplier,
       slowDuration: rootDuration,
+      sourceSkillId: SkillId.roots,
     );
     onEffectSpawn(effect);
   }
@@ -772,6 +784,7 @@ class SkillSystem {
       width: 18 * aoeScale,
       duration: duration,
       damagePerSecond: damage / duration,
+      sourceSkillId: SkillId.flameWave,
     );
     onEffectSpawn(effect);
   }
@@ -797,6 +810,7 @@ class SkillSystem {
       damagePerSecond: damage / duration,
       slowMultiplier: 0.6,
       slowDuration: duration,
+      sourceSkillId: SkillId.frostNova,
       followsPlayer: true,
     );
     onEffectSpawn(effect);
@@ -832,6 +846,7 @@ class SkillSystem {
       width: 0,
       duration: duration,
       damagePerSecond: damage / duration,
+      sourceSkillId: SkillId.earthSpikes,
     );
     onEffectSpawn(effect);
   }
@@ -1059,9 +1074,11 @@ class SkillSystem {
     required double damage,
     required double knockbackForce,
     required double knockbackDuration,
+    required SkillId sourceSkillId,
     required void Function(
       EnemyState,
       double, {
+      SkillId? sourceSkillId,
       double knockbackX,
       double knockbackY,
       double knockbackForce,
@@ -1100,6 +1117,7 @@ class SkillSystem {
       onEnemyDamaged(
         enemy,
         damage,
+        sourceSkillId: sourceSkillId,
         knockbackX: dx,
         knockbackY: dy,
         knockbackForce: knockbackForce,

@@ -11,6 +11,7 @@ import 'package:hordesurivor/game/damage_system.dart';
 import 'package:hordesurivor/game/effect_pool.dart';
 import 'package:hordesurivor/game/effect_state.dart';
 import 'package:hordesurivor/game/enemy_pool.dart';
+import 'package:hordesurivor/game/enemy_state.dart';
 import 'package:hordesurivor/game/player_state.dart';
 import 'package:hordesurivor/game/projectile_pool.dart';
 import 'package:hordesurivor/game/projectile_state.dart';
@@ -54,6 +55,16 @@ void main() {
 
   void noopSummonSpawn(SummonState summon) {}
 
+  void noopEnemyDamaged(
+    EnemyState enemy,
+    double damage, {
+    SkillId? sourceSkillId,
+    double knockbackDuration = 0,
+    double knockbackForce = 0,
+    double knockbackX = 0,
+    double knockbackY = 0,
+  }) {}
+
   test('fireball casts on cooldown and supports burst updates', () {
     final projectilePool = ProjectilePool(initialCapacity: 0);
     final effectPool = EffectPool(initialCapacity: 0);
@@ -77,15 +88,7 @@ void main() {
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
-      onEnemyDamaged:
-          (
-            enemy,
-            damage, {
-            double knockbackDuration = 0,
-            double knockbackForce = 0,
-            double knockbackX = 0,
-            double knockbackY = 0,
-          }) {},
+      onEnemyDamaged: noopEnemyDamaged,
     );
 
     expect(spawnCount, 0);
@@ -101,15 +104,7 @@ void main() {
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
-      onEnemyDamaged:
-          (
-            enemy,
-            damage, {
-            double knockbackDuration = 0,
-            double knockbackForce = 0,
-            double knockbackX = 0,
-            double knockbackY = 0,
-          }) {},
+      onEnemyDamaged: noopEnemyDamaged,
     );
 
     expect(spawnCount, 3);
@@ -254,15 +249,7 @@ void main() {
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
-      onEnemyDamaged:
-          (
-            enemy,
-            damage, {
-            double knockbackDuration = 0,
-            double knockbackForce = 0,
-            double knockbackX = 0,
-            double knockbackY = 0,
-          }) {},
+      onEnemyDamaged: noopEnemyDamaged,
     );
 
     expect(damage, isNotNull);
@@ -292,15 +279,7 @@ void main() {
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
-      onEnemyDamaged:
-          (
-            enemy,
-            damage, {
-            double knockbackDuration = 0,
-            double knockbackForce = 0,
-            double knockbackX = 0,
-            double knockbackY = 0,
-          }) {},
+      onEnemyDamaged: noopEnemyDamaged,
     );
 
     expect(projectile, isNotNull);
@@ -331,15 +310,7 @@ void main() {
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
-      onEnemyDamaged:
-          (
-            enemy,
-            damage, {
-            double knockbackDuration = 0,
-            double knockbackForce = 0,
-            double knockbackX = 0,
-            double knockbackY = 0,
-          }) {},
+      onEnemyDamaged: noopEnemyDamaged,
     );
 
     expect(projectiles.length, 3);
@@ -372,15 +343,7 @@ void main() {
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
-      onEnemyDamaged:
-          (
-            enemy,
-            damage, {
-            double knockbackDuration = 0,
-            double knockbackForce = 0,
-            double knockbackX = 0,
-            double knockbackY = 0,
-          }) {},
+      onEnemyDamaged: noopEnemyDamaged,
     );
 
     expect(effect, isNotNull);
@@ -411,15 +374,7 @@ void main() {
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
-      onEnemyDamaged:
-          (
-            enemy,
-            damage, {
-            double knockbackDuration = 0,
-            double knockbackForce = 0,
-            double knockbackX = 0,
-            double knockbackY = 0,
-          }) {},
+      onEnemyDamaged: noopEnemyDamaged,
     );
 
     expect(effect, isNotNull);
@@ -451,15 +406,7 @@ void main() {
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
-      onEnemyDamaged:
-          (
-            enemy,
-            damage, {
-            double knockbackDuration = 0,
-            double knockbackForce = 0,
-            double knockbackX = 0,
-            double knockbackY = 0,
-          }) {},
+      onEnemyDamaged: noopEnemyDamaged,
     );
 
     expect(effect, isNotNull);
@@ -490,15 +437,7 @@ void main() {
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
-      onEnemyDamaged:
-          (
-            enemy,
-            damage, {
-            double knockbackDuration = 0,
-            double knockbackForce = 0,
-            double knockbackX = 0,
-            double knockbackY = 0,
-          }) {},
+      onEnemyDamaged: noopEnemyDamaged,
     );
 
     expect(projectile, isNotNull);
@@ -530,15 +469,7 @@ void main() {
       onProjectileDespawn: (_) {},
       onSummonSpawn: (_) => summonCount++,
       onPlayerDeflect: noopPlayerDeflect,
-      onEnemyDamaged:
-          (
-            enemy,
-            damage, {
-            double knockbackDuration = 0,
-            double knockbackForce = 0,
-            double knockbackX = 0,
-            double knockbackY = 0,
-          }) {},
+      onEnemyDamaged: noopEnemyDamaged,
     );
 
     expect(summonCount, greaterThan(0));

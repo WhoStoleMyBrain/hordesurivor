@@ -8,6 +8,8 @@ import '../data/synergy_defs.dart';
 import '../data/weapon_upgrade_defs.dart';
 import '../game/meta_currency_wallet.dart';
 import '../game/run_summary.dart';
+import '../game/run_analysis_state.dart';
+import 'run_analysis_overview.dart';
 import 'ui_scale.dart';
 
 class DeathScreen extends StatelessWidget {
@@ -18,6 +20,7 @@ class DeathScreen extends StatelessWidget {
     required this.onRestart,
     required this.onReturn,
     required this.wallet,
+    required this.analysisState,
   });
 
   static const String overlayKey = 'death';
@@ -27,6 +30,7 @@ class DeathScreen extends StatelessWidget {
   final VoidCallback onRestart;
   final VoidCallback onReturn;
   final MetaCurrencyWallet wallet;
+  final RunAnalysisState analysisState;
 
   @override
   Widget build(BuildContext context) {
@@ -152,6 +156,30 @@ class DeathScreen extends StatelessWidget {
                             wallet: wallet,
                             labelStyle: statLabelStyle,
                             valueStyle: statValueStyle,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.35),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white24),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: RunAnalysisOverview(
+                              timeAlive: summary.timeAlive,
+                              damageTaken: summary.damageTaken,
+                              totalDamageDealt: analysisState.totalDamageDealt,
+                              damageBySkill: analysisState.damageBySkill,
+                              activeSkills: analysisState.activeSkills,
+                              skillOffers: analysisState.skillOffers,
+                              skillPicks: analysisState.skillPicks,
+                              itemOffers: analysisState.itemOffers,
+                              itemPicks: analysisState.itemPicks,
+                              totalOffers: analysisState.totalOffers,
+                              deadOffers: analysisState.deadOffers,
+                            ),
                           ),
                         ),
                         if (skillNames.isNotEmpty ||
