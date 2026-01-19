@@ -111,9 +111,14 @@ class SelectionOverlay extends StatelessWidget {
                           separatorBuilder: (_, _) => const SizedBox(height: 8),
                           itemBuilder: (context, index) {
                             final choice = choices[index];
+                            final isPlaceholder =
+                                choice.type == SelectionType.item &&
+                                choice.itemId == null;
                             return _ChoiceCard(
                               choice: choice,
-                              onPressed: () => onSelected(choice),
+                              onPressed: isPlaceholder
+                                  ? null
+                                  : () => onSelected(choice),
                               banishesRemaining:
                                   selectionState.banishesRemaining,
                               goldAvailable: selectionState.goldAvailable,
@@ -121,12 +126,16 @@ class SelectionOverlay extends StatelessWidget {
                               locked: selectionState.lockedItems.contains(
                                 choice.itemId,
                               ),
-                              onBanish: selectionState.banishesRemaining > 0
+                              isPlaceholder: isPlaceholder,
+                              onBanish:
+                                  selectionState.banishesRemaining > 0 &&
+                                      !isPlaceholder
                                   ? () => onBanish(choice)
                                   : null,
                               onToggleLock:
                                   selectionState.trackId ==
-                                      ProgressionTrackId.items
+                                          ProgressionTrackId.items &&
+                                      !isPlaceholder
                                   ? () => onToggleLock(choice)
                                   : null,
                             );
@@ -232,16 +241,18 @@ class _ChoiceCard extends StatelessWidget {
     required this.goldAvailable,
     required this.price,
     required this.locked,
+    required this.isPlaceholder,
     this.onBanish,
     this.onToggleLock,
   });
 
   final SelectionChoice choice;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final int banishesRemaining;
   final int goldAvailable;
   final int? price;
   final bool locked;
+  final bool isPlaceholder;
   final VoidCallback? onBanish;
   final VoidCallback? onToggleLock;
 
@@ -269,7 +280,12 @@ class _ChoiceCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(choice.title, style: theme.textTheme.titleMedium),
+                child: Text(
+                  choice.title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: isPlaceholder ? Colors.white54 : null,
+                  ),
+                ),
               ),
               if (locked)
                 const Padding(
@@ -297,7 +313,9 @@ class _ChoiceCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             choice.description,
-            style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: isPlaceholder ? Colors.white38 : Colors.white70,
+            ),
           ),
           if (statChanges.isNotEmpty) ...[
             const SizedBox(height: 8),
