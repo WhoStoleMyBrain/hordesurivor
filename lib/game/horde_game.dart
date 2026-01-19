@@ -127,7 +127,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     PickupKind.xpOrb: CurrencyId.xp,
     PickupKind.goldCoin: CurrencyId.gold,
   };
-  static const double _goldPickupValueMultiplier = 0.75;
+  static const int _goldShopXpValue = 8;
+  static const int _goldCurrencyBaseValue = 4;
+  static const double _goldCurrencyXpRewardMultiplier = 0.3;
+  static const double _goldCurrencyTimeStepSeconds = 45;
   static const double _portalRadius = 26;
   static const double _portalLockoutDuration = 0.75;
   static const double _stageWaveInterval = 3.0;
@@ -1146,10 +1149,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       if (enemy.xpReward > 0) {
         final pickupKind = _rollPickupKind();
         final pickupValue = _pickupValueForKind(pickupKind, enemy.xpReward);
+        final bonusValue = pickupKind == PickupKind.goldCoin
+            ? _goldCurrencyValueForEnemy(enemy)
+            : 0;
         _spawnPickup(
           kind: pickupKind,
           position: enemy.position,
           value: pickupValue,
+          bonusValue: bonusValue,
         );
       }
     }
@@ -1204,9 +1211,17 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   int _pickupValueForKind(PickupKind kind, int baseValue) {
     if (kind == PickupKind.goldCoin) {
-      return math.max(1, (baseValue * _goldPickupValueMultiplier).round());
+      return _goldShopXpValue;
     }
     return baseValue;
+  }
+
+  int _goldCurrencyValueForEnemy(EnemyState enemy) {
+    final timeBonus =
+        (_stageTimer?.elapsed ?? 0) ~/ _goldCurrencyTimeStepSeconds;
+    final rewardBonus = (enemy.xpReward * _goldCurrencyXpRewardMultiplier)
+        .round();
+    return math.max(1, _goldCurrencyBaseValue + rewardBonus + timeBonus);
   }
 
   void _handleEnemyDamaged(
@@ -2269,12 +2284,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     required PickupKind kind,
     required Vector2 position,
     required int value,
+    int bonusValue = 0,
   }) {
     final pickup = _pickupPool.acquire();
     pickup.reset(
       kind: kind,
       position: position,
       value: value,
+      bonusValue: bonusValue,
       lifespan: _pickupLifetime,
     );
     _registerPickupComponent(pickup);
@@ -2290,6 +2307,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       if (gain != null && gain.levelsGained > 0) {
         _levelUpSystem.queueLevels(gain.trackId, gain.levelsGained);
         _offerSelectionIfNeeded();
+      }
+      if (pickup.kind == PickupKind.goldCoin && pickup.bonusValue > 0) {
+        _runSummary.goldGained += pickup.bonusValue;
       }
     }
     _spawnPickupSpark(pickup.position);
