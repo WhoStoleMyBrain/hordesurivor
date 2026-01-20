@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flame/extensions.dart';
 
 import '../data/ids.dart';
@@ -69,6 +71,8 @@ class EffectSystem {
             damage,
             onEnemyDamaged,
           );
+        case EffectShape.arc:
+          _applyArcDamage(effect, enemyPool, enemyGrid, damage, onEnemyDamaged);
       }
     }
   }
@@ -148,6 +152,50 @@ class EffectSystem {
         _applyStatus(effect, enemy);
         onEnemyDamaged(enemy, damage, sourceSkillId: effect.sourceSkillId);
       }
+    }
+  }
+
+  void _applyArcDamage(
+    EffectState effect,
+    EnemyPool enemyPool,
+    SpatialGrid? enemyGrid,
+    double damage,
+    void Function(
+      EnemyState,
+      double, {
+      SkillId? sourceSkillId,
+      double knockbackX,
+      double knockbackY,
+      double knockbackForce,
+      double knockbackDuration,
+    })
+    onEnemyDamaged,
+  ) {
+    final arcCosine = math.cos((effect.arcDegrees * 0.5) * (math.pi / 180));
+    final radius = effect.radius;
+    final radiusSquared = radius * radius;
+    final candidates = enemyGrid == null
+        ? enemyPool.active
+        : enemyGrid.queryCircle(effect.position, radius, _queryBuffer);
+    for (final enemy in candidates) {
+      if (!enemy.active) {
+        continue;
+      }
+      final dx = enemy.position.x - effect.position.x;
+      final dy = enemy.position.y - effect.position.y;
+      final distanceSquared = dx * dx + dy * dy;
+      if (distanceSquared > radiusSquared) {
+        continue;
+      }
+      final dotThreshold = distanceSquared == 0
+          ? 1.0
+          : (dx * effect.direction.x + dy * effect.direction.y) /
+                math.sqrt(distanceSquared);
+      if (dotThreshold < arcCosine) {
+        continue;
+      }
+      _applyStatus(effect, enemy);
+      onEnemyDamaged(enemy, damage, sourceSkillId: effect.sourceSkillId);
     }
   }
 

@@ -11,9 +11,10 @@ enum EffectKind {
   frostNova,
   earthSpikes,
   sporeCloud,
+  swordSlash,
 }
 
-enum EffectShape { beam, ground }
+enum EffectShape { beam, ground, arc }
 
 class EffectState {
   EffectState() : position = Vector2.zero(), direction = Vector2(1, 0);
@@ -25,6 +26,7 @@ class EffectState {
   double radius = 0;
   double length = 0;
   double width = 0;
+  double arcDegrees = 0;
   double duration = 0;
   double age = 0;
   double damagePerSecond = 0;
@@ -43,6 +45,7 @@ class EffectState {
     required double radius,
     required double length,
     required double width,
+    double arcDegrees = 0,
     required double duration,
     required double damagePerSecond,
     double slowMultiplier = 1,
@@ -63,6 +66,7 @@ class EffectState {
     this.radius = radius;
     this.length = length;
     this.width = width;
+    this.arcDegrees = arcDegrees;
     this.duration = duration;
     this.damagePerSecond = damagePerSecond;
     this.slowMultiplier = slowMultiplier;

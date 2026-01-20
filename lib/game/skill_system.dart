@@ -176,6 +176,7 @@ class SkillSystem {
               stats: stats,
               enemyPool: enemyPool,
               enemyGrid: enemyGrid,
+              onEffectSpawn: onEffectSpawn,
               onEnemyDamaged: onEnemyDamaged,
             );
           case SkillId.waterjet:
@@ -201,6 +202,7 @@ class SkillSystem {
               stats: stats,
               enemyPool: enemyPool,
               enemyGrid: enemyGrid,
+              onEffectSpawn: onEffectSpawn,
               onEnemyDamaged: onEnemyDamaged,
             );
           case SkillId.swordSwing:
@@ -210,6 +212,7 @@ class SkillSystem {
               stats: stats,
               enemyPool: enemyPool,
               enemyGrid: enemyGrid,
+              onEffectSpawn: onEffectSpawn,
               onEnemyDamaged: onEnemyDamaged,
             );
           case SkillId.swordDeflect:
@@ -219,6 +222,7 @@ class SkillSystem {
               stats: stats,
               enemyPool: enemyPool,
               enemyGrid: enemyGrid,
+              onEffectSpawn: onEffectSpawn,
               onEnemyDamaged: onEnemyDamaged,
               onProjectileDespawn: onProjectileDespawn,
               onPlayerDeflect: onPlayerDeflect,
@@ -463,6 +467,7 @@ class SkillSystem {
     required StatSheet stats,
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
+    required void Function(EffectState) onEffectSpawn,
     required void Function(
       EnemyState,
       double, {
@@ -477,9 +482,14 @@ class SkillSystem {
     final def = skillDefsById[SkillId.swordCut];
     final knockbackScale = _knockbackScale(stats);
     final damage = _scaledDamageFor(SkillId.swordCut, stats, 12);
-    _castMeleeArc(
+    final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
+      enemyPool: enemyPool,
+    );
+    _castMeleeArc(
+      playerPosition: playerPosition,
+      direction: direction,
       enemyPool: enemyPool,
       enemyGrid: enemyGrid,
       stats: stats,
@@ -491,6 +501,16 @@ class SkillSystem {
       sourceSkillId: SkillId.swordCut,
       onEnemyDamaged: onEnemyDamaged,
     );
+    _spawnSwordArcEffect(
+      playerPosition: playerPosition,
+      direction: direction,
+      stats: stats,
+      baseRange: 46,
+      arcDegrees: 90,
+      duration: 0.14,
+      sourceSkillId: SkillId.swordCut,
+      onEffectSpawn: onEffectSpawn,
+    );
   }
 
   void _castSwordThrust({
@@ -499,6 +519,7 @@ class SkillSystem {
     required StatSheet stats,
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
+    required void Function(EffectState) onEffectSpawn,
     required void Function(
       EnemyState,
       double, {
@@ -513,9 +534,14 @@ class SkillSystem {
     final def = skillDefsById[SkillId.swordThrust];
     final knockbackScale = _knockbackScale(stats);
     final damage = _scaledDamageFor(SkillId.swordThrust, stats, 10);
-    _castMeleeArc(
+    final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
+      enemyPool: enemyPool,
+    );
+    _castMeleeArc(
+      playerPosition: playerPosition,
+      direction: direction,
       enemyPool: enemyPool,
       enemyGrid: enemyGrid,
       stats: stats,
@@ -527,6 +553,16 @@ class SkillSystem {
       sourceSkillId: SkillId.swordThrust,
       onEnemyDamaged: onEnemyDamaged,
     );
+    _spawnSwordArcEffect(
+      playerPosition: playerPosition,
+      direction: direction,
+      stats: stats,
+      baseRange: 58,
+      arcDegrees: 30,
+      duration: 0.12,
+      sourceSkillId: SkillId.swordThrust,
+      onEffectSpawn: onEffectSpawn,
+    );
   }
 
   void _castSwordSwing({
@@ -535,6 +571,7 @@ class SkillSystem {
     required StatSheet stats,
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
+    required void Function(EffectState) onEffectSpawn,
     required void Function(
       EnemyState,
       double, {
@@ -549,9 +586,14 @@ class SkillSystem {
     final def = skillDefsById[SkillId.swordSwing];
     final knockbackScale = _knockbackScale(stats);
     final damage = _scaledDamageFor(SkillId.swordSwing, stats, 14);
-    _castMeleeArc(
+    final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
+      enemyPool: enemyPool,
+    );
+    _castMeleeArc(
+      playerPosition: playerPosition,
+      direction: direction,
       enemyPool: enemyPool,
       enemyGrid: enemyGrid,
       stats: stats,
@@ -563,6 +605,16 @@ class SkillSystem {
       sourceSkillId: SkillId.swordSwing,
       onEnemyDamaged: onEnemyDamaged,
     );
+    _spawnSwordArcEffect(
+      playerPosition: playerPosition,
+      direction: direction,
+      stats: stats,
+      baseRange: 52,
+      arcDegrees: 140,
+      duration: 0.18,
+      sourceSkillId: SkillId.swordSwing,
+      onEffectSpawn: onEffectSpawn,
+    );
   }
 
   void _castSwordDeflect({
@@ -571,6 +623,7 @@ class SkillSystem {
     required StatSheet stats,
     required EnemyPool enemyPool,
     SpatialGrid? enemyGrid,
+    required void Function(EffectState) onEffectSpawn,
     required void Function(
       EnemyState,
       double, {
@@ -588,9 +641,14 @@ class SkillSystem {
     final def = skillDefsById[SkillId.swordDeflect];
     final knockbackScale = _knockbackScale(stats);
     final damage = _scaledDamageFor(SkillId.swordDeflect, stats, 8);
-    _castMeleeArc(
+    final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
+      enemyPool: enemyPool,
+    );
+    _castMeleeArc(
+      playerPosition: playerPosition,
+      direction: direction,
       enemyPool: enemyPool,
       enemyGrid: enemyGrid,
       stats: stats,
@@ -601,6 +659,16 @@ class SkillSystem {
       knockbackDuration: def?.knockbackDuration ?? 0,
       sourceSkillId: SkillId.swordDeflect,
       onEnemyDamaged: onEnemyDamaged,
+    );
+    _spawnSwordArcEffect(
+      playerPosition: playerPosition,
+      direction: direction,
+      stats: stats,
+      baseRange: 42,
+      arcDegrees: 100,
+      duration: 0.16,
+      sourceSkillId: SkillId.swordDeflect,
+      onEffectSpawn: onEffectSpawn,
     );
     final aoeScale = _aoeScale(stats);
     final deflectRadius = (def?.deflectRadius ?? 0) * aoeScale;
@@ -1065,7 +1133,7 @@ class SkillSystem {
 
   void _castMeleeArc({
     required Vector2 playerPosition,
-    required Vector2 aimDirection,
+    required Vector2 direction,
     required EnemyPool enemyPool,
     required SpatialGrid? enemyGrid,
     required StatSheet stats,
@@ -1089,11 +1157,6 @@ class SkillSystem {
     final arcCosine = math.cos((arcDegrees * 0.5) * (math.pi / 180));
     final aoeScale = _aoeScale(stats);
     final range = baseRange * aoeScale;
-    final direction = _resolveAim(
-      playerPosition: playerPosition,
-      aimDirection: aimDirection,
-      enemyPool: enemyPool,
-    );
 
     final rangeSquared = range * range;
     final candidates = enemyGrid == null
@@ -1124,6 +1187,34 @@ class SkillSystem {
         knockbackDuration: knockbackDuration,
       );
     }
+  }
+
+  void _spawnSwordArcEffect({
+    required Vector2 playerPosition,
+    required Vector2 direction,
+    required StatSheet stats,
+    required double baseRange,
+    required double arcDegrees,
+    required double duration,
+    required SkillId sourceSkillId,
+    required void Function(EffectState) onEffectSpawn,
+  }) {
+    final range = baseRange * _aoeScale(stats);
+    final effect = _effectPool.acquire();
+    effect.reset(
+      kind: EffectKind.swordSlash,
+      shape: EffectShape.arc,
+      position: playerPosition,
+      direction: direction,
+      radius: range,
+      length: 0,
+      width: 0,
+      arcDegrees: arcDegrees,
+      duration: duration,
+      damagePerSecond: 0,
+      sourceSkillId: sourceSkillId,
+    );
+    onEffectSpawn(effect);
   }
 
   void _deflectProjectiles({

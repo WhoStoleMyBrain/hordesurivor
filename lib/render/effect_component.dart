@@ -11,7 +11,11 @@ class EffectComponent extends PositionComponent {
     required EffectState state,
     double renderScale = RenderScale.worldScale,
   }) : _state = state,
-       _paint = Paint()..color = _colorForKind(state.kind) {
+       _paint = Paint()..color = _colorForKind(state.kind),
+       _strokePaint = Paint()
+         ..color = _colorForKind(state.kind).withValues(alpha: 0.85)
+         ..style = PaintingStyle.stroke
+         ..strokeWidth = 2 {
     anchor = Anchor.center;
     scale = Vector2.all(renderScale);
     priority = _priorityForShape(state.shape);
@@ -19,6 +23,7 @@ class EffectComponent extends PositionComponent {
 
   final EffectState _state;
   final Paint _paint;
+  final Paint _strokePaint;
 
   @override
   void update(double dt) {
@@ -54,6 +59,20 @@ class EffectComponent extends PositionComponent {
           RRect.fromRectAndRadius(rect, const Radius.circular(4)),
           _paint,
         );
+      case EffectShape.arc:
+        final sweep = _state.arcDegrees * (math.pi / 180);
+        final startAngle =
+            math.atan2(_state.direction.y, _state.direction.x) - sweep * 0.5;
+        final rect = Rect.fromCircle(
+          center: Offset.zero,
+          radius: _state.radius,
+        );
+        final path = Path()
+          ..moveTo(0, 0)
+          ..arcTo(rect, startAngle, sweep, false)
+          ..close();
+        canvas.drawPath(path, _paint);
+        canvas.drawPath(path, _strokePaint);
     }
   }
 
@@ -75,6 +94,8 @@ class EffectComponent extends PositionComponent {
         return const Color(0xFF7B5E3B).withValues(alpha: 0.5);
       case EffectKind.sporeCloud:
         return const Color(0xFF5F9E4A).withValues(alpha: 0.45);
+      case EffectKind.swordSlash:
+        return const Color(0xFFE5E8F2).withValues(alpha: 0.55);
     }
   }
 
@@ -84,6 +105,8 @@ class EffectComponent extends PositionComponent {
         return -2;
       case EffectShape.beam:
         return 1;
+      case EffectShape.arc:
+        return 2;
     }
   }
 }

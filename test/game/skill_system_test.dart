@@ -219,6 +219,78 @@ void main() {
     expect(defeatedCount, 0);
   });
 
+  test('sword skills spawn arc visuals for melee attacks', () {
+    final effectPool = EffectPool(initialCapacity: 0);
+    final system = SkillSystem(
+      effectPool: effectPool,
+      projectilePool: ProjectilePool(initialCapacity: 0),
+      summonPool: SummonPool(initialCapacity: 0),
+      skillSlots: [
+        SkillSlot(id: SkillId.swordCut, cooldown: 0.1),
+        SkillSlot(id: SkillId.swordThrust, cooldown: 0.1),
+        SkillSlot(id: SkillId.swordSwing, cooldown: 0.1),
+        SkillSlot(id: SkillId.swordDeflect, cooldown: 0.1),
+      ],
+    );
+    final playerState = buildPlayer();
+
+    final effects = <EffectState>[];
+    system.update(
+      dt: 0.2,
+      playerPosition: Vector2.zero(),
+      aimDirection: Vector2(1, 0),
+      stats: playerState.stats,
+      enemyPool: EnemyPool(initialCapacity: 0),
+      onProjectileSpawn: (_) {},
+      onEffectSpawn: effects.add,
+      onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
+      onPlayerDeflect: noopPlayerDeflect,
+      onEnemyDamaged: noopEnemyDamaged,
+    );
+
+    expect(effects.length, 4);
+    for (final effect in effects) {
+      expect(effect.kind, EffectKind.swordSlash);
+      expect(effect.shape, EffectShape.arc);
+      expect(effect.arcDegrees, greaterThan(0));
+    }
+  });
+
+  test('sword swing arc visual scales with AOE', () {
+    final effectPool = EffectPool(initialCapacity: 0);
+    final system = SkillSystem(
+      effectPool: effectPool,
+      projectilePool: ProjectilePool(initialCapacity: 0),
+      summonPool: SummonPool(initialCapacity: 0),
+      skillSlots: [SkillSlot(id: SkillId.swordSwing, cooldown: 0.1)],
+    );
+    final playerState = buildPlayer();
+    playerState.applyModifiers(const [
+      StatModifier(stat: StatId.aoeSize, amount: 0.5),
+    ]);
+
+    EffectState? effect;
+    system.update(
+      dt: 0.2,
+      playerPosition: Vector2.zero(),
+      aimDirection: Vector2(1, 0),
+      stats: playerState.stats,
+      enemyPool: EnemyPool(initialCapacity: 0),
+      onProjectileSpawn: (_) {},
+      onEffectSpawn: (state) => effect = state,
+      onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
+      onPlayerDeflect: noopPlayerDeflect,
+      onEnemyDamaged: noopEnemyDamaged,
+    );
+
+    expect(effect, isNotNull);
+    expect(effect!.shape, EffectShape.arc);
+    expect(effect!.arcDegrees, 140);
+    expect(effect!.radius, closeTo(78, 0.01));
+  });
+
   test('fireball damage scales with player stats', () {
     final projectilePool = ProjectilePool(initialCapacity: 0);
     final effectPool = EffectPool(initialCapacity: 0);
