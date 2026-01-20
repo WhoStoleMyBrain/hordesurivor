@@ -131,10 +131,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     PickupKind.xpOrb: CurrencyId.xp,
     PickupKind.goldCoin: CurrencyId.gold,
   };
-  static const int _goldShopXpValue = 1;
-  static const int _goldCurrencyBaseValue = 1;
-  static const double _goldCurrencyXpRewardMultiplier = 0.3;
-  static const double _goldCurrencyTimeStepSeconds = 45;
   static const double _portalRadius = 26;
   static const double _portalLockoutDuration = 0.75;
   static const double _stageWaveInterval = 3.0;
@@ -1179,9 +1175,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _runSummary.enemiesDefeated += 1;
       if (enemy.xpReward > 0) {
         final pickupKind = _rollPickupKind();
-        final pickupValue = _pickupValueForKind(pickupKind, enemy.xpReward);
+        final pickupValue = pickupKind == PickupKind.goldCoin
+            ? enemy.goldShopXpReward
+            : enemy.xpReward;
         final bonusValue = pickupKind == PickupKind.goldCoin
-            ? _goldCurrencyValueForEnemy(enemy)
+            ? enemy.goldCurrencyReward
             : 0;
         _spawnPickup(
           kind: pickupKind,
@@ -1238,21 +1236,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     final fallback = _pickupCurrencyDefs.last;
     return _pickupKindByCurrency[fallback.id] ?? PickupKind.xpOrb;
-  }
-
-  int _pickupValueForKind(PickupKind kind, int baseValue) {
-    if (kind == PickupKind.goldCoin) {
-      return _goldShopXpValue;
-    }
-    return baseValue;
-  }
-
-  int _goldCurrencyValueForEnemy(EnemyState enemy) {
-    final timeBonus =
-        (_stageTimer?.elapsed ?? 0) ~/ _goldCurrencyTimeStepSeconds;
-    final rewardBonus = (enemy.xpReward * _goldCurrencyXpRewardMultiplier)
-        .round();
-    return math.max(1, _goldCurrencyBaseValue + rewardBonus + timeBonus);
   }
 
   void _handleEnemyDamaged(

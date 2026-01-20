@@ -152,6 +152,10 @@ class SpawnerSystem {
       spawnCount: def.spawnCount,
       spawnRadius: def.spawnRadius,
       spawnEnemyId: def.spawnEnemyId,
+      goldCurrencyReward:
+          (def.goldCurrencyReward * variantDef.xpRewardMultiplier).round(),
+      goldShopXpReward: (def.goldShopXpReward * variantDef.xpRewardMultiplier)
+          .round(),
     );
     _onSpawn(enemy);
   }

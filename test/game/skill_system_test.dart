@@ -35,6 +35,8 @@ void main() {
       maxHp: def.maxHp,
       moveSpeed: def.moveSpeed,
       xpReward: def.xpReward,
+      goldCurrencyReward: def.goldCurrencyReward,
+      goldShopXpReward: def.goldShopXpReward,
       attackCooldown: def.attackCooldown,
       attackRange: def.attackRange,
       projectileSpeed: def.projectileSpeed,
