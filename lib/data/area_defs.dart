@@ -143,7 +143,7 @@ const List<AreaDef> areaDefs = [
       StageSection(
         startTime: 0,
         endTime: 72,
-        roleWeights: {EnemyRole.chaser: 8, EnemyRole.ranged: 2},
+        roleWeights: {EnemyRole.chaser: 8},
         threatTier: 1,
         eliteChance: 0.01,
         note: 'Imps lead with a few spitters supporting.',

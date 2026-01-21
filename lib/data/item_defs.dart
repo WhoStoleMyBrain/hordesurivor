@@ -26,23 +26,7 @@ class ItemDef {
   final int? maxStacks;
 }
 
-const List<ItemDef> itemDefs = [
-  ItemDef(
-    id: ItemId.glassCatalyst,
-    name: 'Glass Catalyst',
-    description: 'High output at the cost of survivability.',
-    modifiers: [
-      StatModifier(stat: StatId.damage, amount: 0.2),
-      StatModifier(
-        stat: StatId.flatDamage,
-        amount: 1.0,
-        kind: ModifierKind.flat,
-      ),
-      StatModifier(stat: StatId.maxHp, amount: -0.2),
-    ],
-    rarity: ItemRarity.uncommon,
-    maxStacks: 4,
-  ),
+const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.heavyPlate,
     name: 'Heavy Plate',
@@ -84,30 +68,6 @@ const List<ItemDef> itemDefs = [
     rarity: ItemRarity.common,
   ),
   ItemDef(
-    id: ItemId.slowCooker,
-    name: 'Slow Cooker',
-    description: 'Damage over time rises, direct hits suffer.',
-    modifiers: [
-      StatModifier(stat: StatId.dotDamage, amount: 0.25),
-      StatModifier(stat: StatId.dotDuration, amount: 0.2),
-      StatModifier(stat: StatId.directHitDamage, amount: -0.2),
-    ],
-    tags: TagSet(effects: {EffectTag.dot}),
-    rarity: ItemRarity.uncommon,
-  ),
-  ItemDef(
-    id: ItemId.wideLens,
-    name: 'Wide Lens',
-    description: 'Broader impact area and view with slower cadence.',
-    modifiers: [
-      StatModifier(stat: StatId.aoeSize, amount: 0.25),
-      StatModifier(stat: StatId.fieldOfView, amount: 0.1),
-      StatModifier(stat: StatId.attackSpeed, amount: -0.15),
-    ],
-    tags: TagSet(effects: {EffectTag.aoe}),
-    rarity: ItemRarity.uncommon,
-  ),
-  ItemDef(
     id: ItemId.sharpeningStone,
     name: 'Sharpening Stone',
     description: 'Melee edge honed at ranged expense.',
@@ -127,25 +87,6 @@ const List<ItemDef> itemDefs = [
     ],
     tags: TagSet(deliveries: {DeliveryTag.beam}),
     rarity: ItemRarity.common,
-  ),
-  ItemDef(
-    id: ItemId.volatileMixture,
-    name: 'Volatile Mixture',
-    description: 'Explosions hit harder but hurt you too.',
-    modifiers: [
-      StatModifier(stat: StatId.explosionDamage, amount: 0.4),
-      StatModifier(stat: StatId.fireDamage, amount: 0.2),
-      StatModifier(stat: StatId.elementalDamage, amount: 0.1),
-      StatModifier(
-        stat: StatId.flatElementalDamage,
-        amount: 1.2,
-        kind: ModifierKind.flat,
-      ),
-      StatModifier(stat: StatId.selfExplosionDamageTaken, amount: 0.3),
-    ],
-    tags: TagSet(elements: {ElementTag.fire}),
-    rarity: ItemRarity.epic,
-    maxStacks: 1,
   ),
   ItemDef(
     id: ItemId.insulatedFlask,
@@ -170,18 +111,6 @@ const List<ItemDef> itemDefs = [
     rarity: ItemRarity.common,
   ),
   ItemDef(
-    id: ItemId.briarCharm,
-    name: 'Briar Charm',
-    description: 'Roots last longer but slow you down.',
-    modifiers: [
-      StatModifier(stat: StatId.rootDuration, amount: 0.25),
-      StatModifier(stat: StatId.rootStrength, amount: 0.2),
-      StatModifier(stat: StatId.moveSpeedPercent, amount: -0.1),
-    ],
-    tags: TagSet(elements: {ElementTag.earth, ElementTag.wood}),
-    rarity: ItemRarity.uncommon,
-  ),
-  ItemDef(
     id: ItemId.ironGrip,
     name: 'Iron Grip',
     description: 'Stronger knockback with slower attacks.',
@@ -190,16 +119,6 @@ const List<ItemDef> itemDefs = [
       StatModifier(stat: StatId.attackSpeed, amount: -0.06),
     ],
     rarity: ItemRarity.common,
-  ),
-  ItemDef(
-    id: ItemId.vampiricSeal,
-    name: 'Vampiric Seal',
-    description: 'Leech life but cap your vitality.',
-    modifiers: [
-      StatModifier(stat: StatId.lifeSteal, amount: 0.15),
-      StatModifier(stat: StatId.maxHp, amount: -0.15),
-    ],
-    rarity: ItemRarity.uncommon,
   ),
   ItemDef(
     id: ItemId.luckyCoin,
@@ -213,31 +132,6 @@ const List<ItemDef> itemDefs = [
     maxStacks: 4,
   ),
   ItemDef(
-    id: ItemId.gamblersDie,
-    name: 'Gambler\'s Die',
-    description: 'More rerolls but fewer choices at once.',
-    modifiers: [
-      StatModifier(stat: StatId.rerolls, amount: 1, kind: ModifierKind.flat),
-      StatModifier(
-        stat: StatId.choiceCount,
-        amount: -1,
-        kind: ModifierKind.flat,
-      ),
-    ],
-    rarity: ItemRarity.uncommon,
-  ),
-  ItemDef(
-    id: ItemId.reactiveShield,
-    name: 'Reactive Shield',
-    description: 'Periodic shield at the cost of recovery.',
-    modifiers: [
-      StatModifier(stat: StatId.defense, amount: 0.2),
-      StatModifier(stat: StatId.cooldownRecovery, amount: -0.15),
-    ],
-    tags: TagSet(effects: {EffectTag.support}),
-    rarity: ItemRarity.uncommon,
-  ),
-  ItemDef(
     id: ItemId.evasiveTalisman,
     name: 'Evasive Talisman',
     description: 'Sharper dodges leave you more fragile.',
@@ -247,19 +141,6 @@ const List<ItemDef> itemDefs = [
     ],
     tags: TagSet(effects: {EffectTag.mobility}),
     rarity: ItemRarity.common,
-  ),
-  ItemDef(
-    id: ItemId.ritualCandle,
-    name: 'Ritual Candle',
-    description: 'Fire damage over time rises, water wanes.',
-    modifiers: [
-      StatModifier(stat: StatId.dotDamage, amount: 0.2),
-      StatModifier(stat: StatId.fireDamage, amount: 0.2),
-      StatModifier(stat: StatId.elementalDamage, amount: 0.05),
-      StatModifier(stat: StatId.waterDamage, amount: -0.15),
-    ],
-    tags: TagSet(elements: {ElementTag.fire}),
-    rarity: ItemRarity.uncommon,
   ),
   ItemDef(
     id: ItemId.slickSoles,
@@ -305,6 +186,123 @@ const List<ItemDef> itemDefs = [
     modifiers: [StatModifier(stat: StatId.damage, amount: 0.04)],
     rarity: ItemRarity.common,
   ),
+];
+
+const List<ItemDef> uncommonItems = [
+  ItemDef(
+    id: ItemId.slowCooker,
+    name: 'Slow Cooker',
+    description: 'Damage over time rises, direct hits suffer.',
+    modifiers: [
+      StatModifier(stat: StatId.dotDamage, amount: 0.25),
+      StatModifier(stat: StatId.dotDuration, amount: 0.2),
+      StatModifier(stat: StatId.directHitDamage, amount: -0.2),
+    ],
+    tags: TagSet(effects: {EffectTag.dot}),
+    rarity: ItemRarity.uncommon,
+  ),
+  ItemDef(
+    id: ItemId.wideLens,
+    name: 'Wide Lens',
+    description: 'Broader impact area and view with slower cadence.',
+    modifiers: [
+      StatModifier(stat: StatId.aoeSize, amount: 0.25),
+      StatModifier(stat: StatId.fieldOfView, amount: 0.1),
+      StatModifier(stat: StatId.attackSpeed, amount: -0.15),
+    ],
+    tags: TagSet(effects: {EffectTag.aoe}),
+    rarity: ItemRarity.uncommon,
+  ),
+  ItemDef(
+    id: ItemId.briarCharm,
+    name: 'Briar Charm',
+    description: 'Roots last longer but slow you down.',
+    modifiers: [
+      StatModifier(stat: StatId.rootDuration, amount: 0.25),
+      StatModifier(stat: StatId.rootStrength, amount: 0.2),
+      StatModifier(stat: StatId.moveSpeedPercent, amount: -0.1),
+    ],
+    tags: TagSet(elements: {ElementTag.earth, ElementTag.wood}),
+    rarity: ItemRarity.uncommon,
+  ),
+  ItemDef(
+    id: ItemId.vampiricSeal,
+    name: 'Vampiric Seal',
+    description: 'Leech life but cap your vitality.',
+    modifiers: [
+      StatModifier(stat: StatId.lifeSteal, amount: 0.15),
+      StatModifier(stat: StatId.maxHp, amount: -0.15),
+    ],
+    rarity: ItemRarity.uncommon,
+  ),
+  ItemDef(
+    id: ItemId.gamblersDie,
+    name: 'Gambler\'s Die',
+    description: 'More rerolls but fewer choices at once.',
+    modifiers: [
+      StatModifier(stat: StatId.rerolls, amount: 1, kind: ModifierKind.flat),
+      StatModifier(
+        stat: StatId.choiceCount,
+        amount: -1,
+        kind: ModifierKind.flat,
+      ),
+    ],
+    rarity: ItemRarity.uncommon,
+  ),
+  ItemDef(
+    id: ItemId.reactiveShield,
+    name: 'Reactive Shield',
+    description: 'Periodic shield at the cost of recovery.',
+    modifiers: [
+      StatModifier(stat: StatId.defense, amount: 0.2),
+      StatModifier(stat: StatId.cooldownRecovery, amount: -0.15),
+    ],
+    tags: TagSet(effects: {EffectTag.support}),
+    rarity: ItemRarity.uncommon,
+  ),
+  ItemDef(
+    id: ItemId.ritualCandle,
+    name: 'Ritual Candle',
+    description: 'Fire damage over time rises, water wanes.',
+    modifiers: [
+      StatModifier(stat: StatId.dotDamage, amount: 0.2),
+      StatModifier(stat: StatId.fireDamage, amount: 0.2),
+      StatModifier(stat: StatId.elementalDamage, amount: 0.05),
+      StatModifier(stat: StatId.waterDamage, amount: -0.15),
+    ],
+    tags: TagSet(elements: {ElementTag.fire}),
+    rarity: ItemRarity.uncommon,
+  ),
+  ItemDef(
+    id: ItemId.gravelBoots,
+    name: 'Gravel Boots',
+    description: 'Heavier steps shove foes back, but slow your tempo.',
+    modifiers: [
+      StatModifier(stat: StatId.knockbackStrength, amount: 0.25),
+      StatModifier(stat: StatId.attackSpeed, amount: -0.15),
+    ],
+    metaUnlockId: MetaUnlockId.gravelBootsPattern,
+    rarity: ItemRarity.uncommon,
+  ),
+];
+
+const List<ItemDef> rareItems = [
+  ItemDef(
+    id: ItemId.glassCatalyst,
+    name: 'Glass Catalyst',
+    description: 'High output at the cost of survivability.',
+    modifiers: [
+      StatModifier(stat: StatId.damage, amount: 0.2),
+      StatModifier(
+        stat: StatId.flatDamage,
+        amount: 1.0,
+        kind: ModifierKind.flat,
+      ),
+      StatModifier(stat: StatId.armor, amount: -3.0, kind: ModifierKind.flat),
+    ],
+    rarity: ItemRarity.rare,
+    maxStacks: 1,
+  ),
   ItemDef(
     id: ItemId.thermalCoil,
     name: 'Thermal Coil',
@@ -346,32 +344,6 @@ const List<ItemDef> itemDefs = [
     rarity: ItemRarity.rare,
   ),
   ItemDef(
-    id: ItemId.gravelBoots,
-    name: 'Gravel Boots',
-    description: 'Heavier steps shove foes back, but slow your tempo.',
-    modifiers: [
-      StatModifier(stat: StatId.knockbackStrength, amount: 0.25),
-      StatModifier(stat: StatId.attackSpeed, amount: -0.15),
-    ],
-    metaUnlockId: MetaUnlockId.gravelBootsPattern,
-    rarity: ItemRarity.uncommon,
-  ),
-  ItemDef(
-    id: ItemId.moltenBuckle,
-    name: 'Molten Buckle',
-    description: 'Volatile blasts surge, self-burn included.',
-    modifiers: [
-      StatModifier(stat: StatId.explosionDamage, amount: 0.35),
-      StatModifier(stat: StatId.fireDamage, amount: 0.25),
-      StatModifier(stat: StatId.elementalDamage, amount: 0.1),
-      StatModifier(stat: StatId.selfExplosionDamageTaken, amount: 0.35),
-    ],
-    metaUnlockId: MetaUnlockId.moltenBuckleForge,
-    tags: TagSet(elements: {ElementTag.fire}),
-    rarity: ItemRarity.epic,
-    maxStacks: 1,
-  ),
-  ItemDef(
     id: ItemId.serratedEdge,
     name: 'Serrated Edge',
     description: 'Melee cuts linger, ranged force fades.',
@@ -398,6 +370,50 @@ const List<ItemDef> itemDefs = [
     tags: TagSet(effects: {EffectTag.support}),
     rarity: ItemRarity.rare,
   ),
+];
+
+const List<ItemDef> epicItems = [
+  ItemDef(
+    id: ItemId.volatileMixture,
+    name: 'Volatile Mixture',
+    description: 'Explosions hit harder but hurt you too.',
+    modifiers: [
+      StatModifier(stat: StatId.explosionDamage, amount: 0.4),
+      StatModifier(stat: StatId.fireDamage, amount: 0.2),
+      StatModifier(stat: StatId.elementalDamage, amount: 0.1),
+      StatModifier(
+        stat: StatId.flatElementalDamage,
+        amount: 1.2,
+        kind: ModifierKind.flat,
+      ),
+      StatModifier(stat: StatId.selfExplosionDamageTaken, amount: 0.3),
+    ],
+    tags: TagSet(elements: {ElementTag.fire}),
+    rarity: ItemRarity.epic,
+    maxStacks: 1,
+  ),
+  ItemDef(
+    id: ItemId.moltenBuckle,
+    name: 'Molten Buckle',
+    description: 'Volatile blasts surge, self-burn included.',
+    modifiers: [
+      StatModifier(stat: StatId.explosionDamage, amount: 0.35),
+      StatModifier(stat: StatId.fireDamage, amount: 0.25),
+      StatModifier(stat: StatId.elementalDamage, amount: 0.1),
+      StatModifier(stat: StatId.selfExplosionDamageTaken, amount: 0.35),
+    ],
+    metaUnlockId: MetaUnlockId.moltenBuckleForge,
+    tags: TagSet(elements: {ElementTag.fire}),
+    rarity: ItemRarity.epic,
+    maxStacks: 1,
+  ),
+];
+
+const List<ItemDef> itemDefs = [
+  ...commonItems,
+  ...uncommonItems,
+  ...rareItems,
+  ...epicItems,
 ];
 
 final Map<ItemId, ItemDef> itemDefsById = Map.unmodifiable({
