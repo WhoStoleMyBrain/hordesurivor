@@ -136,6 +136,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _stageWaveInterval = 3.0;
   static const int _baseStageWaveCount = 4;
   static const double _baseChampionChance = 0.05;
+  static const double _baseEnemyProjectileSpeedMultiplier = 0.92;
   static const double _pickupRadiusBase = 32;
   static const double _pickupLifetime = 30;
   static const double _pickupMagnetStartSpeed = 120;
@@ -2633,10 +2634,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     _activeContractNames = List.unmodifiable(nextContractNames);
     _enemySystem.setProjectileSpeedMultiplier(
-      _contractProjectileSpeedMultiplier,
+      _contractProjectileSpeedMultiplier * _baseEnemyProjectileSpeedMultiplier,
     );
     _spawnerSystem.setProjectileSpeedMultiplier(
-      _contractProjectileSpeedMultiplier,
+      _contractProjectileSpeedMultiplier * _baseEnemyProjectileSpeedMultiplier,
     );
     _enemySystem.setMoveSpeedMultiplier(_contractMoveSpeedMultiplier);
     _spawnerSystem.setMoveSpeedMultiplier(_contractMoveSpeedMultiplier);
