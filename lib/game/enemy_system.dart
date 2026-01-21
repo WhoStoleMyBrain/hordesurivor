@@ -217,7 +217,7 @@ class EnemySystem {
     if (enemy.specialTimer <= 0 && distance <= enemy.attackRange) {
       _fireProjectileBurst(
         enemy,
-        count: 3,
+        count: 1,
         spreadMultiplier: 1.6,
         speedMultiplier: 0.9,
         damageMultiplier: 0.9,
@@ -237,7 +237,7 @@ class EnemySystem {
     if (enemy.specialTimer <= 0 && distance <= enemy.attackRange) {
       _fireProjectileRing(
         enemy,
-        count: 4,
+        count: 3,
         speedMultiplier: 0.6,
         damageMultiplier: 0.8,
         radius: GameSizes.projectileRadius(6),
@@ -254,7 +254,7 @@ class EnemySystem {
     if (enemy.specialTimer <= 0 && distance <= triggerRange) {
       _fireProjectileRing(
         enemy,
-        count: 8,
+        count: 5,
         speedMultiplier: 1.0,
         damageMultiplier: 1.1,
         radius: GameSizes.projectileRadius(5),
@@ -317,7 +317,7 @@ class EnemySystem {
     if (enemy.specialTimer <= 0 && distance <= enemy.attackRange) {
       _fireProjectileBurst(
         enemy,
-        count: 2,
+        count: 1,
         spreadMultiplier: 1.2,
         speedMultiplier: 1.0,
         damageMultiplier: 0.9,

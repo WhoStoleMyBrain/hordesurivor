@@ -144,11 +144,13 @@ class SelectionOverlay extends StatelessWidget {
                           },
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      _SkipButton(
-                        label: selectionState.skipRewardLabel,
-                        onPressed: onSkip,
-                      ),
+                      if (selectionState.skipEnabled) ...[
+                        const SizedBox(height: 12),
+                        _SkipButton(
+                          label: selectionState.skipRewardLabel,
+                          onPressed: onSkip,
+                        ),
+                      ],
                     ],
                   ),
                 ),

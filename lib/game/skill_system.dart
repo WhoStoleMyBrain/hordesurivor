@@ -74,16 +74,7 @@ class SkillSystem {
   double _orbitSeed = 0;
 
   static List<SkillSlot> _defaultSkillSlots() {
-    return [
-      SkillSlot(
-        id: SkillId.fireball,
-        cooldown: _baseCooldowns[SkillId.fireball] ?? 0.6,
-      ),
-      SkillSlot(
-        id: SkillId.swordCut,
-        cooldown: _baseCooldowns[SkillId.swordCut] ?? 0.9,
-      ),
-    ];
+    return [];
   }
 
   bool hasSkill(SkillId id) {

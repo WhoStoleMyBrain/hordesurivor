@@ -136,6 +136,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _stageWaveInterval = 3.0;
   static const int _baseStageWaveCount = 4;
   static const double _baseChampionChance = 0.05;
+  static const double _baseEnemyProjectileSpeedMultiplier = 0.92;
   static const double _pickupRadiusBase = 32;
   static const double _pickupLifetime = 30;
   static const double _pickupMagnetStartSpeed = 120;
@@ -925,6 +926,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.add(VirtualStickOverlay.overlayKey);
     _showFirstRunHintsIfNeeded();
     _syncHudState();
+    _offerStartingSkillSelection();
   }
 
   void returnToHomeBase() {
@@ -1599,6 +1601,25 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       shopRarityBoostsApplied: isShop ? _shopRarityBoostsApplied : 0,
       shopBonusChoices: isShop ? _activeShopBonusChoices : 0,
     );
+  }
+
+  void _offerStartingSkillSelection() {
+    _levelUpSystem.buildStartingSkillChoices(
+      skillSystem: _skillSystem,
+      unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
+    );
+    if (!_levelUpSystem.hasChoices) {
+      return;
+    }
+    _activeSelectionTrackId = ProgressionTrackId.skills;
+    _selectionState.showChoices(
+      _levelUpSystem.choices,
+      trackId: ProgressionTrackId.skills,
+      rerollsRemaining: 0,
+      banishesRemaining: 0,
+      skipEnabled: false,
+    );
+    overlays.add(SelectionOverlay.overlayKey);
   }
 
   bool _isShopReady() {
@@ -2613,10 +2634,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     _activeContractNames = List.unmodifiable(nextContractNames);
     _enemySystem.setProjectileSpeedMultiplier(
-      _contractProjectileSpeedMultiplier,
+      _contractProjectileSpeedMultiplier * _baseEnemyProjectileSpeedMultiplier,
     );
     _spawnerSystem.setProjectileSpeedMultiplier(
-      _contractProjectileSpeedMultiplier,
+      _contractProjectileSpeedMultiplier * _baseEnemyProjectileSpeedMultiplier,
     );
     _enemySystem.setMoveSpeedMultiplier(_contractMoveSpeedMultiplier);
     _spawnerSystem.setMoveSpeedMultiplier(_contractMoveSpeedMultiplier);
