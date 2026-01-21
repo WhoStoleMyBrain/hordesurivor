@@ -45,6 +45,7 @@ class LevelUpSystem {
   final math.Random _random;
   final int _baseChoiceCount;
   final int _baseRerolls;
+  static const double _shopPriceGrowthRate = 1.1;
   static const SelectionChoice _shopPlaceholderChoice = SelectionChoice(
     type: SelectionType.item,
     title: 'Empty Slot',
@@ -220,16 +221,14 @@ class LevelUpSystem {
   }
 
   int itemPriceForRarity(ItemRarity rarity, int shopLevel) {
-    switch (rarity) {
-      case ItemRarity.common:
-        return 6 + (shopLevel ~/ 3);
-      case ItemRarity.uncommon:
-        return 10 + (shopLevel ~/ 2);
-      case ItemRarity.rare:
-        return 16 + shopLevel;
-      case ItemRarity.epic:
-        return 26 + (2 * shopLevel);
-    }
+    final basePrice = switch (rarity) {
+      ItemRarity.common => 6,
+      ItemRarity.uncommon => 10,
+      ItemRarity.rare => 16,
+      ItemRarity.epic => 26,
+    };
+    final multiplier = math.pow(_shopPriceGrowthRate, shopLevel).toDouble();
+    return math.max(1, (basePrice * multiplier).round());
   }
 
   void applyChoice({
