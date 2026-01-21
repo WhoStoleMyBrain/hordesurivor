@@ -168,6 +168,32 @@ class LevelUpSystem {
     return result.rarityBoostsApplied;
   }
 
+  void buildStartingSkillChoices({
+    required SkillSystem skillSystem,
+    required Set<MetaUnlockId> unlockedMeta,
+    int choiceCount = 4,
+  }) {
+    final candidates = [
+      for (final skill in skillDefs)
+        if (!skillSystem.hasSkill(skill.id) &&
+            !skill.tags.effects.contains(EffectTag.support) &&
+            !_banishedSkills.contains(skill.id) &&
+            (skill.metaUnlockId == null ||
+                unlockedMeta.contains(skill.metaUnlockId)))
+          SelectionChoice(
+            type: SelectionType.skill,
+            title: skill.name,
+            description: skill.description,
+            skillId: skill.id,
+          ),
+    ];
+    candidates.shuffle(_random);
+    _choices
+      ..clear()
+      ..addAll(candidates.take(choiceCount));
+    _activeTrackId = _choices.isEmpty ? null : ProgressionTrackId.skills;
+  }
+
   bool rerollChoices({
     required ProgressionTrackId trackId,
     required SelectionPoolId selectionPoolId,
