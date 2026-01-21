@@ -8,6 +8,7 @@ class SelectionState extends ChangeNotifier {
   int _rerollsRemaining = 0;
   int _banishesRemaining = 0;
   String _skipRewardLabel = 'Skip';
+  bool _skipEnabled = true;
   ProgressionTrackId? _trackId;
   int _goldAvailable = 0;
   int _rerollCost = 0;
@@ -24,6 +25,7 @@ class SelectionState extends ChangeNotifier {
   int get rerollsRemaining => _rerollsRemaining;
   int get banishesRemaining => _banishesRemaining;
   String get skipRewardLabel => _skipRewardLabel;
+  bool get skipEnabled => _skipEnabled;
   ProgressionTrackId? get trackId => _trackId;
   int get goldAvailable => _goldAvailable;
   int get rerollCost => _rerollCost;
@@ -52,6 +54,7 @@ class SelectionState extends ChangeNotifier {
     int rerollsRemaining = 0,
     int banishesRemaining = 0,
     String skipRewardLabel = 'Skip',
+    bool skipEnabled = true,
     int goldAvailable = 0,
     int rerollCost = 0,
     int shopLevel = 0,
@@ -67,6 +70,7 @@ class SelectionState extends ChangeNotifier {
     _rerollsRemaining = rerollsRemaining;
     _banishesRemaining = banishesRemaining;
     _skipRewardLabel = skipRewardLabel;
+    _skipEnabled = skipEnabled;
     _goldAvailable = goldAvailable;
     _rerollCost = rerollCost;
     _shopLevel = shopLevel;
@@ -92,6 +96,7 @@ class SelectionState extends ChangeNotifier {
         _rerollsRemaining == 0 &&
         _banishesRemaining == 0 &&
         _skipRewardLabel == 'Skip' &&
+        _skipEnabled &&
         _trackId == null &&
         _goldAvailable == 0 &&
         _rerollCost == 0 &&
@@ -109,6 +114,7 @@ class SelectionState extends ChangeNotifier {
     _rerollsRemaining = 0;
     _banishesRemaining = 0;
     _skipRewardLabel = 'Skip';
+    _skipEnabled = true;
     _goldAvailable = 0;
     _rerollCost = 0;
     _shopLevel = 0;
