@@ -43,7 +43,7 @@ const List<ProgressionTrackDef> progressionTrackDefs = [
     name: 'Item Track',
     currencyId: CurrencyId.gold,
     selectionPoolId: SelectionPoolId.itemPool,
-    levelCurve: LevelCurve(base: 150, growth: 60),
+    levelCurve: LevelCurve(base: 50, growth: 25),
     skipRewardFraction: 0.35,
   ),
 ];

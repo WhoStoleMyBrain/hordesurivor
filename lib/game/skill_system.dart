@@ -879,7 +879,7 @@ class SkillSystem {
       slowMultiplier: 0.6,
       slowDuration: duration,
       sourceSkillId: SkillId.frostNova,
-      followsPlayer: true,
+      followsPlayer: false,
     );
     onEffectSpawn(effect);
   }
