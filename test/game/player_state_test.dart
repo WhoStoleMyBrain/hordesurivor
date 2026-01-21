@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flame/extensions.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:hordesurivor/data/stat_defs.dart';
 import 'package:hordesurivor/game/player_state.dart';
 
 void main() {
@@ -45,4 +46,37 @@ void main() {
     expect(state.position.x, 10);
     expect(state.position.y, 0);
   });
+
+  test(
+    'PlayerState regen uses diminishing returns with a 10-point baseline',
+    () {
+      final baselineState = PlayerState(
+        position: Vector2.zero(),
+        maxHp: 100,
+        moveSpeed: 10,
+      );
+      baselineState.hp = 50;
+      baselineState.applyModifiers(const [
+        StatModifier(stat: StatId.hpRegen, amount: 10, kind: ModifierKind.flat),
+      ]);
+
+      baselineState.step(1);
+
+      expect(baselineState.hp, closeTo(51, 0.0001));
+
+      final higherState = PlayerState(
+        position: Vector2.zero(),
+        maxHp: 100,
+        moveSpeed: 10,
+      );
+      higherState.hp = 50;
+      higherState.applyModifiers(const [
+        StatModifier(stat: StatId.hpRegen, amount: 20, kind: ModifierKind.flat),
+      ]);
+
+      higherState.step(1);
+
+      expect(higherState.hp, lessThan(52));
+    },
+  );
 }

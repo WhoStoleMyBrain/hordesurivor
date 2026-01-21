@@ -117,9 +117,12 @@ class PlayerState {
   }
 
   void step(double dt) {
-    final regen = stats.value(StatId.hpRegen);
-    if (regen > 0) {
-      heal(regen * dt);
+    final regenPoints = stats.value(StatId.hpRegen);
+    if (regenPoints > 0) {
+      final regenPerSecond = _hpRegenPerSecond(regenPoints);
+      if (regenPerSecond > 0) {
+        heal(regenPerSecond * dt);
+      }
     }
     _syncDashChargeLimits();
     if (dashCooldownRemaining > 0) {
@@ -187,6 +190,17 @@ class PlayerState {
     position.x = position.x.clamp(min.x, max.x);
     position.y = position.y.clamp(min.y, max.y);
   }
+
+  double _hpRegenPerSecond(double regenPoints) {
+    if (regenPoints <= 0) {
+      return 0;
+    }
+    final normalized =
+        math.log(1 + regenPoints) / math.log(1 + _hpRegenBaselinePoints);
+    return normalized.clamp(0, double.infinity);
+  }
+
+  static const double _hpRegenBaselinePoints = 10;
 
   void addImpulse({
     required double dx,
