@@ -11,6 +11,7 @@ class StartScreen extends StatelessWidget {
     required this.onCompendium,
     required this.onMetaUnlocks,
     this.onStressTest,
+    this.onExit,
     required this.wallet,
   });
 
@@ -20,6 +21,7 @@ class StartScreen extends StatelessWidget {
   final VoidCallback onOptions;
   final VoidCallback onCompendium;
   final VoidCallback onMetaUnlocks;
+  final VoidCallback? onExit;
   final VoidCallback? onStressTest;
   final MetaCurrencyWallet wallet;
 
@@ -60,6 +62,7 @@ class StartScreen extends StatelessWidget {
                   onCompendium: onCompendium,
                   onMetaUnlocks: onMetaUnlocks,
                   onStressTest: onStressTest,
+                  onExit: onExit,
                   wallet: wallet,
                 ),
               ],
