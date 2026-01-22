@@ -1,7 +1,11 @@
+import 'dart:io' show Platform;
 import 'dart:math' as math;
 
+import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart' hide SelectionOverlay;
+import 'package:window_manager/window_manager.dart';
 
 import 'data/data_validation.dart';
 import 'data/ids.dart';
@@ -26,6 +30,21 @@ import 'game/game_flow_state.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Mobile fullscreen (hides system UI overlays; harmless on desktop).
+  await Flame.device.fullScreen();
+  // Desktop fullscreen (Windows/macOS/Linux).
+  if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+    await windowManager.ensureInitialized();
+
+    final windowOptions = WindowOptions(titleBarStyle: TitleBarStyle.hidden);
+
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+      await windowManager.setFullScreen(true);
+    });
+  }
   await UiScale.loadTextScale();
   validateGameDataOrThrow();
   runApp(const HordeSurvivorApp());
