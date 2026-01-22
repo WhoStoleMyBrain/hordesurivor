@@ -156,6 +156,7 @@ class SpawnerSystem {
           (def.goldCurrencyReward * variantDef.xpRewardMultiplier).round(),
       goldShopXpReward: (def.goldShopXpReward * variantDef.xpRewardMultiplier)
           .round(),
+      spawnRewardMultiplier: def.spawnRewardMultiplier,
     );
     _onSpawn(enemy);
   }

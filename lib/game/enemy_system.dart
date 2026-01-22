@@ -120,6 +120,7 @@ class EnemySystem {
         spawnEnemyId: request.spawnEnemyId,
         goldCurrencyReward: request.goldCurrencyReward,
         goldShopXpReward: request.goldShopXpReward,
+        spawnRewardMultiplier: request.spawnRewardMultiplier,
       );
       _onSpawn(spawned);
     }
@@ -165,6 +166,7 @@ class EnemySystem {
       enemy.spawnTimer = enemy.spawnCooldown;
       return;
     }
+    final rewardMultiplier = enemy.spawnRewardMultiplier;
     for (var i = 0; i < enemy.spawnCount; i++) {
       final variant = _pickVariant();
       final variantDef =
@@ -189,7 +191,9 @@ class EnemySystem {
               def.moveSpeed *
               variantDef.moveSpeedMultiplier *
               _moveSpeedMultiplier,
-          xpReward: (def.xpReward * variantDef.xpRewardMultiplier).round(),
+          xpReward:
+              (def.xpReward * variantDef.xpRewardMultiplier * rewardMultiplier)
+                  .round(),
           attackCooldown:
               def.attackCooldown * variantDef.attackCooldownMultiplier,
           attackRange: def.attackRange,
@@ -202,9 +206,16 @@ class EnemySystem {
           spawnRadius: def.spawnRadius,
           spawnEnemyId: def.spawnEnemyId,
           goldCurrencyReward:
-              (def.goldCurrencyReward * variantDef.xpRewardMultiplier).round(),
+              (def.goldCurrencyReward *
+                      variantDef.xpRewardMultiplier *
+                      rewardMultiplier)
+                  .round(),
           goldShopXpReward:
-              (def.goldShopXpReward * variantDef.xpRewardMultiplier).round(),
+              (def.goldShopXpReward *
+                      variantDef.xpRewardMultiplier *
+                      rewardMultiplier)
+                  .round(),
+          spawnRewardMultiplier: def.spawnRewardMultiplier,
         ),
       );
     }
@@ -585,6 +596,7 @@ class _SpawnRequest {
     required this.spawnCount,
     required this.spawnRadius,
     required this.spawnEnemyId,
+    required this.spawnRewardMultiplier,
   });
 
   final EnemyId id;
@@ -605,4 +617,5 @@ class _SpawnRequest {
   final int spawnCount;
   final double spawnRadius;
   final EnemyId? spawnEnemyId;
+  final double spawnRewardMultiplier;
 }
