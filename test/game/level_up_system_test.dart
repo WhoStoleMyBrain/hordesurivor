@@ -73,7 +73,10 @@ void main() {
       skillSystem: skillSystem,
     );
 
-    expect(playerState.maxHp, closeTo(80, 0.001));
+    expect(playerState.maxHp, closeTo(100, 0.001));
+    expect(playerState.stats.value(StatId.damage), closeTo(0.2, 0.001));
+    expect(playerState.stats.value(StatId.flatDamage), closeTo(1.0, 0.001));
+    expect(playerState.stats.value(StatId.armor), closeTo(-3.0, 0.001));
   });
 
   test('LevelUpSystem hides locked skills and items until unlocked', () {
@@ -429,7 +432,7 @@ void main() {
         skillSystem: skillSystem,
       );
     }
-    expect(system.appliedItemCounts[ItemId.glassCatalyst], 4);
+    expect(system.appliedItemCounts[ItemId.glassCatalyst], 1);
 
     system.queueLevels(ProgressionTrackId.items, 1);
     system.buildChoices(

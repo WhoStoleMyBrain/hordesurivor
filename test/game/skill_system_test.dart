@@ -453,7 +453,7 @@ void main() {
 
     expect(effect, isNotNull);
     expect(effect!.kind, EffectKind.frostNova);
-    expect(effect!.followsPlayer, isTrue);
+    expect(effect!.followsPlayer, isFalse);
     expect(effect!.slowMultiplier, lessThan(1));
   });
 
