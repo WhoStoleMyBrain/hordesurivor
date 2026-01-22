@@ -43,9 +43,10 @@ class SelectionOverlay extends StatelessWidget {
           if (choices.isEmpty) {
             return const SizedBox.shrink();
           }
+          final useGrid = choices.length > 4;
           return Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
+              constraints: BoxConstraints(maxWidth: useGrid ? 720 : 420),
               child: Card(
                 color: Colors.black.withValues(alpha: 0.8),
                 margin: const EdgeInsets.all(16),
@@ -107,42 +108,90 @@ class SelectionOverlay extends StatelessWidget {
                       ],
                       const SizedBox(height: 12),
                       Flexible(
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          itemCount: choices.length,
-                          separatorBuilder: (_, _) => const SizedBox(height: 8),
-                          itemBuilder: (context, index) {
-                            final choice = choices[index];
-                            final isPlaceholder =
-                                choice.type == SelectionType.item &&
-                                choice.itemId == null;
-                            return _ChoiceCard(
-                              choice: choice,
-                              onPressed: isPlaceholder
-                                  ? null
-                                  : () => onSelected(choice),
-                              banishesRemaining:
-                                  selectionState.banishesRemaining,
-                              goldAvailable: selectionState.goldAvailable,
-                              price: selectionState.priceForChoice(choice),
-                              locked: selectionState.lockedItems.contains(
-                                choice.itemId,
+                        child: useGrid
+                            ? GridView.builder(
+                                shrinkWrap: true,
+                                itemCount: choices.length,
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      mainAxisSpacing: 8,
+                                      crossAxisSpacing: 8,
+                                      childAspectRatio: 1.45,
+                                    ),
+                                itemBuilder: (context, index) {
+                                  final choice = choices[index];
+                                  final isPlaceholder =
+                                      choice.type == SelectionType.item &&
+                                      choice.itemId == null;
+                                  return _ChoiceCard(
+                                    choice: choice,
+                                    onPressed: isPlaceholder
+                                        ? null
+                                        : () => onSelected(choice),
+                                    banishesRemaining:
+                                        selectionState.banishesRemaining,
+                                    goldAvailable: selectionState.goldAvailable,
+                                    price: selectionState.priceForChoice(
+                                      choice,
+                                    ),
+                                    locked: selectionState.lockedItems.contains(
+                                      choice.itemId,
+                                    ),
+                                    isPlaceholder: isPlaceholder,
+                                    onBanish:
+                                        selectionState.banishesRemaining > 0 &&
+                                            !isPlaceholder
+                                        ? () => onBanish(choice)
+                                        : null,
+                                    onToggleLock:
+                                        selectionState.trackId ==
+                                                ProgressionTrackId.items &&
+                                            !isPlaceholder
+                                        ? () => onToggleLock(choice)
+                                        : null,
+                                  );
+                                },
+                              )
+                            : ListView.separated(
+                                shrinkWrap: true,
+                                itemCount: choices.length,
+                                separatorBuilder: (_, _) =>
+                                    const SizedBox(height: 8),
+                                itemBuilder: (context, index) {
+                                  final choice = choices[index];
+                                  final isPlaceholder =
+                                      choice.type == SelectionType.item &&
+                                      choice.itemId == null;
+                                  return _ChoiceCard(
+                                    choice: choice,
+                                    onPressed: isPlaceholder
+                                        ? null
+                                        : () => onSelected(choice),
+                                    banishesRemaining:
+                                        selectionState.banishesRemaining,
+                                    goldAvailable: selectionState.goldAvailable,
+                                    price: selectionState.priceForChoice(
+                                      choice,
+                                    ),
+                                    locked: selectionState.lockedItems.contains(
+                                      choice.itemId,
+                                    ),
+                                    isPlaceholder: isPlaceholder,
+                                    onBanish:
+                                        selectionState.banishesRemaining > 0 &&
+                                            !isPlaceholder
+                                        ? () => onBanish(choice)
+                                        : null,
+                                    onToggleLock:
+                                        selectionState.trackId ==
+                                                ProgressionTrackId.items &&
+                                            !isPlaceholder
+                                        ? () => onToggleLock(choice)
+                                        : null,
+                                  );
+                                },
                               ),
-                              isPlaceholder: isPlaceholder,
-                              onBanish:
-                                  selectionState.banishesRemaining > 0 &&
-                                      !isPlaceholder
-                                  ? () => onBanish(choice)
-                                  : null,
-                              onToggleLock:
-                                  selectionState.trackId ==
-                                          ProgressionTrackId.items &&
-                                      !isPlaceholder
-                                  ? () => onToggleLock(choice)
-                                  : null,
-                            );
-                          },
-                        ),
                       ),
                       if (selectionState.skipEnabled) ...[
                         const SizedBox(height: 12),

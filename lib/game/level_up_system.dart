@@ -171,28 +171,36 @@ class LevelUpSystem {
   }
 
   void buildStartingSkillChoices({
+    required List<SkillId> startingSkills,
     required SkillSystem skillSystem,
     required Set<MetaUnlockId> unlockedMeta,
-    int choiceCount = 4,
   }) {
-    final candidates = [
-      for (final skill in skillDefs)
-        if (!skillSystem.hasSkill(skill.id) &&
-            !skill.tags.effects.contains(EffectTag.support) &&
-            !_banishedSkills.contains(skill.id) &&
-            (skill.metaUnlockId == null ||
-                unlockedMeta.contains(skill.metaUnlockId)))
-          SelectionChoice(
-            type: SelectionType.skill,
-            title: skill.name,
-            description: skill.description,
-            skillId: skill.id,
-          ),
-    ];
-    candidates.shuffle(_random);
+    final candidates = <SelectionChoice>[];
+    for (final skillId in startingSkills) {
+      final skill = skillDefsById[skillId];
+      if (skill == null) {
+        continue;
+      }
+      if (skillSystem.hasSkill(skill.id) ||
+          _banishedSkills.contains(skill.id)) {
+        continue;
+      }
+      if (skill.metaUnlockId != null &&
+          !unlockedMeta.contains(skill.metaUnlockId)) {
+        continue;
+      }
+      candidates.add(
+        SelectionChoice(
+          type: SelectionType.skill,
+          title: skill.name,
+          description: skill.description,
+          skillId: skill.id,
+        ),
+      );
+    }
     _choices
       ..clear()
-      ..addAll(candidates.take(choiceCount));
+      ..addAll(candidates);
     _activeTrackId = _choices.isEmpty ? null : ProgressionTrackId.skills;
   }
 

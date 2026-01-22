@@ -1691,7 +1691,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _offerStartingSkillSelection() {
+    final characterDef = _activeCharacterDef();
     _levelUpSystem.buildStartingSkillChoices(
+      startingSkills: characterDef.startingSkills,
       skillSystem: _skillSystem,
       unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
     );

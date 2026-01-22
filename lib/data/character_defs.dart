@@ -44,7 +44,13 @@ final List<CharacterDef> characterDefs = [
     themeLine: 'Bell rites and steady chants keep the horde at bay.',
     modifierLine: 'Rite of Cadence — +Cooldown recovery / -Move speed',
     spriteId: 'player_priest',
-    startingSkills: [SkillId.fireball, SkillId.guardianOrbs],
+    startingSkills: [
+      SkillId.fireball,
+      SkillId.waterjet,
+      SkillId.guardianOrbs,
+      SkillId.menderOrb,
+      SkillId.arcTurret,
+    ],
     baseStats: Map<StatId, double>.from(_basePlayerStats)
       ..addAll({
         StatId.maxHp: 105,
@@ -63,7 +69,13 @@ final List<CharacterDef> characterDefs = [
     themeLine: 'Sealkeeper of heavy wards and unbroken lines.',
     modifierLine: 'Bulwark Rule — +Defense / -Attack speed',
     spriteId: 'player_warden',
-    startingSkills: [SkillId.swordCut, SkillId.roots],
+    startingSkills: [
+      SkillId.swordCut,
+      SkillId.swordThrust,
+      SkillId.swordSwing,
+      SkillId.swordDeflect,
+      SkillId.roots,
+    ],
     baseStats: Map<StatId, double>.from(_basePlayerStats)
       ..addAll({
         StatId.maxHp: 130,
@@ -84,7 +96,13 @@ final List<CharacterDef> characterDefs = [
     themeLine: 'Hot soups, sharp ladles, and practical banishment.',
     modifierLine: 'Boilhouse Vow — +Drops / +Pickup range / -Max HP',
     spriteId: 'player_cook',
-    startingSkills: [SkillId.oilBombs, SkillId.flameWave],
+    startingSkills: [
+      SkillId.oilBombs,
+      SkillId.poisonGas,
+      SkillId.fireball,
+      SkillId.mineLayer,
+      SkillId.scrapRover,
+    ],
     baseStats: Map<StatId, double>.from(_basePlayerStats)
       ..addAll({
         StatId.maxHp: 90,

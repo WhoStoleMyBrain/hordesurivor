@@ -148,6 +148,11 @@ DataValidationResult validateGameData() {
     if (!def.baseStats.containsKey(StatId.moveSpeed)) {
       result.errors.add('CharacterDef ${def.id} missing moveSpeed base stat.');
     }
+    if (def.startingSkills.length < 5) {
+      result.errors.add(
+        'CharacterDef ${def.id} must define at least 5 starting skills.',
+      );
+    }
     for (final skillId in def.startingSkills) {
       if (!skillDefsById.containsKey(skillId)) {
         result.errors.add(
