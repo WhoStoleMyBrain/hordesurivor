@@ -1,10 +1,11 @@
-import 'dart:io' show Platform;
+import 'dart:io' show Platform, exit;
 import 'dart:math' as math;
 
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart' hide SelectionOverlay;
+import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'data/data_validation.dart';
@@ -146,6 +147,17 @@ class _GameShell extends StatefulWidget {
 class _GameShellState extends State<_GameShell> {
   late final HordeGame _game;
 
+  void _exitGame() {
+    if (kIsWeb) {
+      return;
+    }
+    if (Platform.isAndroid || Platform.isIOS) {
+      SystemNavigator.pop();
+    } else {
+      exit(0);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -199,6 +211,7 @@ class _GameShellState extends State<_GameShell> {
                     onMetaUnlocks: game.openMetaUnlocksFromStartScreen,
                     onStressTest: () =>
                         Navigator.of(context).pushReplacementNamed('/stress'),
+                    onExit: kIsWeb ? null : _exitGame,
                     wallet: game.metaWallet,
                   ),
                   OptionsScreen.overlayKey: (_, game) => OptionsScreen(
@@ -238,6 +251,7 @@ class _GameShellState extends State<_GameShell> {
                         onStressTest: () => Navigator.of(
                           context,
                         ).pushReplacementNamed('/stress'),
+                        onExit: kIsWeb ? null : _exitGame,
                         stressStats: game.stressStatsSnapshot,
                         statsState: game.statsScreenState,
                         onContinue: game.continueRunFromMenu,
