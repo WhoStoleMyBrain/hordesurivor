@@ -10,6 +10,7 @@ import '../data/synergy_defs.dart';
 import '../data/tags.dart';
 import '../data/weapon_upgrade_defs.dart';
 import '../game/level_up_system.dart';
+import 'item_rarity_style.dart';
 import 'selection_state.dart';
 import 'stat_text.dart';
 import 'tag_badge.dart';
@@ -338,10 +339,15 @@ class _ChoiceCard extends StatelessWidget {
     final synergies = _synergyHintsForTags(tags);
     final canAfford = price == null || goldAvailable >= price!;
     final priceLabel = price == null ? null : '${price}g';
+    final rarity = _rarityForChoice(choice);
+    final rarityLabel = rarity == null ? null : itemRarityLabel(rarity);
+    final rarityColor = rarity == null ? null : itemRarityColor(rarity);
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.all(12),
-        side: const BorderSide(color: Colors.white24),
+        side: BorderSide(
+          color: (rarityColor ?? Colors.white24).withValues(alpha: 0.55),
+        ),
         foregroundColor: Colors.white,
       ),
       onPressed: canAfford ? onPressed : null,
@@ -385,6 +391,17 @@ class _ChoiceCard extends StatelessWidget {
                                 color: canAfford
                                     ? Colors.amberAccent
                                     : Colors.redAccent,
+                              ),
+                            ),
+                          ),
+                        if (rarityLabel != null && rarityColor != null)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: Text(
+                              rarityLabel,
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: rarityColor.withValues(alpha: 0.9),
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -583,6 +600,17 @@ TagSet _tagsForChoice(SelectionChoice choice) {
           ? weaponUpgradeDefsById[upgradeId]?.tags ?? const TagSet()
           : const TagSet();
   }
+}
+
+ItemRarity? _rarityForChoice(SelectionChoice choice) {
+  if (choice.type != SelectionType.item) {
+    return null;
+  }
+  final itemId = choice.itemId;
+  if (itemId == null) {
+    return null;
+  }
+  return itemDefsById[itemId]?.rarity;
 }
 
 Set<StatusEffectId> _statusEffectsForChoice(SelectionChoice choice) {
