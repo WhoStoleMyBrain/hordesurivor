@@ -84,6 +84,16 @@ class PlayerState {
     _syncDashChargeLimits();
   }
 
+  void setBaseStats(Map<StatId, double> baseStats, {bool healToFull = true}) {
+    stats.setBaseValues(baseStats);
+    if (healToFull) {
+      hp = maxHp;
+    } else {
+      hp = hp.clamp(0, maxHp);
+    }
+    _syncDashChargeLimits(fillCharges: true);
+  }
+
   void heal(double amount) {
     if (amount <= 0) {
       return;

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'area_defs.dart';
+import 'character_defs.dart';
 import 'contract_defs.dart';
 import 'currency_defs.dart';
 import 'enemy_defs.dart';
@@ -12,6 +13,7 @@ import 'progression_track_defs.dart';
 import 'selection_pool_defs.dart';
 import 'skill_defs.dart';
 import 'skill_upgrade_defs.dart';
+import 'stat_defs.dart';
 import 'status_effect_defs.dart';
 import 'synergy_defs.dart';
 import 'tags.dart';
@@ -44,6 +46,11 @@ DataValidationResult validateGameData() {
   _checkUniqueIds(
     ids: skillDefs.map((def) => def.id),
     label: 'SkillDef',
+    result: result,
+  );
+  _checkUniqueIds(
+    ids: characterDefs.map((def) => def.id),
+    label: 'CharacterDef',
     result: result,
   );
   _checkUniqueIds(
@@ -131,6 +138,22 @@ DataValidationResult validateGameData() {
       result.errors.add(
         'SkillDef ${def.id} references missing meta unlock ${def.metaUnlockId}.',
       );
+    }
+  }
+
+  for (final def in characterDefs) {
+    if (!def.baseStats.containsKey(StatId.maxHp)) {
+      result.errors.add('CharacterDef ${def.id} missing maxHp base stat.');
+    }
+    if (!def.baseStats.containsKey(StatId.moveSpeed)) {
+      result.errors.add('CharacterDef ${def.id} missing moveSpeed base stat.');
+    }
+    for (final skillId in def.startingSkills) {
+      if (!skillDefsById.containsKey(skillId)) {
+        result.errors.add(
+          'CharacterDef ${def.id} references unknown skill $skillId.',
+        );
+      }
     }
   }
 

@@ -19,6 +19,50 @@ class PlayerComponent extends PositionComponent {
        _paint = Paint()..color = const Color(0xFF7BD389) {
     anchor = Anchor.center;
     scale = Vector2.all(renderScale);
+    _spriteSourceRect = Rect.zero;
+    _spriteDestRect = Rect.zero;
+    _syncSprite(spriteImage);
+  }
+
+  final PlayerState _state;
+  final double _radius;
+  Image? _spriteImage;
+  final HitEffectRenderer _hitEffectRenderer;
+  final Paint _paint;
+  late Rect _spriteSourceRect;
+  late Rect _spriteDestRect;
+
+  @override
+  void render(Canvas canvas) {
+    if (_spriteImage != null) {
+      canvas.drawImageRect(
+        _spriteImage!,
+        _spriteSourceRect,
+        _spriteDestRect,
+        _paint,
+      );
+    } else {
+      canvas.drawCircle(Offset.zero, _radius, _paint);
+    }
+    if (_state.hitEffectTimeRemaining > 0) {
+      _hitEffectRenderer.render(
+        canvas,
+        progress: _state.hitEffectProgress,
+        radius: _radius,
+        size: size,
+      );
+    }
+  }
+
+  void setSpriteImage(Image? spriteImage) {
+    if (spriteImage == _spriteImage) {
+      return;
+    }
+    _syncSprite(spriteImage);
+  }
+
+  void _syncSprite(Image? spriteImage) {
+    _spriteImage = spriteImage;
     if (spriteImage != null) {
       size = Vector2(
         spriteImage.width.toDouble(),
@@ -36,39 +80,9 @@ class PlayerComponent extends PositionComponent {
         height: size.y,
       );
     } else {
-      size = Vector2.all(radius * 2);
+      size = Vector2.all(_radius * 2);
       _spriteSourceRect = Rect.zero;
       _spriteDestRect = Rect.zero;
-    }
-  }
-
-  final PlayerState _state;
-  final double _radius;
-  final Image? _spriteImage;
-  final HitEffectRenderer _hitEffectRenderer;
-  final Paint _paint;
-  late final Rect _spriteSourceRect;
-  late final Rect _spriteDestRect;
-
-  @override
-  void render(Canvas canvas) {
-    if (_spriteImage != null) {
-      canvas.drawImageRect(
-        _spriteImage,
-        _spriteSourceRect,
-        _spriteDestRect,
-        _paint,
-      );
-    } else {
-      canvas.drawCircle(Offset.zero, _radius, _paint);
-    }
-    if (_state.hitEffectTimeRemaining > 0) {
-      _hitEffectRenderer.render(
-        canvas,
-        progress: _state.hitEffectProgress,
-        radius: _radius,
-        size: size,
-      );
     }
   }
 
