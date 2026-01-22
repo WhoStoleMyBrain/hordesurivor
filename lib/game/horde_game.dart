@@ -18,6 +18,7 @@ import '../data/currency_defs.dart';
 import '../data/enemy_defs.dart';
 import '../data/ids.dart';
 import '../data/item_defs.dart';
+import '../data/map_background_defs.dart';
 import '../data/map_size.dart';
 import '../data/progression_track_defs.dart';
 import '../data/skill_defs.dart';
@@ -30,6 +31,7 @@ import '../render/damage_number_component.dart';
 import '../render/enemy_component.dart';
 import '../render/effect_component.dart';
 import '../render/map_background_component.dart';
+import '../render/map_background_generator.dart';
 import '../render/player_component.dart';
 import '../render/portal_component.dart';
 import '../render/projectile_batch_component.dart';
@@ -168,6 +170,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final SpritePipeline _spritePipeline = SpritePipeline();
   final Vector2 _mapSize = Vector2.zero();
   late final MapBackgroundComponent _mapBackground;
+  final MapBackgroundGenerator _mapBackgroundGenerator =
+      const MapBackgroundGenerator();
   MapSize _currentMapSize = GameSizes.homeBaseMapSize;
   Color _currentMapBackground = GameSizes.homeBaseBackgroundColor;
   final Map<EnemyId, Image> _enemySprites = {};
@@ -727,6 +731,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _applyMapVisuals(
       mapSize: GameSizes.homeBaseMapSize,
       backgroundColor: GameSizes.homeBaseBackgroundColor,
+      mapBackgroundDef: null,
     );
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(StartScreen.overlayKey);
@@ -893,6 +898,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _applyMapVisuals(
       mapSize: area.mapSize,
       backgroundColor: area.backgroundColor,
+      mapBackgroundDef: mapBackgroundDefsById[area.mapBackgroundId],
     );
     _applyContracts(contracts);
     _spawnerSystem.setUnlockedMeta(_metaUnlocks.unlockedIds.toSet());
@@ -937,6 +943,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _applyMapVisuals(
       mapSize: GameSizes.homeBaseMapSize,
       backgroundColor: GameSizes.homeBaseBackgroundColor,
+      mapBackgroundDef: null,
     );
     _portalLockoutTimer = _portalLockoutDuration;
     _setFlowState(GameFlowState.homeBase);
@@ -967,6 +974,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _applyMapVisuals(
       mapSize: GameSizes.homeBaseMapSize,
       backgroundColor: GameSizes.homeBaseBackgroundColor,
+      mapBackgroundDef: null,
     );
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(DeathScreen.overlayKey);
@@ -2100,6 +2108,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _applyMapVisuals(
       mapSize: GameSizes.homeBaseMapSize,
       backgroundColor: GameSizes.homeBaseBackgroundColor,
+      mapBackgroundDef: null,
     );
     _setFlowState(GameFlowState.start);
     overlays.remove(VirtualStickOverlay.overlayKey);
@@ -2190,11 +2199,19 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _applyMapVisuals({
     required MapSize mapSize,
     required Color backgroundColor,
+    MapBackgroundDef? mapBackgroundDef,
   }) {
     _currentMapSize = mapSize;
     _currentMapBackground = backgroundColor;
     _mapSize.setValues(mapSize.width, mapSize.height);
-    _mapBackground.updateAppearance(size: _mapSize, color: backgroundColor);
+    final pattern = mapBackgroundDef == null
+        ? null
+        : _mapBackgroundGenerator.generate(mapBackgroundDef);
+    _mapBackground.updateAppearance(
+      size: _mapSize,
+      color: backgroundColor,
+      pattern: pattern,
+    );
     _playerState.position.x = _playerState.position.x.clamp(
       _playerRadius,
       _mapSize.x - _playerRadius,

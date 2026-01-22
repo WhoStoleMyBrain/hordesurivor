@@ -64,6 +64,7 @@ class AreaDef {
     required this.recommendedLevel,
     required this.lootProfile,
     required this.mapSize,
+    required this.mapBackgroundId,
     required this.backgroundColor,
     required this.stageDuration,
     required this.sections,
@@ -84,6 +85,7 @@ class AreaDef {
   final int recommendedLevel;
   final String lootProfile;
   final MapSize mapSize;
+  final MapBackgroundId mapBackgroundId;
   final Color backgroundColor;
   final List<String> enemyThemes;
   final List<String> difficultyTiers;
@@ -105,6 +107,7 @@ const List<AreaDef> areaDefs = [
     recommendedLevel: 1,
     lootProfile: 'embers',
     mapSize: MapSize(width: 2400, height: 1700),
+    mapBackgroundId: MapBackgroundId.ashenOutskirts,
     backgroundColor: Color(0xFF17120F),
     enemyThemes: ['Demons'],
     lootModifiers: ['+Ember shards'],
@@ -198,6 +201,7 @@ const List<AreaDef> areaDefs = [
     recommendedLevel: 2,
     lootProfile: 'radiance',
     mapSize: MapSize(width: 2600, height: 1900),
+    mapBackgroundId: MapBackgroundId.haloBreach,
     backgroundColor: Color(0xFF101722),
     enemyThemes: ['Angels'],
     lootModifiers: ['+Radiant sigils'],
