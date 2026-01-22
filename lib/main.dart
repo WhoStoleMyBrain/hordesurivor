@@ -190,8 +190,10 @@ class _GameShellState extends State<_GameShell> {
                     textScale: UiScale.textScaleListenable,
                     onTextScaleChanged: UiScale.setTextScale,
                   ),
-                  CompendiumScreen.overlayKey: (_, game) =>
-                      CompendiumScreen(onClose: game.closeCompendiumScreen),
+                  CompendiumScreen.overlayKey: (_, game) => CompendiumScreen(
+                    onClose: game.closeCompendiumScreen,
+                    itemIcons: game.itemIcons,
+                  ),
                   MetaUnlockScreen.overlayKey: (_, game) => MetaUnlockScreen(
                     wallet: game.metaWallet,
                     unlocks: game.metaUnlocks,
