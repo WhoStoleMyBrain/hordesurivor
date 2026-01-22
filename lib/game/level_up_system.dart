@@ -18,6 +18,7 @@ class SelectionChoice {
     required this.type,
     required this.title,
     required this.description,
+    this.flavorText = '',
     this.skillId,
     this.itemId,
     this.skillUpgradeId,
@@ -27,6 +28,7 @@ class SelectionChoice {
   final SelectionType type;
   final String title;
   final String description;
+  final String flavorText;
   final SkillId? skillId;
   final ItemId? itemId;
   final SkillUpgradeId? skillUpgradeId;
@@ -570,6 +572,7 @@ class LevelUpSystem {
             type: SelectionType.item,
             title: item.name,
             description: item.description,
+            flavorText: item.flavorText,
             itemId: item.id,
           ),
       ]);
@@ -581,6 +584,7 @@ class LevelUpSystem {
           type: SelectionType.item,
           title: item.name,
           description: item.description,
+          flavorText: item.flavorText,
           itemId: item.id,
         ),
       );
@@ -607,6 +611,7 @@ class LevelUpSystem {
           type: SelectionType.item,
           title: item.name,
           description: item.description,
+          flavorText: item.flavorText,
           itemId: item.id,
         ),
       );
@@ -689,6 +694,7 @@ class LevelUpSystem {
         type: SelectionType.item,
         title: boostedItem.name,
         description: boostedItem.description,
+        flavorText: boostedItem.flavorText,
         itemId: boostedItem.id,
       );
       _resetPityForItem(boostedItem);
