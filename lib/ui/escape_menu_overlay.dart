@@ -18,6 +18,7 @@ class EscapeMenuOverlay extends StatelessWidget {
     required this.onCompendium,
     required this.onMetaUnlocks,
     this.onStressTest,
+    this.onExit,
     this.stressStats,
     this.statsState,
     this.onContinue,
@@ -37,6 +38,7 @@ class EscapeMenuOverlay extends StatelessWidget {
   final VoidCallback onCompendium;
   final VoidCallback onMetaUnlocks;
   final VoidCallback? onStressTest;
+  final VoidCallback? onExit;
   final StressStatsSnapshot? stressStats;
   final StatsScreenState? statsState;
   final VoidCallback? onContinue;
@@ -116,6 +118,7 @@ class EscapeMenuOverlay extends StatelessWidget {
                                 onCompendium: onCompendium,
                                 onMetaUnlocks: onMetaUnlocks,
                                 onStressTest: onStressTest,
+                                onExit: onExit,
                                 wallet: wallet,
                               ),
                             ],

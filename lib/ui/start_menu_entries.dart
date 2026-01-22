@@ -13,6 +13,7 @@ class StartMenuEntries extends StatelessWidget {
     required this.onMetaUnlocks,
     required this.wallet,
     this.onStressTest,
+    this.onExit,
   });
 
   final VoidCallback onStart;
@@ -20,6 +21,7 @@ class StartMenuEntries extends StatelessWidget {
   final VoidCallback onCompendium;
   final VoidCallback onMetaUnlocks;
   final VoidCallback? onStressTest;
+  final VoidCallback? onExit;
   final MetaCurrencyWallet wallet;
 
   @override
@@ -67,6 +69,19 @@ class StartMenuEntries extends StatelessWidget {
             child: OutlinedButton(
               onPressed: onStressTest,
               child: const Text('Stress Scene (Debug)'),
+            ),
+          ),
+        ],
+        if (onExit != null) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: onExit,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.redAccent,
+              ),
+              child: const Text('Exit Game'),
             ),
           ),
         ],
