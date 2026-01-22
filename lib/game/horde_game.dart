@@ -2821,9 +2821,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final characterDef = _activeCharacterDef();
     _playerState.setBaseStats(characterDef.baseStats);
     _playerState.resetForRun();
-    for (final skillId in characterDef.startingSkills) {
-      _skillSystem.addSkill(skillId);
-    }
     _playerState.applyModifiers(characterDef.modifiers);
     _playerState.applyModifiers(_metaUnlocks.activeModifiers);
     _levelUpSystem.resetForRun(playerState: _playerState);
