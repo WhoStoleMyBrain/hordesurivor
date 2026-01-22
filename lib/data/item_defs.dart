@@ -6,6 +6,7 @@ class ItemDef {
   const ItemDef({
     required this.id,
     required this.name,
+    required this.iconId,
     required this.description,
     required this.flavorText,
     required this.modifiers,
@@ -18,6 +19,7 @@ class ItemDef {
 
   final ItemId id;
   final String name;
+  final String iconId;
   final String description;
   final String flavorText;
   final List<StatModifier> modifiers;
@@ -32,6 +34,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.heavyPlate,
     name: 'Rite of Iron Weight',
+    iconId: 'item_heavy_plate',
     description: 'Blessing: +Max HP / Burden: -Move Speed',
     flavorText: 'You feel protected and slightly overqualified for walking.',
     modifiers: [
@@ -43,6 +46,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.reinforcedPlating,
     name: 'Relic: Riveted Plate',
+    iconId: 'item_reinforced_plating',
     description: 'Blessing: +Armor / Burden: -Move Speed',
     flavorText: 'The extra layer makes doors take it personally.',
     modifiers: [
@@ -54,6 +58,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.featherBoots,
     name: 'Vow of Swift Soles',
+    iconId: 'item_feather_boots',
     description: 'Blessing: +Move Speed / Burden: -Defense',
     flavorText: 'Your ankles have filed a gentle complaint.',
     modifiers: [
@@ -65,6 +70,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.overclockedTrigger,
     name: 'Rite of Hasty Hands',
+    iconId: 'item_overclocked_trigger',
     description: 'Blessing: +Attack Speed / Burden: -Damage',
     flavorText: 'Your form is impeccable; your impact is not.',
     modifiers: [
@@ -76,6 +82,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.sharpeningStone,
     name: 'Relic: Honing Stone',
+    iconId: 'item_sharpening_stone',
     description: 'Blessing: +Melee Damage / Burden: -Projectile Damage',
     flavorText: 'Sharp enough to shave, still bad at throwing.',
     modifiers: [
@@ -87,6 +94,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.focusingNozzle,
     name: 'Rite of Narrow Beams',
+    iconId: 'item_focusing_nozzle',
     description: 'Blessing: +Beam Damage / Burden: -Area Size',
     flavorText: 'All the power, none of the breathing room.',
     modifiers: [
@@ -99,6 +107,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.insulatedFlask,
     name: 'Relic: Chilled Flask',
+    iconId: 'item_insulated_flask',
     description: 'Blessing: +Water Damage / Burden: -Fire Damage',
     flavorText: 'Fire politely declines.',
     modifiers: [
@@ -111,6 +120,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.toxicFilters,
     name: 'Relic: Purifying Filter',
+    iconId: 'item_toxic_filters',
     description: 'Blessing: +Poison Resistance / Burden: -Healing Received',
     flavorText: 'It keeps out toxins and most good intentions.',
     modifiers: [
@@ -123,6 +133,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.ironGrip,
     name: 'Rite of Iron Grip',
+    iconId: 'item_iron_grip',
     description: 'Blessing: +Knockback Strength / Burden: -Attack Speed',
     flavorText: 'Great for shoving, poor for keeping tempo.',
     modifiers: [
@@ -134,6 +145,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.luckyCoin,
     name: 'Vow of Fortune',
+    iconId: 'item_lucky_coin',
     description: 'Blessing: +Drops / Burden: -Damage',
     flavorText: 'The coin likes you more than your targets do.',
     modifiers: [
@@ -146,6 +158,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.evasiveTalisman,
     name: 'Relic: Skittish Talisman',
+    iconId: 'item_evasive_talisman',
     description: 'Blessing: +Dodge Chance / Burden: -Max HP',
     flavorText: 'The body dodges; the paperwork says fragile.',
     modifiers: [
@@ -158,6 +171,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.slickSoles,
     name: 'Rite of Slick Soles',
+    iconId: 'item_slick_soles',
     description: 'Blessing: +Move Speed / Burden: -Accuracy',
     flavorText: 'You glide gracefully past the thing you meant to hit.',
     modifiers: [
@@ -170,6 +184,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.backpackOfGlass,
     name: 'Relic: Glass Satchel',
+    iconId: 'item_backpack_of_glass',
     description: 'Blessing: +Pickup Radius / Burden: -Max HP',
     flavorText: 'Carry more, breathe less.',
     modifiers: [
@@ -181,6 +196,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.fieldRations,
     name: 'Vow of Plain Meals',
+    iconId: 'item_field_rations',
     description: 'Blessing: +HP Regen / Burden: -Damage',
     flavorText: 'Nutritious, if you ignore the taste.',
     modifiers: [
@@ -192,6 +208,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.sturdyStitching,
     name: 'Relic: Consecrated Thread',
+    iconId: 'item_sturdy_stitching',
     description: 'Blessing: +Max HP / Burden: -Move Speed',
     flavorText: 'It holds together, unlike your schedule.',
     modifiers: [
@@ -203,6 +220,7 @@ const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.primerCoil,
     name: 'Rite of First Spark',
+    iconId: 'item_primer_coil',
     description: 'Blessing: +Damage / Burden: -Cooldown Recovery',
     flavorText: 'It starts fights faster than it ends them.',
     modifiers: [
@@ -217,6 +235,7 @@ const List<ItemDef> uncommonItems = [
   ItemDef(
     id: ItemId.slowCooker,
     name: 'Rite of Slow Fire',
+    iconId: 'item_slow_cooker',
     description:
         'Blessing: +DOT Damage & Duration / Burden: -Direct Hit Damage',
     flavorText: 'The stew wins, eventually.',
@@ -231,6 +250,7 @@ const List<ItemDef> uncommonItems = [
   ItemDef(
     id: ItemId.wideLens,
     name: 'Relic: Wide Lens',
+    iconId: 'item_wide_lens',
     description: 'Blessing: +Area Size & Field of View / Burden: -Attack Speed',
     flavorText: 'You see more, shoot less.',
     modifiers: [
@@ -244,6 +264,7 @@ const List<ItemDef> uncommonItems = [
   ItemDef(
     id: ItemId.briarCharm,
     name: 'Vow of Briars',
+    iconId: 'item_briar_charm',
     description: 'Blessing: +Root Duration & Strength / Burden: -Move Speed',
     flavorText: 'The vines are loyal and slow walkers.',
     modifiers: [
@@ -257,6 +278,7 @@ const List<ItemDef> uncommonItems = [
   ItemDef(
     id: ItemId.vampiricSeal,
     name: 'Vow of the Leech',
+    iconId: 'item_vampiric_seal',
     description: 'Blessing: +Life Steal / Burden: -Max HP',
     flavorText: 'You borrow health with a very short due date.',
     modifiers: [
@@ -268,6 +290,7 @@ const List<ItemDef> uncommonItems = [
   ItemDef(
     id: ItemId.gamblersDie,
     name: 'Clause: Second Chance',
+    iconId: 'item_gamblers_die',
     description: 'Blessing: +Rerolls / Burden: -Choice Count',
     flavorText: 'The die insists you renegotiate fate.',
     modifiers: [
@@ -283,6 +306,7 @@ const List<ItemDef> uncommonItems = [
   ItemDef(
     id: ItemId.reactiveShield,
     name: 'Rite of Rebound Ward',
+    iconId: 'item_reactive_shield',
     description: 'Blessing: +Defense / Burden: -Cooldown Recovery',
     flavorText: 'The shield is punctual; your skills are not.',
     modifiers: [
@@ -295,6 +319,7 @@ const List<ItemDef> uncommonItems = [
   ItemDef(
     id: ItemId.ritualCandle,
     name: 'Relic: Ritual Candle',
+    iconId: 'item_ritual_candle',
     description:
         'Blessing: +Fire DOT & Elemental Damage / Burden: -Water Damage',
     flavorText: 'Smells holy, burns like gossip.',
@@ -310,6 +335,7 @@ const List<ItemDef> uncommonItems = [
   ItemDef(
     id: ItemId.gravelBoots,
     name: 'Vow of Heavy Steps',
+    iconId: 'item_gravel_boots',
     description: 'Blessing: +Knockback Strength / Burden: -Attack Speed',
     flavorText: 'Every stomp is a sermon.',
     modifiers: [
@@ -325,6 +351,7 @@ const List<ItemDef> rareItems = [
   ItemDef(
     id: ItemId.glassCatalyst,
     name: 'Rite of Glass Power',
+    iconId: 'item_glass_catalyst',
     description: 'Blessing: +Damage & Flat Damage / Burden: -Armor',
     flavorText: 'Sharp ideas, fragile plan.',
     modifiers: [
@@ -342,6 +369,7 @@ const List<ItemDef> rareItems = [
   ItemDef(
     id: ItemId.thermalCoil,
     name: 'Relic: Ember Coil',
+    iconId: 'item_thermal_coil',
     description:
         'Blessing: +Fire DOT & Elemental Damage / Burden: -Projectile Damage',
     flavorText: 'Everything burns longer, including your patience.',
@@ -358,6 +386,7 @@ const List<ItemDef> rareItems = [
   ItemDef(
     id: ItemId.hydraulicStabilizer,
     name: 'Rite of Steady Beam',
+    iconId: 'item_hydraulic_stabilizer',
     description: 'Blessing: +Beam Damage & Area Size / Burden: -Move Speed',
     flavorText: 'Beams hold steady; you do not.',
     modifiers: [
@@ -372,6 +401,7 @@ const List<ItemDef> rareItems = [
   ItemDef(
     id: ItemId.sporeSatchel,
     name: 'Relic: Spore Satchel',
+    iconId: 'item_spore_satchel',
     description:
         'Blessing: +Poison DOT & Resistance / Burden: -Healing Received',
     flavorText: 'The spores are friendly; your healer is not.',
@@ -387,6 +417,7 @@ const List<ItemDef> rareItems = [
   ItemDef(
     id: ItemId.serratedEdge,
     name: 'Relic: Serrated Edge',
+    iconId: 'item_serrated_edge',
     description:
         'Blessing: +Melee Damage & DOT Damage / Burden: -Projectile Damage',
     flavorText: 'It cuts cleanly and argues with bows.',
@@ -402,6 +433,7 @@ const List<ItemDef> rareItems = [
   ItemDef(
     id: ItemId.mercyCharm,
     name: 'Vow of Mercy',
+    iconId: 'item_mercy_charm',
     description: 'Blessing: +Healing Received & HP Regen / Burden: -Damage',
     flavorText: 'You recover faster than you resolve anything.',
     modifiers: [
@@ -419,6 +451,7 @@ const List<ItemDef> epicItems = [
   ItemDef(
     id: ItemId.volatileMixture,
     name: 'Rite of Volatile Mix',
+    iconId: 'item_volatile_mixture',
     description:
         'Blessing: +Explosion & Elemental Damage / Burden: +Self Explosion Damage Taken',
     flavorText: 'Spectacular results, questionable safety.',
@@ -440,6 +473,7 @@ const List<ItemDef> epicItems = [
   ItemDef(
     id: ItemId.moltenBuckle,
     name: 'Relic: Molten Buckle',
+    iconId: 'item_molten_buckle',
     description:
         'Blessing: +Explosion & Fire Damage / Burden: +Self Explosion Damage Taken',
     flavorText: 'Fashioned for ritual belts and accidental fireworks.',

@@ -212,6 +212,9 @@ DataValidationResult validateGameData() {
     tiersBySkill.putIfAbsent(def.skillId, () => <int>{}).add(def.tier);
   }
   for (final skill in skillDefs) {
+    if (skill.iconId.trim().isEmpty) {
+      result.errors.add('SkillDef ${skill.id} has an empty iconId.');
+    }
     final tiers = tiersBySkill[skill.id];
     if (tiers == null || tiers.isEmpty) {
       result.errors.add('SkillDef ${skill.id} has no weapon upgrade tiers.');
@@ -237,6 +240,9 @@ DataValidationResult validateGameData() {
   for (final def in itemDefs) {
     if (def.modifiers.isEmpty) {
       result.errors.add('ItemDef ${def.id} has no modifiers.');
+    }
+    if (def.iconId.trim().isEmpty) {
+      result.errors.add('ItemDef ${def.id} has an empty iconId.');
     }
     if (def.weight <= 0) {
       result.errors.add('ItemDef ${def.id} has non-positive weight.');

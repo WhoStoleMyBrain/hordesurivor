@@ -178,6 +178,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   Color _currentMapBackground = GameSizes.homeBaseBackgroundColor;
   final Map<EnemyId, Image> _enemySprites = {};
   final Map<CharacterId, Image> _characterSprites = {};
+  final Map<SkillId, Image?> _skillIcons = {};
+  final Map<ItemId, Image?> _itemIcons = {};
   Image? _projectileSprite;
   final Map<PickupKind, Image?> _pickupSprites = {};
   ProjectileBatchComponent? _projectileBatchComponent;
@@ -325,6 +327,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   MetaUnlocks get metaUnlocks => _metaUnlocks;
   List<CharacterDef> get availableCharacters => characterDefs;
   Map<CharacterId, Image?> get characterSprites => _characterSprites;
+  Map<SkillId, Image?> get skillIcons => _skillIcons;
+  Map<ItemId, Image?> get itemIcons => _itemIcons;
   CharacterId get activeCharacterId => _activeCharacterId;
   ValueListenable<CharacterId> get activeCharacterListenable =>
       _activeCharacterNotifier;
@@ -381,6 +385,20 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         continue;
       }
       _enemySprites[def.id] = spriteImage;
+    }
+    for (final def in skillDefs) {
+      final spriteImage = _spritePipeline.lookup(def.iconId);
+      if (spriteImage == null) {
+        debugPrint('Sprite cache missing ${def.iconId} for ${def.id}.');
+      }
+      _skillIcons[def.id] = spriteImage;
+    }
+    for (final def in itemDefs) {
+      final spriteImage = _spritePipeline.lookup(def.iconId);
+      if (spriteImage == null) {
+        debugPrint('Sprite cache missing ${def.iconId} for ${def.id}.');
+      }
+      _itemIcons[def.id] = spriteImage;
     }
     _projectileSprite = _spritePipeline.lookup(_projectileSpriteId);
     if (_projectileSprite == null) {

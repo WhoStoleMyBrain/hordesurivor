@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 
 import '../data/ids.dart';
@@ -22,6 +24,8 @@ class SelectionOverlay extends StatelessWidget {
     required this.onBanish,
     required this.onToggleLock,
     required this.onSkip,
+    required this.skillIcons,
+    required this.itemIcons,
   });
 
   static const String overlayKey = 'selection';
@@ -32,6 +36,8 @@ class SelectionOverlay extends StatelessWidget {
   final void Function(SelectionChoice choice) onBanish;
   final void Function(SelectionChoice choice) onToggleLock;
   final VoidCallback onSkip;
+  final Map<SkillId, ui.Image?> skillIcons;
+  final Map<ItemId, ui.Image?> itemIcons;
 
   @override
   Widget build(BuildContext context) {
@@ -126,6 +132,11 @@ class SelectionOverlay extends StatelessWidget {
                                       choice.itemId == null;
                                   return _ChoiceCard(
                                     choice: choice,
+                                    iconImage: _iconForChoice(
+                                      choice,
+                                      skillIcons,
+                                      itemIcons,
+                                    ),
                                     onPressed: isPlaceholder
                                         ? null
                                         : () => onSelected(choice),
@@ -165,6 +176,11 @@ class SelectionOverlay extends StatelessWidget {
                                       choice.itemId == null;
                                   return _ChoiceCard(
                                     choice: choice,
+                                    iconImage: _iconForChoice(
+                                      choice,
+                                      skillIcons,
+                                      itemIcons,
+                                    ),
                                     onPressed: isPlaceholder
                                         ? null
                                         : () => onSelected(choice),
@@ -289,6 +305,7 @@ class _ShopBonusRow extends StatelessWidget {
 class _ChoiceCard extends StatelessWidget {
   const _ChoiceCard({
     required this.choice,
+    required this.iconImage,
     required this.onPressed,
     required this.banishesRemaining,
     required this.goldAvailable,
@@ -300,6 +317,7 @@ class _ChoiceCard extends StatelessWidget {
   });
 
   final SelectionChoice choice;
+  final ui.Image? iconImage;
   final VoidCallback? onPressed;
   final int banishesRemaining;
   final int goldAvailable;
@@ -331,55 +349,75 @@ class _ChoiceCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _ChoiceIcon(image: iconImage, isPlaceholder: isPlaceholder),
+              const SizedBox(width: 10),
               Expanded(
-                child: Text(
-                  choice.title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: isPlaceholder ? Colors.white54 : null,
-                  ),
-                ),
-              ),
-              if (locked)
-                const Padding(
-                  padding: EdgeInsets.only(right: 6),
-                  child: Icon(Icons.lock, size: 14, color: Colors.amberAccent),
-                ),
-              if (priceLabel != null)
-                Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: Text(
-                    priceLabel,
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: canAfford ? Colors.amberAccent : Colors.redAccent,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            choice.title,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: isPlaceholder ? Colors.white54 : null,
+                            ),
+                          ),
+                        ),
+                        if (locked)
+                          const Padding(
+                            padding: EdgeInsets.only(right: 6),
+                            child: Icon(
+                              Icons.lock,
+                              size: 14,
+                              color: Colors.amberAccent,
+                            ),
+                          ),
+                        if (priceLabel != null)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: Text(
+                              priceLabel,
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: canAfford
+                                    ? Colors.amberAccent
+                                    : Colors.redAccent,
+                              ),
+                            ),
+                          ),
+                        Text(
+                          _labelForChoice(choice.type),
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-              Text(
-                _labelForChoice(choice.type),
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: Colors.white70,
+                    const SizedBox(height: 6),
+                    Text(
+                      choice.description,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: isPlaceholder ? Colors.white38 : Colors.white70,
+                      ),
+                    ),
+                    if (choice.flavorText.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        choice.flavorText,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.white54,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          Text(
-            choice.description,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: isPlaceholder ? Colors.white38 : Colors.white70,
-            ),
-          ),
-          if (choice.flavorText.isNotEmpty) ...[
-            const SizedBox(height: 6),
-            Text(
-              choice.flavorText,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.white54,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ],
           if (statChanges.isNotEmpty) ...[
             const SizedBox(height: 8),
             for (final line in statChanges)
@@ -460,6 +498,33 @@ class _SkipButton extends StatelessWidget {
   }
 }
 
+class _ChoiceIcon extends StatelessWidget {
+  const _ChoiceIcon({required this.image, required this.isPlaceholder});
+
+  final ui.Image? image;
+  final bool isPlaceholder;
+
+  @override
+  Widget build(BuildContext context) {
+    final tint = isPlaceholder ? Colors.white24 : Colors.white54;
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: image == null
+          ? Icon(Icons.image_not_supported, size: 16, color: tint)
+          : Padding(
+              padding: const EdgeInsets.all(4),
+              child: RawImage(image: image, fit: BoxFit.contain),
+            ),
+    );
+  }
+}
+
 String _headerTitleForTrack(ProgressionTrackId? trackId) {
   switch (trackId) {
     case ProgressionTrackId.skills:
@@ -531,6 +596,35 @@ Set<StatusEffectId> _statusEffectsForChoice(SelectionChoice choice) {
     case SelectionType.skillUpgrade:
     case SelectionType.weaponUpgrade:
       return const {};
+  }
+}
+
+ui.Image? _iconForChoice(
+  SelectionChoice choice,
+  Map<SkillId, ui.Image?> skillIcons,
+  Map<ItemId, ui.Image?> itemIcons,
+) {
+  switch (choice.type) {
+    case SelectionType.skill:
+      final skillId = choice.skillId;
+      return skillId != null ? skillIcons[skillId] : null;
+    case SelectionType.item:
+      final itemId = choice.itemId;
+      return itemId != null ? itemIcons[itemId] : null;
+    case SelectionType.skillUpgrade:
+      final upgradeId = choice.skillUpgradeId;
+      if (upgradeId == null) {
+        return null;
+      }
+      final upgrade = skillUpgradeDefsById[upgradeId];
+      return upgrade == null ? null : skillIcons[upgrade.skillId];
+    case SelectionType.weaponUpgrade:
+      final upgradeId = choice.weaponUpgradeId;
+      if (upgradeId == null) {
+        return null;
+      }
+      final upgrade = weaponUpgradeDefsById[upgradeId];
+      return upgrade == null ? null : skillIcons[upgrade.skillId];
   }
 }
 

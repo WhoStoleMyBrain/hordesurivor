@@ -166,6 +166,8 @@ class _GameShellState extends State<_GameShell> {
                     onBanish: game.banishSelection,
                     onToggleLock: game.toggleShopLock,
                     onSkip: game.skipSelection,
+                    skillIcons: game.skillIcons,
+                    itemIcons: game.itemIcons,
                   ),
                   StatsOverlay.overlayKey: (_, game) => StatsOverlay(
                     state: game.statsScreenState,

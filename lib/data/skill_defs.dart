@@ -5,6 +5,7 @@ class SkillDef {
   const SkillDef({
     required this.id,
     required this.name,
+    required this.iconId,
     required this.description,
     required this.tags,
     this.metaUnlockId,
@@ -18,6 +19,7 @@ class SkillDef {
 
   final SkillId id;
   final String name;
+  final String iconId;
   final String description;
   final TagSet tags;
   final MetaUnlockId? metaUnlockId;
@@ -33,6 +35,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.fireball,
     name: 'Fireball',
+    iconId: 'skill_fireball',
     description: 'Launch a fast fire projectile.',
     tags: TagSet(
       elements: {ElementTag.fire},
@@ -45,6 +48,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.waterjet,
     name: 'Waterjet',
+    iconId: 'skill_waterjet',
     description: 'Pulse a focused beam of water.',
     tags: TagSet(elements: {ElementTag.water}, deliveries: {DeliveryTag.beam}),
     statusEffects: {StatusEffectId.slow},
@@ -52,6 +56,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.oilBombs,
     name: 'Oil Bombs',
+    iconId: 'skill_oil_bombs',
     description: 'Lob oil bombs that leave slick ground.',
     tags: TagSet(
       effects: {EffectTag.debuff},
@@ -64,6 +69,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.swordThrust,
     name: 'Sword: Thrust',
+    iconId: 'skill_sword_thrust',
     description: 'Quick narrow thrust with precision reach.',
     tags: TagSet(
       elements: {ElementTag.steel},
@@ -76,6 +82,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.swordCut,
     name: 'Sword: Cut',
+    iconId: 'skill_sword_cut',
     description: 'Short arc melee sweep.',
     tags: TagSet(
       elements: {ElementTag.steel},
@@ -88,6 +95,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.swordSwing,
     name: 'Sword: Swing',
+    iconId: 'skill_sword_swing',
     description: 'Wide arc melee swing with heavier wind-up.',
     tags: TagSet(
       elements: {ElementTag.steel},
@@ -100,6 +108,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.swordDeflect,
     name: 'Sword: Deflect',
+    iconId: 'skill_sword_deflect',
     description: 'Deflect nearby projectiles with a quick parry.',
     tags: TagSet(
       elements: {ElementTag.steel},
@@ -114,6 +123,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.poisonGas,
     name: 'Poison Gas',
+    iconId: 'skill_poison_gas',
     description: 'Emit a toxic aura that damages over time.',
     tags: TagSet(
       elements: {ElementTag.poison},
@@ -124,6 +134,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.roots,
     name: 'Roots',
+    iconId: 'skill_roots',
     description: 'Snare enemies with erupting roots.',
     tags: TagSet(
       elements: {ElementTag.earth, ElementTag.wood},
@@ -135,6 +146,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.windCutter,
     name: 'Wind Cutter',
+    iconId: 'skill_wind_cutter',
     description: 'Launch razor wind projectiles at high speed.',
     tags: TagSet(
       elements: {ElementTag.wind},
@@ -147,6 +159,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.steelShards,
     name: 'Steel Shards',
+    iconId: 'skill_steel_shards',
     description: 'Fan out a trio of steel shards.',
     tags: TagSet(
       elements: {ElementTag.steel},
@@ -159,6 +172,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.flameWave,
     name: 'Flame Wave',
+    iconId: 'skill_flame_wave',
     description: 'Sweep a short fire beam across enemies.',
     tags: TagSet(
       elements: {ElementTag.fire},
@@ -170,6 +184,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.frostNova,
     name: 'Frost Nova',
+    iconId: 'skill_frost_nova',
     description: 'Release a chilling pulse that slows nearby foes.',
     tags: TagSet(
       elements: {ElementTag.water},
@@ -182,6 +197,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.earthSpikes,
     name: 'Earth Spikes',
+    iconId: 'skill_earth_spikes',
     description: 'Erupt spikes from the ground ahead.',
     tags: TagSet(
       elements: {ElementTag.earth},
@@ -193,6 +209,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.sporeBurst,
     name: 'Spore Burst',
+    iconId: 'skill_spore_burst',
     description: 'Lob spores that linger as toxic clouds.',
     tags: TagSet(
       elements: {ElementTag.poison},
@@ -204,12 +221,14 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.scrapRover,
     name: 'Scrap Rover',
+    iconId: 'skill_scrap_rover',
     description: 'Deploy a melee rover that hunts nearby foes.',
     tags: TagSet(elements: {ElementTag.steel}, deliveries: {DeliveryTag.melee}),
   ),
   SkillDef(
     id: SkillId.arcTurret,
     name: 'Arc Turret',
+    iconId: 'skill_arc_turret',
     description: 'Summon a turret drone that fires on its own.',
     tags: TagSet(
       elements: {ElementTag.steel},
@@ -220,6 +239,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.guardianOrbs,
     name: 'Guardian Orbs',
+    iconId: 'skill_guardian_orbs',
     description: 'Orbiting orbs intercept enemies with close-range damage.',
     tags: TagSet(
       elements: {ElementTag.steel},
@@ -230,6 +250,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.menderOrb,
     name: 'Mender Orb',
+    iconId: 'skill_mender_orb',
     description: 'Orbiting wisp restores health over time.',
     tags: TagSet(
       elements: {ElementTag.wood},
@@ -240,6 +261,7 @@ const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.mineLayer,
     name: 'Mine Layer',
+    iconId: 'skill_mine_layer',
     description: 'Drop proximity mines that detonate on approach.',
     tags: TagSet(
       elements: {ElementTag.fire},
