@@ -4,8 +4,10 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart' hide SelectionOverlay;
 
 import 'data/data_validation.dart';
+import 'data/ids.dart';
 import 'game/horde_game.dart';
 import 'ui/area_select_screen.dart';
+import 'ui/character_select_overlay.dart';
 import 'ui/compendium_screen.dart';
 import 'ui/death_screen.dart';
 import 'ui/escape_menu_overlay.dart';
@@ -193,6 +195,14 @@ class _GameShellState extends State<_GameShell> {
                     unlocks: game.metaUnlocks,
                     onClose: game.closeMetaUnlocksScreen,
                   ),
+                  CharacterSelectOverlay.overlayKey: (_, game) =>
+                      CharacterSelectOverlay(
+                        selectedCharacterId: game.activeCharacterId,
+                        characters: game.availableCharacters,
+                        sprites: game.characterSprites,
+                        onSelect: game.selectCharacter,
+                        onClose: game.closeCharacterSelect,
+                      ),
                   EscapeMenuOverlay.overlayKey: (context, game) =>
                       EscapeMenuOverlay(
                         inRun: game.flowState == GameFlowState.stage,
@@ -211,7 +221,24 @@ class _GameShellState extends State<_GameShell> {
                         onAbort: game.abortRunFromMenu,
                       ),
                   HomeBaseOverlay.overlayKey: (_, game) =>
-                      HomeBaseOverlay(wallet: game.metaWallet),
+                      ValueListenableBuilder<CharacterId>(
+                        valueListenable: game.activeCharacterListenable,
+                        builder: (context, activeCharacterId, _) {
+                          return ValueListenableBuilder<bool>(
+                            valueListenable: game.characterSelectorReady,
+                            builder: (context, canOpen, _) {
+                              return HomeBaseOverlay(
+                                wallet: game.metaWallet,
+                                selectedCharacterName: game.characterNameFor(
+                                  activeCharacterId,
+                                ),
+                                canOpenCharacterSelect: canOpen,
+                                onOpenCharacterSelect: game.openCharacterSelect,
+                              );
+                            },
+                          );
+                        },
+                      ),
                   AreaSelectScreen.overlayKey: (_, game) => AreaSelectScreen(
                     onAreaSelected: game.beginStageFromAreaSelect,
                     onReturn: game.returnToHomeBase,

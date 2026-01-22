@@ -13,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/area_defs.dart';
+import '../data/character_defs.dart';
 import '../data/contract_defs.dart';
 import '../data/currency_defs.dart';
 import '../data/enemy_defs.dart';
@@ -30,6 +31,7 @@ import '../data/weapon_upgrade_defs.dart';
 import '../render/damage_number_component.dart';
 import '../render/enemy_component.dart';
 import '../render/effect_component.dart';
+import '../render/character_selector_component.dart';
 import '../render/map_background_component.dart';
 import '../render/map_background_generator.dart';
 import '../render/player_component.dart';
@@ -42,6 +44,7 @@ import '../render/sprite_pipeline.dart';
 import '../render/summon_component.dart';
 import '../ui/area_select_screen.dart';
 import '../ui/compendium_screen.dart';
+import '../ui/character_select_overlay.dart';
 import '../ui/death_screen.dart';
 import '../ui/escape_menu_overlay.dart';
 import '../ui/first_run_hints_overlay.dart';
@@ -105,8 +108,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   static const double _fixedDelta = 1 / 60;
   static const double _playerRadius = GameSizes.playerRadius;
-  static const double _playerSpeed = 120;
-  static const double _playerMaxHp = 100;
   static const double _enemyRadius = GameSizes.enemyRadius;
   static const double _enemyContactDamagePerSecond = 12;
   static const int _stressWaveFrontlineCount = 260;
@@ -119,7 +120,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const int _maxFixedStepsPerFrame = 5;
   static const double _panDeadZone = 8;
   static const double _panMaxRadius = 72;
-  static const String _playerSpriteId = 'player_base';
   static const String _projectileSpriteId = 'projectile_firebolt';
   static const Map<PickupKind, String> _pickupSpriteIds = {
     PickupKind.xpOrb: 'pickup_xp_orb',
@@ -135,6 +135,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   };
   static const double _portalRadius = 26;
   static const double _portalLockoutDuration = 0.75;
+  static const double _characterSelectorRadius = 22;
+  static const String _characterSelectorLabel = 'CHARACTER ALTAR';
   static const double _stageWaveInterval = 3.0;
   static const int _baseStageWaveCount = 4;
   static const double _baseChampionChance = 0.05;
@@ -175,6 +177,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   MapSize _currentMapSize = GameSizes.homeBaseMapSize;
   Color _currentMapBackground = GameSizes.homeBaseBackgroundColor;
   final Map<EnemyId, Image> _enemySprites = {};
+  final Map<CharacterId, Image> _characterSprites = {};
   Image? _projectileSprite;
   final Map<PickupKind, Image?> _pickupSprites = {};
   ProjectileBatchComponent? _projectileBatchComponent;
@@ -204,6 +207,11 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     radius: _portalRadius,
     label: 'AREA PORTAL',
   );
+  late final CharacterSelectorComponent _characterSelectorComponent =
+      CharacterSelectorComponent(
+        radius: _characterSelectorRadius,
+        label: _characterSelectorLabel,
+      );
   final PlayerHudState _hudState = PlayerHudState();
   final SelectionState _selectionState = SelectionState();
   ProgressionTrackId? _activeSelectionTrackId;
@@ -273,7 +281,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Vector2 _damageNumberVelocity = Vector2.zero();
   final Vector2 _pickupSparkPosition = Vector2.zero();
   final Vector2 _portalPosition = Vector2.zero();
+  final Vector2 _characterSelectorPosition = Vector2.zero();
   double _portalLockoutTimer = 0;
+  final ValueNotifier<bool> _characterSelectorReady = ValueNotifier(false);
+  CharacterId _activeCharacterId = characterDefs.first.id;
+  final ValueNotifier<CharacterId> _activeCharacterNotifier = ValueNotifier(
+    characterDefs.first.id,
+  );
   GameFlowState _flowState = GameFlowState.start;
   final ValueNotifier<GameFlowState> _flowStateNotifier = ValueNotifier(
     GameFlowState.start,
@@ -309,9 +323,20 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   bool get runCompleted => _runCompleted;
   MetaCurrencyWallet get metaWallet => _metaWallet;
   MetaUnlocks get metaUnlocks => _metaUnlocks;
+  List<CharacterDef> get availableCharacters => characterDefs;
+  Map<CharacterId, Image?> get characterSprites => _characterSprites;
+  CharacterId get activeCharacterId => _activeCharacterId;
+  ValueListenable<CharacterId> get activeCharacterListenable =>
+      _activeCharacterNotifier;
+  ValueListenable<bool> get characterSelectorReady => _characterSelectorReady;
+  String get activeCharacterName => characterNameFor(_activeCharacterId);
   ValueListenable<VirtualStickState> get virtualStickState =>
       _virtualStickState;
   StressStatsSnapshot? get stressStatsSnapshot => _stressStatsSnapshot;
+
+  String characterNameFor(CharacterId id) {
+    return characterDefsById[id]?.name ?? characterDefs.first.name;
+  }
 
   @override
   backgroundColor() => const Color(0xFF0F1117);
@@ -331,9 +356,19 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     await _spritePipeline.loadAndGenerateFromAsset(
       'assets/sprites/recipes.json',
     );
-    final playerSprite = _spritePipeline.lookup(_playerSpriteId);
+    for (final def in characterDefs) {
+      final sprite = _spritePipeline.lookup(def.spriteId);
+      if (sprite == null) {
+        debugPrint('Sprite cache missing ${def.spriteId}.');
+        continue;
+      }
+      _characterSprites[def.id] = sprite;
+    }
+    final activeCharacter =
+        characterDefsById[_activeCharacterId] ?? characterDefs.first;
+    final playerSprite = _characterSprites[activeCharacter.id];
     if (playerSprite == null) {
-      debugPrint('Sprite cache missing $_playerSpriteId.');
+      debugPrint('Sprite cache missing ${activeCharacter.spriteId}.');
     }
     for (final def in enemyDefs) {
       final spriteId = def.spriteId;
@@ -366,9 +401,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     await world.add(_mapBackground);
     _playerState = PlayerState(
       position: _mapSize / 2,
-      maxHp: _playerMaxHp,
-      moveSpeed: _playerSpeed,
+      maxHp: activeCharacter.baseStats[StatId.maxHp] ?? 100,
+      moveSpeed: activeCharacter.baseStats[StatId.moveSpeed] ?? 120,
     );
+    _playerState.setBaseStats(activeCharacter.baseStats);
     _progressionSystem = ProgressionSystem();
     _spawnDirector = SpawnDirector(progressionSystem: _progressionSystem);
     _levelUpSystem = LevelUpSystem(random: math.Random(11));
@@ -379,6 +415,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
     _playerComponent.syncWithState();
     await world.add(_playerComponent);
+    _applyCharacterDefinition(activeCharacter, resetRun: true);
     camera.viewfinder.anchor = Anchor.center;
     camera.setBounds(
       Rectangle.fromRect(_currentMapSize.toRect()),
@@ -390,6 +427,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _updatePortalPosition();
     _portalComponent.position.setFrom(_portalPosition);
     await world.add(_portalComponent);
+    _characterSelectorComponent.position.setFrom(_characterSelectorPosition);
+    await world.add(_characterSelectorComponent);
 
     _enemyPool = EnemyPool(initialCapacity: stressTest ? 600 : 48);
     _projectilePool = ProjectilePool(initialCapacity: stressTest ? 1400 : 64);
@@ -823,6 +862,38 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.add(StartScreen.overlayKey);
   }
 
+  void openCharacterSelect() {
+    if (_flowState != GameFlowState.homeBase ||
+        overlays.isActive(CharacterSelectOverlay.overlayKey) ||
+        !_characterSelectorReady.value) {
+      return;
+    }
+    overlays.add(CharacterSelectOverlay.overlayKey);
+    _updateInputLock();
+  }
+
+  void closeCharacterSelect() {
+    if (!overlays.isActive(CharacterSelectOverlay.overlayKey)) {
+      return;
+    }
+    overlays.remove(CharacterSelectOverlay.overlayKey);
+    _updateInputLock();
+  }
+
+  void selectCharacter(CharacterId id) {
+    if (_flowState != GameFlowState.homeBase) {
+      return;
+    }
+    final def = characterDefsById[id];
+    if (def == null) {
+      return;
+    }
+    _activeCharacterId = id;
+    _activeCharacterNotifier.value = id;
+    _applyCharacterDefinition(def, resetRun: true);
+    closeCharacterSelect();
+  }
+
   void openOptionsFromMenu() {
     if (overlays.isActive(OptionsScreen.overlayKey)) {
       return;
@@ -1043,6 +1114,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   ) {
     if (event is KeyDownEvent &&
         event.logicalKey == LogicalKeyboardKey.escape) {
+      if (overlays.isActive(CharacterSelectOverlay.overlayKey)) {
+        closeCharacterSelect();
+        return KeyEventResult.handled;
+      }
       toggleEscapeMenu();
       return KeyEventResult.handled;
     }
@@ -1058,6 +1133,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         (event.logicalKey == LogicalKeyboardKey.tab ||
             event.logicalKey == LogicalKeyboardKey.keyI)) {
       toggleStatsOverlay();
+      return KeyEventResult.handled;
+    }
+    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyE) {
+      openCharacterSelect();
       return KeyEventResult.handled;
     }
     if (_inputLocked) {
@@ -1998,6 +2077,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     _flowState = state;
     _flowStateNotifier.value = state;
+    if (_flowState != GameFlowState.homeBase && _characterSelectorReady.value) {
+      _characterSelectorReady.value = false;
+    }
     _syncPortalVisibility();
     _updateInputLock();
   }
@@ -2007,6 +2089,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         _selectionState.active ||
         overlays.isActive(StatsOverlay.overlayKey) ||
         overlays.isActive(EscapeMenuOverlay.overlayKey) ||
+        overlays.isActive(CharacterSelectOverlay.overlayKey) ||
         !(_flowState == GameFlowState.stage ||
             _flowState == GameFlowState.homeBase);
     if (_inputLocked == locked) {
@@ -2164,6 +2247,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _stepHomeBase(double dt) {
+    if (overlays.isActive(CharacterSelectOverlay.overlayKey) ||
+        overlays.isActive(EscapeMenuOverlay.overlayKey) ||
+        overlays.isActive(StatsOverlay.overlayKey)) {
+      _playerState.movementIntent.setZero();
+      _playerComponent.syncWithState();
+      _syncHudState();
+      return;
+    }
     _applyInput();
     _playerState.step(dt);
     _playerState.clampToBounds(
@@ -2172,6 +2263,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
     _playerComponent.syncWithState();
     _syncHudState();
+    _syncCharacterSelectorProximity();
 
     if (_portalLockoutTimer > 0) {
       _portalLockoutTimer = math.max(0, _portalLockoutTimer - dt);
@@ -2187,12 +2279,30 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
   }
 
+  void _syncCharacterSelectorProximity() {
+    if (_flowState != GameFlowState.homeBase) {
+      if (_characterSelectorReady.value) {
+        _characterSelectorReady.value = false;
+      }
+      return;
+    }
+    final dx = _playerState.position.x - _characterSelectorPosition.x;
+    final dy = _playerState.position.y - _characterSelectorPosition.y;
+    final distanceSquared = dx * dx + dy * dy;
+    final triggerRadius = _characterSelectorRadius + _playerRadius;
+    final ready = distanceSquared <= triggerRadius * triggerRadius;
+    if (ready != _characterSelectorReady.value) {
+      _characterSelectorReady.value = ready;
+    }
+  }
+
   void _enterAreaSelect() {
     if (_flowState == GameFlowState.areaSelect) {
       return;
     }
     _setFlowState(GameFlowState.areaSelect);
     overlays.remove(HomeBaseOverlay.overlayKey);
+    overlays.remove(CharacterSelectOverlay.overlayKey);
     overlays.add(AreaSelectScreen.overlayKey);
   }
 
@@ -2229,14 +2339,21 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     _updatePortalPosition();
     _portalComponent.position.setFrom(_portalPosition);
+    _characterSelectorComponent.position.setFrom(_characterSelectorPosition);
   }
 
   void _updatePortalPosition() {
     _portalPosition.setValues(_mapSize.x * 0.78, _mapSize.y * 0.25);
+    _characterSelectorPosition.setValues(
+      _portalPosition.x - 140,
+      _portalPosition.y,
+    );
   }
 
   void _syncPortalVisibility() {
-    _portalComponent.visible = _flowState == GameFlowState.homeBase;
+    final inHomeBase = _flowState == GameFlowState.homeBase;
+    _portalComponent.visible = inHomeBase;
+    _characterSelectorComponent.visible = inHomeBase;
   }
 
   void _resetFinaleState() {
@@ -2663,10 +2780,31 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _spawnerSystem.setChampionChance(eliteChance);
   }
 
+  CharacterDef _activeCharacterDef() {
+    return characterDefsById[_activeCharacterId] ?? characterDefs.first;
+  }
+
+  void _applyCharacterDefinition(CharacterDef def, {bool resetRun = false}) {
+    _playerState.setBaseStats(def.baseStats);
+    if (resetRun) {
+      _playerState.resetForRun();
+    }
+    _playerState.applyModifiers(def.modifiers);
+    _playerState.applyModifiers(_metaUnlocks.activeModifiers);
+    _playerComponent.setSpriteImage(_characterSprites[def.id]);
+    _playerComponent.syncWithState();
+  }
+
   void _resetPlayerProgression() {
     _progressionSystem.reset();
     _skillSystem.resetToDefaults();
+    final characterDef = _activeCharacterDef();
+    _playerState.setBaseStats(characterDef.baseStats);
     _playerState.resetForRun();
+    for (final skillId in characterDef.startingSkills) {
+      _skillSystem.addSkill(skillId);
+    }
+    _playerState.applyModifiers(characterDef.modifiers);
     _playerState.applyModifiers(_metaUnlocks.activeModifiers);
     _levelUpSystem.resetForRun(playerState: _playerState);
     _activeSelectionTrackId = null;

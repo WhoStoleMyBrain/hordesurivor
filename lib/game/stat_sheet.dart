@@ -43,4 +43,10 @@ class StatSheet {
     _multipliers.clear();
     _flatBonuses.clear();
   }
+
+  void setBaseValues(Map<StatId, double> baseValues) {
+    _baseValues
+      ..clear()
+      ..addAll(baseValues);
+  }
 }

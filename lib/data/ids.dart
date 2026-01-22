@@ -154,3 +154,5 @@ enum CurrencyId { xp, gold }
 enum ProgressionTrackId { skills, items }
 
 enum SelectionPoolId { skillPool, itemPool, futurePool }
+
+enum CharacterId { priest, warden, cook }

@@ -1,4 +1,5 @@
 export 'area_defs.dart';
+export 'character_defs.dart';
 export 'contract_defs.dart';
 export 'currency_defs.dart';
 export 'data_validation.dart';
