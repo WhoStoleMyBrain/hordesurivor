@@ -38,8 +38,8 @@ const List<ItemDef> commonItems = [
     description: 'Blessing: +Max HP / Burden: -Move Speed',
     flavorText: 'You feel protected and slightly overqualified for walking.',
     modifiers: [
-      StatModifier(stat: StatId.maxHp, amount: 0.1),
-      StatModifier(stat: StatId.moveSpeedPercent, amount: -0.06),
+      StatModifier(stat: StatId.maxHp, amount: 0.05),
+      StatModifier(stat: StatId.moveSpeedPercent, amount: -0.03),
     ],
     rarity: ItemRarity.common,
   ),
@@ -62,8 +62,8 @@ const List<ItemDef> commonItems = [
     description: 'Blessing: +Move Speed / Burden: -Defense',
     flavorText: 'Your ankles have filed a gentle complaint.',
     modifiers: [
-      StatModifier(stat: StatId.moveSpeedPercent, amount: 0.1),
-      StatModifier(stat: StatId.defense, amount: -0.06),
+      StatModifier(stat: StatId.moveSpeedPercent, amount: 0.05),
+      StatModifier(stat: StatId.defense, amount: -0.03),
     ],
     rarity: ItemRarity.common,
   ),
