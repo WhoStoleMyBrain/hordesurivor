@@ -102,6 +102,8 @@ enum EnemyId {
 
 enum AreaId { ashenOutskirts, haloBreach }
 
+enum MapBackgroundId { ashenOutskirts, haloBreach }
+
 enum MetaUnlockId {
   fieldManual,
   extraReroll,
