@@ -1,17 +1,27 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 
 import '../data/enemy_defs.dart';
+import '../data/ids.dart';
+import '../data/item_defs.dart';
 import '../data/skill_defs.dart';
 import '../data/status_effect_defs.dart';
 import '../data/tags.dart';
+import 'stat_text.dart';
 import 'tag_badge.dart';
 
 class CompendiumScreen extends StatelessWidget {
-  const CompendiumScreen({super.key, required this.onClose});
+  const CompendiumScreen({
+    super.key,
+    required this.onClose,
+    required this.itemIcons,
+  });
 
   static const String overlayKey = 'compendium_screen';
 
   final VoidCallback onClose;
+  final Map<ItemId, ui.Image?> itemIcons;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +40,7 @@ class CompendiumScreen extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: DefaultTabController(
-                length: 3,
+                length: 4,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -56,6 +66,7 @@ class CompendiumScreen extends StatelessWidget {
                     const TabBar(
                       tabs: [
                         Tab(text: 'Skills'),
+                        Tab(text: 'Items'),
                         Tab(text: 'Enemies'),
                         Tab(text: 'Statuses'),
                       ],
@@ -65,6 +76,7 @@ class CompendiumScreen extends StatelessWidget {
                       child: TabBarView(
                         children: [
                           _SkillList(skills: skillDefs),
+                          _ItemList(items: itemDefs, itemIcons: itemIcons),
                           _EnemyList(enemies: enemyDefs),
                           _StatusList(statusEffects: statusEffectDefs),
                         ],
@@ -77,6 +89,34 @@ class CompendiumScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ItemList extends StatelessWidget {
+  const _ItemList({required this.items, required this.itemIcons});
+
+  final List<ItemDef> items;
+  final Map<ItemId, ui.Image?> itemIcons;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: items.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final item = items[index];
+        final badges = tagBadgesForTags(item.tags);
+        return _CompendiumCard(
+          title: item.name,
+          description: item.description,
+          details: _buildItemDetails(item),
+          iconImage: itemIcons[item.id],
+          showIconSlot: true,
+          badges: badges,
+        );
+      },
     );
   }
 }
@@ -159,12 +199,16 @@ class _CompendiumCard extends StatelessWidget {
     required this.title,
     required this.description,
     this.details,
+    this.iconImage,
+    this.showIconSlot = false,
     required this.badges,
   });
 
   final String title;
   final String description;
   final String? details;
+  final ui.Image? iconImage;
+  final bool showIconSlot;
   final List<TagBadgeData> badges;
 
   @override
@@ -181,11 +225,22 @@ class _CompendiumCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (showIconSlot) ...[
+                  _CompendiumIcon(image: iconImage),
+                  const SizedBox(width: 10),
+                ],
+                Expanded(
+                  child: Text(
+                    title,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 6),
             Text(
@@ -217,6 +272,42 @@ class _CompendiumCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _CompendiumIcon extends StatelessWidget {
+  const _CompendiumIcon({required this.image});
+
+  final ui.Image? image;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 34,
+      height: 34,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: image == null
+          ? const Icon(
+              Icons.image_not_supported,
+              size: 16,
+              color: Colors.white24,
+            )
+          : Padding(
+              padding: const EdgeInsets.all(4),
+              child: RawImage(image: image, fit: BoxFit.contain),
+            ),
+    );
+  }
+}
+
+String _buildItemDetails(ItemDef item) {
+  final details = [
+    for (final modifier in item.modifiers) StatText.formatModifier(modifier),
+  ];
+  return details.map((line) => '• $line').join('\n');
 }
 
 TagBadgeData _factionBadge(Faction faction) {
