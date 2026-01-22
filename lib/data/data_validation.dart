@@ -444,6 +444,11 @@ DataValidationResult validateGameData() {
     if (def.spawnRadius < 0) {
       result.errors.add('EnemyDef ${def.id} has negative spawnRadius.');
     }
+    if (def.spawnRewardMultiplier < 0) {
+      result.errors.add(
+        'EnemyDef ${def.id} has negative spawnRewardMultiplier.',
+      );
+    }
     if (def.xpReward < 0) {
       result.errors.add('EnemyDef ${def.id} has negative xpReward.');
     }

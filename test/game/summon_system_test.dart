@@ -38,6 +38,7 @@ void main() {
       spawnCount: def.spawnCount,
       spawnRadius: def.spawnRadius,
       spawnEnemyId: def.spawnEnemyId,
+      spawnRewardMultiplier: def.spawnRewardMultiplier,
     );
     return enemy;
   }

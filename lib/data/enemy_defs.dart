@@ -24,6 +24,7 @@ class EnemyDef {
     this.spawnCount = 1,
     this.spawnRadius = 48,
     this.spawnEnemyId,
+    this.spawnRewardMultiplier = 0,
     this.weight = 1,
   });
 
@@ -48,6 +49,7 @@ class EnemyDef {
   final int spawnCount;
   final double spawnRadius;
   final EnemyId? spawnEnemyId;
+  final double spawnRewardMultiplier;
   final int weight;
 }
 
