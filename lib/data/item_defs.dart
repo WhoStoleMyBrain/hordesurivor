@@ -7,6 +7,7 @@ class ItemDef {
     required this.id,
     required this.name,
     required this.description,
+    required this.flavorText,
     required this.modifiers,
     required this.rarity,
     this.metaUnlockId,
@@ -18,6 +19,7 @@ class ItemDef {
   final ItemId id;
   final String name;
   final String description;
+  final String flavorText;
   final List<StatModifier> modifiers;
   final ItemRarity rarity;
   final MetaUnlockId? metaUnlockId;
@@ -29,8 +31,9 @@ class ItemDef {
 const List<ItemDef> commonItems = [
   ItemDef(
     id: ItemId.heavyPlate,
-    name: 'Heavy Plate',
-    description: 'Armored weight slows movement.',
+    name: 'Rite of Iron Weight',
+    description: 'Blessing: +Max HP / Burden: -Move Speed',
+    flavorText: 'You feel protected and slightly overqualified for walking.',
     modifiers: [
       StatModifier(stat: StatId.maxHp, amount: 0.1),
       StatModifier(stat: StatId.moveSpeedPercent, amount: -0.06),
@@ -39,8 +42,9 @@ const List<ItemDef> commonItems = [
   ),
   ItemDef(
     id: ItemId.reinforcedPlating,
-    name: 'Reinforced Plating',
-    description: 'Thicker armor trades off some mobility.',
+    name: 'Relic: Riveted Plate',
+    description: 'Blessing: +Armor / Burden: -Move Speed',
+    flavorText: 'The extra layer makes doors take it personally.',
     modifiers: [
       StatModifier(stat: StatId.armor, amount: 1.0, kind: ModifierKind.flat),
       StatModifier(stat: StatId.moveSpeedPercent, amount: -0.05),
@@ -49,8 +53,9 @@ const List<ItemDef> commonItems = [
   ),
   ItemDef(
     id: ItemId.featherBoots,
-    name: 'Feather Boots',
-    description: 'Swift steps with reduced protection.',
+    name: 'Vow of Swift Soles',
+    description: 'Blessing: +Move Speed / Burden: -Defense',
+    flavorText: 'Your ankles have filed a gentle complaint.',
     modifiers: [
       StatModifier(stat: StatId.moveSpeedPercent, amount: 0.1),
       StatModifier(stat: StatId.defense, amount: -0.06),
@@ -59,8 +64,9 @@ const List<ItemDef> commonItems = [
   ),
   ItemDef(
     id: ItemId.overclockedTrigger,
-    name: 'Overclocked Trigger',
-    description: 'Rapid fire output with weaker hits.',
+    name: 'Rite of Hasty Hands',
+    description: 'Blessing: +Attack Speed / Burden: -Damage',
+    flavorText: 'Your form is impeccable; your impact is not.',
     modifiers: [
       StatModifier(stat: StatId.attackSpeed, amount: 0.12),
       StatModifier(stat: StatId.damage, amount: -0.06),
@@ -69,8 +75,9 @@ const List<ItemDef> commonItems = [
   ),
   ItemDef(
     id: ItemId.sharpeningStone,
-    name: 'Sharpening Stone',
-    description: 'Melee edge honed at ranged expense.',
+    name: 'Relic: Honing Stone',
+    description: 'Blessing: +Melee Damage / Burden: -Projectile Damage',
+    flavorText: 'Sharp enough to shave, still bad at throwing.',
     modifiers: [
       StatModifier(stat: StatId.meleeDamage, amount: 0.12),
       StatModifier(stat: StatId.projectileDamage, amount: -0.08),
@@ -79,8 +86,9 @@ const List<ItemDef> commonItems = [
   ),
   ItemDef(
     id: ItemId.focusingNozzle,
-    name: 'Focusing Nozzle',
-    description: 'Amplify beams while shrinking blast area.',
+    name: 'Rite of Narrow Beams',
+    description: 'Blessing: +Beam Damage / Burden: -Area Size',
+    flavorText: 'All the power, none of the breathing room.',
     modifiers: [
       StatModifier(stat: StatId.beamDamage, amount: 0.12),
       StatModifier(stat: StatId.aoeSize, amount: -0.06),
@@ -90,8 +98,9 @@ const List<ItemDef> commonItems = [
   ),
   ItemDef(
     id: ItemId.insulatedFlask,
-    name: 'Insulated Flask',
-    description: 'Water techniques improve as fire wanes.',
+    name: 'Relic: Chilled Flask',
+    description: 'Blessing: +Water Damage / Burden: -Fire Damage',
+    flavorText: 'Fire politely declines.',
     modifiers: [
       StatModifier(stat: StatId.waterDamage, amount: 0.12),
       StatModifier(stat: StatId.fireDamage, amount: -0.08),
@@ -101,8 +110,9 @@ const List<ItemDef> commonItems = [
   ),
   ItemDef(
     id: ItemId.toxicFilters,
-    name: 'Toxic Filters',
-    description: 'Filter poison but inhibit recovery.',
+    name: 'Relic: Purifying Filter',
+    description: 'Blessing: +Poison Resistance / Burden: -Healing Received',
+    flavorText: 'It keeps out toxins and most good intentions.',
     modifiers: [
       StatModifier(stat: StatId.poisonResistance, amount: 0.14),
       StatModifier(stat: StatId.healingReceived, amount: -0.08),
@@ -112,8 +122,9 @@ const List<ItemDef> commonItems = [
   ),
   ItemDef(
     id: ItemId.ironGrip,
-    name: 'Iron Grip',
-    description: 'Stronger knockback with slower attacks.',
+    name: 'Rite of Iron Grip',
+    description: 'Blessing: +Knockback Strength / Burden: -Attack Speed',
+    flavorText: 'Great for shoving, poor for keeping tempo.',
     modifiers: [
       StatModifier(stat: StatId.knockbackStrength, amount: 0.14),
       StatModifier(stat: StatId.attackSpeed, amount: -0.06),
@@ -122,8 +133,9 @@ const List<ItemDef> commonItems = [
   ),
   ItemDef(
     id: ItemId.luckyCoin,
-    name: 'Lucky Coin',
-    description: 'Better drops for reduced damage.',
+    name: 'Vow of Fortune',
+    description: 'Blessing: +Drops / Burden: -Damage',
+    flavorText: 'The coin likes you more than your targets do.',
     modifiers: [
       StatModifier(stat: StatId.drops, amount: 0.1),
       StatModifier(stat: StatId.damage, amount: -0.06),
@@ -133,8 +145,9 @@ const List<ItemDef> commonItems = [
   ),
   ItemDef(
     id: ItemId.evasiveTalisman,
-    name: 'Evasive Talisman',
-    description: 'Sharper dodges leave you more fragile.',
+    name: 'Relic: Skittish Talisman',
+    description: 'Blessing: +Dodge Chance / Burden: -Max HP',
+    flavorText: 'The body dodges; the paperwork says fragile.',
     modifiers: [
       StatModifier(stat: StatId.dodgeChance, amount: 0.06),
       StatModifier(stat: StatId.maxHp, amount: -0.05),
@@ -144,8 +157,9 @@ const List<ItemDef> commonItems = [
   ),
   ItemDef(
     id: ItemId.slickSoles,
-    name: 'Slick Soles',
-    description: 'Mobility effects intensify but aim falters.',
+    name: 'Rite of Slick Soles',
+    description: 'Blessing: +Move Speed / Burden: -Accuracy',
+    flavorText: 'You glide gracefully past the thing you meant to hit.',
     modifiers: [
       StatModifier(stat: StatId.moveSpeedPercent, amount: 0.08),
       StatModifier(stat: StatId.accuracy, amount: -0.08),
@@ -155,8 +169,9 @@ const List<ItemDef> commonItems = [
   ),
   ItemDef(
     id: ItemId.backpackOfGlass,
-    name: 'Backpack of Glass',
-    description: 'Extra pickup reach with fragile capacity.',
+    name: 'Relic: Glass Satchel',
+    description: 'Blessing: +Pickup Radius / Burden: -Max HP',
+    flavorText: 'Carry more, breathe less.',
     modifiers: [
       StatModifier(stat: StatId.pickupRadiusPercent, amount: 0.12),
       StatModifier(stat: StatId.maxHp, amount: -0.08),
@@ -165,25 +180,35 @@ const List<ItemDef> commonItems = [
   ),
   ItemDef(
     id: ItemId.fieldRations,
-    name: 'Field Rations',
-    description: 'Simple supplies that steady your recovery.',
+    name: 'Vow of Plain Meals',
+    description: 'Blessing: +HP Regen / Burden: -Damage',
+    flavorText: 'Nutritious, if you ignore the taste.',
     modifiers: [
       StatModifier(stat: StatId.hpRegen, amount: 0.4, kind: ModifierKind.flat),
+      StatModifier(stat: StatId.damage, amount: -0.03),
     ],
     rarity: ItemRarity.common,
   ),
   ItemDef(
     id: ItemId.sturdyStitching,
-    name: 'Sturdy Stitching',
-    description: 'Reinforced seams add a touch of vitality.',
-    modifiers: [StatModifier(stat: StatId.maxHp, amount: 0.04)],
+    name: 'Relic: Consecrated Thread',
+    description: 'Blessing: +Max HP / Burden: -Move Speed',
+    flavorText: 'It holds together, unlike your schedule.',
+    modifiers: [
+      StatModifier(stat: StatId.maxHp, amount: 0.04),
+      StatModifier(stat: StatId.moveSpeedPercent, amount: -0.03),
+    ],
     rarity: ItemRarity.common,
   ),
   ItemDef(
     id: ItemId.primerCoil,
-    name: 'Primer Coil',
-    description: 'A mild boost to baseline output.',
-    modifiers: [StatModifier(stat: StatId.damage, amount: 0.04)],
+    name: 'Rite of First Spark',
+    description: 'Blessing: +Damage / Burden: -Cooldown Recovery',
+    flavorText: 'It starts fights faster than it ends them.',
+    modifiers: [
+      StatModifier(stat: StatId.damage, amount: 0.04),
+      StatModifier(stat: StatId.cooldownRecovery, amount: -0.03),
+    ],
     rarity: ItemRarity.common,
   ),
 ];
@@ -191,8 +216,10 @@ const List<ItemDef> commonItems = [
 const List<ItemDef> uncommonItems = [
   ItemDef(
     id: ItemId.slowCooker,
-    name: 'Slow Cooker',
-    description: 'Damage over time rises, direct hits suffer.',
+    name: 'Rite of Slow Fire',
+    description:
+        'Blessing: +DOT Damage & Duration / Burden: -Direct Hit Damage',
+    flavorText: 'The stew wins, eventually.',
     modifiers: [
       StatModifier(stat: StatId.dotDamage, amount: 0.25),
       StatModifier(stat: StatId.dotDuration, amount: 0.2),
@@ -203,8 +230,9 @@ const List<ItemDef> uncommonItems = [
   ),
   ItemDef(
     id: ItemId.wideLens,
-    name: 'Wide Lens',
-    description: 'Broader impact area and view with slower cadence.',
+    name: 'Relic: Wide Lens',
+    description: 'Blessing: +Area Size & Field of View / Burden: -Attack Speed',
+    flavorText: 'You see more, shoot less.',
     modifiers: [
       StatModifier(stat: StatId.aoeSize, amount: 0.25),
       StatModifier(stat: StatId.fieldOfView, amount: 0.1),
@@ -215,8 +243,9 @@ const List<ItemDef> uncommonItems = [
   ),
   ItemDef(
     id: ItemId.briarCharm,
-    name: 'Briar Charm',
-    description: 'Roots last longer but slow you down.',
+    name: 'Vow of Briars',
+    description: 'Blessing: +Root Duration & Strength / Burden: -Move Speed',
+    flavorText: 'The vines are loyal and slow walkers.',
     modifiers: [
       StatModifier(stat: StatId.rootDuration, amount: 0.25),
       StatModifier(stat: StatId.rootStrength, amount: 0.2),
@@ -227,8 +256,9 @@ const List<ItemDef> uncommonItems = [
   ),
   ItemDef(
     id: ItemId.vampiricSeal,
-    name: 'Vampiric Seal',
-    description: 'Leech life but cap your vitality.',
+    name: 'Vow of the Leech',
+    description: 'Blessing: +Life Steal / Burden: -Max HP',
+    flavorText: 'You borrow health with a very short due date.',
     modifiers: [
       StatModifier(stat: StatId.lifeSteal, amount: 0.15),
       StatModifier(stat: StatId.maxHp, amount: -0.15),
@@ -237,8 +267,9 @@ const List<ItemDef> uncommonItems = [
   ),
   ItemDef(
     id: ItemId.gamblersDie,
-    name: 'Gambler\'s Die',
-    description: 'More rerolls but fewer choices at once.',
+    name: 'Clause: Second Chance',
+    description: 'Blessing: +Rerolls / Burden: -Choice Count',
+    flavorText: 'The die insists you renegotiate fate.',
     modifiers: [
       StatModifier(stat: StatId.rerolls, amount: 1, kind: ModifierKind.flat),
       StatModifier(
@@ -251,8 +282,9 @@ const List<ItemDef> uncommonItems = [
   ),
   ItemDef(
     id: ItemId.reactiveShield,
-    name: 'Reactive Shield',
-    description: 'Periodic shield at the cost of recovery.',
+    name: 'Rite of Rebound Ward',
+    description: 'Blessing: +Defense / Burden: -Cooldown Recovery',
+    flavorText: 'The shield is punctual; your skills are not.',
     modifiers: [
       StatModifier(stat: StatId.defense, amount: 0.2),
       StatModifier(stat: StatId.cooldownRecovery, amount: -0.15),
@@ -262,8 +294,10 @@ const List<ItemDef> uncommonItems = [
   ),
   ItemDef(
     id: ItemId.ritualCandle,
-    name: 'Ritual Candle',
-    description: 'Fire damage over time rises, water wanes.',
+    name: 'Relic: Ritual Candle',
+    description:
+        'Blessing: +Fire DOT & Elemental Damage / Burden: -Water Damage',
+    flavorText: 'Smells holy, burns like gossip.',
     modifiers: [
       StatModifier(stat: StatId.dotDamage, amount: 0.2),
       StatModifier(stat: StatId.fireDamage, amount: 0.2),
@@ -275,8 +309,9 @@ const List<ItemDef> uncommonItems = [
   ),
   ItemDef(
     id: ItemId.gravelBoots,
-    name: 'Gravel Boots',
-    description: 'Heavier steps shove foes back, but slow your tempo.',
+    name: 'Vow of Heavy Steps',
+    description: 'Blessing: +Knockback Strength / Burden: -Attack Speed',
+    flavorText: 'Every stomp is a sermon.',
     modifiers: [
       StatModifier(stat: StatId.knockbackStrength, amount: 0.25),
       StatModifier(stat: StatId.attackSpeed, amount: -0.15),
@@ -289,8 +324,9 @@ const List<ItemDef> uncommonItems = [
 const List<ItemDef> rareItems = [
   ItemDef(
     id: ItemId.glassCatalyst,
-    name: 'Glass Catalyst',
-    description: 'High output at the cost of survivability.',
+    name: 'Rite of Glass Power',
+    description: 'Blessing: +Damage & Flat Damage / Burden: -Armor',
+    flavorText: 'Sharp ideas, fragile plan.',
     modifiers: [
       StatModifier(stat: StatId.damage, amount: 0.2),
       StatModifier(
@@ -305,8 +341,10 @@ const List<ItemDef> rareItems = [
   ),
   ItemDef(
     id: ItemId.thermalCoil,
-    name: 'Thermal Coil',
-    description: 'Ignitions burn longer, but shots hit softer.',
+    name: 'Relic: Ember Coil',
+    description:
+        'Blessing: +Fire DOT & Elemental Damage / Burden: -Projectile Damage',
+    flavorText: 'Everything burns longer, including your patience.',
     modifiers: [
       StatModifier(stat: StatId.dotDuration, amount: 0.3),
       StatModifier(stat: StatId.fireDamage, amount: 0.2),
@@ -319,8 +357,9 @@ const List<ItemDef> rareItems = [
   ),
   ItemDef(
     id: ItemId.hydraulicStabilizer,
-    name: 'Hydraulic Stabilizer',
-    description: 'Steadier beams widen impact, slowing your stride.',
+    name: 'Rite of Steady Beam',
+    description: 'Blessing: +Beam Damage & Area Size / Burden: -Move Speed',
+    flavorText: 'Beams hold steady; you do not.',
     modifiers: [
       StatModifier(stat: StatId.beamDamage, amount: 0.3),
       StatModifier(stat: StatId.aoeSize, amount: 0.2),
@@ -332,8 +371,10 @@ const List<ItemDef> rareItems = [
   ),
   ItemDef(
     id: ItemId.sporeSatchel,
-    name: 'Spore Satchel',
-    description: 'Poison blooms stronger, healing feels weaker.',
+    name: 'Relic: Spore Satchel',
+    description:
+        'Blessing: +Poison DOT & Resistance / Burden: -Healing Received',
+    flavorText: 'The spores are friendly; your healer is not.',
     modifiers: [
       StatModifier(stat: StatId.dotDamage, amount: 0.25),
       StatModifier(stat: StatId.poisonResistance, amount: 0.25),
@@ -345,8 +386,10 @@ const List<ItemDef> rareItems = [
   ),
   ItemDef(
     id: ItemId.serratedEdge,
-    name: 'Serrated Edge',
-    description: 'Melee cuts linger, ranged force fades.',
+    name: 'Relic: Serrated Edge',
+    description:
+        'Blessing: +Melee Damage & DOT Damage / Burden: -Projectile Damage',
+    flavorText: 'It cuts cleanly and argues with bows.',
     modifiers: [
       StatModifier(stat: StatId.meleeDamage, amount: 0.25),
       StatModifier(stat: StatId.dotDamage, amount: 0.2),
@@ -358,9 +401,9 @@ const List<ItemDef> rareItems = [
   ),
   ItemDef(
     id: ItemId.mercyCharm,
-    name: 'Mercy Charm',
-    description:
-        'Healing strengthens with steady recovery, raw damage softens.',
+    name: 'Vow of Mercy',
+    description: 'Blessing: +Healing Received & HP Regen / Burden: -Damage',
+    flavorText: 'You recover faster than you resolve anything.',
     modifiers: [
       StatModifier(stat: StatId.healingReceived, amount: 0.3),
       StatModifier(stat: StatId.damage, amount: -0.2),
@@ -375,8 +418,10 @@ const List<ItemDef> rareItems = [
 const List<ItemDef> epicItems = [
   ItemDef(
     id: ItemId.volatileMixture,
-    name: 'Volatile Mixture',
-    description: 'Explosions hit harder but hurt you too.',
+    name: 'Rite of Volatile Mix',
+    description:
+        'Blessing: +Explosion & Elemental Damage / Burden: +Self Explosion Damage Taken',
+    flavorText: 'Spectacular results, questionable safety.',
     modifiers: [
       StatModifier(stat: StatId.explosionDamage, amount: 0.4),
       StatModifier(stat: StatId.fireDamage, amount: 0.2),
@@ -394,8 +439,10 @@ const List<ItemDef> epicItems = [
   ),
   ItemDef(
     id: ItemId.moltenBuckle,
-    name: 'Molten Buckle',
-    description: 'Volatile blasts surge, self-burn included.',
+    name: 'Relic: Molten Buckle',
+    description:
+        'Blessing: +Explosion & Fire Damage / Burden: +Self Explosion Damage Taken',
+    flavorText: 'Fashioned for ritual belts and accidental fireworks.',
     modifiers: [
       StatModifier(stat: StatId.explosionDamage, amount: 0.35),
       StatModifier(stat: StatId.fireDamage, amount: 0.25),

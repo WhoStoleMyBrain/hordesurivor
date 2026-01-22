@@ -321,6 +321,16 @@ class _ChoiceCard extends StatelessWidget {
               color: isPlaceholder ? Colors.white38 : Colors.white70,
             ),
           ),
+          if (choice.flavorText.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              choice.flavorText,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.white54,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
           if (statChanges.isNotEmpty) ...[
             const SizedBox(height: 8),
             for (final line in statChanges)
