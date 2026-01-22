@@ -6,6 +6,7 @@ import 'currency_defs.dart';
 import 'enemy_defs.dart';
 import 'ids.dart';
 import 'item_defs.dart';
+import 'map_background_defs.dart';
 import 'meta_unlock_defs.dart';
 import 'progression_track_defs.dart';
 import 'selection_pool_defs.dart';
@@ -58,6 +59,11 @@ DataValidationResult validateGameData() {
   _checkUniqueIds(
     ids: areaDefs.map((def) => def.id),
     label: 'AreaDef',
+    result: result,
+  );
+  _checkUniqueIds(
+    ids: mapBackgroundDefs.map((def) => def.id),
+    label: 'MapBackgroundDef',
     result: result,
   );
   _checkUniqueIds(
@@ -162,6 +168,14 @@ DataValidationResult validateGameData() {
     }
     if (def.tier <= 0) {
       result.errors.add('WeaponUpgradeDef ${def.id} has invalid tier.');
+    }
+  }
+
+  for (final area in areaDefs) {
+    if (!mapBackgroundDefsById.containsKey(area.mapBackgroundId)) {
+      result.errors.add(
+        'AreaDef ${area.id} references missing map background ${area.mapBackgroundId}.',
+      );
     }
   }
 
