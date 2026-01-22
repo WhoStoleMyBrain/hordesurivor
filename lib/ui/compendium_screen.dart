@@ -8,6 +8,7 @@ import '../data/item_defs.dart';
 import '../data/skill_defs.dart';
 import '../data/status_effect_defs.dart';
 import '../data/tags.dart';
+import 'item_rarity_style.dart';
 import 'stat_text.dart';
 import 'tag_badge.dart';
 
@@ -108,6 +109,8 @@ class _ItemList extends StatelessWidget {
       itemBuilder: (context, index) {
         final item = items[index];
         final badges = tagBadgesForTags(item.tags);
+        final rarityLabel = itemRarityLabel(item.rarity);
+        final rarityColor = itemRarityColor(item.rarity);
         return _CompendiumCard(
           title: item.name,
           description: item.description,
@@ -115,6 +118,8 @@ class _ItemList extends StatelessWidget {
           iconImage: itemIcons[item.id],
           showIconSlot: true,
           badges: badges,
+          rarityLabel: rarityLabel,
+          rarityColor: rarityColor,
         );
       },
     );
@@ -202,6 +207,8 @@ class _CompendiumCard extends StatelessWidget {
     this.iconImage,
     this.showIconSlot = false,
     required this.badges,
+    this.rarityLabel,
+    this.rarityColor,
   });
 
   final String title;
@@ -210,15 +217,18 @@ class _CompendiumCard extends StatelessWidget {
   final ui.Image? iconImage;
   final bool showIconSlot;
   final List<TagBadgeData> badges;
+  final String? rarityLabel;
+  final Color? rarityColor;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final borderColor = rarityColor?.withValues(alpha: 0.45) ?? Colors.white12;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: const Color(0xFF1C2230),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white12),
+        border: Border.all(color: borderColor),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -240,6 +250,14 @@ class _CompendiumCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (rarityLabel != null && rarityColor != null)
+                  Text(
+                    rarityLabel!,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: rarityColor!.withValues(alpha: 0.9),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
               ],
             ),
             const SizedBox(height: 6),
@@ -249,6 +267,15 @@ class _CompendiumCard extends StatelessWidget {
                 color: Colors.white70,
               ),
             ),
+            if (rarityLabel != null && rarityColor != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                'Rarity: $rarityLabel',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: rarityColor!.withValues(alpha: 0.9),
+                ),
+              ),
+            ],
             if (details != null && details!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
