@@ -12,6 +12,7 @@ import '../data/weapon_upgrade_defs.dart';
 import '../game/level_up_system.dart';
 import 'item_rarity_style.dart';
 import 'selection_state.dart';
+import 'skill_detail_text.dart';
 import 'stat_text.dart';
 import 'tag_badge.dart';
 import 'ui_scale.dart';
@@ -336,6 +337,7 @@ class _ChoiceCard extends StatelessWidget {
     final statusEffects = _statusEffectsForChoice(choice);
     final statusBadges = statusBadgesForEffects(statusEffects);
     final statChanges = _statChangesForChoice(choice);
+    final skillDetails = _skillDetailsForChoice(choice);
     final synergies = _synergyHintsForTags(tags);
     final canAfford = price == null || goldAvailable >= price!;
     final priceLabel = price == null ? null : '${price}g';
@@ -438,6 +440,16 @@ class _ChoiceCard extends StatelessWidget {
           if (statChanges.isNotEmpty) ...[
             const SizedBox(height: 8),
             for (final line in statChanges)
+              Text(
+                line,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.white60,
+                ),
+              ),
+          ],
+          if (skillDetails.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            for (final line in skillDetails)
               Text(
                 line,
                 style: theme.textTheme.bodySmall?.copyWith(
@@ -698,6 +710,21 @@ List<String> _statChangesForChoice(SelectionChoice choice) {
           StatText.formatModifier(modifier),
       ];
     case SelectionType.skill:
+      return const [];
+  }
+}
+
+List<String> _skillDetailsForChoice(SelectionChoice choice) {
+  switch (choice.type) {
+    case SelectionType.skill:
+      final skillId = choice.skillId;
+      if (skillId == null) {
+        return const [];
+      }
+      return skillDetailTextLinesFor(skillId);
+    case SelectionType.skillUpgrade:
+    case SelectionType.weaponUpgrade:
+    case SelectionType.item:
       return const [];
   }
 }
