@@ -123,20 +123,6 @@ class DamageSystem {
     final defense = stats.value(StatId.defense);
     final defenseMultiplier = (1 - defense).clamp(0.05, 3.0).toDouble();
     damage *= defenseMultiplier;
-    final armor = stats.value(StatId.armor);
-    if (armor != 0) {
-      damage -= armor;
-    }
-    if (event.tags.hasElement(ElementTag.poison)) {
-      final resistance = stats.value(StatId.poisonResistance);
-      final resistanceMultiplier = (1 - resistance).clamp(0.05, 3.0).toDouble();
-      damage *= resistanceMultiplier;
-    }
-    if (event.selfInflicted && event.tags.hasDelivery(DeliveryTag.ground)) {
-      final selfExplosion = stats.value(StatId.selfExplosionDamageTaken);
-      final selfMultiplier = (1 + selfExplosion).clamp(0.1, 3.0).toDouble();
-      damage *= selfMultiplier;
-    }
     return math.max(0, damage);
   }
 }

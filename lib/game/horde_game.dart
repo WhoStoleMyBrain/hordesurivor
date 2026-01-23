@@ -420,7 +420,16 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _playerState = PlayerState(
       position: _mapSize / 2,
       maxHp: activeCharacter.baseStats[StatId.maxHp] ?? 100,
-      moveSpeed: activeCharacter.baseStats[StatId.moveSpeed] ?? 120,
+      moveSpeed: activeCharacter.movement.moveSpeed,
+      dashSpeed: activeCharacter.movement.dashSpeed,
+      dashDistance: activeCharacter.movement.dashDistance,
+      dashCooldown: activeCharacter.movement.dashCooldown,
+      dashChargesBase: activeCharacter.movement.dashCharges,
+      dashDuration: activeCharacter.movement.dashDuration,
+      dashStartOffset: activeCharacter.movement.dashStartOffset,
+      dashEndOffset: activeCharacter.movement.dashEndOffset,
+      dashInvulnerability: activeCharacter.movement.dashInvulnerability,
+      dashTeleport: activeCharacter.movement.dashTeleport,
     );
     _playerState.setBaseStats(activeCharacter.baseStats);
     _progressionSystem = ProgressionSystem();
@@ -1356,7 +1365,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _runAnalysisState.recordEnemyDamage(amount, sourceSkillId: sourceSkillId);
     tryLifesteal(
       player: _playerState,
-      chance: _playerState.stats.value(StatId.lifeSteal),
+      chance: _playerState.stats.value(StatId.absolution),
       random: _lifestealRandom,
     );
     if (!_damageNumbersEnabled) {
@@ -1975,10 +1984,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       dashCharges: _playerState.dashCharges,
       dashMaxCharges: _playerState.dashMaxCharges,
       dashCooldownRemaining: _playerState.dashCooldownRemaining,
-      dashCooldownDuration: math.max(
-        0,
-        _playerState.stats.value(StatId.dashCooldown),
-      ),
+      dashCooldownDuration: math.max(0, _playerState.dashCooldown),
     );
     _statsScreenState.update(
       statValues: _collectStatValues(),
@@ -2065,7 +2071,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final values = <StatId, double>{};
     for (final stat in StatId.values) {
       final value = _playerState.stats.value(stat);
-      if (stat == StatId.maxHp || stat == StatId.moveSpeed) {
+      if (stat == StatId.maxHp) {
         values[stat] = value;
         continue;
       }
@@ -2639,7 +2645,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _runSummary.weaponUpgrades = _levelUpSystem.appliedWeaponUpgrades.toList(
       growable: false,
     );
-    final dropBonus = _playerState.stats.value(StatId.drops);
+    final dropBonus = _playerState.stats.value(StatId.dropsPercent);
     final dropMultiplier = math.max(0.0, 1 + dropBonus);
     _runSummary.metaRewardMultiplier =
         _contractRewardMultiplier * dropMultiplier;

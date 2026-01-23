@@ -74,9 +74,9 @@ void main() {
     );
 
     expect(playerState.maxHp, closeTo(100, 0.001));
-    expect(playerState.stats.value(StatId.damage), closeTo(0.2, 0.001));
+    expect(playerState.stats.value(StatId.damagePercent), closeTo(0.2, 0.001));
     expect(playerState.stats.value(StatId.flatDamage), closeTo(1.0, 0.001));
-    expect(playerState.stats.value(StatId.armor), closeTo(-3.0, 0.001));
+    expect(playerState.stats.value(StatId.defense), closeTo(-0.09, 0.001));
   });
 
   test('LevelUpSystem hides locked skills and items until unlocked', () {

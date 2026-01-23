@@ -714,8 +714,9 @@ class SkillSystem {
     final radius = 54 * aoeScale;
     const baseDuration = 1.8;
     final rootDuration =
-        baseDuration * math.max(0.1, 1 + stats.value(StatId.rootDuration));
-    final rootStrength = (0.6 + stats.value(StatId.rootStrength)).clamp(
+        baseDuration *
+        math.max(0.1, 1 + stats.value(StatId.statusDurationPercent));
+    final rootStrength = (0.6 + stats.value(StatId.statusPotencyPercent)).clamp(
       0.2,
       0.9,
     );
@@ -1278,7 +1279,7 @@ class SkillSystem {
   }
 
   double _supportMultiplier(StatSheet stats) {
-    return math.max(0.1, 1 + stats.value(StatId.healingReceived));
+    return math.max(0.1, 1 + stats.value(StatId.healingReceivedPercent));
   }
 
   double _aoeScale(StatSheet stats) {
@@ -1300,49 +1301,51 @@ class SkillSystem {
   }
 
   double _damageMultiplierForTags(TagSet tags, StatSheet stats) {
-    var multiplier = 1 + stats.value(StatId.damage);
+    var multiplier = 1 + stats.value(StatId.damagePercent);
     if (tags.hasEffect(EffectTag.dot)) {
-      multiplier += stats.value(StatId.dotDamage);
-    } else {
-      multiplier += stats.value(StatId.directHitDamage);
+      multiplier += stats.value(StatId.dotDamagePercent);
     }
 
     if (tags.hasDelivery(DeliveryTag.projectile)) {
-      multiplier += stats.value(StatId.projectileDamage);
+      multiplier += stats.value(StatId.projectileDamagePercent);
     }
     if (tags.hasDelivery(DeliveryTag.melee)) {
-      multiplier += stats.value(StatId.meleeDamage);
+      multiplier += stats.value(StatId.meleeDamagePercent);
     }
     if (tags.hasDelivery(DeliveryTag.beam)) {
-      multiplier += stats.value(StatId.beamDamage);
+      multiplier += stats.value(StatId.beamDamagePercent);
+    }
+    if (tags.hasDelivery(DeliveryTag.aura)) {
+      multiplier += stats.value(StatId.auraDamagePercent);
     }
     if (tags.hasDelivery(DeliveryTag.ground)) {
-      multiplier += stats.value(StatId.explosionDamage);
+      multiplier += stats.value(StatId.groundDamagePercent);
+      multiplier += stats.value(StatId.explosionDamagePercent);
     }
 
     if (tags.elements.isNotEmpty) {
-      multiplier += stats.value(StatId.elementalDamage);
+      multiplier += stats.value(StatId.elementalDamagePercent);
     }
     if (tags.hasElement(ElementTag.fire)) {
-      multiplier += stats.value(StatId.fireDamage);
+      multiplier += stats.value(StatId.fireDamagePercent);
     }
     if (tags.hasElement(ElementTag.water)) {
-      multiplier += stats.value(StatId.waterDamage);
+      multiplier += stats.value(StatId.waterDamagePercent);
     }
     if (tags.hasElement(ElementTag.earth)) {
-      multiplier += stats.value(StatId.earthDamage);
+      multiplier += stats.value(StatId.earthDamagePercent);
     }
     if (tags.hasElement(ElementTag.wind)) {
-      multiplier += stats.value(StatId.windDamage);
+      multiplier += stats.value(StatId.windDamagePercent);
     }
     if (tags.hasElement(ElementTag.poison)) {
-      multiplier += stats.value(StatId.poisonDamage);
+      multiplier += stats.value(StatId.poisonDamagePercent);
     }
     if (tags.hasElement(ElementTag.steel)) {
-      multiplier += stats.value(StatId.steelDamage);
+      multiplier += stats.value(StatId.steelDamagePercent);
     }
     if (tags.hasElement(ElementTag.wood)) {
-      multiplier += stats.value(StatId.woodDamage);
+      multiplier += stats.value(StatId.woodDamagePercent);
     }
 
     return math.max(0.1, multiplier);
@@ -1357,7 +1360,7 @@ class SkillSystem {
   }
 
   double _knockbackScale(StatSheet stats) {
-    return math.max(0.1, 1 + stats.value(StatId.knockbackStrength));
+    return math.max(0.1, 1 + stats.value(StatId.banishmentForce));
   }
 
   double _spreadScale(StatSheet stats) {

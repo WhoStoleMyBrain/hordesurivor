@@ -33,8 +33,8 @@ const List<SkillUpgradeDef> skillUpgradeDefs = [
       deliveries: {DeliveryTag.projectile},
     ),
     modifiers: [
-      StatModifier(stat: StatId.damage, amount: 0.15),
-      StatModifier(stat: StatId.fireDamage, amount: 0.1),
+      StatModifier(stat: StatId.damagePercent, amount: 0.15),
+      StatModifier(stat: StatId.fireDamagePercent, amount: 0.1),
     ],
   ),
   SkillUpgradeDef(
@@ -48,7 +48,7 @@ const List<SkillUpgradeDef> skillUpgradeDefs = [
     ),
     modifiers: [
       StatModifier(stat: StatId.attackSpeed, amount: 0.1),
-      StatModifier(stat: StatId.projectileDamage, amount: 0.05),
+      StatModifier(stat: StatId.projectileDamagePercent, amount: 0.05),
     ],
   ),
   SkillUpgradeDef(
@@ -57,7 +57,7 @@ const List<SkillUpgradeDef> skillUpgradeDefs = [
     name: 'Pressure Line',
     summary: 'Waterjet cuts harder.',
     tags: TagSet(elements: {ElementTag.water}, deliveries: {DeliveryTag.beam}),
-    modifiers: [StatModifier(stat: StatId.beamDamage, amount: 0.2)],
+    modifiers: [StatModifier(stat: StatId.beamDamagePercent, amount: 0.2)],
   ),
   SkillUpgradeDef(
     id: SkillUpgradeId.waterjetSteadyStream,
@@ -91,8 +91,8 @@ const List<SkillUpgradeDef> skillUpgradeDefs = [
       deliveries: {DeliveryTag.projectile, DeliveryTag.ground},
     ),
     modifiers: [
-      StatModifier(stat: StatId.damage, amount: 0.12),
-      StatModifier(stat: StatId.projectileDamage, amount: 0.08),
+      StatModifier(stat: StatId.damagePercent, amount: 0.12),
+      StatModifier(stat: StatId.projectileDamagePercent, amount: 0.08),
     ],
   ),
   SkillUpgradeDef(
@@ -119,7 +119,7 @@ const List<SkillUpgradeDef> skillUpgradeDefs = [
     ),
     modifiers: [
       StatModifier(stat: StatId.attackSpeed, amount: 0.1),
-      StatModifier(stat: StatId.meleeDamage, amount: 0.05),
+      StatModifier(stat: StatId.meleeDamagePercent, amount: 0.05),
     ],
   ),
   SkillUpgradeDef(
@@ -144,7 +144,7 @@ const List<SkillUpgradeDef> skillUpgradeDefs = [
       effects: {EffectTag.aoe},
       deliveries: {DeliveryTag.melee},
     ),
-    modifiers: [StatModifier(stat: StatId.meleeDamage, amount: 0.15)],
+    modifiers: [StatModifier(stat: StatId.meleeDamagePercent, amount: 0.15)],
   ),
   SkillUpgradeDef(
     id: SkillUpgradeId.swordSwingHeavyMomentum,
@@ -156,7 +156,7 @@ const List<SkillUpgradeDef> skillUpgradeDefs = [
       effects: {EffectTag.aoe},
       deliveries: {DeliveryTag.melee},
     ),
-    modifiers: [StatModifier(stat: StatId.meleeDamage, amount: 0.2)],
+    modifiers: [StatModifier(stat: StatId.meleeDamagePercent, amount: 0.2)],
   ),
   SkillUpgradeDef(
     id: SkillUpgradeId.swordSwingFlowingStrike,
@@ -196,8 +196,8 @@ const List<SkillUpgradeDef> skillUpgradeDefs = [
       deliveries: {DeliveryTag.melee},
     ),
     modifiers: [
-      StatModifier(stat: StatId.meleeDamage, amount: 0.1),
-      StatModifier(stat: StatId.damage, amount: 0.05),
+      StatModifier(stat: StatId.meleeDamagePercent, amount: 0.1),
+      StatModifier(stat: StatId.damagePercent, amount: 0.05),
     ],
   ),
   SkillUpgradeDef(
@@ -222,7 +222,7 @@ const List<SkillUpgradeDef> skillUpgradeDefs = [
       effects: {EffectTag.aoe, EffectTag.dot},
       deliveries: {DeliveryTag.aura},
     ),
-    modifiers: [StatModifier(stat: StatId.dotDamage, amount: 0.2)],
+    modifiers: [StatModifier(stat: StatId.dotDamagePercent, amount: 0.2)],
   ),
   SkillUpgradeDef(
     id: SkillUpgradeId.rootsDeepBind,
@@ -234,7 +234,7 @@ const List<SkillUpgradeDef> skillUpgradeDefs = [
       effects: {EffectTag.debuff},
       deliveries: {DeliveryTag.ground},
     ),
-    modifiers: [StatModifier(stat: StatId.rootDuration, amount: 0.25)],
+    modifiers: [StatModifier(stat: StatId.statusDurationPercent, amount: 0.25)],
   ),
   SkillUpgradeDef(
     id: SkillUpgradeId.rootsTighteningGrasp,
@@ -246,7 +246,7 @@ const List<SkillUpgradeDef> skillUpgradeDefs = [
       effects: {EffectTag.debuff},
       deliveries: {DeliveryTag.ground},
     ),
-    modifiers: [StatModifier(stat: StatId.rootStrength, amount: 0.15)],
+    modifiers: [StatModifier(stat: StatId.statusPotencyPercent, amount: 0.15)],
   ),
 ];
 

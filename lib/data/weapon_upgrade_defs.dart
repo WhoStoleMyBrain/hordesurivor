@@ -31,10 +31,10 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.fireball,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.damage,
+      StatId.damagePercent,
       0.06,
       0.02,
-      StatId.fireDamage,
+      StatId.fireDamagePercent,
       0.04,
       0.01,
       tier,
@@ -43,7 +43,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.waterjet,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.beamDamage,
+      StatId.beamDamagePercent,
       0.07,
       0.02,
       StatId.attackSpeed,
@@ -55,7 +55,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.oilBombs,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.explosionDamage,
+      StatId.explosionDamagePercent,
       0.06,
       0.02,
       StatId.aoeSize,
@@ -67,7 +67,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.swordThrust,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.meleeDamage,
+      StatId.meleeDamagePercent,
       0.07,
       0.02,
       StatId.attackSpeed,
@@ -79,7 +79,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.swordCut,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.meleeDamage,
+      StatId.meleeDamagePercent,
       0.08,
       0.02,
       StatId.aoeSize,
@@ -91,7 +91,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.swordSwing,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.meleeDamage,
+      StatId.meleeDamagePercent,
       0.09,
       0.02,
       StatId.aoeSize,
@@ -103,7 +103,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.swordDeflect,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.meleeDamage,
+      StatId.meleeDamagePercent,
       0.06,
       0.015,
       StatId.cooldownRecovery,
@@ -115,7 +115,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.poisonGas,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.dotDamage,
+      StatId.dotDamagePercent,
       0.07,
       0.02,
       StatId.aoeSize,
@@ -127,10 +127,10 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.roots,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.rootDuration,
+      StatId.statusDurationPercent,
       0.07,
       0.02,
-      StatId.rootStrength,
+      StatId.statusPotencyPercent,
       0.05,
       0.015,
       tier,
@@ -139,7 +139,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.windCutter,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.projectileDamage,
+      StatId.projectileDamagePercent,
       0.07,
       0.02,
       StatId.attackSpeed,
@@ -151,7 +151,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.steelShards,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.projectileDamage,
+      StatId.projectileDamagePercent,
       0.08,
       0.02,
       StatId.attackSpeed,
@@ -163,7 +163,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.flameWave,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.beamDamage,
+      StatId.beamDamagePercent,
       0.07,
       0.02,
       StatId.aoeSize,
@@ -178,7 +178,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
       StatId.aoeSize,
       0.06,
       0.015,
-      StatId.waterDamage,
+      StatId.waterDamagePercent,
       0.05,
       0.015,
       tier,
@@ -187,7 +187,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.earthSpikes,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.damage,
+      StatId.damagePercent,
       0.07,
       0.02,
       StatId.aoeSize,
@@ -199,7 +199,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.sporeBurst,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.dotDamage,
+      StatId.dotDamagePercent,
       0.07,
       0.02,
       StatId.aoeSize,
@@ -211,7 +211,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.scrapRover,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.meleeDamage,
+      StatId.meleeDamagePercent,
       0.07,
       0.02,
       StatId.attackSpeed,
@@ -223,7 +223,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.arcTurret,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.projectileDamage,
+      StatId.projectileDamagePercent,
       0.07,
       0.02,
       StatId.attackSpeed,
@@ -235,7 +235,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.guardianOrbs,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.damage,
+      StatId.damagePercent,
       0.06,
       0.02,
       StatId.aoeSize,
@@ -250,7 +250,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
       StatId.cooldownRecovery,
       0.05,
       0.015,
-      StatId.healingReceived,
+      StatId.healingReceivedPercent,
       0.04,
       0.01,
       tier,
@@ -259,7 +259,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.mineLayer,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.explosionDamage,
+      StatId.explosionDamagePercent,
       0.07,
       0.02,
       StatId.aoeSize,
