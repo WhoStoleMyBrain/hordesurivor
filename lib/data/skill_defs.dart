@@ -34,9 +34,9 @@ class SkillDef {
 const List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.fireball,
-    name: 'Fireball',
-    iconId: 'skill_fireball',
-    description: 'Launch a fast fire projectile.',
+    name: 'Censer Ember',
+    iconId: 'skill_censer_ember',
+    description: 'Fling a burning coal from the censer.',
     tags: TagSet(
       elements: {ElementTag.fire},
       deliveries: {DeliveryTag.projectile},
@@ -47,17 +47,17 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.waterjet,
-    name: 'Waterjet',
-    iconId: 'skill_waterjet',
-    description: 'Pulse a focused beam of water.',
+    name: 'Holy Water Jet',
+    iconId: 'skill_holy_water_jet',
+    description: 'Spray a focused line of holy water.',
     tags: TagSet(elements: {ElementTag.water}, deliveries: {DeliveryTag.beam}),
     statusEffects: {StatusEffectId.slow},
   ),
   SkillDef(
     id: SkillId.oilBombs,
-    name: 'Oil Bombs',
-    iconId: 'skill_oil_bombs',
-    description: 'Lob oil bombs that leave slick ground.',
+    name: 'Anointing Oil Flasks',
+    iconId: 'skill_anointing_oil',
+    description: 'Lob flasks that slick the ground for later “purification.”',
     tags: TagSet(
       effects: {EffectTag.debuff},
       deliveries: {DeliveryTag.projectile, DeliveryTag.ground},
@@ -68,9 +68,9 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.swordThrust,
-    name: 'Sword: Thrust',
-    iconId: 'skill_sword_thrust',
-    description: 'Quick narrow thrust with precision reach.',
+    name: 'Riteblade: Thrust',
+    iconId: 'skill_riteblade_thrust',
+    description: 'A precise thrust to “encourage” departure.',
     tags: TagSet(
       elements: {ElementTag.steel},
       effects: {EffectTag.mobility},
@@ -81,9 +81,9 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.swordCut,
-    name: 'Sword: Cut',
-    iconId: 'skill_sword_cut',
-    description: 'Short arc melee sweep.',
+    name: 'Riteblade: Cut',
+    iconId: 'skill_riteblade_cut',
+    description: 'A short sweeping cut of righteous steel.',
     tags: TagSet(
       elements: {ElementTag.steel},
       effects: {EffectTag.aoe},
@@ -94,9 +94,9 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.swordSwing,
-    name: 'Sword: Swing',
-    iconId: 'skill_sword_swing',
-    description: 'Wide arc melee swing with heavier wind-up.',
+    name: 'Riteblade: Swing',
+    iconId: 'skill_riteblade_swing',
+    description: 'A wide swing with a heavier wind-up and heavier judgement.',
     tags: TagSet(
       elements: {ElementTag.steel},
       effects: {EffectTag.aoe},
@@ -107,9 +107,9 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.swordDeflect,
-    name: 'Sword: Deflect',
-    iconId: 'skill_sword_deflect',
-    description: 'Deflect nearby projectiles with a quick parry.',
+    name: 'Riteblade: Rebuke',
+    iconId: 'skill_riteblade_rebuke',
+    description: 'A quick rebuke that turns back hostile projectiles.',
     tags: TagSet(
       elements: {ElementTag.steel},
       effects: {EffectTag.support},
@@ -122,9 +122,9 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.poisonGas,
-    name: 'Poison Gas',
-    iconId: 'skill_poison_gas',
-    description: 'Emit a toxic aura that damages over time.',
+    name: 'Thurible Fumes',
+    iconId: 'skill_thurible_fumes',
+    description: 'A lingering cloud of “cleansing” incense that hurts to breathe.',
     tags: TagSet(
       elements: {ElementTag.poison},
       effects: {EffectTag.aoe, EffectTag.dot},
@@ -133,9 +133,9 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.roots,
-    name: 'Roots',
-    iconId: 'skill_roots',
-    description: 'Snare enemies with erupting roots.',
+    name: 'Salt Circle',
+    iconId: 'skill_salt_circle',
+    description: 'A harsh ring that snares anything trying to cross it.',
     tags: TagSet(
       elements: {ElementTag.earth, ElementTag.wood},
       effects: {EffectTag.debuff},
@@ -145,9 +145,9 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.windCutter,
-    name: 'Wind Cutter',
-    iconId: 'skill_wind_cutter',
-    description: 'Launch razor wind projectiles at high speed.',
+    name: 'Psalm: Razor Hymn',
+    iconId: 'skill_razor_hymn',
+    description: 'Sing a sharp verse; the air does the rest.',
     tags: TagSet(
       elements: {ElementTag.wind},
       deliveries: {DeliveryTag.projectile},
@@ -158,9 +158,9 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.steelShards,
-    name: 'Steel Shards',
-    iconId: 'skill_steel_shards',
-    description: 'Fan out a trio of steel shards.',
+    name: 'Rosary Shards',
+    iconId: 'skill_rosary_shards',
+    description: 'Fan out blessed fragments in a tight burst.',
     tags: TagSet(
       elements: {ElementTag.steel},
       deliveries: {DeliveryTag.projectile},
@@ -171,9 +171,9 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.flameWave,
-    name: 'Flame Wave',
-    iconId: 'skill_flame_wave',
-    description: 'Sweep a short fire beam across enemies.',
+    name: 'Litany: Flame Sweep',
+    iconId: 'skill_flame_sweep',
+    description: 'A short sweeping wave of consecrated fire.',
     tags: TagSet(
       elements: {ElementTag.fire},
       effects: {EffectTag.aoe},
@@ -183,9 +183,9 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.frostNova,
-    name: 'Frost Nova',
-    iconId: 'skill_frost_nova',
-    description: 'Release a chilling pulse that slows nearby foes.',
+    name: 'Rite of Chill',
+    iconId: 'skill_rite_of_chill',
+    description: 'A cold blessing that slows everything nearby.',
     tags: TagSet(
       elements: {ElementTag.water},
       effects: {EffectTag.aoe, EffectTag.debuff},
@@ -196,9 +196,9 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.earthSpikes,
-    name: 'Earth Spikes',
-    iconId: 'skill_earth_spikes',
-    description: 'Erupt spikes from the ground ahead.',
+    name: 'Grave-Script Spikes',
+    iconId: 'skill_gravescript_spikes',
+    description: 'Inscribed ground erupts into punitive spikes.',
     tags: TagSet(
       elements: {ElementTag.earth},
       effects: {EffectTag.aoe, EffectTag.dot},
@@ -208,9 +208,9 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.sporeBurst,
-    name: 'Spore Burst',
-    iconId: 'skill_spore_burst',
-    description: 'Lob spores that linger as toxic clouds.',
+    name: 'Censer Spores',
+    iconId: 'skill_censer_spores',
+    description: 'A toxic “blessing” that lingers as a choking cloud.',
     tags: TagSet(
       elements: {ElementTag.poison},
       effects: {EffectTag.aoe, EffectTag.dot},
@@ -220,16 +220,16 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.scrapRover,
-    name: 'Scrap Rover',
-    iconId: 'skill_scrap_rover',
-    description: 'Deploy a melee rover that hunts nearby foes.',
+    name: 'Relic: Procession Idol',
+    iconId: 'skill_procession_idol',
+    description: 'A small idol trudges around and “corrects” nearby foes.',
     tags: TagSet(elements: {ElementTag.steel}, deliveries: {DeliveryTag.melee}),
   ),
   SkillDef(
     id: SkillId.arcTurret,
-    name: 'Arc Turret',
-    iconId: 'skill_arc_turret',
-    description: 'Summon a turret drone that fires on its own.',
+    name: 'Relic: Vigil Lantern',
+    iconId: 'skill_vigil_lantern',
+    description: 'A hovering lantern fires warding shots on its own.',
     tags: TagSet(
       elements: {ElementTag.steel},
       effects: {EffectTag.support},
@@ -238,9 +238,9 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.guardianOrbs,
-    name: 'Guardian Orbs',
-    iconId: 'skill_guardian_orbs',
-    description: 'Orbiting orbs intercept enemies with close-range damage.',
+    name: 'Warding Rosary',
+    iconId: 'skill_warding_rosary',
+    description: 'Orbiting beads keep close company and closer damage.',
     tags: TagSet(
       elements: {ElementTag.steel},
       effects: {EffectTag.support},
@@ -249,9 +249,9 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.menderOrb,
-    name: 'Mender Orb',
-    iconId: 'skill_mender_orb',
-    description: 'Orbiting wisp restores health over time.',
+    name: 'Absolving Wisp',
+    iconId: 'skill_absolving_wisp',
+    description: 'A patient little wisp that restores health over time.',
     tags: TagSet(
       elements: {ElementTag.wood},
       effects: {EffectTag.support},
@@ -260,9 +260,9 @@ const List<SkillDef> skillDefs = [
   ),
   SkillDef(
     id: SkillId.mineLayer,
-    name: 'Mine Layer',
-    iconId: 'skill_mine_layer',
-    description: 'Drop proximity mines that detonate on approach.',
+    name: 'Consecrated Wards',
+    iconId: 'skill_consecrated_wards',
+    description: 'Place wards that detonate when something unholy approaches.',
     tags: TagSet(
       elements: {ElementTag.fire},
       effects: {EffectTag.aoe},
@@ -270,6 +270,7 @@ const List<SkillDef> skillDefs = [
     ),
   ),
 ];
+
 
 final Map<SkillId, SkillDef> skillDefsById = Map.unmodifiable({
   for (final def in skillDefs) def.id: def,
