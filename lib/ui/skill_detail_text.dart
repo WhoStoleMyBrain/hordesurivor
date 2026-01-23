@@ -1,3 +1,5 @@
+import 'package:hordesurivor/data/data.dart';
+
 import '../data/ids.dart';
 
 class SkillDetailLine {
@@ -176,7 +178,7 @@ List<SkillDetailLine> skillDetailLinesFor(SkillId id) {
       return [
         _cooldownLine(9.5),
         _durationLine('Summon Duration', 6),
-        _healingPerSecondLine(3.2),
+        _healingPerSecondLine(0.32),
         _orbitRadiusLine(38),
         _orbitSpeedLine(2.2),
       ];

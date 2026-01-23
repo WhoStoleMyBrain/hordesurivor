@@ -77,7 +77,10 @@ class CharacterMovementDef {
   }
 }
 
-const Map<StatId, double> _basePlayerStats = {StatId.maxHp: 100};
+const Map<StatId, double> _basePlayerStats = {
+  StatId.maxHp: 100,
+  StatId.hpRegen: 1.0,
+};
 
 const CharacterMovementDef _basePlayerMovement = CharacterMovementDef(
   moveSpeed: 120,
