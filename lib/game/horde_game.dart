@@ -1994,6 +1994,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       items: _levelUpSystem.appliedItems.toList(),
       rerollsRemaining: _levelUpSystem.rerollsRemaining,
       rerollsMax: _levelUpSystem.rerollsMax,
+      activeCharacterId: _activeCharacterId,
+      activeCharacterSprite: _characterSprites[_activeCharacterId],
+      buildTags: buildTags,
     );
   }
 
@@ -2070,14 +2073,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   Map<StatId, double> _collectStatValues() {
     final values = <StatId, double>{};
     for (final stat in StatId.values) {
-      final value = _playerState.stats.value(stat);
-      if (stat == StatId.maxHp) {
-        values[stat] = value;
-        continue;
-      }
-      if (value.abs() > 0.0001) {
-        values[stat] = value;
-      }
+      values[stat] = _playerState.stats.value(stat);
     }
     return values;
   }

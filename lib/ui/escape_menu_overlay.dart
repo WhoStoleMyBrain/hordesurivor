@@ -84,17 +84,17 @@ class EscapeMenuOverlay extends StatelessWidget {
                         child: AnimatedBuilder(
                           animation: statsState!,
                           builder: (context, _) {
-                            return SingleChildScrollView(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (stressStats != null) ...[
-                                    _StressStatsSection(stats: stressStats!),
-                                    const SizedBox(height: 16),
-                                  ],
-                                  RunStatsContent(state: statsState!),
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (stressStats != null) ...[
+                                  _StressStatsSection(stats: stressStats!),
+                                  const SizedBox(height: 16),
                                 ],
-                              ),
+                                Expanded(
+                                  child: RunStatsContent(state: statsState!),
+                                ),
+                              ],
                             );
                           },
                         ),

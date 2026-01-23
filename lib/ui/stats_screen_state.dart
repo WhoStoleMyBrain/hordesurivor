@@ -1,7 +1,11 @@
 import 'package:flutter/foundation.dart';
 
+import 'dart:ui' as ui;
+
+import '../data/character_defs.dart';
 import '../data/ids.dart';
 import '../data/stat_defs.dart';
+import '../data/tags.dart';
 
 class StatsScreenState extends ChangeNotifier {
   Map<StatId, double> statValues = const {};
@@ -11,6 +15,9 @@ class StatsScreenState extends ChangeNotifier {
   List<ItemId> items = const [];
   int rerollsRemaining = 0;
   int rerollsMax = 0;
+  CharacterId activeCharacterId = characterDefs.first.id;
+  ui.Image? activeCharacterSprite;
+  TagSet buildTags = const TagSet();
 
   void update({
     required Map<StatId, double> statValues,
@@ -20,6 +27,9 @@ class StatsScreenState extends ChangeNotifier {
     required List<ItemId> items,
     required int rerollsRemaining,
     required int rerollsMax,
+    required CharacterId activeCharacterId,
+    required ui.Image? activeCharacterSprite,
+    required TagSet buildTags,
   }) {
     if (mapEquals(this.statValues, statValues) &&
         listEquals(this.skills, skills) &&
@@ -27,7 +37,10 @@ class StatsScreenState extends ChangeNotifier {
         listEquals(this.weaponUpgrades, weaponUpgrades) &&
         listEquals(this.items, items) &&
         this.rerollsRemaining == rerollsRemaining &&
-        this.rerollsMax == rerollsMax) {
+        this.rerollsMax == rerollsMax &&
+        this.activeCharacterId == activeCharacterId &&
+        this.activeCharacterSprite == activeCharacterSprite &&
+        this.buildTags.equals(buildTags)) {
       return;
     }
     this.statValues = Map<StatId, double>.from(statValues);
@@ -37,6 +50,9 @@ class StatsScreenState extends ChangeNotifier {
     this.items = List<ItemId>.from(items);
     this.rerollsRemaining = rerollsRemaining;
     this.rerollsMax = rerollsMax;
+    this.activeCharacterId = activeCharacterId;
+    this.activeCharacterSprite = activeCharacterSprite;
+    this.buildTags = buildTags;
     notifyListeners();
   }
 }
