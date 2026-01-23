@@ -9,6 +9,7 @@ import '../data/skill_defs.dart';
 import '../data/status_effect_defs.dart';
 import '../data/tags.dart';
 import 'item_rarity_style.dart';
+import 'skill_detail_text.dart';
 import 'stat_text.dart';
 import 'tag_badge.dart';
 
@@ -143,6 +144,7 @@ class _SkillList extends StatelessWidget {
         return _CompendiumCard(
           title: skill.name,
           description: skill.description,
+          details: skillDetailBlockFor(skill.id),
           badges: badges,
         );
       },
