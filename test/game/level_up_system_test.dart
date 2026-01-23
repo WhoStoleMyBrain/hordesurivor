@@ -192,11 +192,11 @@ void main() {
     );
 
     expect(
-      system.choices.any((choice) => choice.skillId == SkillId.scrapRover),
+      system.choices.any((choice) => choice.skillId == SkillId.processionIdol),
       isTrue,
     );
     expect(
-      system.choices.any((choice) => choice.skillId == SkillId.arcTurret),
+      system.choices.any((choice) => choice.skillId == SkillId.vigilLantern),
       isTrue,
     );
     expect(

@@ -53,12 +53,12 @@ void main() {
     double knockbackY = 0,
   }) {}
 
-  test('arc turret fires at nearby enemies', () {
+  test('vigil lantern fires at nearby enemies', () {
     final summonPool = SummonPool(initialCapacity: 0);
     final summon = summonPool.acquire();
     summon.reset(
-      kind: SummonKind.arcTurret,
-      sourceSkillId: SkillId.arcTurret,
+      kind: SummonKind.vigilLantern,
+      sourceSkillId: SkillId.vigilLantern,
       position: Vector2.zero(),
       projectileDamage: 6,
       projectileSpeed: 120,

@@ -104,7 +104,7 @@ final List<CharacterDef> characterDefs = [
       SkillId.waterjet,
       SkillId.guardianOrbs,
       SkillId.menderOrb,
-      SkillId.arcTurret,
+      SkillId.vigilLantern,
     ],
     baseStats: Map<StatId, double>.from(_basePlayerStats)
       ..addAll({StatId.maxHp: 105}),
@@ -156,7 +156,7 @@ final List<CharacterDef> characterDefs = [
       SkillId.poisonGas,
       SkillId.fireball,
       SkillId.mineLayer,
-      SkillId.scrapRover,
+      SkillId.processionIdol,
     ],
     baseStats: Map<StatId, double>.from(_basePlayerStats)
       ..addAll({StatId.maxHp: 90}),

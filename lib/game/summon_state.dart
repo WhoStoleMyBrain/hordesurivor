@@ -2,14 +2,14 @@ import 'package:flame/extensions.dart';
 
 import '../data/ids.dart';
 
-enum SummonKind { scrapRover, arcTurret, guardianOrb, menderOrb, mine }
+enum SummonKind { processionIdol, vigilLantern, guardianOrb, menderOrb, mine }
 
 class SummonState {
   SummonState() : position = Vector2.zero(), velocity = Vector2.zero();
 
   final Vector2 position;
   final Vector2 velocity;
-  SummonKind kind = SummonKind.scrapRover;
+  SummonKind kind = SummonKind.processionIdol;
   SkillId sourceSkillId = SkillId.fireball;
   double radius = 8;
   double orbitAngle = 0;

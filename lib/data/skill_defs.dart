@@ -124,7 +124,8 @@ const List<SkillDef> skillDefs = [
     id: SkillId.poisonGas,
     name: 'Thurible Fumes',
     iconId: 'skill_thurible_fumes',
-    description: 'A lingering cloud of “cleansing” incense that hurts to breathe.',
+    description:
+        'A lingering cloud of “cleansing” incense that hurts to breathe.',
     tags: TagSet(
       elements: {ElementTag.poison},
       effects: {EffectTag.aoe, EffectTag.dot},
@@ -219,14 +220,14 @@ const List<SkillDef> skillDefs = [
     metaUnlockId: MetaUnlockId.sporeBurstCulture,
   ),
   SkillDef(
-    id: SkillId.scrapRover,
+    id: SkillId.processionIdol,
     name: 'Relic: Procession Idol',
     iconId: 'skill_procession_idol',
-    description: 'A small idol trudges around and “corrects” nearby foes.',
+    description: 'A small idol patrols and nudges trespassers back.',
     tags: TagSet(elements: {ElementTag.steel}, deliveries: {DeliveryTag.melee}),
   ),
   SkillDef(
-    id: SkillId.arcTurret,
+    id: SkillId.vigilLantern,
     name: 'Relic: Vigil Lantern',
     iconId: 'skill_vigil_lantern',
     description: 'A hovering lantern fires warding shots on its own.',
@@ -269,8 +270,33 @@ const List<SkillDef> skillDefs = [
       deliveries: {DeliveryTag.ground},
     ),
   ),
+  SkillDef(
+    id: SkillId.chairThrow,
+    name: 'Chair Throw',
+    iconId: 'skill_chair_throw',
+    description: 'Hurl a folding chair stamped with a binding seal.',
+    tags: TagSet(
+      elements: {ElementTag.wood},
+      effects: {EffectTag.aoe},
+      deliveries: {DeliveryTag.projectile},
+    ),
+    knockbackForce: 110,
+    knockbackDuration: 0.2,
+  ),
+  SkillDef(
+    id: SkillId.absolutionSlap,
+    name: 'Slap of Absolution',
+    iconId: 'skill_absolution_slap',
+    description: 'A brisk palm strike that clears a tight arc.',
+    tags: TagSet(
+      elements: {ElementTag.wind},
+      effects: {EffectTag.aoe},
+      deliveries: {DeliveryTag.melee},
+    ),
+    knockbackForce: 95,
+    knockbackDuration: 0.16,
+  ),
 ];
-
 
 final Map<SkillId, SkillDef> skillDefsById = Map.unmodifiable({
   for (final def in skillDefs) def.id: def,

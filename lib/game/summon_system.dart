@@ -73,7 +73,7 @@ class SummonSystem {
           if (summon.healingPerSecond > 0) {
             playerState.heal(summon.healingPerSecond * dt);
           }
-        case SummonKind.arcTurret:
+        case SummonKind.vigilLantern:
           _updateOrbitingSummon(summon, playerState.position, dt);
           _updateRangedSummon(
             summon,
@@ -84,7 +84,7 @@ class SummonSystem {
             onProjectileSpawn,
             dt,
           );
-        case SummonKind.scrapRover:
+        case SummonKind.processionIdol:
           _updateMeleeRover(
             summon,
             playerState.position,

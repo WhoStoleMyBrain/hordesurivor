@@ -25,16 +25,16 @@ class SummonComponent extends PositionComponent {
   void update(double dt) {
     position.setFrom(_state.position);
     size.setValues(_state.radius * 2, _state.radius * 2);
-    angle = _state.kind == SummonKind.scrapRover ? _state.orbitAngle : 0;
+    angle = _state.kind == SummonKind.processionIdol ? _state.orbitAngle : 0;
     super.update(dt);
   }
 
   @override
   void render(Canvas canvas) {
     switch (_state.kind) {
-      case SummonKind.scrapRover:
+      case SummonKind.processionIdol:
         _renderDiamond(canvas);
-      case SummonKind.arcTurret:
+      case SummonKind.vigilLantern:
         _renderTurret(canvas);
       case SummonKind.guardianOrb:
         canvas.drawCircle(Offset.zero, _state.radius, _paint);
@@ -90,10 +90,10 @@ class SummonComponent extends PositionComponent {
 
   static Color _colorForKind(SummonKind kind) {
     switch (kind) {
-      case SummonKind.scrapRover:
-        return const Color(0xFFB0BEC5);
-      case SummonKind.arcTurret:
-        return const Color(0xFF8FA3FF);
+      case SummonKind.processionIdol:
+        return const Color(0xFFF2C96D);
+      case SummonKind.vigilLantern:
+        return const Color(0xFF8AC8FF);
       case SummonKind.guardianOrb:
         return const Color(0xFFF6C945).withValues(alpha: 0.85);
       case SummonKind.menderOrb:
