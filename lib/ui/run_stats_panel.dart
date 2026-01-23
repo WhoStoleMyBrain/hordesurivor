@@ -36,11 +36,7 @@ class RunStatsPanel extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: RunStatsContent(state: state),
-                    ),
-                  ),
+                  Expanded(child: RunStatsContent(state: state)),
                 ],
               );
             },
