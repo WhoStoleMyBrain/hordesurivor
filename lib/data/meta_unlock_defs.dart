@@ -288,17 +288,11 @@ const List<MetaUnlockDef> metaUnlockDefs = [
   MetaUnlockDef(
     id: MetaUnlockId.salvageProtocol,
     name: 'Salvage Protocol',
-    description: 'Skipping a reward grants +1 Meta Shard on the run.',
+    description: 'Skipping a reward grants +10% exorcism yield on the run.',
     cost: 70,
     position: MetaUnlockPosition(column: 4, row: 4),
     prerequisites: [MetaUnlockId.extraChoice],
-    modifiers: [
-      StatModifier(
-        stat: StatId.skipMetaShards,
-        amount: 1,
-        kind: ModifierKind.flat,
-      ),
-    ],
+    modifiers: [StatModifier(stat: StatId.exorcismYieldPercent, amount: 0.1)],
   ),
   MetaUnlockDef(
     id: MetaUnlockId.banishCodex,

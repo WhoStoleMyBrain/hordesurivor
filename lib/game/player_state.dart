@@ -10,26 +10,22 @@ class PlayerState {
     required this.position,
     required double maxHp,
     required double moveSpeed,
+    this.dashSpeed = 720,
+    this.dashDistance = 60,
+    this.dashCooldown = 3.0,
+    this.dashChargesBase = 2,
+    this.dashDuration = 0.18,
+    this.dashStartOffset = 0,
+    this.dashEndOffset = 0,
+    this.dashInvulnerability = 0.18,
+    this.dashTeleport = 0,
     this.invulnerabilityDuration = 0.5,
     this.hitEffectDuration = 0.18,
   }) : hp = maxHp,
        baseInvulnerabilityDuration = invulnerabilityDuration,
        baseHitEffectDuration = hitEffectDuration,
-       stats = StatSheet(
-         baseValues: {
-           StatId.maxHp: maxHp,
-           StatId.moveSpeed: moveSpeed,
-           StatId.dashSpeed: 720,
-           StatId.dashDistance: 60,
-           StatId.dashCooldown: 3.0,
-           StatId.dashCharges: 2,
-           StatId.dashDuration: 0.18,
-           StatId.dashStartOffset: 0,
-           StatId.dashEndOffset: 0,
-           StatId.dashInvulnerability: 0.18,
-           StatId.dashTeleport: 0,
-         },
-       ),
+       baseMoveSpeed = moveSpeed,
+       stats = StatSheet(baseValues: {StatId.maxHp: maxHp}),
        velocity = Vector2.zero(),
        movementIntent = Vector2.zero(),
        impulseVelocity = Vector2.zero(),
@@ -45,6 +41,16 @@ class PlayerState {
   final Vector2 dashVelocity;
   final Vector2 lastMovementDirection;
   final StatSheet stats;
+  final double baseMoveSpeed;
+  final double dashSpeed;
+  final double dashDistance;
+  final double dashCooldown;
+  final int dashChargesBase;
+  final double dashDuration;
+  final double dashStartOffset;
+  final double dashEndOffset;
+  final double dashInvulnerability;
+  final double dashTeleport;
   double hp;
   final double baseInvulnerabilityDuration;
   final double baseHitEffectDuration;
@@ -64,9 +70,7 @@ class PlayerState {
 
   double get maxHp => math.max(1, stats.value(StatId.maxHp));
   double get moveSpeed {
-    final baseSpeed = stats.value(StatId.moveSpeed);
-    final speedBonus = stats.value(StatId.moveSpeedPercent);
-    return math.max(0, baseSpeed * (1 + speedBonus));
+    return math.max(0, baseMoveSpeed);
   }
 
   bool get isInvulnerable => invulnerabilityTimeRemaining > 0;
@@ -139,7 +143,7 @@ class PlayerState {
       dashCooldownRemaining = math.max(0, dashCooldownRemaining - dt);
     }
     if (dashCooldownRemaining == 0 && dashCharges < dashMaxCharges) {
-      final dashCooldown = math.max(0.0, stats.value(StatId.dashCooldown));
+      final dashCooldown = math.max(0.0, this.dashCooldown);
       if (dashCooldown <= 0) {
         dashCharges = dashMaxCharges;
       } else {
@@ -261,21 +265,14 @@ class PlayerState {
     if (dashCharges <= 0 || dashTimeRemaining > 0) {
       return false;
     }
-    final dashSpeed = math.max(0.0, stats.value(StatId.dashSpeed)).toDouble();
-    final dashDistance = math
-        .max(0.0, stats.value(StatId.dashDistance))
-        .toDouble();
-    final dashCooldown = math
-        .max(0.0, stats.value(StatId.dashCooldown))
-        .toDouble();
-    final dashDuration = stats.value(StatId.dashDuration);
-    final dashStartOffset = stats.value(StatId.dashStartOffset);
-    final dashEndOffset = stats.value(StatId.dashEndOffset);
-    final dashInvulnerability = math.max(
-      0.0,
-      stats.value(StatId.dashInvulnerability),
-    );
-    final dashTeleport = stats.value(StatId.dashTeleport);
+    final dashSpeed = math.max(0.0, this.dashSpeed).toDouble();
+    final dashDistance = math.max(0.0, this.dashDistance).toDouble();
+    final dashCooldown = math.max(0.0, this.dashCooldown).toDouble();
+    final dashDuration = this.dashDuration;
+    final dashStartOffset = this.dashStartOffset;
+    final dashEndOffset = this.dashEndOffset;
+    final dashInvulnerability = math.max(0.0, this.dashInvulnerability);
+    final dashTeleport = this.dashTeleport;
     if (dashSpeed <= 0 && dashDistance <= 0) {
       return false;
     }
@@ -349,7 +346,7 @@ class PlayerState {
   }
 
   void _syncDashChargeLimits({bool fillCharges = false}) {
-    final maxCharges = math.max(1, stats.value(StatId.dashCharges).round());
+    final maxCharges = math.max(1, dashChargesBase);
     if (maxCharges != dashMaxCharges) {
       if (maxCharges > dashMaxCharges) {
         dashCharges += maxCharges - dashMaxCharges;

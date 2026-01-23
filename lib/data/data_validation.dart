@@ -145,8 +145,8 @@ DataValidationResult validateGameData() {
     if (!def.baseStats.containsKey(StatId.maxHp)) {
       result.errors.add('CharacterDef ${def.id} missing maxHp base stat.');
     }
-    if (!def.baseStats.containsKey(StatId.moveSpeed)) {
-      result.errors.add('CharacterDef ${def.id} missing moveSpeed base stat.');
+    if (def.movement.moveSpeed <= 0) {
+      result.errors.add('CharacterDef ${def.id} has non-positive moveSpeed.');
     }
     if (def.startingSkills.length < 5) {
       result.errors.add(

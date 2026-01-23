@@ -214,6 +214,7 @@ class _CharacterCard extends StatelessWidget {
 
   List<_StatLine> _statLines(CharacterDef character) {
     final stats = character.baseStats;
+    final movement = character.movement;
     return [
       _StatLine(
         label: 'HP',
@@ -221,15 +222,15 @@ class _CharacterCard extends StatelessWidget {
       ),
       _StatLine(
         label: 'Move Speed',
-        value: _formatStat(stats[StatId.moveSpeed], decimals: 0),
+        value: _formatStat(movement.moveSpeed, decimals: 0),
       ),
       _StatLine(
         label: 'Dash Charges',
-        value: _formatStat(stats[StatId.dashCharges], decimals: 0),
+        value: _formatStat(movement.dashCharges.toDouble(), decimals: 0),
       ),
       _StatLine(
         label: 'Dash Cooldown',
-        value: _formatStat(stats[StatId.dashCooldown], decimals: 1),
+        value: _formatStat(movement.dashCooldown, decimals: 1),
       ),
     ];
   }

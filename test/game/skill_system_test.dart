@@ -305,9 +305,9 @@ void main() {
     );
     final playerState = buildPlayer();
     playerState.applyModifiers(const [
-      StatModifier(stat: StatId.damage, amount: 0.5),
-      StatModifier(stat: StatId.projectileDamage, amount: 0.25),
-      StatModifier(stat: StatId.fireDamage, amount: 0.1),
+      StatModifier(stat: StatId.damagePercent, amount: 0.5),
+      StatModifier(stat: StatId.projectileDamagePercent, amount: 0.25),
+      StatModifier(stat: StatId.fireDamagePercent, amount: 0.1),
     ]);
 
     double? damage;

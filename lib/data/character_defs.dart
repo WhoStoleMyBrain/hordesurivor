@@ -10,6 +10,7 @@ class CharacterDef {
     required this.spriteId,
     required this.startingSkills,
     required this.baseStats,
+    required this.movement,
     required this.modifiers,
   });
 
@@ -20,29 +21,83 @@ class CharacterDef {
   final String spriteId;
   final List<SkillId> startingSkills;
   final Map<StatId, double> baseStats;
+  final CharacterMovementDef movement;
   final List<StatModifier> modifiers;
 }
 
-const Map<StatId, double> _basePlayerStats = {
-  StatId.maxHp: 100,
-  StatId.moveSpeed: 120,
-  StatId.dashSpeed: 720,
-  StatId.dashDistance: 60,
-  StatId.dashCooldown: 3.0,
-  StatId.dashCharges: 2,
-  StatId.dashDuration: 0.18,
-  StatId.dashStartOffset: 0,
-  StatId.dashEndOffset: 0,
-  StatId.dashInvulnerability: 0.18,
-  StatId.dashTeleport: 0,
-};
+class CharacterMovementDef {
+  const CharacterMovementDef({
+    required this.moveSpeed,
+    required this.dashSpeed,
+    required this.dashDistance,
+    required this.dashCooldown,
+    required this.dashCharges,
+    required this.dashDuration,
+    required this.dashStartOffset,
+    required this.dashEndOffset,
+    required this.dashInvulnerability,
+    required this.dashTeleport,
+  });
+
+  final double moveSpeed;
+  final double dashSpeed;
+  final double dashDistance;
+  final double dashCooldown;
+  final int dashCharges;
+  final double dashDuration;
+  final double dashStartOffset;
+  final double dashEndOffset;
+  final double dashInvulnerability;
+  final double dashTeleport;
+
+  CharacterMovementDef copyWith({
+    double? moveSpeed,
+    double? dashSpeed,
+    double? dashDistance,
+    double? dashCooldown,
+    int? dashCharges,
+    double? dashDuration,
+    double? dashStartOffset,
+    double? dashEndOffset,
+    double? dashInvulnerability,
+    double? dashTeleport,
+  }) {
+    return CharacterMovementDef(
+      moveSpeed: moveSpeed ?? this.moveSpeed,
+      dashSpeed: dashSpeed ?? this.dashSpeed,
+      dashDistance: dashDistance ?? this.dashDistance,
+      dashCooldown: dashCooldown ?? this.dashCooldown,
+      dashCharges: dashCharges ?? this.dashCharges,
+      dashDuration: dashDuration ?? this.dashDuration,
+      dashStartOffset: dashStartOffset ?? this.dashStartOffset,
+      dashEndOffset: dashEndOffset ?? this.dashEndOffset,
+      dashInvulnerability: dashInvulnerability ?? this.dashInvulnerability,
+      dashTeleport: dashTeleport ?? this.dashTeleport,
+    );
+  }
+}
+
+const Map<StatId, double> _basePlayerStats = {StatId.maxHp: 100};
+
+const CharacterMovementDef _basePlayerMovement = CharacterMovementDef(
+  moveSpeed: 120,
+  dashSpeed: 720,
+  dashDistance: 60,
+  dashCooldown: 3.0,
+  dashCharges: 2,
+  dashDuration: 0.18,
+  dashStartOffset: 0,
+  dashEndOffset: 0,
+  dashInvulnerability: 0.18,
+  dashTeleport: 0,
+);
 
 final List<CharacterDef> characterDefs = [
   CharacterDef(
     id: CharacterId.priest,
     name: 'The Priest',
     themeLine: 'Bell rites and steady chants keep the horde at bay.',
-    modifierLine: 'Rite of Cadence — +Cooldown recovery / -Move speed',
+    modifierLine: 'Rite of Cadence — +Cooldown recovery / -Dodge chance',
     spriteId: 'player_priest',
     startingSkills: [
       SkillId.fireball,
@@ -52,15 +107,15 @@ final List<CharacterDef> characterDefs = [
       SkillId.arcTurret,
     ],
     baseStats: Map<StatId, double>.from(_basePlayerStats)
-      ..addAll({
-        StatId.maxHp: 105,
-        StatId.moveSpeed: 118,
-        StatId.dashCooldown: 2.8,
-        StatId.dashInvulnerability: 0.2,
-      }),
+      ..addAll({StatId.maxHp: 105}),
+    movement: _basePlayerMovement.copyWith(
+      moveSpeed: 118,
+      dashCooldown: 2.8,
+      dashInvulnerability: 0.2,
+    ),
     modifiers: [
       StatModifier(stat: StatId.cooldownRecovery, amount: 0.12),
-      StatModifier(stat: StatId.moveSpeedPercent, amount: -0.05),
+      StatModifier(stat: StatId.dodgeChance, amount: -0.05),
     ],
   ),
   CharacterDef(
@@ -77,14 +132,14 @@ final List<CharacterDef> characterDefs = [
       SkillId.roots,
     ],
     baseStats: Map<StatId, double>.from(_basePlayerStats)
-      ..addAll({
-        StatId.maxHp: 130,
-        StatId.moveSpeed: 110,
-        StatId.dashSpeed: 700,
-        StatId.dashDistance: 54,
-        StatId.dashCooldown: 3.3,
-        StatId.dashCharges: 1,
-      }),
+      ..addAll({StatId.maxHp: 130}),
+    movement: _basePlayerMovement.copyWith(
+      moveSpeed: 110,
+      dashSpeed: 700,
+      dashDistance: 54,
+      dashCooldown: 3.3,
+      dashCharges: 1,
+    ),
     modifiers: [
       StatModifier(stat: StatId.defense, amount: 0.12),
       StatModifier(stat: StatId.attackSpeed, amount: -0.06),
@@ -104,14 +159,14 @@ final List<CharacterDef> characterDefs = [
       SkillId.scrapRover,
     ],
     baseStats: Map<StatId, double>.from(_basePlayerStats)
-      ..addAll({
-        StatId.maxHp: 90,
-        StatId.moveSpeed: 130,
-        StatId.dashDistance: 66,
-        StatId.dashCooldown: 2.6,
-      }),
+      ..addAll({StatId.maxHp: 90}),
+    movement: _basePlayerMovement.copyWith(
+      moveSpeed: 130,
+      dashDistance: 66,
+      dashCooldown: 2.6,
+    ),
     modifiers: [
-      StatModifier(stat: StatId.drops, amount: 0.18),
+      StatModifier(stat: StatId.dropsPercent, amount: 0.18),
       StatModifier(stat: StatId.pickupRadiusPercent, amount: 0.15),
       StatModifier(stat: StatId.maxHp, amount: -8, kind: ModifierKind.flat),
     ],
