@@ -140,7 +140,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _stageWaveInterval = 3.0;
   static const int _baseStageWaveCount = 4;
   static const double _baseChampionChance = 0.05;
-  static const double _baseEnemyProjectileSpeedMultiplier = 0.92;
+  static const double _baseEnemyProjectileSpeedMultiplier = 0.85;
   static const double _pickupRadiusBase = 32;
   static const double _pickupLifetime = 30;
   static const double _pickupMagnetStartSpeed = 120;

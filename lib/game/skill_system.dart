@@ -1154,7 +1154,7 @@ class SkillSystem {
       orbitAngle: _orbitSeed,
       orbitRadius: 38,
       orbitSpeed: 2.2,
-      healingPerSecond: 3.2 * _supportMultiplier(stats),
+      healingPerSecond: 0.32 * _supportMultiplier(stats),
       lifespan: 6,
     );
     onSummonSpawn(summon);

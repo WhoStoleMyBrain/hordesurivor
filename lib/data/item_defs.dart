@@ -50,8 +50,8 @@ const List<ItemDef> commonItems = [
     description: 'Blessing: +Defense / Burden: -Dodge Chance',
     flavorText: 'The extra layer makes doors take it personally.',
     modifiers: [
-      StatModifier(stat: StatId.defense, amount: 0.03),
-      StatModifier(stat: StatId.dodgeChance, amount: -0.05),
+      StatModifier(stat: StatId.defense, amount: 0.05),
+      StatModifier(stat: StatId.dodgeChance, amount: -0.03),
     ],
     rarity: ItemRarity.common,
   ),
@@ -74,8 +74,8 @@ const List<ItemDef> commonItems = [
     description: 'Blessing: +Attack Speed / Burden: -Damage',
     flavorText: 'Your form is impeccable; your impact is not.',
     modifiers: [
-      StatModifier(stat: StatId.attackSpeed, amount: 0.12),
-      StatModifier(stat: StatId.damagePercent, amount: -0.06),
+      StatModifier(stat: StatId.attackSpeed, amount: 0.10),
+      StatModifier(stat: StatId.damagePercent, amount: -0.03),
     ],
     rarity: ItemRarity.common,
   ),
@@ -86,8 +86,8 @@ const List<ItemDef> commonItems = [
     description: 'Blessing: +Melee Damage / Burden: -Projectile Damage',
     flavorText: 'Sharp enough to shave, still bad at throwing.',
     modifiers: [
-      StatModifier(stat: StatId.meleeDamagePercent, amount: 0.12),
-      StatModifier(stat: StatId.projectileDamagePercent, amount: -0.08),
+      StatModifier(stat: StatId.meleeDamagePercent, amount: 0.5),
+      StatModifier(stat: StatId.projectileDamagePercent, amount: -0.02),
     ],
     rarity: ItemRarity.common,
   ),
