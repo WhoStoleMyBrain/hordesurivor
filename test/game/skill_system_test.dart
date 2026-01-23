@@ -521,14 +521,14 @@ void main() {
     expect(projectile!.impactEffectDuration, greaterThan(0));
   });
 
-  test('scrap rover spawns autonomous summons', () {
+  test('procession idol spawns autonomous summons', () {
     final projectilePool = ProjectilePool(initialCapacity: 0);
     final effectPool = EffectPool(initialCapacity: 0);
     final system = SkillSystem(
       effectPool: effectPool,
       projectilePool: projectilePool,
       summonPool: SummonPool(initialCapacity: 0),
-      skillSlots: [SkillSlot(id: SkillId.scrapRover, cooldown: 0.1)],
+      skillSlots: [SkillSlot(id: SkillId.processionIdol, cooldown: 0.1)],
     );
     final playerState = buildPlayer();
 
@@ -548,6 +548,83 @@ void main() {
     );
 
     expect(summonCount, greaterThan(0));
+  });
+
+  test('chair throw launches a heavy projectile with knockback', () {
+    final projectilePool = ProjectilePool(initialCapacity: 0);
+    final effectPool = EffectPool(initialCapacity: 0);
+    final system = SkillSystem(
+      effectPool: effectPool,
+      projectilePool: projectilePool,
+      summonPool: SummonPool(initialCapacity: 0),
+      skillSlots: [SkillSlot(id: SkillId.chairThrow, cooldown: 0.1)],
+    );
+    final playerState = buildPlayer();
+
+    ProjectileState? projectile;
+    system.update(
+      dt: 0.2,
+      playerPosition: Vector2.zero(),
+      aimDirection: Vector2(1, 0),
+      stats: playerState.stats,
+      enemyPool: EnemyPool(initialCapacity: 0),
+      onProjectileSpawn: (state) => projectile = state,
+      onEffectSpawn: (_) {},
+      onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
+      onPlayerDeflect: noopPlayerDeflect,
+      onEnemyDamaged: noopEnemyDamaged,
+    );
+
+    expect(projectile, isNotNull);
+    expect(projectile!.sourceSkillId, SkillId.chairThrow);
+    expect(projectile!.knockbackForce, greaterThan(0));
+  });
+
+  test('absolution slap hits the front arc only', () {
+    final enemyPool = EnemyPool(initialCapacity: 0);
+    resetEnemy(pool: enemyPool, id: EnemyId.imp, position: Vector2(26, 0));
+    resetEnemy(pool: enemyPool, id: EnemyId.imp, position: Vector2(-26, 0));
+    final frontEnemy = enemyPool.active.first;
+    final backEnemy = enemyPool.active.last;
+    frontEnemy.hp = 20;
+    frontEnemy.maxHp = 20;
+    frontEnemy.moveSpeed = 0;
+    backEnemy.hp = 20;
+    backEnemy.maxHp = 20;
+    backEnemy.moveSpeed = 0;
+
+    final projectilePool = ProjectilePool(initialCapacity: 0);
+    final effectPool = EffectPool(initialCapacity: 0);
+    final system = SkillSystem(
+      effectPool: effectPool,
+      projectilePool: projectilePool,
+      summonPool: SummonPool(initialCapacity: 0),
+      skillSlots: [SkillSlot(id: SkillId.absolutionSlap, cooldown: 0.1)],
+    );
+    final playerState = buildPlayer();
+
+    final damageSystem = DamageSystem(
+      DamageEventPool(initialCapacity: 4),
+      random: math.Random(7),
+    );
+    system.update(
+      dt: 0.2,
+      playerPosition: Vector2.zero(),
+      aimDirection: Vector2(1, 0),
+      stats: playerState.stats,
+      enemyPool: enemyPool,
+      onProjectileSpawn: (_) {},
+      onEffectSpawn: (_) {},
+      onProjectileDespawn: (_) {},
+      onSummonSpawn: noopSummonSpawn,
+      onPlayerDeflect: noopPlayerDeflect,
+      onEnemyDamaged: damageSystem.queueEnemyDamage,
+    );
+    damageSystem.resolve(onEnemyDefeated: (_) {});
+
+    expect(frontEnemy.hp, lessThan(20));
+    expect(backEnemy.hp, 20);
   });
 
   test('SkillSystem limits the number of skill slots', () {

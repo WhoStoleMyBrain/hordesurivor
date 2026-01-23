@@ -209,7 +209,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
     ),
   ),
   ..._buildWeaponUpgradeChain(
-    skillId: SkillId.scrapRover,
+    skillId: SkillId.processionIdol,
     modifiersForTier: (tier) => _primarySecondary(
       StatId.meleeDamagePercent,
       0.07,
@@ -221,7 +221,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
     ),
   ),
   ..._buildWeaponUpgradeChain(
-    skillId: SkillId.arcTurret,
+    skillId: SkillId.vigilLantern,
     modifiersForTier: (tier) => _primarySecondary(
       StatId.projectileDamagePercent,
       0.07,
@@ -260,6 +260,30 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
     skillId: SkillId.mineLayer,
     modifiersForTier: (tier) => _primarySecondary(
       StatId.explosionDamagePercent,
+      0.07,
+      0.02,
+      StatId.aoeSize,
+      0.05,
+      0.015,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.chairThrow,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.projectileDamagePercent,
+      0.08,
+      0.02,
+      StatId.attackSpeed,
+      0.04,
+      0.01,
+      tier,
+    ),
+  ),
+  ..._buildWeaponUpgradeChain(
+    skillId: SkillId.absolutionSlap,
+    modifiersForTier: (tier) => _primarySecondary(
+      StatId.meleeDamagePercent,
       0.07,
       0.02,
       StatId.aoeSize,

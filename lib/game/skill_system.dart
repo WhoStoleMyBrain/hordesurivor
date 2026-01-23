@@ -49,11 +49,13 @@ class SkillSystem {
     SkillId.frostNova: 1.4,
     SkillId.earthSpikes: 1.3,
     SkillId.sporeBurst: 1.0,
-    SkillId.scrapRover: 9.5,
-    SkillId.arcTurret: 1.6,
+    SkillId.processionIdol: 9.5,
+    SkillId.vigilLantern: 1.6,
     SkillId.guardianOrbs: 1.4,
     SkillId.menderOrb: 9.5,
     SkillId.mineLayer: 8.0,
+    SkillId.chairThrow: 0.95,
+    SkillId.absolutionSlap: 0.8,
   };
 
   final EffectPool _effectPool;
@@ -62,7 +64,7 @@ class SkillSystem {
   final List<SkillSlot> _skills;
   final math.Random _random;
   final Set<SkillId> _passiveSummonSkills = {
-    SkillId.arcTurret,
+    SkillId.vigilLantern,
     SkillId.guardianOrbs,
   };
   final List<SkillId> _pendingPassiveSummons = [];
@@ -279,14 +281,14 @@ class SkillSystem {
               onProjectileSpawn: onProjectileSpawn,
             );
             break;
-          case SkillId.scrapRover:
-            _castScrapRover(
+          case SkillId.processionIdol:
+            _castProcessionIdol(
               playerPosition: playerPosition,
               stats: stats,
               onSummonSpawn: onSummonSpawn,
             );
-          case SkillId.arcTurret:
-            _castArcTurret(
+          case SkillId.vigilLantern:
+            _castVigilLantern(
               playerPosition: playerPosition,
               stats: stats,
               onSummonSpawn: onSummonSpawn,
@@ -309,6 +311,24 @@ class SkillSystem {
               aimDirection: aimDirection,
               stats: stats,
               onSummonSpawn: onSummonSpawn,
+            );
+          case SkillId.chairThrow:
+            _castChairThrow(
+              playerPosition: playerPosition,
+              aimDirection: aimDirection,
+              stats: stats,
+              enemyPool: enemyPool,
+              onProjectileSpawn: onProjectileSpawn,
+            );
+          case SkillId.absolutionSlap:
+            _castAbsolutionSlap(
+              playerPosition: playerPosition,
+              aimDirection: aimDirection,
+              stats: stats,
+              enemyPool: enemyPool,
+              enemyGrid: enemyGrid,
+              onEffectSpawn: onEffectSpawn,
+              onEnemyDamaged: onEnemyDamaged,
             );
         }
         skill.cooldownRemaining += skill.cooldown;
@@ -450,6 +470,41 @@ class SkillSystem {
       slowDuration: 0.6,
       oilDuration: duration * 0.6,
     );
+  }
+
+  void _castChairThrow({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required StatSheet stats,
+    required EnemyPool enemyPool,
+    required void Function(ProjectileState) onProjectileSpawn,
+  }) {
+    final def = skillDefsById[SkillId.chairThrow];
+    final knockbackScale = _knockbackScale(stats);
+    final direction = _applyAccuracyJitter(
+      _resolveAim(
+        playerPosition: playerPosition,
+        aimDirection: aimDirection,
+        enemyPool: enemyPool,
+      ),
+      stats,
+    ).clone();
+    final damage = _scaledDamageFor(SkillId.chairThrow, stats, 9);
+    final projectile = _projectilePool.acquire();
+    projectile.reset(
+      position: playerPosition,
+      velocity: direction.clone()..scale(200),
+      damage: damage,
+      radius: GameSizes.projectileRadius(7),
+      lifespan: 1.6,
+      fromEnemy: false,
+    );
+    projectile.sourceSkillId = SkillId.chairThrow;
+    if (def != null && def.knockbackForce > 0 && def.knockbackDuration > 0) {
+      projectile.knockbackForce = def.knockbackForce * knockbackScale;
+      projectile.knockbackDuration = def.knockbackDuration;
+    }
+    onProjectileSpawn(projectile);
   }
 
   void _castSwordCut({
@@ -669,6 +724,58 @@ class SkillSystem {
       playerPosition: playerPosition,
       stats: stats,
       onProjectileDespawn: onProjectileDespawn,
+    );
+  }
+
+  void _castAbsolutionSlap({
+    required Vector2 playerPosition,
+    required Vector2 aimDirection,
+    required StatSheet stats,
+    required EnemyPool enemyPool,
+    SpatialGrid? enemyGrid,
+    required void Function(EffectState) onEffectSpawn,
+    required void Function(
+      EnemyState,
+      double, {
+      SkillId? sourceSkillId,
+      double knockbackX,
+      double knockbackY,
+      double knockbackForce,
+      double knockbackDuration,
+    })
+    onEnemyDamaged,
+  }) {
+    final def = skillDefsById[SkillId.absolutionSlap];
+    final knockbackScale = _knockbackScale(stats);
+    final damage = _scaledDamageFor(SkillId.absolutionSlap, stats, 8);
+    final direction = _resolveAim(
+      playerPosition: playerPosition,
+      aimDirection: aimDirection,
+      enemyPool: enemyPool,
+    );
+    _castMeleeArc(
+      playerPosition: playerPosition,
+      direction: direction,
+      enemyPool: enemyPool,
+      enemyGrid: enemyGrid,
+      stats: stats,
+      baseRange: 40,
+      arcDegrees: 70,
+      damage: damage,
+      knockbackForce: (def?.knockbackForce ?? 0) * knockbackScale,
+      knockbackDuration: def?.knockbackDuration ?? 0,
+      sourceSkillId: SkillId.absolutionSlap,
+      onEnemyDamaged: onEnemyDamaged,
+    );
+    _spawnSwordArcEffect(
+      playerPosition: playerPosition,
+      direction: direction,
+      stats: stats,
+      baseRange: 40,
+      arcDegrees: 70,
+      duration: 0.12,
+      sourceSkillId: SkillId.absolutionSlap,
+      onEffectSpawn: onEffectSpawn,
     );
   }
 
@@ -958,17 +1065,17 @@ class SkillSystem {
     );
   }
 
-  void _castScrapRover({
+  void _castProcessionIdol({
     required Vector2 playerPosition,
     required StatSheet stats,
     required void Function(SummonState) onSummonSpawn,
   }) {
     final summon = _summonPool.acquire();
-    final damage = _scaledDamageFor(SkillId.scrapRover, stats, 9);
+    final damage = _scaledDamageFor(SkillId.processionIdol, stats, 9);
     _orbitSeed += math.pi * 0.7;
     summon.reset(
-      kind: SummonKind.scrapRover,
-      sourceSkillId: SkillId.scrapRover,
+      kind: SummonKind.processionIdol,
+      sourceSkillId: SkillId.processionIdol,
       position: playerPosition,
       radius: 10,
       orbitAngle: _orbitSeed,
@@ -982,17 +1089,17 @@ class SkillSystem {
     onSummonSpawn(summon);
   }
 
-  void _castArcTurret({
+  void _castVigilLantern({
     required Vector2 playerPosition,
     required StatSheet stats,
     required void Function(SummonState) onSummonSpawn,
   }) {
     final summon = _summonPool.acquire();
-    final damage = _scaledDamageFor(SkillId.arcTurret, stats, 6);
+    final damage = _scaledDamageFor(SkillId.vigilLantern, stats, 6);
     _orbitSeed += math.pi * 0.5;
     summon.reset(
-      kind: SummonKind.arcTurret,
-      sourceSkillId: SkillId.arcTurret,
+      kind: SummonKind.vigilLantern,
+      sourceSkillId: SkillId.vigilLantern,
       position: playerPosition,
       radius: 8,
       orbitAngle: _orbitSeed,
@@ -1089,8 +1196,8 @@ class SkillSystem {
     required void Function(SummonState) onSummonSpawn,
   }) {
     switch (skillId) {
-      case SkillId.arcTurret:
-        _castArcTurret(
+      case SkillId.vigilLantern:
+        _castVigilLantern(
           playerPosition: playerPosition,
           stats: stats,
           onSummonSpawn: onSummonSpawn,
@@ -1116,9 +1223,11 @@ class SkillSystem {
       case SkillId.frostNova:
       case SkillId.earthSpikes:
       case SkillId.sporeBurst:
-      case SkillId.scrapRover:
+      case SkillId.processionIdol:
       case SkillId.menderOrb:
       case SkillId.mineLayer:
+      case SkillId.chairThrow:
+      case SkillId.absolutionSlap:
         break;
     }
   }

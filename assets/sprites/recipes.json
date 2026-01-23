@@ -6263,17 +6263,17 @@
       ]
     },
     {
-      "id": "skill_scrap_rover",
+      "id": "skill_procession_idol",
       "kind": "skill",
-      "outputName": "skill_scrap_rover.png",
+      "outputName": "skill_procession_idol.png",
       "size": 32,
       "seed": 215,
       "palette": {
-        "primary": "#9FA8B3",
-        "shadow": "#5C6670",
-        "accent": "#DDE3EA",
-        "outline": "#1D232B",
-        "highlight": "#F4F7FA"
+        "primary": "#E8C46A",
+        "shadow": "#9C6B2F",
+        "accent": "#F7E7B0",
+        "outline": "#2B1E12",
+        "highlight": "#FFF6D8"
       },
       "shapes": [
         {
@@ -6322,17 +6322,17 @@
       ]
     },
     {
-      "id": "skill_arc_turret",
+      "id": "skill_vigil_lantern",
       "kind": "skill",
-      "outputName": "skill_arc_turret.png",
+      "outputName": "skill_vigil_lantern.png",
       "size": 32,
       "seed": 216,
       "palette": {
-        "primary": "#9FA8B3",
-        "shadow": "#5C6670",
-        "accent": "#DDE3EA",
-        "outline": "#1D232B",
-        "highlight": "#F4F7FA"
+        "primary": "#8AC7FF",
+        "shadow": "#4A6E9C",
+        "accent": "#D6EEFF",
+        "outline": "#15202B",
+        "highlight": "#F4FAFF"
       },
       "shapes": [
         {
@@ -6573,6 +6573,157 @@
           "end": [
             0,
             8
+          ],
+          "thickness": 2
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
+      ]
+    },
+    {
+      "id": "skill_chair_throw",
+      "kind": "skill",
+      "outputName": "skill_chair_throw.png",
+      "size": 32,
+      "seed": 220,
+      "palette": {
+        "primary": "#C48A55",
+        "shadow": "#7B4E2D",
+        "accent": "#E8C7A3",
+        "outline": "#2B1B12",
+        "highlight": "#F7E6D4"
+      },
+      "shapes": [
+        {
+          "type": "rect",
+          "offset": [
+            0,
+            2
+          ],
+          "color": "primary",
+          "size": [
+            12,
+            6
+          ]
+        },
+        {
+          "type": "rect",
+          "offset": [
+            0,
+            -4
+          ],
+          "color": "shadow",
+          "size": [
+            8,
+            4
+          ]
+        },
+        {
+          "type": "line",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "accent",
+          "start": [
+            -6,
+            6
+          ],
+          "end": [
+            -6,
+            10
+          ],
+          "thickness": 2
+        },
+        {
+          "type": "line",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "accent",
+          "start": [
+            6,
+            6
+          ],
+          "end": [
+            6,
+            10
+          ],
+          "thickness": 2
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
+      ]
+    },
+    {
+      "id": "skill_absolution_slap",
+      "kind": "skill",
+      "outputName": "skill_absolution_slap.png",
+      "size": 32,
+      "seed": 221,
+      "palette": {
+        "primary": "#E3F1FF",
+        "shadow": "#8FAFD1",
+        "accent": "#F7FBFF",
+        "outline": "#1D2630",
+        "highlight": "#FFFFFF"
+      },
+      "shapes": [
+        {
+          "type": "circle",
+          "offset": [
+            2,
+            2
+          ],
+          "color": "primary",
+          "radius": 5
+        },
+        {
+          "type": "circle",
+          "offset": [
+            -4,
+            4
+          ],
+          "color": "shadow",
+          "radius": 2
+        },
+        {
+          "type": "line",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "accent",
+          "start": [
+            -8,
+            -6
+          ],
+          "end": [
+            8,
+            -2
           ],
           "thickness": 2
         }
