@@ -6102,6 +6102,146 @@
       ]
     },
     {
+      "id": "effect_sword_cut_swipe",
+      "kind": "skill",
+      "outputName": "effect_sword_cut_swipe.png",
+      "size": 32,
+      "seed": 306,
+      "palette": {
+        "primary": "#E8EDF5",
+        "shadow": "#98A4B1",
+        "accent": "#F7F9FC",
+        "outline": "#222B35",
+        "highlight": "#FFFFFF"
+      },
+      "shapes": [
+        {
+          "type": "arc",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "primary",
+          "radius": 10,
+          "startAngle": -30,
+          "sweepAngle": 60,
+          "thickness": 3
+        },
+        {
+          "type": "arc",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "accent",
+          "radius": 8,
+          "startAngle": -30,
+          "sweepAngle": 60,
+          "thickness": 2
+        },
+        {
+          "type": "line",
+          "offset": [
+            6,
+            0
+          ],
+          "color": "highlight",
+          "start": [
+            -2,
+            -2
+          ],
+          "end": [
+            2,
+            2
+          ],
+          "thickness": 1
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
+      ]
+    },
+    {
+      "id": "effect_sword_swing_swipe",
+      "kind": "skill",
+      "outputName": "effect_sword_swing_swipe.png",
+      "size": 32,
+      "seed": 307,
+      "palette": {
+        "primary": "#E6ECF7",
+        "shadow": "#8A97A6",
+        "accent": "#F5F9FF",
+        "outline": "#1F2832",
+        "highlight": "#FFFFFF"
+      },
+      "shapes": [
+        {
+          "type": "arc",
+          "offset": [
+            0,
+            1
+          ],
+          "color": "primary",
+          "radius": 12,
+          "startAngle": -40,
+          "sweepAngle": 80,
+          "thickness": 3
+        },
+        {
+          "type": "arc",
+          "offset": [
+            0,
+            1
+          ],
+          "color": "accent",
+          "radius": 10,
+          "startAngle": -40,
+          "sweepAngle": 80,
+          "thickness": 2
+        },
+        {
+          "type": "line",
+          "offset": [
+            7,
+            1
+          ],
+          "color": "highlight",
+          "start": [
+            -3,
+            -3
+          ],
+          "end": [
+            3,
+            3
+          ],
+          "thickness": 1
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
+      ]
+    },
+    {
       "id": "skill_sword_deflect",
       "kind": "skill",
       "outputName": "skill_sword_deflect.png",

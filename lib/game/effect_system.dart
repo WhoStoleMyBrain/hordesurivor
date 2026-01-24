@@ -194,9 +194,64 @@ class EffectSystem {
       if (dotThreshold < arcCosine) {
         continue;
       }
+      if (effect.sweepArcDegrees > 0 && effect.duration > 0) {
+        final angle = math.atan2(dy, dx);
+        final progress = _arcSweepProgress(effect, angle);
+        if (progress <= 0) {
+          continue;
+        }
+        _applyStatus(effect, enemy);
+        onEnemyDamaged(
+          enemy,
+          damage * progress,
+          sourceSkillId: effect.sourceSkillId,
+          knockbackX: dx,
+          knockbackY: dy,
+          knockbackForce: effect.knockbackForce * progress,
+          knockbackDuration: effect.knockbackDuration,
+        );
+        continue;
+      }
       _applyStatus(effect, enemy);
-      onEnemyDamaged(enemy, damage, sourceSkillId: effect.sourceSkillId);
+      onEnemyDamaged(
+        enemy,
+        damage,
+        sourceSkillId: effect.sourceSkillId,
+        knockbackX: dx,
+        knockbackY: dy,
+        knockbackForce: effect.knockbackForce,
+        knockbackDuration: effect.knockbackDuration,
+      );
     }
+  }
+
+  double _arcSweepProgress(EffectState effect, double angle) {
+    final sweepRange = effect.sweepArcDegrees * (math.pi / 180);
+    final startAngle = effect.sweepStartAngle * (math.pi / 180);
+    final endAngle = effect.sweepEndAngle * (math.pi / 180);
+    if (sweepRange <= 0 || effect.duration <= 0) {
+      return 0;
+    }
+
+    final ageProgress = (effect.age / effect.duration).clamp(0.0, 1.0);
+    final currentAngle = startAngle + (endAngle - startAngle) * ageProgress;
+    final angleDiff = _wrapAngle(angle - currentAngle).abs();
+    if (angleDiff > sweepRange * 0.5) {
+      return 0;
+    }
+    final normalized = 1 - (angleDiff / (sweepRange * 0.5));
+    return normalized.clamp(0.0, 1.0);
+  }
+
+  double _wrapAngle(double angle) {
+    var wrapped = angle;
+    while (wrapped <= -math.pi) {
+      wrapped += math.pi * 2;
+    }
+    while (wrapped > math.pi) {
+      wrapped -= math.pi * 2;
+    }
+    return wrapped;
   }
 
   void _applyStatus(EffectState effect, EnemyState enemy) {

@@ -8,6 +8,7 @@ import 'package:hordesurivor/data/ids.dart';
 import 'package:hordesurivor/data/stat_defs.dart';
 import 'package:hordesurivor/data/tags.dart';
 import 'package:hordesurivor/game/damage_system.dart';
+import 'package:hordesurivor/game/effect_system.dart';
 import 'package:hordesurivor/game/effect_pool.dart';
 import 'package:hordesurivor/game/effect_state.dart';
 import 'package:hordesurivor/game/enemy_pool.dart';
@@ -123,6 +124,7 @@ void main() {
 
     final projectilePool = ProjectilePool(initialCapacity: 0);
     final effectPool = EffectPool(initialCapacity: 0);
+    final effectSystem = EffectSystem(effectPool);
     final system = SkillSystem(
       effectPool: effectPool,
       projectilePool: projectilePool,
@@ -148,6 +150,12 @@ void main() {
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
+    effectSystem.update(
+      0.07,
+      enemyPool: enemyPool,
+      onDespawn: (_) {},
+      onEnemyDamaged: damageSystem.queueEnemyDamage,
+    );
     damageSystem.resolve(onEnemyDefeated: (_) {});
 
     expect(enemy.hp, 20);
@@ -163,6 +171,12 @@ void main() {
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
+      onEnemyDamaged: damageSystem.queueEnemyDamage,
+    );
+    effectSystem.update(
+      0.07,
+      enemyPool: enemyPool,
+      onDespawn: (_) {},
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
     damageSystem.resolve(onEnemyDefeated: (_) {});
@@ -185,6 +199,7 @@ void main() {
 
     final projectilePool = ProjectilePool(initialCapacity: 0);
     final effectPool = EffectPool(initialCapacity: 0);
+    final effectSystem = EffectSystem(effectPool);
     final system = SkillSystem(
       effectPool: effectPool,
       projectilePool: projectilePool,
@@ -209,6 +224,12 @@ void main() {
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
       onPlayerDeflect: noopPlayerDeflect,
+      onEnemyDamaged: damageSystem.queueEnemyDamage,
+    );
+    effectSystem.update(
+      0.07,
+      enemyPool: enemyPool,
+      onDespawn: (_) {},
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
     damageSystem.resolve(

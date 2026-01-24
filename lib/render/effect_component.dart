@@ -9,8 +9,10 @@ import 'render_scale.dart';
 class EffectComponent extends PositionComponent {
   EffectComponent({
     required EffectState state,
+    Image? slashSprite,
     double renderScale = RenderScale.worldScale,
   }) : _state = state,
+       _slashSprite = slashSprite,
        _paint = Paint()..color = _colorForKind(state.kind),
        _strokePaint = Paint()
          ..color = _colorForKind(state.kind).withValues(alpha: 0.85)
@@ -19,11 +21,15 @@ class EffectComponent extends PositionComponent {
     anchor = Anchor.center;
     scale = Vector2.all(renderScale);
     priority = _priorityForShape(state.shape);
+    _syncSlashSprite(slashSprite);
   }
 
   final EffectState _state;
+  Image? _slashSprite;
   final Paint _paint;
   final Paint _strokePaint;
+  Rect _slashSourceRect = Rect.zero;
+  Rect _slashDestRect = Rect.zero;
 
   @override
   void update(double dt) {
@@ -65,20 +71,85 @@ class EffectComponent extends PositionComponent {
           _paint,
         );
       case EffectShape.arc:
-        final sweep = _state.arcDegrees * (math.pi / 180);
-        final startAngle =
-            math.atan2(_state.direction.y, _state.direction.x) - sweep * 0.5;
-        final rect = Rect.fromCircle(
-          center: Offset.zero,
-          radius: _state.radius,
+        final directionAngle = math.atan2(
+          _state.direction.y,
+          _state.direction.x,
         );
-        final path = Path()
-          ..moveTo(0, 0)
-          ..arcTo(rect, startAngle, sweep, false)
-          ..close();
-        canvas.drawPath(path, _paint);
-        canvas.drawPath(path, _strokePaint);
+        if (_state.sweepArcDegrees > 0 && _state.duration > 0) {
+          final sweepWidth = _state.sweepArcDegrees * (math.pi / 180);
+          final sweepStart = _state.sweepStartAngle * (math.pi / 180);
+          final sweepEnd = _state.sweepEndAngle * (math.pi / 180);
+          final progress = (_state.age / _state.duration).clamp(0.0, 1.0);
+          final currentAngle =
+              directionAngle +
+              (sweepStart + (sweepEnd - sweepStart) * progress);
+          final startAngle = currentAngle - sweepWidth * 0.5;
+          final rect = Rect.fromCircle(
+            center: Offset.zero,
+            radius: _state.radius,
+          );
+          final path = Path()
+            ..moveTo(0, 0)
+            ..arcTo(rect, startAngle, sweepWidth, false)
+            ..close();
+          canvas.drawPath(path, _paint);
+          canvas.drawPath(path, _strokePaint);
+          _renderSlashSprite(canvas, currentAngle);
+        } else {
+          final sweep = _state.arcDegrees * (math.pi / 180);
+          final startAngle = directionAngle - sweep * 0.5;
+          final rect = Rect.fromCircle(
+            center: Offset.zero,
+            radius: _state.radius,
+          );
+          final path = Path()
+            ..moveTo(0, 0)
+            ..arcTo(rect, startAngle, sweep, false)
+            ..close();
+          canvas.drawPath(path, _paint);
+          canvas.drawPath(path, _strokePaint);
+        }
     }
+  }
+
+  void _renderSlashSprite(Canvas canvas, double angle) {
+    if (_slashSprite == null) {
+      return;
+    }
+    final offset = Offset(
+      math.cos(angle) * _state.radius * 0.7,
+      math.sin(angle) * _state.radius * 0.7,
+    );
+    canvas.save();
+    canvas.translate(offset.dx, offset.dy);
+    canvas.rotate(angle);
+    canvas.drawImageRect(
+      _slashSprite!,
+      _slashSourceRect,
+      _slashDestRect,
+      _paint,
+    );
+    canvas.restore();
+  }
+
+  void _syncSlashSprite(Image? spriteImage) {
+    _slashSprite = spriteImage;
+    if (spriteImage == null) {
+      _slashSourceRect = Rect.zero;
+      _slashDestRect = Rect.zero;
+      return;
+    }
+    _slashSourceRect = Rect.fromLTWH(
+      0,
+      0,
+      spriteImage.width.toDouble(),
+      spriteImage.height.toDouble(),
+    );
+    _slashDestRect = Rect.fromCenter(
+      center: Offset.zero,
+      width: spriteImage.width.toDouble(),
+      height: spriteImage.height.toDouble(),
+    );
   }
 
   static Color _colorForKind(EffectKind kind) {

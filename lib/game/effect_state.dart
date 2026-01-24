@@ -27,12 +27,17 @@ class EffectState {
   double length = 0;
   double width = 0;
   double arcDegrees = 0;
+  double sweepStartAngle = 0;
+  double sweepEndAngle = 0;
+  double sweepArcDegrees = 0;
   double duration = 0;
   double age = 0;
   double damagePerSecond = 0;
   double slowMultiplier = 1;
   double slowDuration = 0;
   double oilDuration = 0;
+  double knockbackForce = 0;
+  double knockbackDuration = 0;
   SkillId? sourceSkillId;
   bool followsPlayer = false;
   bool active = false;
@@ -46,11 +51,16 @@ class EffectState {
     required double length,
     required double width,
     double arcDegrees = 0,
+    double sweepStartAngle = 0,
+    double sweepEndAngle = 0,
+    double sweepArcDegrees = 0,
     required double duration,
     required double damagePerSecond,
     double slowMultiplier = 1,
     double slowDuration = 0,
     double oilDuration = 0,
+    double knockbackForce = 0,
+    double knockbackDuration = 0,
     SkillId? sourceSkillId,
     bool followsPlayer = false,
   }) {
@@ -67,11 +77,16 @@ class EffectState {
     this.length = length;
     this.width = width;
     this.arcDegrees = arcDegrees;
+    this.sweepStartAngle = sweepStartAngle;
+    this.sweepEndAngle = sweepEndAngle;
+    this.sweepArcDegrees = sweepArcDegrees;
     this.duration = duration;
     this.damagePerSecond = damagePerSecond;
     this.slowMultiplier = slowMultiplier;
     this.slowDuration = slowDuration;
     this.oilDuration = oilDuration;
+    this.knockbackForce = knockbackForce;
+    this.knockbackDuration = knockbackDuration;
     this.sourceSkillId = sourceSkillId;
     this.followsPlayer = followsPlayer;
     age = 0;

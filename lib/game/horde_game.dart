@@ -125,6 +125,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     PickupKind.xpOrb: 'pickup_xp_orb',
     PickupKind.goldCoin: 'pickup_gold_coin',
   };
+  static const Map<SkillId, String> _meleeSwipeSpriteIds = {
+    SkillId.swordCut: 'effect_sword_cut_swipe',
+    SkillId.swordSwing: 'effect_sword_swing_swipe',
+  };
   static const Map<CurrencyId, PickupKind> _pickupKindByCurrency = {
     CurrencyId.xp: PickupKind.xpOrb,
     CurrencyId.gold: PickupKind.goldCoin,
@@ -182,6 +186,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Map<SkillId, Image?> _skillIcons = {};
   final Map<SkillId, Image> _skillProjectileSprites = {};
   final Map<ItemId, Image?> _itemIcons = {};
+  final Map<SkillId, Image> _meleeSwipeSprites = {};
   Image? _projectileSprite;
   final Map<PickupKind, Image?> _pickupSprites = {};
   ProjectileBatchComponent? _projectileBatchComponent;
@@ -410,6 +415,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         debugPrint('Sprite cache missing ${def.iconId} for ${def.id}.');
       }
       _itemIcons[def.id] = spriteImage;
+    }
+    for (final entry in _meleeSwipeSpriteIds.entries) {
+      final spriteImage = _spritePipeline.lookup(entry.value);
+      if (spriteImage == null) {
+        debugPrint('Sprite cache missing ${entry.value} for ${entry.key}.');
+        continue;
+      }
+      _meleeSwipeSprites[entry.key] = spriteImage;
     }
     _projectileSprite = _spritePipeline.lookup(_projectileSpriteId);
     if (_projectileSprite == null) {
@@ -1285,7 +1298,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _handleEffectSpawn(EffectState effect) {
-    final component = EffectComponent(state: effect);
+    final slashSprite = effect.sourceSkillId == null
+        ? null
+        : _meleeSwipeSprites[effect.sourceSkillId!];
+    final component = EffectComponent(state: effect, slashSprite: slashSprite);
     _effectComponents[effect] = component;
     world.add(component);
   }
