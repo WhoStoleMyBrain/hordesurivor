@@ -6,6 +6,7 @@ import '../data/ids.dart';
 import '../data/item_defs.dart';
 import '../data/skill_defs.dart';
 import '../data/skill_upgrade_defs.dart';
+import '../data/stat_defs.dart';
 import '../data/synergy_defs.dart';
 import '../data/tags.dart';
 import '../data/weapon_upgrade_defs.dart';
@@ -13,6 +14,7 @@ import '../game/level_up_system.dart';
 import 'item_rarity_style.dart';
 import 'selection_state.dart';
 import 'skill_detail_text.dart';
+import 'stats_screen_state.dart';
 import 'stat_text.dart';
 import 'tag_badge.dart';
 import 'ui_scale.dart';
@@ -28,6 +30,7 @@ class SelectionOverlay extends StatelessWidget {
     required this.onSkip,
     required this.skillIcons,
     required this.itemIcons,
+    required this.statsState,
   });
 
   static const String overlayKey = 'selection';
@@ -40,16 +43,31 @@ class SelectionOverlay extends StatelessWidget {
   final VoidCallback onSkip;
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<ItemId, ui.Image?> itemIcons;
+  final StatsScreenState statsState;
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: AnimatedBuilder(
-        animation: selectionState,
+        animation: Listenable.merge([selectionState, statsState]),
         builder: (context, _) {
           final choices = selectionState.choices;
           if (choices.isEmpty) {
             return const SizedBox.shrink();
+          }
+          final isShop = selectionState.trackId == ProgressionTrackId.items;
+          if (isShop) {
+            return _ShopOverlayLayout(
+              selectionState: selectionState,
+              statsState: statsState,
+              onSelected: onSelected,
+              onReroll: onReroll,
+              onBanish: onBanish,
+              onToggleLock: onToggleLock,
+              onSkip: onSkip,
+              skillIcons: skillIcons,
+              itemIcons: itemIcons,
+            );
           }
           final useGrid = choices.length > 4;
           return Center(
@@ -228,6 +246,590 @@ class SelectionOverlay extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ShopOverlayLayout extends StatelessWidget {
+  const _ShopOverlayLayout({
+    required this.selectionState,
+    required this.statsState,
+    required this.onSelected,
+    required this.onReroll,
+    required this.onBanish,
+    required this.onToggleLock,
+    required this.onSkip,
+    required this.skillIcons,
+    required this.itemIcons,
+  });
+
+  final SelectionState selectionState;
+  final StatsScreenState statsState;
+  final void Function(SelectionChoice choice) onSelected;
+  final VoidCallback onReroll;
+  final void Function(SelectionChoice choice) onBanish;
+  final void Function(SelectionChoice choice) onToggleLock;
+  final VoidCallback onSkip;
+  final Map<SkillId, ui.Image?> skillIcons;
+  final Map<ItemId, ui.Image?> itemIcons;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final choices = selectionState.choices;
+    return Container(
+      color: Colors.black.withValues(alpha: 0.88),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Sanctum Shop',
+                        style: TextStyle(
+                          fontSize: UiScale.fontSize(20),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.amberAccent,
+                        ),
+                      ),
+                    ),
+                    if (selectionState.shopLevel > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: _ShopBadge(
+                          label: 'Tier ${selectionState.shopLevel}',
+                        ),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: Text(
+                        'Gold: ${selectionState.goldAvailable}',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: Colors.amberAccent,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    _RerollButton(
+                      remaining: selectionState.rerollsRemaining,
+                      cost: selectionState.rerollCost,
+                      goldAvailable: selectionState.goldAvailable,
+                      isShop: true,
+                      freeRerolls: selectionState.shopFreeRerolls,
+                      onPressed:
+                          selectionState.shopFreeRerolls > 0 ||
+                              selectionState.goldAvailable >=
+                                  selectionState.rerollCost
+                          ? onReroll
+                          : null,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: _ShopBonusRow(selectionState: selectionState),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 4,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Available Rites',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          height: 260,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: choices.length,
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(width: 12),
+                            itemBuilder: (context, index) {
+                              final choice = choices[index];
+                              final isPlaceholder =
+                                  choice.type == SelectionType.item &&
+                                  choice.itemId == null;
+                              return SizedBox(
+                                width: 280,
+                                child: _ChoiceCard(
+                                  choice: choice,
+                                  iconImage: _iconForChoice(
+                                    choice,
+                                    skillIcons,
+                                    itemIcons,
+                                  ),
+                                  onPressed: isPlaceholder
+                                      ? null
+                                      : () => onSelected(choice),
+                                  banishesRemaining:
+                                      selectionState.banishesRemaining,
+                                  goldAvailable: selectionState.goldAvailable,
+                                  price: selectionState.priceForChoice(choice),
+                                  locked: selectionState.lockedItems.contains(
+                                    choice.itemId,
+                                  ),
+                                  isPlaceholder: isPlaceholder,
+                                  onBanish:
+                                      selectionState.banishesRemaining > 0 &&
+                                          !isPlaceholder
+                                      ? () => onBanish(choice)
+                                      : null,
+                                  onToggleLock: !isPlaceholder
+                                      ? () => onToggleLock(choice)
+                                      : null,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Prepared Skills',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _ShopSkillRow(
+                          skills: statsState.skills,
+                          skillIcons: skillIcons,
+                        ),
+                        const SizedBox(height: 12),
+                        if (selectionState.skipEnabled)
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: _SkipButton(
+                              label: selectionState.skipRewardLabel,
+                              onPressed: onSkip,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(flex: 1, child: _ShopStatsPanel(state: statsState)),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+            child: _OwnedItemsBar(
+              items: statsState.items,
+              itemIcons: itemIcons,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ShopBadge extends StatelessWidget {
+  const _ShopBadge({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2B2214),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0xFF6A5638)),
+      ),
+      child: Text(
+        label,
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: const Color(0xFFE9D7A8),
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+class _ShopSkillRow extends StatelessWidget {
+  const _ShopSkillRow({required this.skills, required this.skillIcons});
+
+  final List<SkillId> skills;
+  final Map<SkillId, ui.Image?> skillIcons;
+
+  @override
+  Widget build(BuildContext context) {
+    if (skills.isEmpty) {
+      return Text(
+        'No skills prepared yet.',
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: Colors.white54),
+      );
+    }
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final skillId in skills)
+          Tooltip(
+            waitDuration: const Duration(milliseconds: 250),
+            preferBelow: false,
+            decoration: _tooltipDecoration(),
+            richMessage: _skillTooltip(skillId),
+            child: _MiniIcon(
+              image: skillIcons[skillId],
+              placeholder: Icons.auto_fix_high,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _OwnedItemsBar extends StatelessWidget {
+  const _OwnedItemsBar({required this.items, required this.itemIcons});
+
+  final List<ItemId> items;
+  final Map<ItemId, ui.Image?> itemIcons;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF120C09),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF3A2B1B)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Owned Rites',
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: const Color(0xFFE9D7A8),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          if (items.isEmpty)
+            Text(
+              'No rites claimed yet.',
+              style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
+            )
+          else
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final itemId in items)
+                  Tooltip(
+                    waitDuration: const Duration(milliseconds: 250),
+                    preferBelow: false,
+                    decoration: _tooltipDecoration(),
+                    richMessage: _itemTooltip(itemId),
+                    child: _MiniIcon(
+                      image: itemIcons[itemId],
+                      placeholder: Icons.local_offer,
+                    ),
+                  ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MiniIcon extends StatelessWidget {
+  const _MiniIcon({required this.image, required this.placeholder});
+
+  final ui.Image? image;
+  final IconData placeholder;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: image == null
+          ? Icon(placeholder, size: 18, color: Colors.white54)
+          : Padding(
+              padding: const EdgeInsets.all(4),
+              child: RawImage(image: image, fit: BoxFit.contain),
+            ),
+    );
+  }
+}
+
+class _ShopStatsPanel extends StatelessWidget {
+  const _ShopStatsPanel({required this.state});
+
+  final StatsScreenState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DefaultTabController(
+      length: 3,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFF181210),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF3A2B1B)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Run Intel',
+              style: theme.textTheme.titleSmall?.copyWith(
+                color: const Color(0xFFE9D7A8),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TabBar(
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.white60,
+              indicatorColor: const Color(0xFFE9D7A8),
+              labelStyle: theme.textTheme.labelSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+              tabs: const [
+                Tab(text: 'Stats'),
+                Tab(text: 'Skills'),
+                Tab(text: 'Items'),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _ShopStatsList(statValues: state.statValues),
+                  _ShopSkillList(skills: state.skills),
+                  _ShopItemList(items: state.items),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ShopStatsList extends StatelessWidget {
+  const _ShopStatsList({required this.statValues});
+
+  final Map<StatId, double> statValues;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final entries = statValues.entries.toList()
+      ..sort(
+        (a, b) => StatText.labelFor(a.key).compareTo(StatText.labelFor(b.key)),
+      );
+    return ListView(
+      children: [
+        for (final entry in entries)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    StatText.labelFor(entry.key),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.white70,
+                    ),
+                  ),
+                ),
+                Text(
+                  StatText.formatStatValue(entry.key, entry.value),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _ShopSkillList extends StatelessWidget {
+  const _ShopSkillList({required this.skills});
+
+  final List<SkillId> skills;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    if (skills.isEmpty) {
+      return Text(
+        'No skills equipped yet.',
+        style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
+      );
+    }
+    return ListView.separated(
+      itemCount: skills.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 6),
+      itemBuilder: (context, index) {
+        final skillId = skills[index];
+        final skill = skillDefsById[skillId];
+        return Text(
+          skill?.name ?? skillId.name,
+          style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
+        );
+      },
+    );
+  }
+}
+
+class _ShopItemList extends StatelessWidget {
+  const _ShopItemList({required this.items});
+
+  final List<ItemId> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    if (items.isEmpty) {
+      return Text(
+        'No rites claimed yet.',
+        style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
+      );
+    }
+    return ListView.separated(
+      itemCount: items.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 6),
+      itemBuilder: (context, index) {
+        final itemId = items[index];
+        final item = itemDefsById[itemId];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              item?.name ?? itemId.name,
+              style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
+            ),
+            if (item != null)
+              Text(
+                item.description,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.white54,
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+BoxDecoration _tooltipDecoration() {
+  return BoxDecoration(
+    color: Colors.black.withValues(alpha: 0.9),
+    borderRadius: BorderRadius.circular(8),
+    border: Border.all(color: Colors.white24),
+  );
+}
+
+TextSpan _skillTooltip(SkillId skillId) {
+  final skill = skillDefsById[skillId];
+  final lines = <String>[];
+  if (skill != null) {
+    lines.add(skill.description);
+  }
+  lines.addAll(skillDetailTextLinesFor(skillId));
+  return TextSpan(
+    children: [
+      TextSpan(
+        text: skill?.name ?? skillId.name,
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+          fontSize: UiScale.fontSize(12),
+        ),
+      ),
+      if (lines.isNotEmpty)
+        TextSpan(
+          text: '\n${lines.join('\n')}',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: UiScale.fontSize(11),
+          ),
+        ),
+    ],
+  );
+}
+
+TextSpan _itemTooltip(ItemId itemId) {
+  final item = itemDefsById[itemId];
+  final modifierLines = item == null
+      ? const <String>[]
+      : [
+          for (final modifier in item.modifiers)
+            StatText.formatModifier(modifier),
+        ];
+  return TextSpan(
+    children: [
+      TextSpan(
+        text: item?.name ?? itemId.name,
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+          fontSize: UiScale.fontSize(12),
+        ),
+      ),
+      if (item != null)
+        TextSpan(
+          text: '\n${item.description}',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: UiScale.fontSize(11),
+          ),
+        ),
+      if (modifierLines.isNotEmpty)
+        TextSpan(
+          text: '\n${modifierLines.join('\n')}',
+          style: TextStyle(
+            color: Colors.white60,
+            fontSize: UiScale.fontSize(11),
+          ),
+        ),
+    ],
+  );
 }
 
 class _RerollButton extends StatelessWidget {
