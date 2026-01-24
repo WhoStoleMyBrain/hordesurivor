@@ -180,6 +180,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Map<EnemyId, Image> _enemySprites = {};
   final Map<CharacterId, Image> _characterSprites = {};
   final Map<SkillId, Image?> _skillIcons = {};
+  final Map<SkillId, Image> _skillProjectileSprites = {};
   final Map<ItemId, Image?> _itemIcons = {};
   Image? _projectileSprite;
   final Map<PickupKind, Image?> _pickupSprites = {};
@@ -393,6 +394,15 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         debugPrint('Sprite cache missing ${def.iconId} for ${def.id}.');
       }
       _skillIcons[def.id] = spriteImage;
+      final projectileSpriteId = def.projectileSpriteId;
+      if (projectileSpriteId != null) {
+        final projectileSprite = _spritePipeline.lookup(projectileSpriteId);
+        if (projectileSprite == null) {
+          debugPrint('Sprite cache missing $projectileSpriteId for ${def.id}.');
+        } else {
+          _skillProjectileSprites[def.id] = projectileSprite;
+        }
+      }
     }
     for (final def in itemDefs) {
       final spriteImage = _spritePipeline.lookup(def.iconId);
@@ -476,6 +486,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         pool: _projectilePool,
         spriteImage: _projectileSprite!,
         color: const Color(0xFFFF8C3B),
+        skillSpriteImages: _skillProjectileSprites,
       );
       await world.add(_projectileBatchComponent!);
     }
@@ -1234,12 +1245,16 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (_projectileBatchComponent != null && !projectile.fromEnemy) {
       return;
     }
+    final spriteImage = projectile.fromEnemy
+        ? null
+        : _skillProjectileSprites[projectile.sourceSkillId] ??
+              _projectileSprite;
     final component = ProjectileComponent(
       state: projectile,
       color: projectile.fromEnemy
           ? const Color(0xFF7AA2F7)
           : const Color(0xFFFF8C3B),
-      spriteImage: projectile.fromEnemy ? null : _projectileSprite,
+      spriteImage: spriteImage,
     );
     _projectileComponents[projectile] = component;
     world.add(component);
