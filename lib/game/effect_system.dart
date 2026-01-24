@@ -234,7 +234,9 @@ class EffectSystem {
     }
 
     final ageProgress = (effect.age / effect.duration).clamp(0.0, 1.0);
-    final currentAngle = startAngle + (endAngle - startAngle) * ageProgress;
+    final directionAngle = math.atan2(effect.direction.y, effect.direction.x);
+    final currentAngle =
+        directionAngle + (startAngle + (endAngle - startAngle) * ageProgress);
     final angleDiff = _wrapAngle(angle - currentAngle).abs();
     if (angleDiff > sweepRange * 0.5) {
       return 0;

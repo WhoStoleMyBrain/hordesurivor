@@ -297,7 +297,6 @@ class SkillSystem {
               aimDirection: aimDirection,
               stats: stats,
               enemyPool: enemyPool,
-              enemyGrid: enemyGrid,
               onEffectSpawn: onEffectSpawn,
               onEnemyDamaged: onEnemyDamaged,
             );
@@ -704,7 +703,6 @@ class SkillSystem {
     required Vector2 aimDirection,
     required StatSheet stats,
     required EnemyPool enemyPool,
-    SpatialGrid? enemyGrid,
     required void Function(EffectState) onEffectSpawn,
     required void Function(
       EnemyState,
@@ -730,20 +728,6 @@ class SkillSystem {
       aimDirection: aimDirection,
       enemyPool: enemyPool,
     );
-    _castMeleeArc(
-      playerPosition: playerPosition,
-      direction: direction,
-      enemyPool: enemyPool,
-      enemyGrid: enemyGrid,
-      stats: stats,
-      baseRange: meleeDef.range,
-      arcDegrees: meleeDef.arcDegrees,
-      damage: damage,
-      knockbackForce: def.knockbackForce * knockbackScale,
-      knockbackDuration: def.knockbackDuration,
-      sourceSkillId: SkillId.absolutionSlap,
-      onEnemyDamaged: onEnemyDamaged,
-    );
     _spawnSwordArcEffect(
       playerPosition: playerPosition,
       direction: direction,
@@ -752,7 +736,10 @@ class SkillSystem {
       arcDegrees: meleeDef.arcDegrees,
       duration: meleeDef.effectDuration,
       sourceSkillId: SkillId.absolutionSlap,
-      sweepArcDegrees: 0,
+      damagePerSecond: damage / meleeDef.effectDuration,
+      sweepArcDegrees: 40,
+      knockbackForce: def.knockbackForce * knockbackScale,
+      knockbackDuration: def.knockbackDuration,
       onEffectSpawn: onEffectSpawn,
     );
   }
