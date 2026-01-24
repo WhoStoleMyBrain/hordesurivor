@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flame/extensions.dart';
 
 import '../data/stat_defs.dart';
+import 'game_sizes.dart';
 import 'stat_sheet.dart';
 
 class PlayerState {
@@ -10,6 +11,8 @@ class PlayerState {
     required this.position,
     required double maxHp,
     required double moveSpeed,
+    double spriteWidth = GameSizes.playerRadius * 2,
+    double spriteHeight = GameSizes.playerRadius * 2,
     this.dashSpeed = 720,
     this.dashDistance = 60,
     this.dashCooldown = 3.0,
@@ -31,7 +34,12 @@ class PlayerState {
        impulseVelocity = Vector2.zero(),
        dashDirection = Vector2(1, 0),
        dashVelocity = Vector2.zero(),
-       lastMovementDirection = Vector2(1, 0);
+       lastMovementDirection = Vector2(1, 0),
+       _spriteSize = Vector2(spriteWidth, spriteHeight),
+       _spriteAnchor = Vector2(0.5, 0.5),
+       _spriteCenterOffset = Vector2.zero() {
+    _syncSpriteCenterOffset();
+  }
 
   final Vector2 position;
   final Vector2 velocity;
@@ -42,6 +50,9 @@ class PlayerState {
   final Vector2 lastMovementDirection;
   final StatSheet stats;
   final double baseMoveSpeed;
+  final Vector2 _spriteSize;
+  final Vector2 _spriteAnchor;
+  final Vector2 _spriteCenterOffset;
   final double dashSpeed;
   final double dashDistance;
   final double dashCooldown;
@@ -80,6 +91,31 @@ class PlayerState {
       return 0;
     }
     return (1 - (hitEffectTimeRemaining / hitEffectDuration)).clamp(0, 1);
+  }
+
+  Vector2 resolveAttackOrigin(Vector2 output) {
+    output
+      ..setFrom(position)
+      ..add(_spriteCenterOffset);
+    return output;
+  }
+
+  void setSpriteMetrics({
+    required double width,
+    required double height,
+    double anchorX = 0.5,
+    double anchorY = 0.5,
+  }) {
+    _spriteSize.setValues(width, height);
+    _spriteAnchor.setValues(anchorX, anchorY);
+    _syncSpriteCenterOffset();
+  }
+
+  void _syncSpriteCenterOffset() {
+    _spriteCenterOffset.setValues(
+      _spriteSize.x * (0.5 - _spriteAnchor.x),
+      _spriteSize.y * (0.5 - _spriteAnchor.y),
+    );
   }
 
   void applyModifiers(Iterable<StatModifier> modifiers) {
