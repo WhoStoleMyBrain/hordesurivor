@@ -169,6 +169,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   StressStatsSnapshot? _stressStatsSnapshot;
   late final PlayerState _playerState;
   late final PlayerComponent _playerComponent;
+  final Vector2 _playerAttackOrigin = Vector2.zero();
   final SpritePipeline _spritePipeline = SpritePipeline();
   final Vector2 _mapSize = Vector2.zero();
   late final MapBackgroundComponent _mapBackground;
@@ -432,6 +433,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       dashTeleport: activeCharacter.movement.dashTeleport,
     );
     _playerState.setBaseStats(activeCharacter.baseStats);
+    _syncPlayerSpriteMetrics(playerSprite);
     _progressionSystem = ProgressionSystem();
     _spawnDirector = SpawnDirector(progressionSystem: _progressionSystem);
     _levelUpSystem = LevelUpSystem(random: math.Random(11));
@@ -691,9 +693,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _spawnerSystem.update(dt, _playerState.position);
     _enemySystem.update(dt, _playerState.position, _mapSize);
     _enemyGrid.rebuild(_enemyPool.active);
+    final playerAttackOrigin = _playerState.resolveAttackOrigin(
+      _playerAttackOrigin,
+    );
     _skillSystem.update(
       dt: dt,
-      playerPosition: _playerState.position,
+      playerPosition: playerAttackOrigin,
       aimDirection: _playerState.movementIntent,
       stats: _playerState.stats,
       enemyPool: _enemyPool,
@@ -763,7 +768,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       dt,
       enemyPool: _enemyPool,
       enemyGrid: _enemyGrid,
-      playerPosition: _playerState.position,
+      playerPosition: playerAttackOrigin,
       onDespawn: _handleEffectDespawn,
       onEnemyDamaged: _damageSystem.queueEnemyDamage,
     );
@@ -2806,6 +2811,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     return characterDefsById[_activeCharacterId] ?? characterDefs.first;
   }
 
+  void _syncPlayerSpriteMetrics(Image? spriteImage) {
+    final width = spriteImage?.width.toDouble() ?? _playerRadius * 2;
+    final height = spriteImage?.height.toDouble() ?? _playerRadius * 2;
+    _playerState.setSpriteMetrics(width: width, height: height);
+  }
+
   void _applyCharacterDefinition(CharacterDef def, {bool resetRun = false}) {
     _playerState.setBaseStats(def.baseStats);
     if (resetRun) {
@@ -2813,7 +2824,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     _playerState.applyModifiers(def.modifiers);
     _playerState.applyModifiers(_metaUnlocks.activeModifiers);
-    _playerComponent.setSpriteImage(_characterSprites[def.id]);
+    final spriteImage = _characterSprites[def.id];
+    _syncPlayerSpriteMetrics(spriteImage);
+    _playerComponent.setSpriteImage(spriteImage);
     _playerComponent.syncWithState();
   }
 
