@@ -2986,6 +2986,468 @@
       ]
     },
     {
+      "id": "projectile_censer_ember",
+      "kind": "projectile",
+      "outputName": "projectile_censer_ember.png",
+      "size": 32,
+      "seed": 101,
+      "palette": {
+        "primary": "#F2994A",
+        "shadow": "#C65A14",
+        "accent": "#F2C94C",
+        "outline": "#2A1408",
+        "highlight": "#FFD6AE"
+      },
+      "shapes": [
+        {
+          "type": "circle",
+          "offset": [
+            0,
+            2
+          ],
+          "color": "primary",
+          "radius": 4
+        },
+        {
+          "type": "circle",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "accent",
+          "radius": 3
+        },
+        {
+          "type": "line",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "highlight",
+          "start": [
+            -2,
+            -3
+          ],
+          "end": [
+            2,
+            -5
+          ],
+          "thickness": 2
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
+      ]
+    },
+    {
+      "id": "projectile_anointing_oil",
+      "kind": "projectile",
+      "outputName": "projectile_anointing_oil.png",
+      "size": 32,
+      "seed": 102,
+      "palette": {
+        "primary": "#C48A55",
+        "shadow": "#7B4E2D",
+        "accent": "#F2C94C",
+        "outline": "#2B1B12",
+        "highlight": "#F7E6D4"
+      },
+      "shapes": [
+        {
+          "type": "rect",
+          "offset": [
+            0,
+            2
+          ],
+          "color": "primary",
+          "size": [
+            8,
+            10
+          ]
+        },
+        {
+          "type": "rect",
+          "offset": [
+            0,
+            -5
+          ],
+          "color": "shadow",
+          "size": [
+            4,
+            4
+          ]
+        },
+        {
+          "type": "circle",
+          "offset": [
+            0,
+            3
+          ],
+          "color": "accent",
+          "radius": 2
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
+      ]
+    },
+    {
+      "id": "projectile_razor_hymn",
+      "kind": "projectile",
+      "outputName": "projectile_razor_hymn.png",
+      "size": 32,
+      "seed": 103,
+      "palette": {
+        "primary": "#B4D6F2",
+        "shadow": "#6C95C2",
+        "accent": "#E3F0FF",
+        "outline": "#1A2735",
+        "highlight": "#F5FAFF"
+      },
+      "shapes": [
+        {
+          "type": "arc",
+          "offset": [
+            0,
+            1
+          ],
+          "color": "primary",
+          "radius": 7,
+          "startAngle": -30,
+          "sweepAngle": 120,
+          "thickness": 2
+        },
+        {
+          "type": "line",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "accent",
+          "start": [
+            -2,
+            -2
+          ],
+          "end": [
+            6,
+            -4
+          ],
+          "thickness": 2
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
+      ]
+    },
+    {
+      "id": "projectile_rosary_shard",
+      "kind": "projectile",
+      "outputName": "projectile_rosary_shard.png",
+      "size": 32,
+      "seed": 104,
+      "palette": {
+        "primary": "#9FA8B3",
+        "shadow": "#5C6670",
+        "accent": "#DDE3EA",
+        "outline": "#1D232B",
+        "highlight": "#F4F7FA"
+      },
+      "shapes": [
+        {
+          "type": "line",
+          "offset": [
+            -2,
+            0
+          ],
+          "color": "primary",
+          "start": [
+            0,
+            -5
+          ],
+          "end": [
+            4,
+            5
+          ],
+          "thickness": 2
+        },
+        {
+          "type": "line",
+          "offset": [
+            2,
+            0
+          ],
+          "color": "accent",
+          "start": [
+            0,
+            -4
+          ],
+          "end": [
+            2,
+            4
+          ],
+          "thickness": 1
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
+      ]
+    },
+    {
+      "id": "projectile_censer_spore",
+      "kind": "projectile",
+      "outputName": "projectile_censer_spore.png",
+      "size": 32,
+      "seed": 105,
+      "palette": {
+        "primary": "#6FCF97",
+        "shadow": "#2F9E66",
+        "accent": "#B5F5D0",
+        "outline": "#13251D",
+        "highlight": "#DDFBEA"
+      },
+      "shapes": [
+        {
+          "type": "circle",
+          "offset": [
+            0,
+            1
+          ],
+          "color": "primary",
+          "radius": 4
+        },
+        {
+          "type": "circle",
+          "offset": [
+            -3,
+            -2
+          ],
+          "color": "accent",
+          "radius": 2
+        },
+        {
+          "type": "circle",
+          "offset": [
+            3,
+            -1
+          ],
+          "color": "highlight",
+          "radius": 2
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
+      ]
+    },
+    {
+      "id": "projectile_vigil_shot",
+      "kind": "projectile",
+      "outputName": "projectile_vigil_shot.png",
+      "size": 32,
+      "seed": 106,
+      "palette": {
+        "primary": "#8AC7FF",
+        "shadow": "#4A6E9C",
+        "accent": "#D6EEFF",
+        "outline": "#15202B",
+        "highlight": "#F4FAFF"
+      },
+      "shapes": [
+        {
+          "type": "circle",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "primary",
+          "radius": 3
+        },
+        {
+          "type": "line",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "accent",
+          "start": [
+            -4,
+            0
+          ],
+          "end": [
+            4,
+            0
+          ],
+          "thickness": 2
+        },
+        {
+          "type": "line",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "highlight",
+          "start": [
+            0,
+            -4
+          ],
+          "end": [
+            0,
+            4
+          ],
+          "thickness": 1
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
+      ]
+    },
+    {
+      "id": "projectile_chair_throw",
+      "kind": "projectile",
+      "outputName": "projectile_chair_throw.png",
+      "size": 32,
+      "seed": 107,
+      "palette": {
+        "primary": "#C48A55",
+        "shadow": "#7B4E2D",
+        "accent": "#E8C7A3",
+        "outline": "#2B1B12",
+        "highlight": "#F7E6D4"
+      },
+      "shapes": [
+        {
+          "type": "rect",
+          "offset": [
+            0,
+            1
+          ],
+          "color": "primary",
+          "size": [
+            10,
+            6
+          ]
+        },
+        {
+          "type": "rect",
+          "offset": [
+            0,
+            -4
+          ],
+          "color": "shadow",
+          "size": [
+            8,
+            3
+          ]
+        },
+        {
+          "type": "line",
+          "offset": [
+            -4,
+            4
+          ],
+          "color": "accent",
+          "start": [
+            0,
+            0
+          ],
+          "end": [
+            0,
+            4
+          ],
+          "thickness": 2
+        },
+        {
+          "type": "line",
+          "offset": [
+            4,
+            4
+          ],
+          "color": "accent",
+          "start": [
+            0,
+            0
+          ],
+          "end": [
+            0,
+            4
+          ],
+          "thickness": 2
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
+      ]
+    },
+    {
       "id": "pickup_xp_orb",
       "kind": "pickup",
       "outputName": "pickup_xp_orb.png",
