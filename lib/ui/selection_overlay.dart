@@ -47,202 +47,207 @@ class SelectionOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: AnimatedBuilder(
-        animation: Listenable.merge([selectionState, statsState]),
-        builder: (context, _) {
-          final choices = selectionState.choices;
-          if (choices.isEmpty) {
-            return const SizedBox.shrink();
-          }
-          final isShop = selectionState.trackId == ProgressionTrackId.items;
-          if (isShop) {
-            return _ShopOverlayLayout(
-              selectionState: selectionState,
-              statsState: statsState,
-              onSelected: onSelected,
-              onReroll: onReroll,
-              onBanish: onBanish,
-              onToggleLock: onToggleLock,
-              onSkip: onSkip,
-              skillIcons: skillIcons,
-              itemIcons: itemIcons,
-            );
-          }
-          final useGrid = choices.length > 4;
-          return Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: useGrid ? 720 : 420),
-              child: Card(
-                color: Colors.black.withValues(alpha: 0.8),
-                margin: const EdgeInsets.all(16),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              _headerTitleForTrack(selectionState.trackId),
-                              style: TextStyle(
-                                fontSize: UiScale.fontSize(18),
-                                fontWeight: FontWeight.bold,
-                                color: _headerColorForTrack(
-                                  selectionState.trackId,
-                                ),
-                              ),
-                            ),
-                          ),
-                          if (selectionState.trackId ==
-                              ProgressionTrackId.items)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 12),
+    return Material(
+      type: MaterialType.transparency,
+      child: SafeArea(
+        child: AnimatedBuilder(
+          animation: Listenable.merge([selectionState, statsState]),
+          builder: (context, _) {
+            final choices = selectionState.choices;
+            if (choices.isEmpty) {
+              return const SizedBox.shrink();
+            }
+            final isShop = selectionState.trackId == ProgressionTrackId.items;
+            if (isShop) {
+              return _ShopOverlayLayout(
+                selectionState: selectionState,
+                statsState: statsState,
+                onSelected: onSelected,
+                onReroll: onReroll,
+                onBanish: onBanish,
+                onToggleLock: onToggleLock,
+                onSkip: onSkip,
+                skillIcons: skillIcons,
+                itemIcons: itemIcons,
+              );
+            }
+            final useGrid = choices.length > 4;
+            return Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: useGrid ? 720 : 420),
+                child: Card(
+                  color: Colors.black.withValues(alpha: 0.8),
+                  margin: const EdgeInsets.all(16),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
                               child: Text(
-                                'Gold: ${selectionState.goldAvailable}',
+                                _headerTitleForTrack(selectionState.trackId),
                                 style: TextStyle(
-                                  fontSize: UiScale.fontSize(13),
-                                  color: Colors.amberAccent,
+                                  fontSize: UiScale.fontSize(18),
+                                  fontWeight: FontWeight.bold,
+                                  color: _headerColorForTrack(
+                                    selectionState.trackId,
+                                  ),
                                 ),
                               ),
                             ),
-                          _RerollButton(
-                            remaining: selectionState.rerollsRemaining,
-                            cost: selectionState.rerollCost,
-                            goldAvailable: selectionState.goldAvailable,
-                            isShop:
-                                selectionState.trackId ==
-                                ProgressionTrackId.items,
-                            freeRerolls: selectionState.shopFreeRerolls,
-                            onPressed:
-                                (selectionState.trackId ==
-                                        ProgressionTrackId.items
-                                    ? (selectionState.shopFreeRerolls > 0 ||
-                                          selectionState.goldAvailable >=
-                                              selectionState.rerollCost)
-                                    : selectionState.rerollsRemaining > 0)
-                                ? onReroll
-                                : null,
+                            if (selectionState.trackId ==
+                                ProgressionTrackId.items)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 12),
+                                child: Text(
+                                  'Gold: ${selectionState.goldAvailable}',
+                                  style: TextStyle(
+                                    fontSize: UiScale.fontSize(13),
+                                    color: Colors.amberAccent,
+                                  ),
+                                ),
+                              ),
+                            _RerollButton(
+                              remaining: selectionState.rerollsRemaining,
+                              cost: selectionState.rerollCost,
+                              goldAvailable: selectionState.goldAvailable,
+                              isShop:
+                                  selectionState.trackId ==
+                                  ProgressionTrackId.items,
+                              freeRerolls: selectionState.shopFreeRerolls,
+                              onPressed:
+                                  (selectionState.trackId ==
+                                          ProgressionTrackId.items
+                                      ? (selectionState.shopFreeRerolls > 0 ||
+                                            selectionState.goldAvailable >=
+                                                selectionState.rerollCost)
+                                      : selectionState.rerollsRemaining > 0)
+                                  ? onReroll
+                                  : null,
+                            ),
+                          ],
+                        ),
+                        if (selectionState.trackId ==
+                            ProgressionTrackId.items) ...[
+                          const SizedBox(height: 8),
+                          _ShopBonusRow(selectionState: selectionState),
+                        ],
+                        const SizedBox(height: 12),
+                        Flexible(
+                          child: useGrid
+                              ? GridView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: choices.length,
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2,
+                                        mainAxisSpacing: 8,
+                                        crossAxisSpacing: 8,
+                                        childAspectRatio: 1.45,
+                                      ),
+                                  itemBuilder: (context, index) {
+                                    final choice = choices[index];
+                                    final isPlaceholder =
+                                        choice.type == SelectionType.item &&
+                                        choice.itemId == null;
+                                    return _ChoiceCard(
+                                      choice: choice,
+                                      iconImage: _iconForChoice(
+                                        choice,
+                                        skillIcons,
+                                        itemIcons,
+                                      ),
+                                      onPressed: isPlaceholder
+                                          ? null
+                                          : () => onSelected(choice),
+                                      banishesRemaining:
+                                          selectionState.banishesRemaining,
+                                      goldAvailable:
+                                          selectionState.goldAvailable,
+                                      price: selectionState.priceForChoice(
+                                        choice,
+                                      ),
+                                      locked: selectionState.lockedItems
+                                          .contains(choice.itemId),
+                                      isPlaceholder: isPlaceholder,
+                                      onBanish:
+                                          selectionState.banishesRemaining >
+                                                  0 &&
+                                              !isPlaceholder
+                                          ? () => onBanish(choice)
+                                          : null,
+                                      onToggleLock:
+                                          selectionState.trackId ==
+                                                  ProgressionTrackId.items &&
+                                              !isPlaceholder
+                                          ? () => onToggleLock(choice)
+                                          : null,
+                                    );
+                                  },
+                                )
+                              : ListView.separated(
+                                  shrinkWrap: true,
+                                  itemCount: choices.length,
+                                  separatorBuilder: (_, _) =>
+                                      const SizedBox(height: 8),
+                                  itemBuilder: (context, index) {
+                                    final choice = choices[index];
+                                    final isPlaceholder =
+                                        choice.type == SelectionType.item &&
+                                        choice.itemId == null;
+                                    return _ChoiceCard(
+                                      choice: choice,
+                                      iconImage: _iconForChoice(
+                                        choice,
+                                        skillIcons,
+                                        itemIcons,
+                                      ),
+                                      onPressed: isPlaceholder
+                                          ? null
+                                          : () => onSelected(choice),
+                                      banishesRemaining:
+                                          selectionState.banishesRemaining,
+                                      goldAvailable:
+                                          selectionState.goldAvailable,
+                                      price: selectionState.priceForChoice(
+                                        choice,
+                                      ),
+                                      locked: selectionState.lockedItems
+                                          .contains(choice.itemId),
+                                      isPlaceholder: isPlaceholder,
+                                      onBanish:
+                                          selectionState.banishesRemaining >
+                                                  0 &&
+                                              !isPlaceholder
+                                          ? () => onBanish(choice)
+                                          : null,
+                                      onToggleLock:
+                                          selectionState.trackId ==
+                                                  ProgressionTrackId.items &&
+                                              !isPlaceholder
+                                          ? () => onToggleLock(choice)
+                                          : null,
+                                    );
+                                  },
+                                ),
+                        ),
+                        if (selectionState.skipEnabled) ...[
+                          const SizedBox(height: 12),
+                          _SkipButton(
+                            label: selectionState.skipRewardLabel,
+                            onPressed: onSkip,
                           ),
                         ],
-                      ),
-                      if (selectionState.trackId ==
-                          ProgressionTrackId.items) ...[
-                        const SizedBox(height: 8),
-                        _ShopBonusRow(selectionState: selectionState),
                       ],
-                      const SizedBox(height: 12),
-                      Flexible(
-                        child: useGrid
-                            ? GridView.builder(
-                                shrinkWrap: true,
-                                itemCount: choices.length,
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      mainAxisSpacing: 8,
-                                      crossAxisSpacing: 8,
-                                      childAspectRatio: 1.45,
-                                    ),
-                                itemBuilder: (context, index) {
-                                  final choice = choices[index];
-                                  final isPlaceholder =
-                                      choice.type == SelectionType.item &&
-                                      choice.itemId == null;
-                                  return _ChoiceCard(
-                                    choice: choice,
-                                    iconImage: _iconForChoice(
-                                      choice,
-                                      skillIcons,
-                                      itemIcons,
-                                    ),
-                                    onPressed: isPlaceholder
-                                        ? null
-                                        : () => onSelected(choice),
-                                    banishesRemaining:
-                                        selectionState.banishesRemaining,
-                                    goldAvailable: selectionState.goldAvailable,
-                                    price: selectionState.priceForChoice(
-                                      choice,
-                                    ),
-                                    locked: selectionState.lockedItems.contains(
-                                      choice.itemId,
-                                    ),
-                                    isPlaceholder: isPlaceholder,
-                                    onBanish:
-                                        selectionState.banishesRemaining > 0 &&
-                                            !isPlaceholder
-                                        ? () => onBanish(choice)
-                                        : null,
-                                    onToggleLock:
-                                        selectionState.trackId ==
-                                                ProgressionTrackId.items &&
-                                            !isPlaceholder
-                                        ? () => onToggleLock(choice)
-                                        : null,
-                                  );
-                                },
-                              )
-                            : ListView.separated(
-                                shrinkWrap: true,
-                                itemCount: choices.length,
-                                separatorBuilder: (_, _) =>
-                                    const SizedBox(height: 8),
-                                itemBuilder: (context, index) {
-                                  final choice = choices[index];
-                                  final isPlaceholder =
-                                      choice.type == SelectionType.item &&
-                                      choice.itemId == null;
-                                  return _ChoiceCard(
-                                    choice: choice,
-                                    iconImage: _iconForChoice(
-                                      choice,
-                                      skillIcons,
-                                      itemIcons,
-                                    ),
-                                    onPressed: isPlaceholder
-                                        ? null
-                                        : () => onSelected(choice),
-                                    banishesRemaining:
-                                        selectionState.banishesRemaining,
-                                    goldAvailable: selectionState.goldAvailable,
-                                    price: selectionState.priceForChoice(
-                                      choice,
-                                    ),
-                                    locked: selectionState.lockedItems.contains(
-                                      choice.itemId,
-                                    ),
-                                    isPlaceholder: isPlaceholder,
-                                    onBanish:
-                                        selectionState.banishesRemaining > 0 &&
-                                            !isPlaceholder
-                                        ? () => onBanish(choice)
-                                        : null,
-                                    onToggleLock:
-                                        selectionState.trackId ==
-                                                ProgressionTrackId.items &&
-                                            !isPlaceholder
-                                        ? () => onToggleLock(choice)
-                                        : null,
-                                  );
-                                },
-                              ),
-                      ),
-                      if (selectionState.skipEnabled) ...[
-                        const SizedBox(height: 12),
-                        _SkipButton(
-                          label: selectionState.skipRewardLabel,
-                          onPressed: onSkip,
-                        ),
-                      ],
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
