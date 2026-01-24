@@ -128,6 +128,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const Map<SkillId, String> _meleeSwipeSpriteIds = {
     SkillId.swordCut: 'effect_sword_cut_swipe',
     SkillId.swordSwing: 'effect_sword_swing_swipe',
+    SkillId.absolutionSlap: 'effect_absolution_slap_swipe',
   };
   static const Map<CurrencyId, PickupKind> _pickupKindByCurrency = {
     CurrencyId.xp: PickupKind.xpOrb,

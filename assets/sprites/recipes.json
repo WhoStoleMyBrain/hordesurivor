@@ -6242,6 +6242,76 @@
       ]
     },
     {
+      "id": "effect_absolution_slap_swipe",
+      "kind": "skill",
+      "outputName": "effect_absolution_slap_swipe.png",
+      "size": 32,
+      "seed": 314,
+      "palette": {
+        "primary": "#E3F3FF",
+        "shadow": "#8BA2B5",
+        "accent": "#F4FBFF",
+        "outline": "#1E2833",
+        "highlight": "#FFFFFF"
+      },
+      "shapes": [
+        {
+          "type": "arc",
+          "offset": [
+            0,
+            1
+          ],
+          "color": "primary",
+          "radius": 9,
+          "startAngle": -30,
+          "sweepAngle": 60,
+          "thickness": 3
+        },
+        {
+          "type": "arc",
+          "offset": [
+            0,
+            1
+          ],
+          "color": "accent",
+          "radius": 7,
+          "startAngle": -30,
+          "sweepAngle": 60,
+          "thickness": 2
+        },
+        {
+          "type": "line",
+          "offset": [
+            5,
+            1
+          ],
+          "color": "highlight",
+          "start": [
+            -2,
+            -2
+          ],
+          "end": [
+            2,
+            2
+          ],
+          "thickness": 1
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
+      ]
+    },
+    {
       "id": "skill_sword_deflect",
       "kind": "skill",
       "outputName": "skill_sword_deflect.png",
