@@ -9,6 +9,7 @@ export 'item_defs.dart';
 export 'progression_track_defs.dart';
 export 'selection_pool_defs.dart';
 export 'skill_defs.dart';
+export 'skill_display.dart';
 export 'sprite_recipes.dart';
 export 'status_effect_defs.dart';
 export 'stat_defs.dart';
