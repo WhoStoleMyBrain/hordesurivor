@@ -46,114 +46,287 @@ class EscapeMenuOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Material(
       color: Colors.black.withValues(alpha: 0.7),
       child: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720, maxHeight: 560),
-            child: Card(
-              color: Colors.black.withValues(alpha: 0.85),
-              margin: const EdgeInsets.all(16),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        child: inRun
+            ? _InRunMenuLayout(
+                onClose: onClose,
+                onContinue: onContinue!,
+                onAbort: onAbort!,
+                statsState: statsState!,
+                stressStats: stressStats,
+              )
+            : _OutOfRunMenuLayout(
+                wallet: wallet,
+                onClose: onClose,
+                onEnterHomeBase: onEnterHomeBase,
+                onOptions: onOptions,
+                onCompendium: onCompendium,
+                onMetaUnlocks: onMetaUnlocks,
+                onStressTest: onStressTest,
+                onExit: onExit,
+              ),
+      ),
+    );
+  }
+}
+
+class _InRunMenuLayout extends StatelessWidget {
+  const _InRunMenuLayout({
+    required this.onClose,
+    required this.onContinue,
+    required this.onAbort,
+    required this.statsState,
+    required this.stressStats,
+  });
+
+  final VoidCallback onClose;
+  final VoidCallback onContinue;
+  final VoidCallback onAbort;
+  final StatsScreenState statsState;
+  final StressStatsSnapshot? stressStats;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return AnimatedBuilder(
+      animation: statsState,
+      builder: (context, _) {
+        return Container(
+          color: Colors.black.withValues(alpha: 0.88),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                child: Row(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            inRun ? 'Paused' : 'Menu',
-                            style: TextStyle(
-                              fontSize: UiScale.fontSize(20),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                    Expanded(
+                      child: Text(
+                        'Paused',
+                        style: TextStyle(
+                          fontSize: UiScale.fontSize(20),
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFFE9D7A8),
                         ),
-                        TextButton(
-                          onPressed: onClose,
-                          child: const Text('Close'),
-                        ),
-                      ],
+                      ),
                     ),
-                    const SizedBox(height: 12),
-                    if (inRun)
-                      Expanded(
-                        child: AnimatedBuilder(
-                          animation: statsState!,
-                          builder: (context, _) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (stressStats != null) ...[
-                                  _StressStatsSection(stats: stressStats!),
-                                  const SizedBox(height: 16),
-                                ],
-                                Expanded(
-                                  child: RunStatsContent(state: statsState!),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      )
-                    else
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Review your build options or head to the home base.',
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: Colors.white70,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              StartMenuEntries(
-                                onStart: onEnterHomeBase,
-                                onOptions: onOptions,
-                                onCompendium: onCompendium,
-                                onMetaUnlocks: onMetaUnlocks,
-                                onStressTest: onStressTest,
-                                onExit: onExit,
-                                wallet: wallet,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    const SizedBox(height: 12),
-                    if (inRun)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: onContinue,
-                              child: const Text('Continue Run'),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: onAbort,
-                              child: const Text('Abort Run'),
-                            ),
-                          ),
-                        ],
-                      )
-                    else
-                      Text(
-                        'Press Esc to return',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.white54,
-                        ),
-                      ),
+                    TextButton(onPressed: onClose, child: const Text('Close')),
                   ],
                 ),
               ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 4,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (stressStats != null) ...[
+                              _InRunPanel(
+                                child: _StressStatsSection(stats: stressStats!),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                            Expanded(
+                              child: _InRunPanel(
+                                child: RunStatsContent(state: statsState),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 1,
+                        child: _InRunActionPanel(
+                          onContinue: onContinue,
+                          onAbort: onAbort,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Press Esc to return',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.white54,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _InRunPanel extends StatelessWidget {
+  const _InRunPanel({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF181210),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF3A2B1B)),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _InRunActionPanel extends StatelessWidget {
+  const _InRunActionPanel({required this.onContinue, required this.onAbort});
+
+  final VoidCallback onContinue;
+  final VoidCallback onAbort;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF181210),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF3A2B1B)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Run Actions',
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: const Color(0xFFE9D7A8),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: onContinue,
+              child: const Text('Continue Run'),
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: onAbort,
+              child: const Text('Abort Run'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Review tabs to see your build, tags, and run stats.',
+            style: theme.textTheme.bodySmall?.copyWith(color: Colors.white60),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OutOfRunMenuLayout extends StatelessWidget {
+  const _OutOfRunMenuLayout({
+    required this.wallet,
+    required this.onClose,
+    required this.onEnterHomeBase,
+    required this.onOptions,
+    required this.onCompendium,
+    required this.onMetaUnlocks,
+    required this.onStressTest,
+    required this.onExit,
+  });
+
+  final MetaCurrencyWallet wallet;
+  final VoidCallback onClose;
+  final VoidCallback onEnterHomeBase;
+  final VoidCallback onOptions;
+  final VoidCallback onCompendium;
+  final VoidCallback onMetaUnlocks;
+  final VoidCallback? onStressTest;
+  final VoidCallback? onExit;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 720, maxHeight: 560),
+        child: Card(
+          color: Colors.black.withValues(alpha: 0.85),
+          margin: const EdgeInsets.all(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Menu',
+                        style: TextStyle(
+                          fontSize: UiScale.fontSize(20),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    TextButton(onPressed: onClose, child: const Text('Close')),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Review your build options or head to the home base.',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: Colors.white70,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        StartMenuEntries(
+                          onStart: onEnterHomeBase,
+                          onOptions: onOptions,
+                          onCompendium: onCompendium,
+                          onMetaUnlocks: onMetaUnlocks,
+                          onStressTest: onStressTest,
+                          onExit: onExit,
+                          wallet: wallet,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Press Esc to return',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.white54,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
