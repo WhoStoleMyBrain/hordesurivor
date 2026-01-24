@@ -1,4 +1,5 @@
 import 'ids.dart';
+import 'skill_display.dart';
 import 'tags.dart';
 
 class SkillDef {
@@ -10,6 +11,7 @@ class SkillDef {
     required this.tags,
     this.metaUnlockId,
     this.statusEffects = const {},
+    this.displayDetails = const [],
     this.knockbackForce = 0,
     this.knockbackDuration = 0,
     this.deflectRadius = 0,
@@ -24,6 +26,7 @@ class SkillDef {
   final TagSet tags;
   final MetaUnlockId? metaUnlockId;
   final Set<StatusEffectId> statusEffects;
+  final List<SkillDetailLine> displayDetails;
   final double knockbackForce;
   final double knockbackDuration;
   final double deflectRadius;
@@ -31,7 +34,7 @@ class SkillDef {
   final int weight;
 }
 
-const List<SkillDef> skillDefs = [
+final List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.fireball,
     name: 'Censer Ember',
@@ -42,6 +45,15 @@ const List<SkillDef> skillDefs = [
       deliveries: {DeliveryTag.projectile},
     ),
     statusEffects: {StatusEffectId.ignite},
+    displayDetails: [
+      cooldownLine(0.6),
+      damageLine(8),
+      projectileSpeedLine(220),
+      rangeLine(440),
+      projectileRadiusLine(4),
+      igniteLine(dps: 3, duration: 1.4),
+      knockbackLine(force: 80, duration: 0.18),
+    ],
     knockbackForce: 80,
     knockbackDuration: 0.18,
   ),
@@ -52,6 +64,13 @@ const List<SkillDef> skillDefs = [
     description: 'Spray a focused line of holy water.',
     tags: TagSet(elements: {ElementTag.water}, deliveries: {DeliveryTag.beam}),
     statusEffects: {StatusEffectId.slow},
+    displayDetails: [
+      cooldownLine(0.7),
+      damageOverTimeLine(damage: 6, duration: 0.35),
+      beamLengthLine(140),
+      beamWidthLine(10),
+      slowLine(multiplier: 0.7, duration: 0.315),
+    ],
   ),
   SkillDef(
     id: SkillId.oilBombs,
@@ -63,6 +82,19 @@ const List<SkillDef> skillDefs = [
       deliveries: {DeliveryTag.projectile, DeliveryTag.ground},
     ),
     statusEffects: {StatusEffectId.oilSoaked, StatusEffectId.slow},
+    displayDetails: [
+      cooldownLine(1.1),
+      damageLine(4),
+      projectileSpeedLine(160),
+      rangeLine(224),
+      projectileRadiusLine(6),
+      groundRadiusLine(46),
+      durationLine('Ground Duration', 2.0),
+      damagePerSecondLine(2),
+      slowLine(multiplier: 0.8, duration: 0.6),
+      durationLine('Oil Duration', 1.2),
+      knockbackLine(force: 60, duration: 0.16),
+    ],
     knockbackForce: 60,
     knockbackDuration: 0.16,
   ),
@@ -76,6 +108,13 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.mobility},
       deliveries: {DeliveryTag.melee},
     ),
+    displayDetails: [
+      cooldownLine(0.8),
+      damageLine(10),
+      rangeLine(58),
+      arcLine(30),
+      knockbackLine(force: 120, duration: 0.2),
+    ],
     knockbackForce: 120,
     knockbackDuration: 0.2,
   ),
@@ -89,6 +128,13 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.aoe},
       deliveries: {DeliveryTag.melee},
     ),
+    displayDetails: [
+      cooldownLine(0.9),
+      damageLine(12),
+      rangeLine(46),
+      arcLine(90),
+      knockbackLine(force: 100, duration: 0.18),
+    ],
     knockbackForce: 100,
     knockbackDuration: 0.18,
   ),
@@ -102,6 +148,13 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.aoe},
       deliveries: {DeliveryTag.melee},
     ),
+    displayDetails: [
+      cooldownLine(1.2),
+      damageLine(14),
+      rangeLine(52),
+      arcLine(140),
+      knockbackLine(force: 135, duration: 0.22),
+    ],
     knockbackForce: 135,
     knockbackDuration: 0.22,
   ),
@@ -115,6 +168,15 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.support},
       deliveries: {DeliveryTag.melee},
     ),
+    displayDetails: [
+      cooldownLine(1.4),
+      damageLine(8),
+      rangeLine(42),
+      arcLine(100),
+      deflectRadiusLine(55),
+      durationLine('Deflect Duration', 0.18),
+      knockbackLine(force: 90, duration: 0.16),
+    ],
     knockbackForce: 90,
     knockbackDuration: 0.16,
     deflectRadius: 55,
@@ -131,6 +193,11 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.aoe, EffectTag.dot},
       deliveries: {DeliveryTag.aura},
     ),
+    displayDetails: [
+      cooldownLine(1.3),
+      groundRadiusLine(70),
+      damageOverTimeLine(damage: 4, duration: 0.8),
+    ],
   ),
   SkillDef(
     id: SkillId.roots,
@@ -143,6 +210,13 @@ const List<SkillDef> skillDefs = [
       deliveries: {DeliveryTag.ground},
     ),
     statusEffects: {StatusEffectId.root},
+    displayDetails: [
+      cooldownLine(1.2),
+      groundRadiusLine(54),
+      damageOverTimeLine(damage: 7, duration: 1.8),
+      slowLine(multiplier: 0.4, duration: 1.8, label: 'Root Slow'),
+      rangeLine(60, label: 'Cast Offset'),
+    ],
   ),
   SkillDef(
     id: SkillId.windCutter,
@@ -154,6 +228,14 @@ const List<SkillDef> skillDefs = [
       deliveries: {DeliveryTag.projectile},
     ),
     metaUnlockId: MetaUnlockId.fieldManual,
+    displayDetails: [
+      cooldownLine(0.55),
+      damageLine(7),
+      projectileSpeedLine(280),
+      rangeLine(392),
+      projectileRadiusLine(3),
+      knockbackLine(force: 70, duration: 0.16),
+    ],
     knockbackForce: 70,
     knockbackDuration: 0.16,
   ),
@@ -167,6 +249,16 @@ const List<SkillDef> skillDefs = [
       deliveries: {DeliveryTag.projectile},
     ),
     metaUnlockId: MetaUnlockId.steelShardsLicense,
+    displayDetails: [
+      cooldownLine(0.9),
+      damageLine(6, label: 'Shard Damage'),
+      SkillDetailLine('Projectiles', '3'),
+      SkillDetailLine('Spread', '±0.2 rad'),
+      projectileSpeedLine(200),
+      rangeLine(240),
+      projectileRadiusLine(3),
+      knockbackLine(force: 85, duration: 0.18),
+    ],
     knockbackForce: 85,
     knockbackDuration: 0.18,
   ),
@@ -181,6 +273,12 @@ const List<SkillDef> skillDefs = [
       deliveries: {DeliveryTag.beam},
     ),
     metaUnlockId: MetaUnlockId.flameWaveTechnique,
+    displayDetails: [
+      cooldownLine(1.1),
+      damageOverTimeLine(damage: 10, duration: 0.45),
+      beamLengthLine(120),
+      beamWidthLine(18),
+    ],
   ),
   SkillDef(
     id: SkillId.frostNova,
@@ -194,6 +292,12 @@ const List<SkillDef> skillDefs = [
     ),
     metaUnlockId: MetaUnlockId.frostNovaDiagram,
     statusEffects: {StatusEffectId.slow},
+    displayDetails: [
+      cooldownLine(1.4),
+      damageOverTimeLine(damage: 5, duration: 0.6),
+      groundRadiusLine(80),
+      slowLine(multiplier: 0.6, duration: 0.6),
+    ],
   ),
   SkillDef(
     id: SkillId.earthSpikes,
@@ -206,6 +310,13 @@ const List<SkillDef> skillDefs = [
       deliveries: {DeliveryTag.ground},
     ),
     metaUnlockId: MetaUnlockId.earthSpikesSurvey,
+    displayDetails: [
+      cooldownLine(1.3),
+      damageOverTimeLine(damage: 9, duration: 0.7),
+      groundRadiusLine(68),
+      durationLine('Spike Duration', 0.7),
+      rangeLine(72, label: 'Cast Offset'),
+    ],
   ),
   SkillDef(
     id: SkillId.sporeBurst,
@@ -218,6 +329,16 @@ const List<SkillDef> skillDefs = [
       deliveries: {DeliveryTag.projectile, DeliveryTag.ground},
     ),
     metaUnlockId: MetaUnlockId.sporeBurstCulture,
+    displayDetails: [
+      cooldownLine(1.0),
+      damageLine(5),
+      projectileSpeedLine(170),
+      rangeLine(272),
+      projectileRadiusLine(5),
+      groundRadiusLine(50, label: 'Cloud Radius'),
+      damageOverTimeLine(damage: 4, duration: 1.4, label: 'Cloud Damage'),
+      slowLine(multiplier: 0.85, duration: 0.4),
+    ],
   ),
   SkillDef(
     id: SkillId.processionIdol,
@@ -225,6 +346,15 @@ const List<SkillDef> skillDefs = [
     iconId: 'skill_procession_idol',
     description: 'A small idol patrols and nudges trespassers back.',
     tags: TagSet(elements: {ElementTag.steel}, deliveries: {DeliveryTag.melee}),
+    displayDetails: [
+      cooldownLine(9.5),
+      durationLine('Summon Duration', 6),
+      damagePerSecondLine(9),
+      rangeLine(160),
+      orbitRadiusLine(36),
+      orbitSpeedLine(2.4),
+      moveSpeedLine(120),
+    ],
   ),
   SkillDef(
     id: SkillId.vigilLantern,
@@ -236,6 +366,16 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.support},
       deliveries: {DeliveryTag.projectile},
     ),
+    displayDetails: [
+      SkillDetailLine('Summon', 'Persistent'),
+      damageLine(6, label: 'Projectile Damage'),
+      durationLine('Attack Cooldown', 0.75),
+      projectileSpeedLine(260),
+      rangeLine(220),
+      projectileRadiusLine(3),
+      orbitRadiusLine(44),
+      orbitSpeedLine(1.6),
+    ],
   ),
   SkillDef(
     id: SkillId.guardianOrbs,
@@ -247,6 +387,12 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.support},
       deliveries: {DeliveryTag.aura},
     ),
+    displayDetails: [
+      SkillDetailLine('Summon', '2 orbs (persistent)'),
+      damagePerSecondLine(5),
+      orbitRadiusLine(34),
+      orbitSpeedLine(2.8),
+    ],
   ),
   SkillDef(
     id: SkillId.menderOrb,
@@ -258,6 +404,13 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.support},
       deliveries: {DeliveryTag.aura},
     ),
+    displayDetails: [
+      cooldownLine(9.5),
+      durationLine('Summon Duration', 6),
+      healingPerSecondLine(0.32),
+      orbitRadiusLine(38),
+      orbitSpeedLine(2.2),
+    ],
   ),
   SkillDef(
     id: SkillId.mineLayer,
@@ -269,6 +422,14 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.aoe},
       deliveries: {DeliveryTag.ground},
     ),
+    displayDetails: [
+      cooldownLine(8.0),
+      damageLine(12, label: 'Blast Damage'),
+      durationLine('Mine Duration', 5),
+      durationLine('Arm Time', 0.25),
+      rangeLine(22, label: 'Trigger Radius'),
+      rangeLine(36, label: 'Blast Radius'),
+    ],
   ),
   SkillDef(
     id: SkillId.chairThrow,
@@ -280,6 +441,14 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.aoe},
       deliveries: {DeliveryTag.projectile},
     ),
+    displayDetails: [
+      cooldownLine(0.95),
+      damageLine(9),
+      projectileSpeedLine(200),
+      rangeLine(320),
+      projectileRadiusLine(7),
+      knockbackLine(force: 110, duration: 0.2),
+    ],
     knockbackForce: 110,
     knockbackDuration: 0.2,
   ),
@@ -293,6 +462,13 @@ const List<SkillDef> skillDefs = [
       effects: {EffectTag.aoe},
       deliveries: {DeliveryTag.melee},
     ),
+    displayDetails: [
+      cooldownLine(0.8),
+      damageLine(8),
+      rangeLine(40),
+      arcLine(70),
+      knockbackLine(force: 95, duration: 0.16),
+    ],
     knockbackForce: 95,
     knockbackDuration: 0.16,
   ),
