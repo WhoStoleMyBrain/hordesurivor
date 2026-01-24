@@ -170,6 +170,7 @@ class SkillDef {
     required this.id,
     required this.name,
     required this.iconId,
+    this.projectileSpriteId,
     required this.description,
     required this.tags,
     required this.cooldown,
@@ -193,6 +194,7 @@ class SkillDef {
   final SkillId id;
   final String name;
   final String iconId;
+  final String? projectileSpriteId;
   final String description;
   final TagSet tags;
   final double cooldown;
@@ -447,6 +449,7 @@ final List<SkillDef> skillDefs = [
     id: SkillId.fireball,
     name: 'Censer Ember',
     iconId: 'skill_censer_ember',
+    projectileSpriteId: 'projectile_censer_ember',
     description: 'Fling a burning coal from the censer.',
     tags: TagSet(
       elements: {ElementTag.fire},
@@ -498,6 +501,7 @@ final List<SkillDef> skillDefs = [
     id: SkillId.oilBombs,
     name: 'Anointing Oil Flasks',
     iconId: 'skill_anointing_oil',
+    projectileSpriteId: 'projectile_anointing_oil',
     description: 'Lob flasks that slick the ground for later “purification.”',
     tags: TagSet(
       effects: {EffectTag.debuff},
@@ -674,6 +678,7 @@ final List<SkillDef> skillDefs = [
     id: SkillId.windCutter,
     name: 'Psalm: Razor Hymn',
     iconId: 'skill_razor_hymn',
+    projectileSpriteId: 'projectile_razor_hymn',
     description: 'Sing a sharp verse; the air does the rest.',
     tags: TagSet(
       elements: {ElementTag.wind},
@@ -697,6 +702,7 @@ final List<SkillDef> skillDefs = [
     id: SkillId.steelShards,
     name: 'Rosary Shards',
     iconId: 'skill_rosary_shards',
+    projectileSpriteId: 'projectile_rosary_shard',
     description: 'Fan out blessed fragments in a tight burst.',
     tags: TagSet(
       elements: {ElementTag.steel},
@@ -799,6 +805,7 @@ final List<SkillDef> skillDefs = [
     id: SkillId.sporeBurst,
     name: 'Censer Spores',
     iconId: 'skill_censer_spores',
+    projectileSpriteId: 'projectile_censer_spore',
     description: 'A toxic “blessing” that lingers as a choking cloud.',
     tags: TagSet(
       elements: {ElementTag.poison},
@@ -849,6 +856,7 @@ final List<SkillDef> skillDefs = [
     id: SkillId.vigilLantern,
     name: 'Relic: Vigil Lantern',
     iconId: 'skill_vigil_lantern',
+    projectileSpriteId: 'projectile_vigil_shot',
     description: 'A hovering lantern fires warding shots on its own.',
     tags: TagSet(
       elements: {ElementTag.steel},
@@ -938,6 +946,7 @@ final List<SkillDef> skillDefs = [
     id: SkillId.chairThrow,
     name: 'Chair Throw',
     iconId: 'skill_chair_throw',
+    projectileSpriteId: 'projectile_chair_throw',
     description: 'Hurl a folding chair stamped with a binding seal.',
     tags: TagSet(
       elements: {ElementTag.wood},
