@@ -33,31 +33,6 @@ class SkillSystem {
 
   static const int maxSkillSlots = 4;
 
-  static const Map<SkillId, double> _baseCooldowns = {
-    SkillId.fireball: 0.6,
-    SkillId.swordCut: 0.9,
-    SkillId.waterjet: 0.7,
-    SkillId.oilBombs: 1.1,
-    SkillId.swordThrust: 0.8,
-    SkillId.swordSwing: 1.2,
-    SkillId.swordDeflect: 1.4,
-    SkillId.poisonGas: 1.3,
-    SkillId.roots: 1.2,
-    SkillId.windCutter: 0.55,
-    SkillId.steelShards: 0.9,
-    SkillId.flameWave: 1.1,
-    SkillId.frostNova: 1.4,
-    SkillId.earthSpikes: 1.3,
-    SkillId.sporeBurst: 1.0,
-    SkillId.processionIdol: 9.5,
-    SkillId.vigilLantern: 1.6,
-    SkillId.guardianOrbs: 1.4,
-    SkillId.menderOrb: 9.5,
-    SkillId.mineLayer: 8.0,
-    SkillId.chairThrow: 0.95,
-    SkillId.absolutionSlap: 0.8,
-  };
-
   final EffectPool _effectPool;
   final ProjectilePool _projectilePool;
   final SummonPool _summonPool;
@@ -95,7 +70,7 @@ class SkillSystem {
     if (!hasOpenSkillSlot) {
       return;
     }
-    final cooldown = _baseCooldowns[id] ?? 1.0;
+    final cooldown = skillDefsById[id]?.cooldown ?? 1.0;
     _skills.add(SkillSlot(id: id, cooldown: cooldown));
     if (_passiveSummonSkills.contains(id)) {
       _pendingPassiveSummons.add(id);
@@ -343,7 +318,9 @@ class SkillSystem {
     required EnemyPool enemyPool,
     required void Function(ProjectileState) onProjectileSpawn,
   }) {
-    final def = skillDefsById[SkillId.fireball];
+    final def = skillDefsById[SkillId.fireball]!;
+    final projectileDef = def.projectile!;
+    final igniteDef = def.ignite!;
     final knockbackScale = _knockbackScale(stats);
     final direction = _applyAccuracyJitter(
       _resolveAim(
@@ -353,8 +330,11 @@ class SkillSystem {
       ),
       stats,
     );
-    final damage = _scaledDamageFor(SkillId.fireball, stats, 8);
-    const igniteDuration = 1.4;
+    final damage = _scaledDamageFor(
+      SkillId.fireball,
+      stats,
+      projectileDef.baseDamage,
+    );
     const igniteTags = TagSet(
       elements: {ElementTag.fire},
       effects: {EffectTag.dot},
@@ -362,24 +342,24 @@ class SkillSystem {
     final igniteDamagePerSecond = _scaledDamageForTags(
       igniteTags,
       stats,
-      3,
+      igniteDef.baseDamagePerSecond,
     ).toDouble();
     final projectile = _projectilePool.acquire();
     projectile.reset(
       position: playerPosition,
-      velocity: direction..scale(220),
+      velocity: direction..scale(projectileDef.speed),
       damage: damage,
-      radius: GameSizes.projectileRadius(4),
-      lifespan: 2.0,
+      radius: GameSizes.projectileRadius(projectileDef.radius),
+      lifespan: projectileDef.lifespan,
       fromEnemy: false,
     );
-    if (def != null && def.knockbackForce > 0 && def.knockbackDuration > 0) {
+    if (def.knockbackForce > 0 && def.knockbackDuration > 0) {
       projectile.knockbackForce = def.knockbackForce * knockbackScale;
       projectile.knockbackDuration = def.knockbackDuration;
     }
     projectile
       ..sourceSkillId = SkillId.fireball
-      ..igniteDuration = igniteDuration
+      ..igniteDuration = igniteDef.duration
       ..igniteDamagePerSecond = igniteDamagePerSecond;
     onProjectileSpawn(projectile);
   }
@@ -391,14 +371,19 @@ class SkillSystem {
     required EnemyPool enemyPool,
     required void Function(EffectState) onEffectSpawn,
   }) {
+    final def = skillDefsById[SkillId.waterjet]!;
+    final beamDef = def.beam!;
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
       enemyPool: enemyPool,
     );
-    const duration = 0.35;
     final aoeScale = _aoeScale(stats);
-    final damage = _scaledDamageFor(SkillId.waterjet, stats, 6);
+    final damage = _scaledDamageFor(
+      SkillId.waterjet,
+      stats,
+      beamDef.baseDamage,
+    );
     final effect = _effectPool.acquire();
     effect.reset(
       kind: EffectKind.waterjetBeam,
@@ -406,14 +391,14 @@ class SkillSystem {
       position: playerPosition,
       direction: direction,
       radius: 0,
-      length: 140 * aoeScale,
-      width: 10 * aoeScale,
-      duration: duration,
-      damagePerSecond: damage / duration,
-      slowMultiplier: 0.7,
-      slowDuration: duration * 0.9,
+      length: beamDef.length * aoeScale,
+      width: beamDef.width * aoeScale,
+      duration: beamDef.duration,
+      damagePerSecond: damage / beamDef.duration,
+      slowMultiplier: beamDef.slowMultiplier ?? 1,
+      slowDuration: beamDef.slowDuration ?? 0,
       sourceSkillId: SkillId.waterjet,
-      followsPlayer: true,
+      followsPlayer: beamDef.followsPlayer,
     );
     onEffectSpawn(effect);
   }
@@ -425,7 +410,9 @@ class SkillSystem {
     required EnemyPool enemyPool,
     required void Function(ProjectileState) onProjectileSpawn,
   }) {
-    final def = skillDefsById[SkillId.oilBombs];
+    final def = skillDefsById[SkillId.oilBombs]!;
+    final projectileDef = def.projectile!;
+    final groundDef = def.ground!;
     final knockbackScale = _knockbackScale(stats);
     final direction = _applyAccuracyJitter(
       _resolveAim(
@@ -435,28 +422,32 @@ class SkillSystem {
       ),
       stats,
     ).clone();
-    final damage = _scaledDamageFor(SkillId.oilBombs, stats, 4);
+    final damage = _scaledDamageFor(
+      SkillId.oilBombs,
+      stats,
+      projectileDef.baseDamage,
+    );
     final projectile = _projectilePool.acquire();
     projectile.reset(
       position: playerPosition,
-      velocity: direction.clone()..scale(160),
+      velocity: direction.clone()..scale(projectileDef.speed),
       damage: damage,
-      radius: GameSizes.projectileRadius(6),
-      lifespan: 1.4,
+      radius: GameSizes.projectileRadius(projectileDef.radius),
+      lifespan: projectileDef.lifespan,
       fromEnemy: false,
     );
     projectile.sourceSkillId = SkillId.oilBombs;
-    if (def != null && def.knockbackForce > 0 && def.knockbackDuration > 0) {
+    if (def.knockbackForce > 0 && def.knockbackDuration > 0) {
       projectile.knockbackForce = def.knockbackForce * knockbackScale;
       projectile.knockbackDuration = def.knockbackDuration;
     }
     onProjectileSpawn(projectile);
 
-    const duration = 2.0;
     final aoeScale = _aoeScale(stats);
-    final radius = 46 * aoeScale;
+    final radius = groundDef.radius * aoeScale;
     final groundDamage =
-        _scaledDamageFor(SkillId.oilBombs, stats, 4) / duration;
+        _scaledDamageFor(SkillId.oilBombs, stats, groundDef.baseDamage) /
+        groundDef.duration;
     projectile.setImpactEffect(
       kind: EffectKind.oilGround,
       shape: EffectShape.ground,
@@ -464,11 +455,11 @@ class SkillSystem {
       radius: radius,
       length: 0,
       width: 0,
-      duration: duration,
+      duration: groundDef.duration,
       damagePerSecond: groundDamage,
-      slowMultiplier: 0.8,
-      slowDuration: 0.6,
-      oilDuration: duration * 0.6,
+      slowMultiplier: groundDef.slowMultiplier ?? 1,
+      slowDuration: groundDef.slowDuration ?? 0,
+      oilDuration: groundDef.oilDuration ?? 0,
     );
   }
 
@@ -479,7 +470,8 @@ class SkillSystem {
     required EnemyPool enemyPool,
     required void Function(ProjectileState) onProjectileSpawn,
   }) {
-    final def = skillDefsById[SkillId.chairThrow];
+    final def = skillDefsById[SkillId.chairThrow]!;
+    final projectileDef = def.projectile!;
     final knockbackScale = _knockbackScale(stats);
     final direction = _applyAccuracyJitter(
       _resolveAim(
@@ -489,18 +481,22 @@ class SkillSystem {
       ),
       stats,
     ).clone();
-    final damage = _scaledDamageFor(SkillId.chairThrow, stats, 9);
+    final damage = _scaledDamageFor(
+      SkillId.chairThrow,
+      stats,
+      projectileDef.baseDamage,
+    );
     final projectile = _projectilePool.acquire();
     projectile.reset(
       position: playerPosition,
-      velocity: direction.clone()..scale(200),
+      velocity: direction.clone()..scale(projectileDef.speed),
       damage: damage,
-      radius: GameSizes.projectileRadius(7),
-      lifespan: 1.6,
+      radius: GameSizes.projectileRadius(projectileDef.radius),
+      lifespan: projectileDef.lifespan,
       fromEnemy: false,
     );
     projectile.sourceSkillId = SkillId.chairThrow;
-    if (def != null && def.knockbackForce > 0 && def.knockbackDuration > 0) {
+    if (def.knockbackForce > 0 && def.knockbackDuration > 0) {
       projectile.knockbackForce = def.knockbackForce * knockbackScale;
       projectile.knockbackDuration = def.knockbackDuration;
     }
@@ -525,9 +521,14 @@ class SkillSystem {
     })
     onEnemyDamaged,
   }) {
-    final def = skillDefsById[SkillId.swordCut];
+    final def = skillDefsById[SkillId.swordCut]!;
+    final meleeDef = def.melee!;
     final knockbackScale = _knockbackScale(stats);
-    final damage = _scaledDamageFor(SkillId.swordCut, stats, 12);
+    final damage = _scaledDamageFor(
+      SkillId.swordCut,
+      stats,
+      meleeDef.baseDamage,
+    );
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
@@ -539,11 +540,11 @@ class SkillSystem {
       enemyPool: enemyPool,
       enemyGrid: enemyGrid,
       stats: stats,
-      baseRange: 46,
-      arcDegrees: 90,
+      baseRange: meleeDef.range,
+      arcDegrees: meleeDef.arcDegrees,
       damage: damage,
-      knockbackForce: (def?.knockbackForce ?? 0) * knockbackScale,
-      knockbackDuration: def?.knockbackDuration ?? 0,
+      knockbackForce: def.knockbackForce * knockbackScale,
+      knockbackDuration: def.knockbackDuration,
       sourceSkillId: SkillId.swordCut,
       onEnemyDamaged: onEnemyDamaged,
     );
@@ -551,9 +552,9 @@ class SkillSystem {
       playerPosition: playerPosition,
       direction: direction,
       stats: stats,
-      baseRange: 46,
-      arcDegrees: 90,
-      duration: 0.14,
+      baseRange: meleeDef.range,
+      arcDegrees: meleeDef.arcDegrees,
+      duration: meleeDef.effectDuration,
       sourceSkillId: SkillId.swordCut,
       onEffectSpawn: onEffectSpawn,
     );
@@ -577,9 +578,14 @@ class SkillSystem {
     })
     onEnemyDamaged,
   }) {
-    final def = skillDefsById[SkillId.swordThrust];
+    final def = skillDefsById[SkillId.swordThrust]!;
+    final meleeDef = def.melee!;
     final knockbackScale = _knockbackScale(stats);
-    final damage = _scaledDamageFor(SkillId.swordThrust, stats, 10);
+    final damage = _scaledDamageFor(
+      SkillId.swordThrust,
+      stats,
+      meleeDef.baseDamage,
+    );
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
@@ -591,11 +597,11 @@ class SkillSystem {
       enemyPool: enemyPool,
       enemyGrid: enemyGrid,
       stats: stats,
-      baseRange: 58,
-      arcDegrees: 30,
+      baseRange: meleeDef.range,
+      arcDegrees: meleeDef.arcDegrees,
       damage: damage,
-      knockbackForce: (def?.knockbackForce ?? 0) * knockbackScale,
-      knockbackDuration: def?.knockbackDuration ?? 0,
+      knockbackForce: def.knockbackForce * knockbackScale,
+      knockbackDuration: def.knockbackDuration,
       sourceSkillId: SkillId.swordThrust,
       onEnemyDamaged: onEnemyDamaged,
     );
@@ -603,9 +609,9 @@ class SkillSystem {
       playerPosition: playerPosition,
       direction: direction,
       stats: stats,
-      baseRange: 58,
-      arcDegrees: 30,
-      duration: 0.12,
+      baseRange: meleeDef.range,
+      arcDegrees: meleeDef.arcDegrees,
+      duration: meleeDef.effectDuration,
       sourceSkillId: SkillId.swordThrust,
       onEffectSpawn: onEffectSpawn,
     );
@@ -629,9 +635,14 @@ class SkillSystem {
     })
     onEnemyDamaged,
   }) {
-    final def = skillDefsById[SkillId.swordSwing];
+    final def = skillDefsById[SkillId.swordSwing]!;
+    final meleeDef = def.melee!;
     final knockbackScale = _knockbackScale(stats);
-    final damage = _scaledDamageFor(SkillId.swordSwing, stats, 14);
+    final damage = _scaledDamageFor(
+      SkillId.swordSwing,
+      stats,
+      meleeDef.baseDamage,
+    );
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
@@ -643,11 +654,11 @@ class SkillSystem {
       enemyPool: enemyPool,
       enemyGrid: enemyGrid,
       stats: stats,
-      baseRange: 52,
-      arcDegrees: 140,
+      baseRange: meleeDef.range,
+      arcDegrees: meleeDef.arcDegrees,
       damage: damage,
-      knockbackForce: (def?.knockbackForce ?? 0) * knockbackScale,
-      knockbackDuration: def?.knockbackDuration ?? 0,
+      knockbackForce: def.knockbackForce * knockbackScale,
+      knockbackDuration: def.knockbackDuration,
       sourceSkillId: SkillId.swordSwing,
       onEnemyDamaged: onEnemyDamaged,
     );
@@ -655,9 +666,9 @@ class SkillSystem {
       playerPosition: playerPosition,
       direction: direction,
       stats: stats,
-      baseRange: 52,
-      arcDegrees: 140,
-      duration: 0.18,
+      baseRange: meleeDef.range,
+      arcDegrees: meleeDef.arcDegrees,
+      duration: meleeDef.effectDuration,
       sourceSkillId: SkillId.swordSwing,
       onEffectSpawn: onEffectSpawn,
     );
@@ -684,9 +695,15 @@ class SkillSystem {
     required void Function({required double radius, required double duration})
     onPlayerDeflect,
   }) {
-    final def = skillDefsById[SkillId.swordDeflect];
+    final def = skillDefsById[SkillId.swordDeflect]!;
+    final meleeDef = def.melee!;
+    final deflectDef = def.deflect!;
     final knockbackScale = _knockbackScale(stats);
-    final damage = _scaledDamageFor(SkillId.swordDeflect, stats, 8);
+    final damage = _scaledDamageFor(
+      SkillId.swordDeflect,
+      stats,
+      meleeDef.baseDamage,
+    );
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
@@ -698,11 +715,11 @@ class SkillSystem {
       enemyPool: enemyPool,
       enemyGrid: enemyGrid,
       stats: stats,
-      baseRange: 42,
-      arcDegrees: 100,
+      baseRange: meleeDef.range,
+      arcDegrees: meleeDef.arcDegrees,
       damage: damage,
-      knockbackForce: (def?.knockbackForce ?? 0) * knockbackScale,
-      knockbackDuration: def?.knockbackDuration ?? 0,
+      knockbackForce: def.knockbackForce * knockbackScale,
+      knockbackDuration: def.knockbackDuration,
       sourceSkillId: SkillId.swordDeflect,
       onEnemyDamaged: onEnemyDamaged,
     );
@@ -710,19 +727,19 @@ class SkillSystem {
       playerPosition: playerPosition,
       direction: direction,
       stats: stats,
-      baseRange: 42,
-      arcDegrees: 100,
-      duration: 0.16,
+      baseRange: meleeDef.range,
+      arcDegrees: meleeDef.arcDegrees,
+      duration: meleeDef.effectDuration,
       sourceSkillId: SkillId.swordDeflect,
       onEffectSpawn: onEffectSpawn,
     );
     final aoeScale = _aoeScale(stats);
-    final deflectRadius = (def?.deflectRadius ?? 0) * aoeScale;
-    final deflectDuration = def?.deflectDuration ?? 0;
+    final deflectRadius = deflectDef.radius * aoeScale;
+    final deflectDuration = deflectDef.duration;
     onPlayerDeflect(radius: deflectRadius, duration: deflectDuration);
     _deflectProjectiles(
       playerPosition: playerPosition,
-      stats: stats,
+      radius: deflectRadius,
       onProjectileDespawn: onProjectileDespawn,
     );
   }
@@ -745,9 +762,14 @@ class SkillSystem {
     })
     onEnemyDamaged,
   }) {
-    final def = skillDefsById[SkillId.absolutionSlap];
+    final def = skillDefsById[SkillId.absolutionSlap]!;
+    final meleeDef = def.melee!;
     final knockbackScale = _knockbackScale(stats);
-    final damage = _scaledDamageFor(SkillId.absolutionSlap, stats, 8);
+    final damage = _scaledDamageFor(
+      SkillId.absolutionSlap,
+      stats,
+      meleeDef.baseDamage,
+    );
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
@@ -759,11 +781,11 @@ class SkillSystem {
       enemyPool: enemyPool,
       enemyGrid: enemyGrid,
       stats: stats,
-      baseRange: 40,
-      arcDegrees: 70,
+      baseRange: meleeDef.range,
+      arcDegrees: meleeDef.arcDegrees,
       damage: damage,
-      knockbackForce: (def?.knockbackForce ?? 0) * knockbackScale,
-      knockbackDuration: def?.knockbackDuration ?? 0,
+      knockbackForce: def.knockbackForce * knockbackScale,
+      knockbackDuration: def.knockbackDuration,
       sourceSkillId: SkillId.absolutionSlap,
       onEnemyDamaged: onEnemyDamaged,
     );
@@ -771,9 +793,9 @@ class SkillSystem {
       playerPosition: playerPosition,
       direction: direction,
       stats: stats,
-      baseRange: 40,
-      arcDegrees: 70,
-      duration: 0.12,
+      baseRange: meleeDef.range,
+      arcDegrees: meleeDef.arcDegrees,
+      duration: meleeDef.effectDuration,
       sourceSkillId: SkillId.absolutionSlap,
       onEffectSpawn: onEffectSpawn,
     );
@@ -784,10 +806,15 @@ class SkillSystem {
     required StatSheet stats,
     required void Function(EffectState) onEffectSpawn,
   }) {
+    final def = skillDefsById[SkillId.poisonGas]!;
+    final groundDef = def.ground!;
     final aoeScale = _aoeScale(stats);
-    final radius = 70 * aoeScale;
-    const duration = 0.8;
-    final damage = _scaledDamageFor(SkillId.poisonGas, stats, 4);
+    final radius = groundDef.radius * aoeScale;
+    final damage = _scaledDamageFor(
+      SkillId.poisonGas,
+      stats,
+      groundDef.baseDamage,
+    );
     final effect = _effectPool.acquire();
     effect.reset(
       kind: EffectKind.poisonAura,
@@ -797,10 +824,10 @@ class SkillSystem {
       radius: radius,
       length: 0,
       width: 0,
-      duration: duration,
-      damagePerSecond: damage / duration,
+      duration: groundDef.duration,
+      damagePerSecond: damage / groundDef.duration,
       sourceSkillId: SkillId.poisonGas,
-      followsPlayer: true,
+      followsPlayer: groundDef.followsPlayer,
     );
     onEffectSpawn(effect);
   }
@@ -812,26 +839,35 @@ class SkillSystem {
     required EnemyPool enemyPool,
     required void Function(EffectState) onEffectSpawn,
   }) {
+    final def = skillDefsById[SkillId.roots]!;
+    final groundDef = def.ground!;
+    final rootDef = def.root!;
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
       enemyPool: enemyPool,
     ).clone();
     final aoeScale = _aoeScale(stats);
-    final radius = 54 * aoeScale;
-    const baseDuration = 1.8;
+    final radius = groundDef.radius * aoeScale;
     final rootDuration =
-        baseDuration *
-        math.max(0.1, 1 + stats.value(StatId.statusDurationPercent));
-    final rootStrength = (0.6 + stats.value(StatId.statusPotencyPercent)).clamp(
-      0.2,
-      0.9,
+        groundDef.duration *
+        math.max(
+          rootDef.minDurationScale,
+          1 + stats.value(StatId.statusDurationPercent),
+        );
+    final rootStrength =
+        (rootDef.baseStrength + stats.value(StatId.statusPotencyPercent)).clamp(
+          rootDef.minStrength,
+          rootDef.maxStrength,
+        );
+    final rootSlowMultiplier = (1 - rootStrength).clamp(
+      rootDef.minSlowMultiplier,
+      rootDef.maxSlowMultiplier,
     );
-    final rootSlowMultiplier = (1 - rootStrength).clamp(0.05, 1.0);
-    final damage = _scaledDamageFor(SkillId.roots, stats, 7);
+    final damage = _scaledDamageFor(SkillId.roots, stats, groundDef.baseDamage);
     final target = Vector2(
-      playerPosition.x + direction.x * 60,
-      playerPosition.y + direction.y * 60,
+      playerPosition.x + direction.x * (groundDef.castOffset ?? 0),
+      playerPosition.y + direction.y * (groundDef.castOffset ?? 0),
     );
     final effect = _effectPool.acquire();
     effect.reset(
@@ -858,7 +894,8 @@ class SkillSystem {
     required EnemyPool enemyPool,
     required void Function(ProjectileState) onProjectileSpawn,
   }) {
-    final def = skillDefsById[SkillId.windCutter];
+    final def = skillDefsById[SkillId.windCutter]!;
+    final projectileDef = def.projectile!;
     final knockbackScale = _knockbackScale(stats);
     final direction = _applyAccuracyJitter(
       _resolveAim(
@@ -868,18 +905,22 @@ class SkillSystem {
       ),
       stats,
     );
-    final damage = _scaledDamageFor(SkillId.windCutter, stats, 7);
+    final damage = _scaledDamageFor(
+      SkillId.windCutter,
+      stats,
+      projectileDef.baseDamage,
+    );
     final projectile = _projectilePool.acquire();
     projectile.reset(
       position: playerPosition,
-      velocity: direction..scale(280),
+      velocity: direction..scale(projectileDef.speed),
       damage: damage,
-      radius: GameSizes.projectileRadius(3),
-      lifespan: 1.4,
+      radius: GameSizes.projectileRadius(projectileDef.radius),
+      lifespan: projectileDef.lifespan,
       fromEnemy: false,
     );
     projectile.sourceSkillId = SkillId.windCutter;
-    if (def != null && def.knockbackForce > 0 && def.knockbackDuration > 0) {
+    if (def.knockbackForce > 0 && def.knockbackDuration > 0) {
       projectile.knockbackForce = def.knockbackForce * knockbackScale;
       projectile.knockbackDuration = def.knockbackDuration;
     }
@@ -893,31 +934,36 @@ class SkillSystem {
     required EnemyPool enemyPool,
     required void Function(ProjectileState) onProjectileSpawn,
   }) {
-    final def = skillDefsById[SkillId.steelShards];
+    final def = skillDefsById[SkillId.steelShards]!;
+    final projectileDef = def.projectile!;
     final knockbackScale = _knockbackScale(stats);
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
       enemyPool: enemyPool,
     );
-    final damage = _scaledDamageFor(SkillId.steelShards, stats, 6);
-    const spread = [-0.2, 0.0, 0.2];
+    final damage = _scaledDamageFor(
+      SkillId.steelShards,
+      stats,
+      projectileDef.baseDamage,
+    );
+    final spread = projectileDef.spreadAngles;
     final spreadScale = _spreadScale(stats);
     for (final angle in spread) {
       final projectile = _projectilePool.acquire();
       final velocity = direction.clone()
         ..rotate(angle * spreadScale)
-        ..scale(200);
+        ..scale(projectileDef.speed);
       projectile.reset(
         position: playerPosition,
         velocity: velocity,
         damage: damage,
-        radius: GameSizes.projectileRadius(3),
-        lifespan: 1.2,
+        radius: GameSizes.projectileRadius(projectileDef.radius),
+        lifespan: projectileDef.lifespan,
         fromEnemy: false,
       );
       projectile.sourceSkillId = SkillId.steelShards;
-      if (def != null && def.knockbackForce > 0 && def.knockbackDuration > 0) {
+      if (def.knockbackForce > 0 && def.knockbackDuration > 0) {
         projectile.knockbackForce = def.knockbackForce * knockbackScale;
         projectile.knockbackDuration = def.knockbackDuration;
       }
@@ -932,14 +978,19 @@ class SkillSystem {
     required EnemyPool enemyPool,
     required void Function(EffectState) onEffectSpawn,
   }) {
+    final def = skillDefsById[SkillId.flameWave]!;
+    final beamDef = def.beam!;
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
       enemyPool: enemyPool,
     );
-    const duration = 0.45;
     final aoeScale = _aoeScale(stats);
-    final damage = _scaledDamageFor(SkillId.flameWave, stats, 10);
+    final damage = _scaledDamageFor(
+      SkillId.flameWave,
+      stats,
+      beamDef.baseDamage,
+    );
     final effect = _effectPool.acquire();
     effect.reset(
       kind: EffectKind.flameWave,
@@ -947,10 +998,10 @@ class SkillSystem {
       position: playerPosition,
       direction: direction,
       radius: 0,
-      length: 120 * aoeScale,
-      width: 18 * aoeScale,
-      duration: duration,
-      damagePerSecond: damage / duration,
+      length: beamDef.length * aoeScale,
+      width: beamDef.width * aoeScale,
+      duration: beamDef.duration,
+      damagePerSecond: damage / beamDef.duration,
       sourceSkillId: SkillId.flameWave,
     );
     onEffectSpawn(effect);
@@ -961,24 +1012,29 @@ class SkillSystem {
     required StatSheet stats,
     required void Function(EffectState) onEffectSpawn,
   }) {
+    final def = skillDefsById[SkillId.frostNova]!;
+    final groundDef = def.ground!;
     final aoeScale = _aoeScale(stats);
-    const duration = 0.6;
-    final damage = _scaledDamageFor(SkillId.frostNova, stats, 5);
+    final damage = _scaledDamageFor(
+      SkillId.frostNova,
+      stats,
+      groundDef.baseDamage,
+    );
     final effect = _effectPool.acquire();
     effect.reset(
       kind: EffectKind.frostNova,
       shape: EffectShape.ground,
       position: playerPosition,
       direction: _fallbackDirection,
-      radius: 80 * aoeScale,
+      radius: groundDef.radius * aoeScale,
       length: 0,
       width: 0,
-      duration: duration,
-      damagePerSecond: damage / duration,
-      slowMultiplier: 0.6,
-      slowDuration: duration,
+      duration: groundDef.duration,
+      damagePerSecond: damage / groundDef.duration,
+      slowMultiplier: groundDef.slowMultiplier ?? 1,
+      slowDuration: groundDef.slowDuration ?? 0,
       sourceSkillId: SkillId.frostNova,
-      followsPlayer: false,
+      followsPlayer: groundDef.followsPlayer,
     );
     onEffectSpawn(effect);
   }
@@ -990,17 +1046,22 @@ class SkillSystem {
     required EnemyPool enemyPool,
     required void Function(EffectState) onEffectSpawn,
   }) {
+    final def = skillDefsById[SkillId.earthSpikes]!;
+    final groundDef = def.ground!;
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
       enemyPool: enemyPool,
     );
     final aoeScale = _aoeScale(stats);
-    const duration = 0.7;
-    final damage = _scaledDamageFor(SkillId.earthSpikes, stats, 9);
+    final damage = _scaledDamageFor(
+      SkillId.earthSpikes,
+      stats,
+      groundDef.baseDamage,
+    );
     final target = Vector2(
-      playerPosition.x + direction.x * 72,
-      playerPosition.y + direction.y * 72,
+      playerPosition.x + direction.x * (groundDef.castOffset ?? 0),
+      playerPosition.y + direction.y * (groundDef.castOffset ?? 0),
     );
     final effect = _effectPool.acquire();
     effect.reset(
@@ -1008,11 +1069,11 @@ class SkillSystem {
       shape: EffectShape.ground,
       position: target,
       direction: direction,
-      radius: 68 * aoeScale,
+      radius: groundDef.radius * aoeScale,
       length: 0,
       width: 0,
-      duration: duration,
-      damagePerSecond: damage / duration,
+      duration: groundDef.duration,
+      damagePerSecond: damage / groundDef.duration,
       sourceSkillId: SkillId.earthSpikes,
     );
     onEffectSpawn(effect);
@@ -1025,6 +1086,9 @@ class SkillSystem {
     required EnemyPool enemyPool,
     required void Function(ProjectileState) onProjectileSpawn,
   }) {
+    final def = skillDefsById[SkillId.sporeBurst]!;
+    final projectileDef = def.projectile!;
+    final groundDef = def.ground!;
     final direction = _applyAccuracyJitter(
       _resolveAim(
         playerPosition: playerPosition,
@@ -1033,24 +1097,28 @@ class SkillSystem {
       ),
       stats,
     ).clone();
-    final damage = _scaledDamageFor(SkillId.sporeBurst, stats, 5);
+    final damage = _scaledDamageFor(
+      SkillId.sporeBurst,
+      stats,
+      projectileDef.baseDamage,
+    );
     final projectile = _projectilePool.acquire();
     projectile.reset(
       position: playerPosition,
-      velocity: direction.clone()..scale(170),
+      velocity: direction.clone()..scale(projectileDef.speed),
       damage: damage,
-      radius: GameSizes.projectileRadius(5),
-      lifespan: 1.6,
+      radius: GameSizes.projectileRadius(projectileDef.radius),
+      lifespan: projectileDef.lifespan,
       fromEnemy: false,
     );
     projectile.sourceSkillId = SkillId.sporeBurst;
     onProjectileSpawn(projectile);
 
     final aoeScale = _aoeScale(stats);
-    const duration = 1.4;
-    final radius = 50 * aoeScale;
+    final radius = groundDef.radius * aoeScale;
     final cloudDamage =
-        _scaledDamageFor(SkillId.sporeBurst, stats, 4) / duration;
+        _scaledDamageFor(SkillId.sporeBurst, stats, groundDef.baseDamage) /
+        groundDef.duration;
     projectile.setImpactEffect(
       kind: EffectKind.sporeCloud,
       shape: EffectShape.ground,
@@ -1058,10 +1126,10 @@ class SkillSystem {
       radius: radius,
       length: 0,
       width: 0,
-      duration: duration,
+      duration: groundDef.duration,
       damagePerSecond: cloudDamage,
-      slowMultiplier: 0.85,
-      slowDuration: 0.4,
+      slowMultiplier: groundDef.slowMultiplier ?? 1,
+      slowDuration: groundDef.slowDuration ?? 0,
     );
   }
 
@@ -1070,21 +1138,27 @@ class SkillSystem {
     required StatSheet stats,
     required void Function(SummonState) onSummonSpawn,
   }) {
+    final def = skillDefsById[SkillId.processionIdol]!;
+    final summonDef = def.summon!;
     final summon = _summonPool.acquire();
-    final damage = _scaledDamageFor(SkillId.processionIdol, stats, 9);
-    _orbitSeed += math.pi * 0.7;
+    final damage = _scaledDamageFor(
+      SkillId.processionIdol,
+      stats,
+      summonDef.damagePerSecond ?? 0,
+    );
+    _orbitSeed += summonDef.orbitSeedOffset;
     summon.reset(
       kind: SummonKind.processionIdol,
       sourceSkillId: SkillId.processionIdol,
       position: playerPosition,
-      radius: 10,
+      radius: summonDef.radius,
       orbitAngle: _orbitSeed,
-      orbitRadius: 36,
-      orbitSpeed: 2.4,
-      moveSpeed: 120,
+      orbitRadius: summonDef.orbitRadius,
+      orbitSpeed: summonDef.orbitSpeed,
+      moveSpeed: summonDef.moveSpeed ?? 0,
       damagePerSecond: damage,
-      range: 160,
-      lifespan: 6,
+      range: summonDef.range ?? 0,
+      lifespan: summonDef.lifespan,
     );
     onSummonSpawn(summon);
   }
@@ -1094,23 +1168,32 @@ class SkillSystem {
     required StatSheet stats,
     required void Function(SummonState) onSummonSpawn,
   }) {
+    final def = skillDefsById[SkillId.vigilLantern]!;
+    final summonDef = def.summon!;
     final summon = _summonPool.acquire();
-    final damage = _scaledDamageFor(SkillId.vigilLantern, stats, 6);
-    _orbitSeed += math.pi * 0.5;
+    final damage = _scaledDamageFor(
+      SkillId.vigilLantern,
+      stats,
+      summonDef.projectileDamage ?? 0,
+    );
+    _orbitSeed += summonDef.orbitSeedOffset;
     summon.reset(
       kind: SummonKind.vigilLantern,
       sourceSkillId: SkillId.vigilLantern,
       position: playerPosition,
-      radius: 8,
+      radius: summonDef.radius,
       orbitAngle: _orbitSeed,
-      orbitRadius: 44,
-      orbitSpeed: 1.6,
+      orbitRadius: summonDef.orbitRadius,
+      orbitSpeed: summonDef.orbitSpeed,
       projectileDamage: damage,
-      projectileSpeed: 260,
-      projectileRadius: GameSizes.projectileRadius(3),
-      range: 220,
-      lifespan: double.infinity,
-      attackCooldown: 0.75 / _attackSpeedScale(stats),
+      projectileSpeed: summonDef.projectileSpeed ?? 0,
+      projectileRadius: GameSizes.projectileRadius(
+        summonDef.projectileRadius ?? 0,
+      ),
+      range: summonDef.range ?? 0,
+      lifespan: summonDef.lifespan,
+      attackCooldown:
+          (summonDef.attackCooldown ?? 0) / _attackSpeedScale(stats),
     );
     onSummonSpawn(summon);
   }
@@ -1120,20 +1203,26 @@ class SkillSystem {
     required StatSheet stats,
     required void Function(SummonState) onSummonSpawn,
   }) {
-    final damage = _scaledDamageFor(SkillId.guardianOrbs, stats, 5);
-    for (var index = 0; index < 2; index++) {
+    final def = skillDefsById[SkillId.guardianOrbs]!;
+    final summonDef = def.summon!;
+    final damage = _scaledDamageFor(
+      SkillId.guardianOrbs,
+      stats,
+      summonDef.damagePerSecond ?? 0,
+    );
+    for (var index = 0; index < summonDef.count; index++) {
       final summon = _summonPool.acquire();
-      _orbitSeed += math.pi;
+      _orbitSeed += summonDef.orbitSeedOffset;
       summon.reset(
         kind: SummonKind.guardianOrb,
         sourceSkillId: SkillId.guardianOrbs,
         position: playerPosition,
-        radius: 18,
+        radius: summonDef.radius,
         orbitAngle: _orbitSeed,
-        orbitRadius: 34,
-        orbitSpeed: 2.8,
+        orbitRadius: summonDef.orbitRadius,
+        orbitSpeed: summonDef.orbitSpeed,
         damagePerSecond: damage,
-        lifespan: double.infinity,
+        lifespan: summonDef.lifespan,
       );
       onSummonSpawn(summon);
     }
@@ -1144,18 +1233,21 @@ class SkillSystem {
     required StatSheet stats,
     required void Function(SummonState) onSummonSpawn,
   }) {
+    final def = skillDefsById[SkillId.menderOrb]!;
+    final summonDef = def.summon!;
     final summon = _summonPool.acquire();
-    _orbitSeed += math.pi * 0.35;
+    _orbitSeed += summonDef.orbitSeedOffset;
     summon.reset(
       kind: SummonKind.menderOrb,
       sourceSkillId: SkillId.menderOrb,
       position: playerPosition,
-      radius: 14,
+      radius: summonDef.radius,
       orbitAngle: _orbitSeed,
-      orbitRadius: 38,
-      orbitSpeed: 2.2,
-      healingPerSecond: 0.32 * _supportMultiplier(stats),
-      lifespan: 6,
+      orbitRadius: summonDef.orbitRadius,
+      orbitSpeed: summonDef.orbitSpeed,
+      healingPerSecond:
+          (summonDef.healingPerSecond ?? 0) * _supportMultiplier(stats),
+      lifespan: summonDef.lifespan,
     );
     onSummonSpawn(summon);
   }
@@ -1166,6 +1258,8 @@ class SkillSystem {
     required StatSheet stats,
     required void Function(SummonState) onSummonSpawn,
   }) {
+    final def = skillDefsById[SkillId.mineLayer]!;
+    final mineDef = def.mine!;
     final direction = _resolveAim(
       playerPosition: playerPosition,
       aimDirection: aimDirection,
@@ -1173,18 +1267,22 @@ class SkillSystem {
     );
     _spawnOffset
       ..setFrom(direction)
-      ..scale(28);
+      ..scale(mineDef.spawnOffset);
     final summon = _summonPool.acquire();
     summon.reset(
       kind: SummonKind.mine,
       sourceSkillId: SkillId.mineLayer,
       position: playerPosition + _spawnOffset,
-      radius: 6,
-      lifespan: 5,
-      triggerRadius: 22,
-      blastRadius: 36,
-      blastDamage: _scaledDamageFor(SkillId.mineLayer, stats, 12),
-      armDuration: 0.25,
+      radius: mineDef.radius,
+      lifespan: mineDef.lifespan,
+      triggerRadius: mineDef.triggerRadius,
+      blastRadius: mineDef.blastRadius,
+      blastDamage: _scaledDamageFor(
+        SkillId.mineLayer,
+        stats,
+        mineDef.baseDamage,
+      ),
+      armDuration: mineDef.armDuration,
     );
     onSummonSpawn(summon);
   }
@@ -1320,10 +1418,9 @@ class SkillSystem {
 
   void _deflectProjectiles({
     required Vector2 playerPosition,
-    required StatSheet stats,
+    required double radius,
     required void Function(ProjectileState) onProjectileDespawn,
   }) {
-    final radius = 55 * _aoeScale(stats);
     final radiusSquared = radius * radius;
     _projectileQueryBuffer
       ..clear()
