@@ -192,6 +192,7 @@ class _GameShellState extends State<_GameShell> {
                       VirtualStickOverlay(state: game.virtualStickState),
                   SelectionOverlay.overlayKey: (_, game) => SelectionOverlay(
                     selectionState: game.selectionState,
+                    statsState: game.statsScreenState,
                     onSelected: game.selectChoice,
                     onReroll: game.rerollSelection,
                     onBanish: game.banishSelection,
