@@ -159,6 +159,7 @@ class SelectionOverlay extends StatelessWidget {
                                         skillIcons,
                                         itemIcons,
                                       ),
+                                      statValues: statsState.statValues,
                                       onPressed: isPlaceholder
                                           ? null
                                           : () => onSelected(choice),
@@ -204,6 +205,7 @@ class SelectionOverlay extends StatelessWidget {
                                         skillIcons,
                                         itemIcons,
                                       ),
+                                      statValues: statsState.statValues,
                                       onPressed: isPlaceholder
                                           ? null
                                           : () => onSelected(choice),
@@ -380,6 +382,7 @@ class _ShopOverlayLayout extends StatelessWidget {
                                     skillIcons,
                                     itemIcons,
                                   ),
+                                  statValues: statsState.statValues,
                                   onPressed: isPlaceholder
                                       ? null
                                       : () => onSelected(choice),
@@ -915,6 +918,7 @@ class _ChoiceCard extends StatelessWidget {
   const _ChoiceCard({
     required this.choice,
     required this.iconImage,
+    required this.statValues,
     required this.onPressed,
     required this.banishesRemaining,
     required this.goldAvailable,
@@ -927,6 +931,7 @@ class _ChoiceCard extends StatelessWidget {
 
   final SelectionChoice choice;
   final ui.Image? iconImage;
+  final Map<StatId, double> statValues;
   final VoidCallback? onPressed;
   final int banishesRemaining;
   final int goldAvailable;
@@ -944,7 +949,7 @@ class _ChoiceCard extends StatelessWidget {
     final statusEffects = _statusEffectsForChoice(choice);
     final statusBadges = statusBadgesForEffects(statusEffects);
     final statChanges = _statChangesForChoice(choice);
-    final skillDetails = _skillDetailsForChoice(choice);
+    final skillDetails = _skillDetailsForChoice(choice, statValues);
     final synergies = _synergyHintsForTags(tags);
     final canAfford = price == null || goldAvailable >= price!;
     final priceLabel = price == null ? null : '${price}g';
@@ -1057,8 +1062,8 @@ class _ChoiceCard extends StatelessWidget {
           if (skillDetails.isNotEmpty) ...[
             const SizedBox(height: 8),
             for (final line in skillDetails)
-              Text(
-                line,
+              _SkillDetailLineText(
+                line: line,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: Colors.white60,
                 ),
@@ -1113,6 +1118,37 @@ class _ChoiceCard extends StatelessWidget {
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _SkillDetailLineText extends StatelessWidget {
+  const _SkillDetailLineText({required this.line, this.style});
+
+  final SkillDetailDisplayLine line;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    final baseStyle = style ?? DefaultTextStyle.of(context).style;
+    if (!line.hasChange) {
+      return Text('${line.label}: ${line.baseValue}', style: baseStyle);
+    }
+    final actualColor = line.isBetter ? Colors.greenAccent : Colors.redAccent;
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: '${line.label}: ', style: baseStyle),
+          TextSpan(
+            text: line.actualValue,
+            style: baseStyle.copyWith(color: actualColor),
+          ),
+          TextSpan(
+            text: ' (${line.baseValue})',
+            style: baseStyle.copyWith(color: Colors.white38),
+          ),
         ],
       ),
     );
@@ -1321,14 +1357,17 @@ List<String> _statChangesForChoice(SelectionChoice choice) {
   }
 }
 
-List<String> _skillDetailsForChoice(SelectionChoice choice) {
+List<SkillDetailDisplayLine> _skillDetailsForChoice(
+  SelectionChoice choice,
+  Map<StatId, double> statValues,
+) {
   switch (choice.type) {
     case SelectionType.skill:
       final skillId = choice.skillId;
       if (skillId == null) {
         return const [];
       }
-      return skillDetailTextLinesFor(skillId);
+      return skillDetailDisplayLinesFor(skillId, statValues);
     case SelectionType.skillUpgrade:
     case SelectionType.weaponUpgrade:
     case SelectionType.item:

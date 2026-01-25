@@ -548,7 +548,7 @@ final List<SkillDef> skillDefs = [
     displayDetails: [
       cooldownLine(_swordThrustCooldown),
       damageLine(_swordThrustMelee.baseDamage),
-      rangeLine(_swordThrustMelee.range),
+      rangeLine(_swordThrustMelee.range, scalesWithAoe: true),
       arcLine(_swordThrustMelee.arcDegrees),
       knockbackLine(force: 120, duration: 0.2),
     ],
@@ -570,7 +570,7 @@ final List<SkillDef> skillDefs = [
     displayDetails: [
       cooldownLine(_swordCutCooldown),
       damageLine(_swordCutMelee.baseDamage),
-      rangeLine(_swordCutMelee.range),
+      rangeLine(_swordCutMelee.range, scalesWithAoe: true),
       arcLine(_swordCutMelee.arcDegrees),
       knockbackLine(force: 100, duration: 0.18),
     ],
@@ -592,7 +592,7 @@ final List<SkillDef> skillDefs = [
     displayDetails: [
       cooldownLine(_swordSwingCooldown),
       damageLine(_swordSwingMelee.baseDamage),
-      rangeLine(_swordSwingMelee.range),
+      rangeLine(_swordSwingMelee.range, scalesWithAoe: true),
       arcLine(_swordSwingMelee.arcDegrees),
       knockbackLine(force: 135, duration: 0.22),
     ],
@@ -615,7 +615,7 @@ final List<SkillDef> skillDefs = [
     displayDetails: [
       cooldownLine(_swordDeflectCooldown),
       damageLine(_swordDeflectMelee.baseDamage),
-      rangeLine(_swordDeflectMelee.range),
+      rangeLine(_swordDeflectMelee.range, scalesWithAoe: true),
       arcLine(_swordDeflectMelee.arcDegrees),
       deflectRadiusLine(_swordDeflectDeflect.radius),
       durationLine('Deflect Duration', _swordDeflectDeflect.duration),
@@ -872,7 +872,7 @@ final List<SkillDef> skillDefs = [
         _vigilLanternSummon.projectileDamage ?? 0,
         label: 'Projectile Damage',
       ),
-      durationLine('Attack Cooldown', _vigilLanternSummon.attackCooldown ?? 0),
+      attackCooldownLine(_vigilLanternSummon.attackCooldown ?? 0),
       projectileSpeedLine(_vigilLanternSummon.projectileSpeed ?? 0),
       rangeLine(_vigilLanternSummon.range ?? 0),
       projectileRadiusLine(_vigilLanternSummon.projectileRadius ?? 0),
@@ -984,7 +984,7 @@ final List<SkillDef> skillDefs = [
     displayDetails: [
       cooldownLine(_absolutionSlapCooldown),
       damageLine(_absolutionSlapMelee.baseDamage),
-      rangeLine(_absolutionSlapMelee.range),
+      rangeLine(_absolutionSlapMelee.range, scalesWithAoe: true),
       arcLine(_absolutionSlapMelee.arcDegrees),
       knockbackLine(force: 95, duration: 0.16),
     ],
