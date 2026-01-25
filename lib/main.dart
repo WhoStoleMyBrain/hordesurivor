@@ -222,6 +222,8 @@ class _GameShellState extends State<_GameShell> {
                         game.setHighContrastTelegraphs,
                     textScale: UiScale.textScaleListenable,
                     onTextScaleChanged: UiScale.setTextScale,
+                    debugHighlightTarget: game.debugHighlightTarget,
+                    onDebugHighlightTargetChanged: game.setDebugHighlightTarget,
                   ),
                   CompendiumScreen.overlayKey: (_, game) => CompendiumScreen(
                     onClose: game.closeCompendiumScreen,

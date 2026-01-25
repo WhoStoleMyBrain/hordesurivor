@@ -58,6 +58,7 @@ class EnemyState {
   final Vector2 dashDirection;
   final Vector2 knockbackDirection;
   bool active = false;
+  bool debugTargeted = false;
 
   void reset({
     required EnemyId id,
@@ -126,6 +127,7 @@ class EnemyState {
     knockbackBaseSpeed = 0;
     knockbackDirection.setZero();
     active = true;
+    debugTargeted = false;
   }
 
   void applySlow({required double duration, required double multiplier}) {

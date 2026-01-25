@@ -251,6 +251,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Map<ProjectileState, ProjectileComponent> _projectileComponents = {};
   final Map<EnemyState, EnemyComponent> _enemyComponents = {};
   final ValueNotifier<bool> highContrastTelegraphs = ValueNotifier(false);
+  final ValueNotifier<bool> debugHighlightTarget = ValueNotifier(false);
   final Map<EffectState, EffectComponent> _effectComponents = {};
   final Map<SummonState, SummonComponent> _summonComponents = {};
   final Map<PickupState, PickupComponent> _pickupComponents = {};
@@ -294,6 +295,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Vector2 _pickupSparkPosition = Vector2.zero();
   final Vector2 _portalPosition = Vector2.zero();
   final Vector2 _characterSelectorPosition = Vector2.zero();
+  EnemyState? _debugHighlightedEnemy;
   double _portalLockoutTimer = 0;
   final ValueNotifier<bool> _characterSelectorReady = ValueNotifier(false);
   CharacterId _activeCharacterId = characterDefs.first.id;
@@ -619,6 +621,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       );
     }
     setHighContrastTelegraphs(highContrastTelegraphs.value);
+    setDebugHighlightTarget(debugHighlightTarget.value);
     _updateInputLock();
     _syncHudState();
     _syncPortalVisibility();
@@ -739,6 +742,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       },
       onEnemyDamaged: _damageSystem.queueEnemyDamage,
     );
+    _syncTargetHighlight();
     _summonSystem.update(
       dt,
       playerState: _playerState,
@@ -1022,6 +1026,39 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _telegraphOpacityMultiplier = enabled ? 1.4 : 1.0;
     for (final component in _enemyComponents.values) {
       component.applyTelegraphOpacity(_telegraphOpacityMultiplier);
+    }
+  }
+
+  void setDebugHighlightTarget(bool enabled) {
+    debugHighlightTarget.value = enabled;
+    _skillSystem.debugHighlightTarget = enabled;
+    if (!enabled) {
+      _clearDebugHighlight();
+    }
+  }
+
+  void _syncTargetHighlight() {
+    if (!debugHighlightTarget.value) {
+      return;
+    }
+    var target = _skillSystem.debugTarget;
+    if (target != null && !target.active) {
+      target = null;
+    }
+    if (target == _debugHighlightedEnemy) {
+      return;
+    }
+    _clearDebugHighlight();
+    _debugHighlightedEnemy = target;
+    if (_debugHighlightedEnemy != null) {
+      _debugHighlightedEnemy!.debugTargeted = true;
+    }
+  }
+
+  void _clearDebugHighlight() {
+    if (_debugHighlightedEnemy != null) {
+      _debugHighlightedEnemy!.debugTargeted = false;
+      _debugHighlightedEnemy = null;
     }
   }
 
@@ -2645,6 +2682,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _resetStageActors() {
+    _clearDebugHighlight();
     for (final projectile in List<ProjectileState>.from(
       _projectilePool.active,
     )) {

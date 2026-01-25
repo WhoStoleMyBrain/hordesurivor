@@ -72,6 +72,10 @@ class EnemyComponent extends PositionComponent {
          ..color = const Color(0xFFFF8C3B).withValues(alpha: 0.85)
          ..style = PaintingStyle.stroke
          ..strokeWidth = 2,
+       _debugTargetPaint = Paint()
+         ..color = const Color(0xFFFFE066).withValues(alpha: 0.9)
+         ..style = PaintingStyle.stroke
+         ..strokeWidth = 2,
        _auraFillPaint = _createAuraFillPaint(state.role),
        _auraStrokePaint = _createAuraStrokePaint(state.role),
        _zoneFillPaint = _createZoneFillPaint(state.role),
@@ -135,6 +139,7 @@ class EnemyComponent extends PositionComponent {
   final Paint _oilPaint;
   final Paint _rootPaint;
   final Paint _ignitePaint;
+  final Paint _debugTargetPaint;
   final Paint? _auraFillPaint;
   final Paint? _auraStrokePaint;
   final Paint? _zoneFillPaint;
@@ -181,6 +186,9 @@ class EnemyComponent extends PositionComponent {
           _telegraphPaint,
         );
       }
+    }
+    if (_state.debugTargeted) {
+      canvas.drawCircle(Offset.zero, _shapeRadius + 6, _debugTargetPaint);
     }
     if (_spriteImage != null) {
       canvas.drawImageRect(
