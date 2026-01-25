@@ -9,6 +9,8 @@ class OptionsScreen extends StatelessWidget {
     required this.onHighContrastTelegraphsChanged,
     required this.textScale,
     required this.onTextScaleChanged,
+    required this.debugHighlightTarget,
+    required this.onDebugHighlightTargetChanged,
   });
 
   static const String overlayKey = 'options_screen';
@@ -18,6 +20,8 @@ class OptionsScreen extends StatelessWidget {
   final ValueChanged<bool> onHighContrastTelegraphsChanged;
   final ValueListenable<double> textScale;
   final ValueChanged<double> onTextScaleChanged;
+  final ValueListenable<bool> debugHighlightTarget;
+  final ValueChanged<bool> onDebugHighlightTargetChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +102,26 @@ class OptionsScreen extends StatelessWidget {
                     );
                   },
                 ),
+                if (kDebugMode) ...[
+                  const SizedBox(height: 8),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: debugHighlightTarget,
+                    builder: (context, value, _) {
+                      return SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Highlight auto-target (Debug)'),
+                        subtitle: Text(
+                          'Draws a ring around the current auto-aim target.',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.white70,
+                          ),
+                        ),
+                        value: value,
+                        onChanged: onDebugHighlightTargetChanged,
+                      );
+                    },
+                  ),
+                ],
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,

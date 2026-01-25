@@ -49,6 +49,8 @@ class SkillSystem {
   final List<ProjectileState> _projectileQueryBuffer = [];
   final Vector2 _spawnOffset = Vector2.zero();
   double _orbitSeed = 0;
+  EnemyState? _debugTarget;
+  bool debugHighlightTarget = false;
 
   static List<SkillSlot> _defaultSkillSlots() {
     return [];
@@ -62,6 +64,8 @@ class SkillSystem {
 
   List<SkillId> get skillIds =>
       _skills.map((skill) => skill.id).toList(growable: false);
+
+  EnemyState? get debugTarget => _debugTarget;
 
   void addSkill(SkillId id) {
     if (hasSkill(id)) {
@@ -108,6 +112,7 @@ class SkillSystem {
     })
     onEnemyDamaged,
   }) {
+    _debugTarget = null;
     final cooldownSpeed = _cooldownSpeed(stats);
     final adjustedDt = dt * cooldownSpeed;
     if (_pendingPassiveSummons.isNotEmpty) {
@@ -1405,6 +1410,7 @@ class SkillSystem {
     var closestDx = 0.0;
     var closestDy = 0.0;
     var hasTarget = false;
+    EnemyState? closestEnemy;
     if (enemyPool != null) {
       for (final enemy in enemyPool.active) {
         final dx = enemy.position.x - playerPosition.x;
@@ -1415,8 +1421,12 @@ class SkillSystem {
           closestDx = dx;
           closestDy = dy;
           hasTarget = true;
+          closestEnemy = enemy;
         }
       }
+    }
+    if (debugHighlightTarget) {
+      _debugTarget = closestEnemy;
     }
 
     if (hasTarget) {
