@@ -48,6 +48,8 @@ class EnemyState {
   double igniteTimer = 0;
   double igniteDamagePerSecond = 0;
   SkillId? igniteSourceSkillId;
+  double vulnerableTimer = 0;
+  double vulnerableMultiplier = 1;
   double speedMultiplier = 1;
   bool behaviorInitialized = false;
   double knockbackTimer = 0;
@@ -114,6 +116,8 @@ class EnemyState {
     igniteTimer = 0;
     igniteDamagePerSecond = 0;
     igniteSourceSkillId = null;
+    vulnerableTimer = 0;
+    vulnerableMultiplier = 1;
     speedMultiplier = 1;
     behaviorInitialized = false;
     dashDirection.setZero();
@@ -179,6 +183,19 @@ class EnemyState {
     }
   }
 
+  void applyVulnerable({required double duration, required double multiplier}) {
+    if (duration <= 0 || multiplier <= 1) {
+      return;
+    }
+    final clampedMultiplier = multiplier.clamp(1.05, 2.0);
+    if (vulnerableTimer <= 0 || clampedMultiplier > vulnerableMultiplier) {
+      vulnerableMultiplier = clampedMultiplier;
+    }
+    if (duration > vulnerableTimer) {
+      vulnerableTimer = duration;
+    }
+  }
+
   void updateDebuffs(double dt) {
     if (slowTimer > 0) {
       slowTimer -= dt;
@@ -214,6 +231,13 @@ class EnemyState {
         igniteSourceSkillId = null;
       }
     }
+    if (vulnerableTimer > 0) {
+      vulnerableTimer -= dt;
+      if (vulnerableTimer <= 0) {
+        vulnerableTimer = 0;
+        vulnerableMultiplier = 1;
+      }
+    }
   }
 
   bool hasStatusEffect(StatusEffectId id) {
@@ -227,7 +251,34 @@ class EnemyState {
       case StatusEffectId.oilSoaked:
         return oilTimer > 0;
       case StatusEffectId.vulnerable:
-        return false;
+        return vulnerableTimer > 0;
+    }
+  }
+
+  void clearStatusEffects(Set<StatusEffectId> effects) {
+    for (final effect in effects) {
+      switch (effect) {
+        case StatusEffectId.slow:
+          slowTimer = 0;
+          slowMultiplier = 1;
+          break;
+        case StatusEffectId.root:
+          rootTimer = 0;
+          rootMultiplier = 1;
+          break;
+        case StatusEffectId.ignite:
+          igniteTimer = 0;
+          igniteDamagePerSecond = 0;
+          igniteSourceSkillId = null;
+          break;
+        case StatusEffectId.oilSoaked:
+          oilTimer = 0;
+          break;
+        case StatusEffectId.vulnerable:
+          vulnerableTimer = 0;
+          vulnerableMultiplier = 1;
+          break;
+      }
     }
   }
 

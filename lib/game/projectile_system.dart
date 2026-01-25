@@ -1,8 +1,6 @@
 import 'package:flame/extensions.dart';
 
 import '../data/ids.dart';
-import '../data/skill_defs.dart';
-import '../data/synergy_defs.dart';
 import 'enemy_state.dart';
 import 'player_state.dart';
 import 'projectile_pool.dart';
@@ -34,7 +32,7 @@ class ProjectileSystem {
     PlayerState? playerState,
     double playerRadius = 0,
     void Function(double)? onPlayerHit,
-    void Function(SynergyDef, EnemyState)? onSynergyTriggered,
+    void Function(EnemyState, SkillId?)? onSynergyHit,
   }) {
     final active = _pool.active;
     for (var index = active.length - 1; index >= 0; index--) {
@@ -81,11 +79,7 @@ class ProjectileSystem {
           final dy = enemy.position.y - projectile.position.y;
           final distanceSquared = dx * dx + dy * dy;
           if (distanceSquared <= combinedRadiusSquared) {
-            _applySynergies(
-              projectile: projectile,
-              enemy: enemy,
-              onSynergyTriggered: onSynergyTriggered,
-            );
+            onSynergyHit?.call(enemy, projectile.sourceSkillId);
             onEnemyHit(
               enemy,
               projectile.damage,
@@ -116,49 +110,5 @@ class ProjectileSystem {
         _pool.release(projectile);
       }
     }
-  }
-
-  void _applySynergies({
-    required ProjectileState projectile,
-    required EnemyState enemy,
-    void Function(SynergyDef, EnemyState)? onSynergyTriggered,
-  }) {
-    final sourceSkillId = projectile.sourceSkillId;
-    if (sourceSkillId == null) {
-      return;
-    }
-    final tags = skillDefsById[sourceSkillId]?.tags;
-    if (tags == null || tags.isEmpty) {
-      return;
-    }
-    for (final synergy in synergyDefs) {
-      if (!synergy.matchesTags(tags)) {
-        continue;
-      }
-      if (!_enemyMeetsStatusRequirements(enemy, synergy)) {
-        continue;
-      }
-      if (synergy.resultStatusEffect == StatusEffectId.ignite) {
-        if (projectile.igniteDuration <= 0 ||
-            projectile.igniteDamagePerSecond <= 0) {
-          continue;
-        }
-        enemy.applyIgnite(
-          duration: projectile.igniteDuration,
-          damagePerSecond: projectile.igniteDamagePerSecond,
-          sourceSkillId: sourceSkillId,
-        );
-        onSynergyTriggered?.call(synergy, enemy);
-      }
-    }
-  }
-
-  bool _enemyMeetsStatusRequirements(EnemyState enemy, SynergyDef synergy) {
-    for (final status in synergy.requiredStatusEffects) {
-      if (!enemy.hasStatusEffect(status)) {
-        return false;
-      }
-    }
-    return true;
   }
 }

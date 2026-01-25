@@ -46,7 +46,17 @@ enum SkillUpgradeId {
 
 enum StatusEffectId { slow, root, ignite, oilSoaked, vulnerable }
 
-enum SynergyId { igniteOnOil, igniteOnRoot }
+enum SynergyId {
+  igniteOnOil,
+  igniteOnRoot,
+  douseOnIgnite,
+  exposeOnSlow,
+  witherOnRoot,
+  scourOnOil,
+  tangleOnSlow,
+  tremorOnSlow,
+  smearOnOil,
+}
 
 enum ItemId {
   glassCatalyst,

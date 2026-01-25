@@ -414,6 +414,7 @@ const _menderOrbSummon = SkillSummonParams(
   orbitRadius: 38,
   orbitSpeed: 2.2,
   orbitSeedOffset: math.pi * 0.35,
+  damagePerSecond: 2,
   healingPerSecond: 0.32,
 );
 
@@ -905,7 +906,8 @@ final List<SkillDef> skillDefs = [
     id: SkillId.menderOrb,
     name: 'Absolving Wisp',
     iconId: 'skill_absolving_wisp',
-    description: 'A patient little wisp that restores health over time.',
+    description:
+        'A patient little wisp that restores health and singes nearby foes.',
     tags: TagSet(
       elements: {ElementTag.wood},
       effects: {EffectTag.support},
@@ -915,6 +917,7 @@ final List<SkillDef> skillDefs = [
     summon: _menderOrbSummon,
     displayDetails: [
       cooldownLine(_menderOrbCooldown),
+      damagePerSecondLine(_menderOrbSummon.damagePerSecond ?? 0),
       durationLine('Summon Duration', _menderOrbSummon.lifespan),
       healingPerSecondLine(_menderOrbSummon.healingPerSecond ?? 0),
       orbitRadiusLine(_menderOrbSummon.orbitRadius),

@@ -91,6 +91,7 @@ import 'stress_stats.dart';
 import 'summon_pool.dart';
 import 'summon_state.dart';
 import 'summon_system.dart';
+import 'synergy_system.dart';
 
 enum SkipRewardTokenType { shopReroll, shopDiscount, rarityBoost }
 
@@ -211,6 +212,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final PickupPool _pickupPool;
   late final SpatialGrid _enemyGrid;
   late final DamageSystem _damageSystem;
+  final SynergySystem _synergySystem = SynergySystem();
   late final ProgressionSystem _progressionSystem;
   late final LevelUpSystem _levelUpSystem;
   late final PortalComponent _portalComponent = PortalComponent(
@@ -755,6 +757,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
               selfInflicted: selfInflicted,
             );
           },
+      onSynergyHit: _handleSynergyHit,
     );
     if (stressTest) {
       _spawnStressProjectiles(dt);
@@ -787,7 +790,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       onPlayerHit: (damage) {
         _damageSystem.queuePlayerDamage(_playerState, damage);
       },
-      onSynergyTriggered: _handleSynergyTriggered,
+      onSynergyHit: _handleSynergyHit,
     );
     _effectSystem.update(
       dt,
@@ -796,6 +799,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       playerPosition: playerAttackOrigin,
       onDespawn: _handleEffectDespawn,
       onEnemyDamaged: _damageSystem.queueEnemyDamage,
+      onSynergyHit: _handleSynergyHit,
     );
     _applyEnemyStatusDamage(dt);
     _damageSystem.resolve(
@@ -1428,6 +1432,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (!component.isMounted) {
       world.add(component);
     }
+  }
+
+  void _handleSynergyHit(EnemyState enemy, SkillId? sourceSkillId) {
+    if (sourceSkillId == null) {
+      return;
+    }
+    _synergySystem.apply(
+      enemy: enemy,
+      sourceSkillId: sourceSkillId,
+      stats: _playerState.stats,
+      onSynergyTriggered: _handleSynergyTriggered,
+    );
   }
 
   void _handleSynergyTriggered(SynergyDef synergy, EnemyState enemy) {
