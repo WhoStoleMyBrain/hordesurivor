@@ -10,6 +10,7 @@ import '../data/skill_upgrade_defs.dart';
 import '../data/stat_defs.dart';
 import '../data/tags.dart';
 import '../data/weapon_upgrade_defs.dart';
+import 'stat_baseline.dart';
 import 'stat_text.dart';
 import 'stats_screen_state.dart';
 
@@ -54,7 +55,10 @@ class RunStatsContent extends StatelessWidget {
             child: TabBarView(
               children: [
                 _OverviewTab(state: state),
-                _StatsTab(statValues: state.statValues),
+                _StatsTab(
+                  statValues: state.statValues,
+                  baselineValues: baselineStatValues(state.activeCharacterId),
+                ),
                 _SkillsTab(skills: state.skills),
                 _UpgradesTab(
                   skillUpgrades: state.upgrades,
@@ -194,9 +198,10 @@ class _OverviewTab extends StatelessWidget {
 }
 
 class _StatsTab extends StatelessWidget {
-  const _StatsTab({required this.statValues});
+  const _StatsTab({required this.statValues, required this.baselineValues});
 
   final Map<StatId, double> statValues;
+  final Map<StatId, double> baselineValues;
 
   @override
   Widget build(BuildContext context) {
@@ -208,6 +213,7 @@ class _StatsTab extends StatelessWidget {
             title: category.title,
             stats: category.stats,
             statValues: statValues,
+            baselineValues: baselineValues,
             initiallyExpanded: category.initiallyExpanded,
           ),
       ],
@@ -367,12 +373,14 @@ class _StatCategoryTile extends StatelessWidget {
     required this.title,
     required this.stats,
     required this.statValues,
+    required this.baselineValues,
     required this.initiallyExpanded,
   });
 
   final String title;
   final List<StatId> stats;
   final Map<StatId, double> statValues;
+  final Map<StatId, double> baselineValues;
   final bool initiallyExpanded;
 
   @override
@@ -393,12 +401,16 @@ class _StatCategoryTile extends StatelessWidget {
           for (final stat in stats)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Text(
-                '${StatText.labelFor(stat)}: '
-                '${StatText.formatStatValue(stat, statValues[stat] ?? 0)}',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: Colors.white70),
+              child: _StatValueRow(
+                label: StatText.labelFor(stat),
+                value: StatText.formatStatValue(stat, statValues[stat] ?? 0),
+                valueColor: statDeltaColor(
+                  value: statValues[stat] ?? 0,
+                  baseline: baselineValues[stat] ?? 0,
+                  neutral: Colors.white70,
+                  better: Colors.greenAccent,
+                  worse: Colors.redAccent,
+                ),
               ),
             ),
         ],
@@ -417,6 +429,31 @@ class _StatCategory {
   final String title;
   final List<StatId> stats;
   final bool initiallyExpanded;
+}
+
+class _StatValueRow extends StatelessWidget {
+  const _StatValueRow({
+    required this.label,
+    required this.value,
+    required this.valueColor,
+  });
+
+  final String label;
+  final String value;
+  final Color valueColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = Theme.of(
+      context,
+    ).textTheme.bodySmall?.copyWith(color: Colors.white70);
+    return Row(
+      children: [
+        Expanded(child: Text(label, style: textStyle)),
+        Text(value, style: textStyle?.copyWith(color: valueColor)),
+      ],
+    );
+  }
 }
 
 List<_StatCategory> _statCategories() {
