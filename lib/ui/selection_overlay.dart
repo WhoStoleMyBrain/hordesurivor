@@ -14,6 +14,7 @@ import '../game/level_up_system.dart';
 import 'item_rarity_style.dart';
 import 'selection_state.dart';
 import 'skill_detail_text.dart';
+import 'stat_baseline.dart';
 import 'stats_screen_state.dart';
 import 'stat_text.dart';
 import 'tag_badge.dart';
@@ -640,7 +641,10 @@ class _ShopStatsPanel extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  _ShopStatsList(statValues: state.statValues),
+                  _ShopStatsList(
+                    statValues: state.statValues,
+                    baselineValues: baselineStatValues(state.activeCharacterId),
+                  ),
                   _ShopSkillList(skills: state.skills),
                   _ShopItemList(items: state.items),
                 ],
@@ -654,9 +658,13 @@ class _ShopStatsPanel extends StatelessWidget {
 }
 
 class _ShopStatsList extends StatelessWidget {
-  const _ShopStatsList({required this.statValues});
+  const _ShopStatsList({
+    required this.statValues,
+    required this.baselineValues,
+  });
 
   final Map<StatId, double> statValues;
+  final Map<StatId, double> baselineValues;
 
   @override
   Widget build(BuildContext context) {
@@ -683,7 +691,13 @@ class _ShopStatsList extends StatelessWidget {
                 Text(
                   StatText.formatStatValue(entry.key, entry.value),
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.white,
+                    color: statDeltaColor(
+                      value: entry.value,
+                      baseline: baselineValues[entry.key] ?? 0,
+                      neutral: Colors.white,
+                      better: Colors.greenAccent,
+                      worse: Colors.redAccent,
+                    ),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
