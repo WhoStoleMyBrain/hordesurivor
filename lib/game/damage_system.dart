@@ -66,7 +66,11 @@ class DamageSystem {
         if (!enemy.active) {
           continue;
         }
-        enemy.hp -= event.amount;
+        final multiplier = enemy.vulnerableMultiplier;
+        final adjustedAmount = multiplier > 1
+            ? event.amount * multiplier
+            : event.amount;
+        enemy.hp -= adjustedAmount;
         if (event.knockbackForce > 0 && event.knockbackDuration > 0) {
           enemy.applyKnockback(
             directionX: event.knockbackX,
@@ -75,7 +79,7 @@ class DamageSystem {
             duration: event.knockbackDuration,
           );
         }
-        onEnemyDamaged?.call(enemy, event.amount, event.sourceSkillId);
+        onEnemyDamaged?.call(enemy, adjustedAmount, event.sourceSkillId);
         if (enemy.hp <= 0) {
           enemy.hp = 0;
           enemy.active = false;

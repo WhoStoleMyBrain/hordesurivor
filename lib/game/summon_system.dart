@@ -50,6 +50,7 @@ class SummonSystem {
     onEnemyDamaged,
     required void Function(double, {TagSet tags, bool selfInflicted})
     onPlayerDamaged,
+    void Function(EnemyState, SkillId?)? onSynergyHit,
   }) {
     final active = _pool.active;
     for (var index = active.length - 1; index >= 0; index--) {
@@ -67,12 +68,27 @@ class SummonSystem {
       switch (summon.kind) {
         case SummonKind.guardianOrb:
           _updateOrbitingSummon(summon, playerState.position, dt);
-          _applyAuraDamage(summon, enemyPool, enemyGrid, dt, onEnemyDamaged);
+          _applyAuraDamage(
+            summon,
+            enemyPool,
+            enemyGrid,
+            dt,
+            onEnemyDamaged,
+            onSynergyHit,
+          );
         case SummonKind.menderOrb:
           _updateOrbitingSummon(summon, playerState.position, dt);
           if (summon.healingPerSecond > 0) {
             playerState.heal(summon.healingPerSecond * dt);
           }
+          _applyAuraDamage(
+            summon,
+            enemyPool,
+            enemyGrid,
+            dt,
+            onEnemyDamaged,
+            onSynergyHit,
+          );
         case SummonKind.vigilLantern:
           _updateOrbitingSummon(summon, playerState.position, dt);
           _updateRangedSummon(
@@ -92,6 +108,15 @@ class SummonSystem {
             enemyGrid,
             dt,
             onEnemyDamaged,
+            onSynergyHit,
+          );
+          _applyAuraDamage(
+            summon,
+            enemyPool,
+            enemyGrid,
+            dt,
+            onEnemyDamaged,
+            onSynergyHit,
           );
         case SummonKind.mine:
           _updateMine(
@@ -102,6 +127,7 @@ class SummonSystem {
             onEnemyDamaged,
             onPlayerDamaged,
             onDespawn,
+            onSynergyHit,
           );
       }
     }
@@ -136,6 +162,7 @@ class SummonSystem {
       double knockbackDuration,
     })
     onEnemyDamaged,
+    void Function(EnemyState, SkillId?)? onSynergyHit,
   ) {
     if (summon.damagePerSecond <= 0) {
       return;
@@ -152,6 +179,7 @@ class SummonSystem {
       final dx = enemy.position.x - summon.position.x;
       final dy = enemy.position.y - summon.position.y;
       if (dx * dx + dy * dy <= radiusSquared) {
+        onSynergyHit?.call(enemy, summon.sourceSkillId);
         onEnemyDamaged(
           enemy,
           summon.damagePerSecond * dt,
@@ -222,6 +250,7 @@ class SummonSystem {
       double knockbackDuration,
     })
     onEnemyDamaged,
+    void Function(EnemyState, SkillId?)? onSynergyHit,
   ) {
     final target = _findNearestEnemy(
       summon.position,
@@ -243,7 +272,14 @@ class SummonSystem {
         ..scale(summon.moveSpeed);
       summon.position.addScaled(summon.velocity, dt);
     }
-    _applyAuraDamage(summon, enemyPool, enemyGrid, dt, onEnemyDamaged);
+    _applyAuraDamage(
+      summon,
+      enemyPool,
+      enemyGrid,
+      dt,
+      onEnemyDamaged,
+      onSynergyHit,
+    );
   }
 
   void _updateMine(
@@ -263,6 +299,7 @@ class SummonSystem {
     onEnemyDamaged,
     void Function(double, {TagSet tags, bool selfInflicted}) onPlayerDamaged,
     void Function(SummonState) onDespawn,
+    void Function(EnemyState, SkillId?)? onSynergyHit,
   ) {
     if (summon.age < summon.armDuration) {
       return;
@@ -286,6 +323,7 @@ class SummonSystem {
           enemyGrid,
           onEnemyDamaged,
           onPlayerDamaged,
+          onSynergyHit,
         );
         onDespawn(summon);
         _pool.release(summon);
@@ -310,6 +348,7 @@ class SummonSystem {
     })
     onEnemyDamaged,
     void Function(double, {TagSet tags, bool selfInflicted}) onPlayerDamaged,
+    void Function(EnemyState, SkillId?)? onSynergyHit,
   ) {
     final blastRadius = summon.blastRadius;
     final blastRadiusSquared = blastRadius * blastRadius;
@@ -323,6 +362,7 @@ class SummonSystem {
       final dx = enemy.position.x - summon.position.x;
       final dy = enemy.position.y - summon.position.y;
       if (dx * dx + dy * dy <= blastRadiusSquared) {
+        onSynergyHit?.call(enemy, summon.sourceSkillId);
         onEnemyDamaged(
           enemy,
           summon.blastDamage,

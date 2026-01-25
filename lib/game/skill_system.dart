@@ -1180,6 +1180,11 @@ class SkillSystem {
     final summonDef = def.summon!;
     final summon = _summonPool.acquire();
     _orbitSeed += summonDef.orbitSeedOffset;
+    final damage = _scaledDamageFor(
+      SkillId.menderOrb,
+      stats,
+      summonDef.damagePerSecond ?? 0,
+    );
     summon.reset(
       kind: SummonKind.menderOrb,
       sourceSkillId: SkillId.menderOrb,
@@ -1188,6 +1193,7 @@ class SkillSystem {
       orbitAngle: _orbitSeed,
       orbitRadius: summonDef.orbitRadius,
       orbitSpeed: summonDef.orbitSpeed,
+      damagePerSecond: damage,
       healingPerSecond:
           (summonDef.healingPerSecond ?? 0) * _supportMultiplier(stats),
       lifespan: summonDef.lifespan,

@@ -32,6 +32,7 @@ class EffectSystem {
       double knockbackDuration,
     })
     onEnemyDamaged,
+    void Function(EnemyState, SkillId?)? onSynergyHit,
   }) {
     final active = _pool.active;
     for (var index = active.length - 1; index >= 0; index--) {
@@ -62,6 +63,7 @@ class EffectSystem {
             enemyGrid,
             damage,
             onEnemyDamaged,
+            onSynergyHit,
           );
         case EffectShape.beam:
           _applyBeamDamage(
@@ -70,9 +72,17 @@ class EffectSystem {
             enemyGrid,
             damage,
             onEnemyDamaged,
+            onSynergyHit,
           );
         case EffectShape.arc:
-          _applyArcDamage(effect, enemyPool, enemyGrid, damage, onEnemyDamaged);
+          _applyArcDamage(
+            effect,
+            enemyPool,
+            enemyGrid,
+            damage,
+            onEnemyDamaged,
+            onSynergyHit,
+          );
       }
     }
   }
@@ -92,6 +102,7 @@ class EffectSystem {
       double knockbackDuration,
     })
     onEnemyDamaged,
+    void Function(EnemyState, SkillId?)? onSynergyHit,
   ) {
     final radius = effect.radius;
     final radiusSquared = radius * radius;
@@ -106,6 +117,7 @@ class EffectSystem {
       final dy = enemy.position.y - effect.position.y;
       if (dx * dx + dy * dy <= radiusSquared) {
         _applyStatus(effect, enemy);
+        onSynergyHit?.call(enemy, effect.sourceSkillId);
         onEnemyDamaged(enemy, damage, sourceSkillId: effect.sourceSkillId);
       }
     }
@@ -126,6 +138,7 @@ class EffectSystem {
       double knockbackDuration,
     })
     onEnemyDamaged,
+    void Function(EnemyState, SkillId?)? onSynergyHit,
   ) {
     final dir = effect.direction;
     final length = effect.length;
@@ -150,6 +163,7 @@ class EffectSystem {
       final perpendicular = (dx * dir.y - dy * dir.x).abs();
       if (perpendicular <= halfWidth) {
         _applyStatus(effect, enemy);
+        onSynergyHit?.call(enemy, effect.sourceSkillId);
         onEnemyDamaged(enemy, damage, sourceSkillId: effect.sourceSkillId);
       }
     }
@@ -170,6 +184,7 @@ class EffectSystem {
       double knockbackDuration,
     })
     onEnemyDamaged,
+    void Function(EnemyState, SkillId?)? onSynergyHit,
   ) {
     final arcCosine = math.cos((effect.arcDegrees * 0.5) * (math.pi / 180));
     final radius = effect.radius;
@@ -201,6 +216,7 @@ class EffectSystem {
           continue;
         }
         _applyStatus(effect, enemy);
+        onSynergyHit?.call(enemy, effect.sourceSkillId);
         onEnemyDamaged(
           enemy,
           damage * progress,
@@ -213,6 +229,7 @@ class EffectSystem {
         continue;
       }
       _applyStatus(effect, enemy);
+      onSynergyHit?.call(enemy, effect.sourceSkillId);
       onEnemyDamaged(
         enemy,
         damage,
