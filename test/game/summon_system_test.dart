@@ -79,6 +79,7 @@ void main() {
       playerState: PlayerState(
         position: Vector2.zero(),
         maxHp: 100,
+        maxMana: 60,
         moveSpeed: 0,
       ),
       enemyPool: enemyPool,
@@ -121,6 +122,7 @@ void main() {
       playerState: PlayerState(
         position: Vector2.zero(),
         maxHp: 100,
+        maxMana: 60,
         moveSpeed: 0,
       ),
       enemyPool: enemyPool,
@@ -150,6 +152,7 @@ void main() {
     final player = PlayerState(
       position: Vector2.zero(),
       maxHp: 100,
+      maxMana: 60,
       moveSpeed: 0,
     );
     player.hp = 60;
@@ -199,6 +202,7 @@ void main() {
       playerState: PlayerState(
         position: Vector2.zero(),
         maxHp: 100,
+        maxMana: 60,
         moveSpeed: 0,
       ),
       enemyPool: enemyPool,

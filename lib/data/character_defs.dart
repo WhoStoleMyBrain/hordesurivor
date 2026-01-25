@@ -79,7 +79,9 @@ class CharacterMovementDef {
 
 const Map<StatId, double> _basePlayerStats = {
   StatId.maxHp: 100,
+  StatId.maxMana: 60,
   StatId.hpRegen: 1.0,
+  StatId.manaRegen: 1.0,
 };
 
 const CharacterMovementDef _basePlayerMovement = CharacterMovementDef(

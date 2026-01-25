@@ -99,6 +99,15 @@ class HudStatsContent extends StatelessWidget {
                 labelStyle: statLabelStyle,
                 valueStyle: statValueStyle,
               ),
+              const SizedBox(height: 2),
+              _HudStatRow(
+                label: 'MP',
+                value:
+                    '${hudState.mana.toStringAsFixed(0)}'
+                    '/${hudState.maxMana.toStringAsFixed(0)}',
+                labelStyle: statLabelStyle,
+                valueStyle: statValueStyle,
+              ),
               if (hudState.dashMaxCharges > 0) ...[
                 const SizedBox(height: 4),
                 _DashStatusRow(

@@ -5,6 +5,8 @@ import '../data/tags.dart';
 class PlayerHudState extends ChangeNotifier {
   double hp = 0;
   double maxHp = 0;
+  double mana = 0;
+  double maxMana = 0;
   int level = 1;
   int xp = 0;
   int xpToNext = 0;
@@ -41,6 +43,8 @@ class PlayerHudState extends ChangeNotifier {
   void update({
     required double hp,
     required double maxHp,
+    required double mana,
+    required double maxMana,
     required int level,
     required int xp,
     required int xpToNext,
@@ -71,6 +75,8 @@ class PlayerHudState extends ChangeNotifier {
         : levelUpCounter;
     if (this.hp == hp &&
         this.maxHp == maxHp &&
+        this.mana == mana &&
+        this.maxMana == maxMana &&
         this.level == level &&
         this.xp == xp &&
         this.xpToNext == xpToNext &&
@@ -100,6 +106,8 @@ class PlayerHudState extends ChangeNotifier {
 
     this.hp = hp;
     this.maxHp = maxHp;
+    this.mana = mana;
+    this.maxMana = maxMana;
     this.level = level;
     this.xp = xp;
     this.xpToNext = xpToNext;

@@ -34,7 +34,9 @@ class StatText {
 
 const Map<StatId, String> _labels = {
   StatId.maxHp: 'Max HP',
+  StatId.maxMana: 'Max Mana',
   StatId.hpRegen: 'HP Regen',
+  StatId.manaRegen: 'Mana Regen',
   StatId.defense: 'Defense',
   StatId.dodgeChance: 'Dodge Chance',
   StatId.shieldMax: 'Shield Max',
@@ -99,7 +101,9 @@ const Map<StatId, String> _labels = {
 
 const Set<StatId> _flatStats = {
   StatId.maxHp,
+  StatId.maxMana,
   StatId.hpRegen,
+  StatId.manaRegen,
   StatId.shieldMax,
   StatId.shieldRegen,
   StatId.flatDamage,

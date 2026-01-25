@@ -425,7 +425,9 @@ List<_StatCategory> _statCategories() {
       title: 'Core',
       stats: [
         StatId.maxHp,
+        StatId.maxMana,
         StatId.hpRegen,
+        StatId.manaRegen,
         StatId.defense,
         StatId.dodgeChance,
         StatId.shieldMax,

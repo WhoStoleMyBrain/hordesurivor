@@ -21,6 +21,7 @@ import 'ui/first_run_hints_overlay.dart';
 import 'ui/flow_debug_overlay.dart';
 import 'ui/home_base_overlay.dart';
 import 'ui/health_orb_overlay.dart';
+import 'ui/mana_orb_overlay.dart';
 import 'ui/meta_unlock_screen.dart';
 import 'ui/options_screen.dart';
 import 'ui/selection_overlay.dart';
@@ -307,6 +308,8 @@ class _GameShellState extends State<_GameShell> {
                       ExperienceBarOverlay(hudState: game.hudState),
                   HealthOrbOverlay.overlayKey: (_, game) =>
                       HealthOrbOverlay(hudState: game.hudState),
+                  ManaOrbOverlay.overlayKey: (_, game) =>
+                      ManaOrbOverlay(hudState: game.hudState),
                 },
                 initialActiveOverlays: widget.stressTest
                     ? const [VirtualStickOverlay.overlayKey]
