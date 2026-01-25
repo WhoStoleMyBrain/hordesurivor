@@ -145,6 +145,9 @@ DataValidationResult validateGameData() {
     if (!def.baseStats.containsKey(StatId.maxHp)) {
       result.errors.add('CharacterDef ${def.id} missing maxHp base stat.');
     }
+    if (!def.baseStats.containsKey(StatId.maxMana)) {
+      result.errors.add('CharacterDef ${def.id} missing maxMana base stat.');
+    }
     if (def.movement.moveSpeed <= 0) {
       result.errors.add('CharacterDef ${def.id} has non-positive moveSpeed.');
     }

@@ -221,6 +221,10 @@ class _CharacterCard extends StatelessWidget {
         value: _formatStat(stats[StatId.maxHp], decimals: 0),
       ),
       _StatLine(
+        label: 'Mana',
+        value: _formatStat(stats[StatId.maxMana], decimals: 0),
+      ),
+      _StatLine(
         label: 'Move Speed',
         value: _formatStat(movement.moveSpeed, decimals: 0),
       ),

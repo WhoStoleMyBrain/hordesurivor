@@ -1,7 +1,9 @@
 enum StatId {
   // Core
   maxHp,
+  maxMana,
   hpRegen,
+  manaRegen,
   defense,
   dodgeChance,
   shieldMax,

@@ -10,6 +10,7 @@ class PlayerState {
   PlayerState({
     required this.position,
     required double maxHp,
+    required double maxMana,
     required double moveSpeed,
     double spriteWidth = GameSizes.playerRadius * 2,
     double spriteHeight = GameSizes.playerRadius * 2,
@@ -25,10 +26,13 @@ class PlayerState {
     this.invulnerabilityDuration = 0.5,
     this.hitEffectDuration = 0.18,
   }) : hp = maxHp,
+       mana = maxMana,
        baseInvulnerabilityDuration = invulnerabilityDuration,
        baseHitEffectDuration = hitEffectDuration,
        baseMoveSpeed = moveSpeed,
-       stats = StatSheet(baseValues: {StatId.maxHp: maxHp}),
+       stats = StatSheet(
+         baseValues: {StatId.maxHp: maxHp, StatId.maxMana: maxMana},
+       ),
        velocity = Vector2.zero(),
        movementIntent = Vector2.zero(),
        impulseVelocity = Vector2.zero(),
@@ -63,6 +67,7 @@ class PlayerState {
   final double dashInvulnerability;
   final double dashTeleport;
   double hp;
+  double mana;
   final double baseInvulnerabilityDuration;
   final double baseHitEffectDuration;
   double invulnerabilityDuration;
@@ -80,6 +85,7 @@ class PlayerState {
   int dashMaxCharges = 0;
 
   double get maxHp => math.max(1, stats.value(StatId.maxHp));
+  double get maxMana => math.max(0, stats.value(StatId.maxMana));
   double get moveSpeed {
     return math.max(0, baseMoveSpeed);
   }
@@ -121,6 +127,7 @@ class PlayerState {
   void applyModifiers(Iterable<StatModifier> modifiers) {
     stats.addModifiers(modifiers);
     hp = hp.clamp(0, maxHp);
+    mana = mana.clamp(0, maxMana);
     _syncDashChargeLimits();
   }
 
@@ -128,8 +135,10 @@ class PlayerState {
     stats.setBaseValues(baseStats);
     if (healToFull) {
       hp = maxHp;
+      mana = maxMana;
     } else {
       hp = hp.clamp(0, maxHp);
+      mana = mana.clamp(0, maxMana);
     }
     _syncDashChargeLimits(fillCharges: true);
   }
@@ -141,9 +150,17 @@ class PlayerState {
     hp = math.min(maxHp, hp + amount);
   }
 
+  void restoreMana(double amount) {
+    if (amount <= 0) {
+      return;
+    }
+    mana = math.min(maxMana, mana + amount);
+  }
+
   void resetForRun() {
     stats.resetModifiers();
     hp = maxHp;
+    mana = maxMana;
     velocity.setZero();
     movementIntent.setZero();
     impulseVelocity.setZero();
@@ -172,6 +189,13 @@ class PlayerState {
       final regenPerSecond = _hpRegenPerSecond(regenPoints);
       if (regenPerSecond > 0) {
         heal(regenPerSecond * dt);
+      }
+    }
+    final manaRegenPoints = stats.value(StatId.manaRegen);
+    if (manaRegenPoints > 0) {
+      final regenPerSecond = _manaRegenPerSecond(manaRegenPoints);
+      if (regenPerSecond > 0) {
+        restoreMana(regenPerSecond * dt);
       }
     }
     _syncDashChargeLimits();
@@ -250,7 +274,17 @@ class PlayerState {
     return normalized.clamp(0, double.infinity);
   }
 
+  double _manaRegenPerSecond(double regenPoints) {
+    if (regenPoints <= 0) {
+      return 0;
+    }
+    final normalized =
+        math.log(1 + regenPoints) / math.log(1 + _manaRegenBaselinePoints);
+    return normalized.clamp(0, double.infinity);
+  }
+
   static const double _hpRegenBaselinePoints = 10;
+  static const double _manaRegenBaselinePoints = 10;
 
   void addImpulse({
     required double dx,

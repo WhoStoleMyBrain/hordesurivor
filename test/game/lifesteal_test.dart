@@ -11,6 +11,7 @@ void main() {
     final playerState = PlayerState(
       position: Vector2.zero(),
       maxHp: 10,
+      maxMana: 60,
       moveSpeed: 5,
     );
     playerState.hp = 5;
@@ -29,6 +30,7 @@ void main() {
     final playerState = PlayerState(
       position: Vector2.zero(),
       maxHp: 10,
+      maxMana: 60,
       moveSpeed: 5,
     );
     playerState.hp = 5;
@@ -47,6 +49,7 @@ void main() {
     final playerState = PlayerState(
       position: Vector2.zero(),
       maxHp: 10,
+      maxMana: 60,
       moveSpeed: 5,
     );
 

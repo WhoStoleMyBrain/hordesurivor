@@ -52,7 +52,12 @@ void main() {
   }
 
   PlayerState buildPlayer() {
-    return PlayerState(position: Vector2.zero(), maxHp: 100, moveSpeed: 120);
+    return PlayerState(
+      position: Vector2.zero(),
+      maxHp: 100,
+      maxMana: 60,
+      moveSpeed: 120,
+    );
   }
 
   void noopPlayerDeflect({required double radius, required double duration}) {}

@@ -11,6 +11,7 @@ void main() {
     final state = PlayerState(
       position: Vector2.zero(),
       maxHp: 100,
+      maxMana: 60,
       moveSpeed: 10,
     );
 
@@ -26,6 +27,7 @@ void main() {
     final state = PlayerState(
       position: Vector2.zero(),
       maxHp: 100,
+      maxMana: 60,
       moveSpeed: 10,
     );
 
@@ -38,6 +40,7 @@ void main() {
     final state = PlayerState(
       position: Vector2(15, -2),
       maxHp: 100,
+      maxMana: 60,
       moveSpeed: 10,
     );
 
@@ -53,6 +56,7 @@ void main() {
       final baselineState = PlayerState(
         position: Vector2.zero(),
         maxHp: 100,
+        maxMana: 60,
         moveSpeed: 10,
       );
       baselineState.hp = 50;
@@ -67,6 +71,7 @@ void main() {
       final higherState = PlayerState(
         position: Vector2.zero(),
         maxHp: 100,
+        maxMana: 60,
         moveSpeed: 10,
       );
       higherState.hp = 50;

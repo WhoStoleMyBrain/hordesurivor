@@ -19,6 +19,7 @@ void main() {
     final playerState = PlayerState(
       position: Vector2.zero(),
       maxHp: 100,
+      maxMana: 60,
       moveSpeed: 10,
     );
     playerState.applyModifiers(const [
@@ -51,6 +52,7 @@ void main() {
     final playerState = PlayerState(
       position: Vector2.zero(),
       maxHp: 100,
+      maxMana: 60,
       moveSpeed: 10,
     );
     final skillSystem = SkillSystem(
@@ -84,6 +86,7 @@ void main() {
     final playerState = PlayerState(
       position: Vector2.zero(),
       maxHp: 100,
+      maxMana: 60,
       moveSpeed: 10,
     );
     final skillSystem = SkillSystem(
@@ -174,6 +177,7 @@ void main() {
     final playerState = PlayerState(
       position: Vector2.zero(),
       maxHp: 100,
+      maxMana: 60,
       moveSpeed: 10,
     );
     final skillSystem = SkillSystem(
@@ -218,6 +222,7 @@ void main() {
     final playerState = PlayerState(
       position: Vector2.zero(),
       maxHp: 100,
+      maxMana: 60,
       moveSpeed: 10,
     );
     final skillSystem = SkillSystem(
@@ -260,6 +265,7 @@ void main() {
     final playerState = PlayerState(
       position: Vector2.zero(),
       maxHp: 100,
+      maxMana: 60,
       moveSpeed: 10,
     );
     final skillSystem = SkillSystem(
@@ -345,6 +351,7 @@ void main() {
     final playerState = PlayerState(
       position: Vector2.zero(),
       maxHp: 100,
+      maxMana: 60,
       moveSpeed: 10,
     );
     playerState.applyModifiers(const [
@@ -411,6 +418,7 @@ void main() {
     final playerState = PlayerState(
       position: Vector2.zero(),
       maxHp: 100,
+      maxMana: 60,
       moveSpeed: 10,
     );
     final skillSystem = SkillSystem(

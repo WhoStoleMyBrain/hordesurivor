@@ -51,6 +51,7 @@ import '../ui/experience_bar_overlay.dart';
 import '../ui/first_run_hints_overlay.dart';
 import '../ui/flow_debug_overlay.dart';
 import '../ui/health_orb_overlay.dart';
+import '../ui/mana_orb_overlay.dart';
 import '../ui/hud_state.dart';
 import '../ui/home_base_overlay.dart';
 import '../ui/meta_unlock_screen.dart';
@@ -451,6 +452,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _playerState = PlayerState(
       position: _mapSize / 2,
       maxHp: activeCharacter.baseStats[StatId.maxHp] ?? 100,
+      maxMana: activeCharacter.baseStats[StatId.maxMana] ?? 60,
       moveSpeed: activeCharacter.movement.moveSpeed,
       dashSpeed: activeCharacter.movement.dashSpeed,
       dashDistance: activeCharacter.movement.dashDistance,
@@ -1103,6 +1105,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.add(VirtualStickOverlay.overlayKey);
     overlays.add(ExperienceBarOverlay.overlayKey);
     overlays.add(HealthOrbOverlay.overlayKey);
+    overlays.add(ManaOrbOverlay.overlayKey);
     _showFirstRunHintsIfNeeded();
     _syncHudState();
     _offerStartingSkillSelection();
@@ -1124,6 +1127,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(VirtualStickOverlay.overlayKey);
     overlays.remove(ExperienceBarOverlay.overlayKey);
     overlays.remove(HealthOrbOverlay.overlayKey);
+    overlays.remove(ManaOrbOverlay.overlayKey);
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
@@ -1156,6 +1160,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(VirtualStickOverlay.overlayKey);
     overlays.remove(ExperienceBarOverlay.overlayKey);
     overlays.remove(HealthOrbOverlay.overlayKey);
+    overlays.remove(ManaOrbOverlay.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
     overlays.remove(EscapeMenuOverlay.overlayKey);
@@ -2061,6 +2066,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _hudState.update(
       hp: _playerState.hp,
       maxHp: _playerState.maxHp,
+      mana: _playerState.mana,
+      maxMana: _playerState.maxMana,
       level: skillTrack.level,
       xp: skillTrack.currentCurrency,
       xpToNext: skillTrack.currencyToNext,
@@ -2760,6 +2767,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(VirtualStickOverlay.overlayKey);
     overlays.remove(ExperienceBarOverlay.overlayKey);
     overlays.remove(HealthOrbOverlay.overlayKey);
+    overlays.remove(ManaOrbOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
     overlays.add(DeathScreen.overlayKey);
     _syncHudState();
@@ -2957,6 +2965,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _revivePlayer() {
     _playerState.hp = _playerState.maxHp;
+    _playerState.mana = _playerState.maxMana;
     _playerState.movementIntent.setZero();
     _playerState.position.setFrom(_mapSize / 2);
     _playerComponent.syncWithState();

@@ -53,6 +53,7 @@ void main() {
     final player = PlayerState(
       position: Vector2.zero(),
       maxHp: 5,
+      maxMana: 60,
       moveSpeed: 0,
     );
     final damageSystem = DamageSystem(
