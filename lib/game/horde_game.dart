@@ -47,6 +47,7 @@ import '../ui/compendium_screen.dart';
 import '../ui/character_select_overlay.dart';
 import '../ui/death_screen.dart';
 import '../ui/escape_menu_overlay.dart';
+import '../ui/experience_bar_overlay.dart';
 import '../ui/first_run_hints_overlay.dart';
 import '../ui/flow_debug_overlay.dart';
 import '../ui/hud_state.dart';
@@ -1099,6 +1100,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(EscapeMenuOverlay.overlayKey);
     overlays.add(VirtualStickOverlay.overlayKey);
+    overlays.add(ExperienceBarOverlay.overlayKey);
     _showFirstRunHintsIfNeeded();
     _syncHudState();
     _offerStartingSkillSelection();
@@ -1118,6 +1120,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(AreaSelectScreen.overlayKey);
     overlays.remove(VirtualStickOverlay.overlayKey);
+    overlays.remove(ExperienceBarOverlay.overlayKey);
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
@@ -1148,6 +1151,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _setFlowState(GameFlowState.homeBase);
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(VirtualStickOverlay.overlayKey);
+    overlays.remove(ExperienceBarOverlay.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
     overlays.remove(EscapeMenuOverlay.overlayKey);
@@ -2308,6 +2312,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
     _setFlowState(GameFlowState.start);
     overlays.remove(VirtualStickOverlay.overlayKey);
+    overlays.remove(ExperienceBarOverlay.overlayKey);
     overlays.remove(HomeBaseOverlay.overlayKey);
     overlays.remove(AreaSelectScreen.overlayKey);
     overlays.remove(DeathScreen.overlayKey);
@@ -2749,6 +2754,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(EscapeMenuOverlay.overlayKey);
     _setFlowState(GameFlowState.death);
     overlays.remove(VirtualStickOverlay.overlayKey);
+    overlays.remove(ExperienceBarOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
     overlays.add(DeathScreen.overlayKey);
     _syncHudState();

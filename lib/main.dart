@@ -16,6 +16,7 @@ import 'ui/character_select_overlay.dart';
 import 'ui/compendium_screen.dart';
 import 'ui/death_screen.dart';
 import 'ui/escape_menu_overlay.dart';
+import 'ui/experience_bar_overlay.dart';
 import 'ui/first_run_hints_overlay.dart';
 import 'ui/flow_debug_overlay.dart';
 import 'ui/home_base_overlay.dart';
@@ -301,6 +302,8 @@ class _GameShellState extends State<_GameShell> {
                     onSelectState: game.debugJumpToState,
                     onClose: game.toggleFlowDebugOverlay,
                   ),
+                  ExperienceBarOverlay.overlayKey: (_, game) =>
+                      ExperienceBarOverlay(hudState: game.hudState),
                 },
                 initialActiveOverlays: widget.stressTest
                     ? const [VirtualStickOverlay.overlayKey]
