@@ -50,6 +50,7 @@ import '../ui/escape_menu_overlay.dart';
 import '../ui/experience_bar_overlay.dart';
 import '../ui/first_run_hints_overlay.dart';
 import '../ui/flow_debug_overlay.dart';
+import '../ui/health_orb_overlay.dart';
 import '../ui/hud_state.dart';
 import '../ui/home_base_overlay.dart';
 import '../ui/meta_unlock_screen.dart';
@@ -1101,6 +1102,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(EscapeMenuOverlay.overlayKey);
     overlays.add(VirtualStickOverlay.overlayKey);
     overlays.add(ExperienceBarOverlay.overlayKey);
+    overlays.add(HealthOrbOverlay.overlayKey);
     _showFirstRunHintsIfNeeded();
     _syncHudState();
     _offerStartingSkillSelection();
@@ -1121,6 +1123,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(AreaSelectScreen.overlayKey);
     overlays.remove(VirtualStickOverlay.overlayKey);
     overlays.remove(ExperienceBarOverlay.overlayKey);
+    overlays.remove(HealthOrbOverlay.overlayKey);
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
@@ -1152,6 +1155,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(VirtualStickOverlay.overlayKey);
     overlays.remove(ExperienceBarOverlay.overlayKey);
+    overlays.remove(HealthOrbOverlay.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
     overlays.remove(EscapeMenuOverlay.overlayKey);
@@ -2755,6 +2759,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _setFlowState(GameFlowState.death);
     overlays.remove(VirtualStickOverlay.overlayKey);
     overlays.remove(ExperienceBarOverlay.overlayKey);
+    overlays.remove(HealthOrbOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
     overlays.add(DeathScreen.overlayKey);
     _syncHudState();
