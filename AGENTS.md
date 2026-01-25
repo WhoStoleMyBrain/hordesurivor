@@ -77,9 +77,9 @@ A pixel-style horde survivor focused on **readable combat**, **enemy role variet
 - **Flutter (stable channel)**
 - **Flame** for the game loop, rendering, and components
 - Target platforms (priority order for V0.1):
-  1. Android (primary dev target)
-  2. Windows desktop (debug convenience)
-  3. iOS/macOS/Linux later
+  1. Windows desktop (primary dev target)
+  2. macOS
+  3. Linux
   4. Web is optional and should not dictate early design unless a task explicitly targets it
 
 ### 2.2 Core architectural decisions (non-negotiable)
@@ -121,7 +121,7 @@ Quick orientation for cloud agents; use this as the “map” when a task arrive
 - **Data catalogs:** definitions live in `lib/data/` (`skill_defs.dart`, `item_defs.dart`, `enemy_defs.dart`, `area_defs.dart`, `contract_defs.dart`, `currency_defs.dart`, `progression_track_defs.dart`, `selection_pool_defs.dart`, `synergy_defs.dart`, `weapon_upgrade_defs.dart`) and are validated by `lib/data/data_validation.dart`.
 - **Rendering:** Flame components + visuals in `lib/render/` (e.g., `player_component.dart`, `enemy_component.dart`, `projectile_batch_component.dart`, `render_scale.dart`, `sprite_pipeline.dart`).
 - **UI & overlays:** screens/overlays in `lib/ui/` (Start, Options, Area Select, Selection, HUD, Meta Unlocks, Death, etc.); `lib/ui/side_panel.dart` hosts the persistent HUD panel layout.
-- **Input:** keyboard handling lives in `lib/game/horde_game.dart`; touch stick visualization in `lib/ui/virtual_stick_overlay.dart` + state in `lib/ui/virtual_stick_state.dart`.
+- **Input:** keyboard handling lives in `lib/game/horde_game.dart`.
 - **Persistence:** meta currency + unlocks in `lib/game/meta_currency_wallet.dart` and `lib/game/meta_unlocks.dart`; UI scale persistence in `lib/ui/ui_scale.dart`.
 
 ### 2.4 Data-driven content

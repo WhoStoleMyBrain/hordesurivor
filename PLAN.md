@@ -58,7 +58,7 @@ This revised V0.4 plan focuses on fixing core feel issues and missing systems ca
 - ✅ Phase C (Run structure & end-of-run identity): added a finale hold window that triggers a final burst wave at stage completion before ending the run. Decision: drive finale timing and burst size from per-area data so pacing stays tuneable. Follow-up: consider adding a dedicated elite-style finale encounter once bespoke boss behaviors land.
 - ✅ Phase D (Enemy role language & telegraph standards): added per-role telegraph opacity multipliers to emphasize spawners, zoners, support roles, and elites. Decision: keep multipliers modest (1.15–1.2) to avoid overpowering other signals. Follow-up: tune multipliers after stress-scene readability checks.
 - ✅ Phase D (Enemy role language & telegraph standards): added per-role telegraph stroke widths so key roles (spawner/zoner/support/elite) read at a glance in dense waves. Decision: keep the width deltas subtle (2.2–3.0) to avoid overpowering other telegraphs. Follow-up: revisit widths alongside silhouette updates.
-- ✅ Phase E (Platform readiness & QA): added a virtual stick overlay that renders at touch origin during pan input, showing dead zone and max-radius travel for mobile steering. Decision: show the overlay only while actively panning to avoid HUD clutter. Follow-up: consider an optional idle hint or left-hand lock-on toggle for mobile.
+- ✅ Phase E (Platform readiness & QA): added a virtual stick overlay that renders at touch origin during pan input, showing dead zone and max-radius travel for analog steering. Decision: show the overlay only while actively panning to avoid HUD clutter.
 - ✅ Phase C (Run structure & end-of-run identity): expanded the run summary recap to list per-synergy trigger counts alongside the existing total synergy trigger stat. Decision: list synergies in definition order with an “×count” suffix to keep the recap compact. Follow-up: revisit ordering once the synergy catalog grows.
 - ✅ Phase 6 (Contracts/Heat): added per-area contract pools so the area select screen focuses mutators by location. Decision: keep pools small and thematic per area for now. Follow-up: expand the catalog and consider area-specific mutators once more contracts exist.
 - ✅ Phase 1 (Visual scale & readability pass): scaled combat damage numbers with `RenderScale` so floating damage text stays readable at larger world scales. Decision: keep TextPaint font sizes as-is and rely on component scaling. Follow-up: revisit font size tuning if damage text crowds the HUD at higher scales.
@@ -97,7 +97,7 @@ This section verifies what is already implemented in the codebase and lists the 
 - Tag synergy catalog includes Oil + Fire → Ignite and Roots + Fire → Kindling definitions with selection UI hints.
 
 ### ⏳ Not yet implemented (aligned with AGENTS.md)
-- Visual scale & readability pass: confirm/tune world render scaling across all attacks and telegraphs, and verify collision radii remain unchanged on both desktop and mobile targets.
+- Visual scale & readability pass: confirm/tune world render scaling across all attacks and telegraphs, and verify collision radii remain unchanged on desktop targets.
 - Knockback/impact tuning: playtest-based knockback value tuning and optional hit-flash intensity adjustments.
 - Meta progression expansion: grow the lateral unlock catalog (skills/items/factions/characters), add a tree-style layout, and keep unlocks strictly non-power.
 - Contracts/Heat expansion: broaden the contract catalog further, add area-specific mutators, and polish in-run presentation.
@@ -136,7 +136,7 @@ This section verifies what is already implemented in the codebase and lists the 
 3. Ensure collision and gameplay radii remain unchanged (visual-only scaling), and verify hitboxes remain accurate.
 4. Tune UI scale so HUD/overlays stay legible but do not dominate the screen.
 
-**Exit criteria:** visuals are larger and clearer without changing gameplay balance; all roles/attacks are readable on Windows and mobile.
+**Exit criteria:** visuals are larger and clearer without changing gameplay balance; all roles/attacks are readable on Windows, macOS, and Linux.
 
 ---
 
@@ -350,7 +350,7 @@ V0.5 focuses on turning the current V0.4 foundation into a **cohesive, repeatabl
 - **Build identity in-run:** deepen tag-based synergies (without hard evolutions) and surface them in UI/feedback.
 - **Run structure & pacing:** defined milestones, a mid-run “pressure spike,” and a readable end-of-run moment.
 - **Enemy role language:** role telegraph and silhouette standards applied consistently.
-- **Vertical slice quality:** runnable, testable, and stable on desktop and Android targets.
+- **Vertical slice quality:** runnable, testable, and stable on desktop targets.
 
 ---
 
@@ -425,12 +425,11 @@ V0.5 focuses on turning the current V0.4 foundation into a **cohesive, repeatabl
 ---
 
 ## Phase E — Platform readiness & QA
-**Goal:** ensure V0.5 can be reliably played on desktop and Android.
+**Goal:** ensure V0.5 can be reliably played on Windows, macOS, and Linux.
 
 **Implementation details:**
 1. **Input polish**:
-   - Validate keyboard + touch input parity.
-   - Add a basic virtual stick overlay for mobile (if not already present).
+   - Validate keyboard + mouse input parity.
 2. **Performance pass**:
    - Run the stress scene with updated telegraphs/synergy effects.
    - Confirm pooling and no per-frame allocations in new systems.
@@ -438,7 +437,7 @@ V0.5 focuses on turning the current V0.4 foundation into a **cohesive, repeatabl
    - Run `dart format .`, `flutter analyze`, and `flutter test`.
    - Verify no new TODOs without an issue reference.
 
-**Exit criteria:** V0.5 builds, runs, and passes tests on desktop, and Android input feels responsive.
+**Exit criteria:** V0.5 builds, runs, and passes tests on Windows, macOS, and Linux.
 
 ---
 
@@ -446,4 +445,4 @@ V0.5 focuses on turning the current V0.4 foundation into a **cohesive, repeatabl
 - A complete, readable run loop with clear onboarding and a distinct end-of-run moment.
 - Tag synergies are data-driven, visible, and support build identity without hard evolutions.
 - Enemy role telegraphs are consistent and readable in dense combat.
-- Desktop and Android runs are playable with stable performance and passing tests.
+- Desktop runs are playable with stable performance and passing tests.
