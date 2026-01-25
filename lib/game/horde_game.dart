@@ -2058,6 +2058,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       xpToNext: skillTrack.currencyToNext,
       gold: itemTrack.currentCurrency,
       goldToNext: itemTrack.currencyToNext,
+      goldWallet: _goldWallet,
       score: inStage ? _runSummary.score : 0,
       showPerformance: stressTest,
       fps: _fps,

@@ -10,6 +10,7 @@ class PlayerHudState extends ChangeNotifier {
   int xpToNext = 0;
   int gold = 0;
   int goldToNext = 0;
+  int goldWallet = 0;
   int score = 0;
   bool showPerformance = false;
   double fps = 0;
@@ -45,6 +46,7 @@ class PlayerHudState extends ChangeNotifier {
     required int xpToNext,
     required int gold,
     required int goldToNext,
+    required int goldWallet,
     required int score,
     required bool showPerformance,
     required double fps,
@@ -74,6 +76,7 @@ class PlayerHudState extends ChangeNotifier {
         this.xpToNext == xpToNext &&
         this.gold == gold &&
         this.goldToNext == goldToNext &&
+        this.goldWallet == goldWallet &&
         this.score == score &&
         this.showPerformance == showPerformance &&
         this.fps == fps &&
@@ -102,6 +105,7 @@ class PlayerHudState extends ChangeNotifier {
     this.xpToNext = xpToNext;
     this.gold = gold;
     this.goldToNext = goldToNext;
+    this.goldWallet = goldWallet;
     this.score = score;
     this.showPerformance = showPerformance;
     this.fps = fps;
