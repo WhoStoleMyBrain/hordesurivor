@@ -43,21 +43,26 @@ class ExperienceBarOverlay extends StatelessWidget {
                       ),
                       child: Stack(
                         children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(5),
-                            child: FractionallySizedBox(
-                              alignment: Alignment.centerLeft,
-                              widthFactor: progress,
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color: _fillColor,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: _fillColor.withValues(alpha: 0.6),
-                                      blurRadius: 6,
-                                      spreadRadius: -2,
-                                    ),
-                                  ],
+                          Positioned.fill(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(5),
+                              child: FractionallySizedBox(
+                                alignment: Alignment.centerLeft,
+                                widthFactor: progress,
+                                heightFactor: 1,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: _fillColor,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: _fillColor.withValues(
+                                          alpha: 0.6,
+                                        ),
+                                        blurRadius: 6,
+                                        spreadRadius: -2,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
