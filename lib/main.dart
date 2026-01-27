@@ -207,6 +207,8 @@ class _GameShellState extends State<_GameShell> {
                   StatsOverlay.overlayKey: (_, game) => StatsOverlay(
                     state: game.statsScreenState,
                     onClose: game.toggleStatsOverlay,
+                    skillIcons: game.skillIcons,
+                    itemIcons: game.itemIcons,
                   ),
                   StartScreen.overlayKey: (context, game) => StartScreen(
                     onStart: game.beginHomeBaseFromStartScreen,
@@ -254,6 +256,8 @@ class _GameShellState extends State<_GameShell> {
                         onOptions: game.openOptionsFromMenu,
                         onCompendium: game.openCompendiumFromMenu,
                         onMetaUnlocks: game.openMetaUnlocksFromMenu,
+                        skillIcons: game.skillIcons,
+                        itemIcons: game.itemIcons,
                         onStressTest: () => Navigator.of(
                           context,
                         ).pushReplacementNamed('/stress'),

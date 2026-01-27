@@ -15,9 +15,16 @@ import 'stat_text.dart';
 import 'stats_screen_state.dart';
 
 class RunStatsContent extends StatelessWidget {
-  const RunStatsContent({super.key, required this.state});
+  const RunStatsContent({
+    super.key,
+    required this.state,
+    required this.skillIcons,
+    required this.itemIcons,
+  });
 
   final StatsScreenState state;
+  final Map<SkillId, ui.Image?> skillIcons;
+  final Map<ItemId, ui.Image?> itemIcons;
 
   @override
   Widget build(BuildContext context) {
@@ -59,12 +66,12 @@ class RunStatsContent extends StatelessWidget {
                   statValues: state.statValues,
                   baselineValues: baselineStatValues(state.activeCharacterId),
                 ),
-                _SkillsTab(skills: state.skills),
+                _SkillsTab(skills: state.skills, skillIcons: skillIcons),
                 _UpgradesTab(
                   skillUpgrades: state.upgrades,
                   weaponUpgrades: state.weaponUpgrades,
                 ),
-                _ItemsTab(items: state.items),
+                _ItemsTab(items: state.items, itemIcons: itemIcons),
               ],
             ),
           ),
@@ -222,9 +229,10 @@ class _StatsTab extends StatelessWidget {
 }
 
 class _SkillsTab extends StatelessWidget {
-  const _SkillsTab({required this.skills});
+  const _SkillsTab({required this.skills, required this.skillIcons});
 
   final List<SkillId> skills;
+  final Map<SkillId, ui.Image?> skillIcons;
 
   @override
   Widget build(BuildContext context) {
@@ -248,6 +256,9 @@ class _SkillsTab extends StatelessWidget {
           title: skill?.name ?? id.name,
           subtitle: skill?.description ?? 'Details unavailable.',
           footer: _tagsLine(tags),
+          icon: skillIcons[id],
+          placeholder: Icons.auto_fix_high,
+          showIconSlot: true,
         );
       },
     );
@@ -320,9 +331,10 @@ class _UpgradesTab extends StatelessWidget {
 }
 
 class _ItemsTab extends StatelessWidget {
-  const _ItemsTab({required this.items});
+  const _ItemsTab({required this.items, required this.itemIcons});
 
   final List<ItemId> items;
+  final Map<ItemId, ui.Image?> itemIcons;
 
   @override
   Widget build(BuildContext context) {
@@ -346,6 +358,9 @@ class _ItemsTab extends StatelessWidget {
           title: item?.name ?? id.name,
           subtitle: _itemDetails(id),
           footer: _tagsLine(tags),
+          icon: itemIcons[id],
+          placeholder: Icons.local_offer,
+          showIconSlot: true,
         );
       },
     );
@@ -573,15 +588,49 @@ List<_StatCategory> _statCategories() {
 }
 
 class _InfoCard extends StatelessWidget {
-  const _InfoCard({required this.title, required this.subtitle, this.footer});
+  const _InfoCard({
+    required this.title,
+    required this.subtitle,
+    this.footer,
+    this.icon,
+    this.placeholder,
+    this.showIconSlot = false,
+  });
 
   final String title;
   final String subtitle;
   final String? footer;
+  final ui.Image? icon;
+  final IconData? placeholder;
+  final bool showIconSlot;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          subtitle,
+          style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
+        ),
+        if (footer != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            footer!,
+            style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
+          ),
+        ],
+      ],
+    );
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -589,30 +638,45 @@ class _InfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white10),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
-          ),
-          if (footer != null) ...[
-            const SizedBox(height: 6),
-            Text(
-              footer!,
-              style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
-            ),
-          ],
-        ],
+      child: showIconSlot
+          ? Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _IconSlot(
+                  image: icon,
+                  placeholder: placeholder ?? Icons.image_not_supported,
+                ),
+                const SizedBox(width: 12),
+                Expanded(child: content),
+              ],
+            )
+          : content,
+    );
+  }
+}
+
+class _IconSlot extends StatelessWidget {
+  const _IconSlot({required this.image, required this.placeholder});
+
+  final ui.Image? image;
+  final IconData placeholder;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.white24),
       ),
+      child: image == null
+          ? Icon(placeholder, size: 18, color: Colors.white54)
+          : Padding(
+              padding: const EdgeInsets.all(4),
+              child: RawImage(image: image, fit: BoxFit.contain),
+            ),
     );
   }
 }

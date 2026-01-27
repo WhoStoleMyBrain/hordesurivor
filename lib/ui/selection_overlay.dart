@@ -388,7 +388,14 @@ class _ShopOverlayLayout extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  Expanded(flex: 1, child: _ShopStatsPanel(state: statsState)),
+                  Expanded(
+                    flex: 1,
+                    child: _ShopStatsPanel(
+                      state: statsState,
+                      skillIcons: skillIcons,
+                      itemIcons: itemIcons,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -551,9 +558,15 @@ class _MiniIcon extends StatelessWidget {
 }
 
 class _ShopStatsPanel extends StatelessWidget {
-  const _ShopStatsPanel({required this.state});
+  const _ShopStatsPanel({
+    required this.state,
+    required this.skillIcons,
+    required this.itemIcons,
+  });
 
   final StatsScreenState state;
+  final Map<SkillId, ui.Image?> skillIcons;
+  final Map<ItemId, ui.Image?> itemIcons;
 
   @override
   Widget build(BuildContext context) {
@@ -599,8 +612,8 @@ class _ShopStatsPanel extends StatelessWidget {
                     statValues: state.statValues,
                     baselineValues: baselineStatValues(state.activeCharacterId),
                   ),
-                  _ShopSkillList(skills: state.skills),
-                  _ShopItemList(items: state.items),
+                  _ShopSkillList(skills: state.skills, skillIcons: skillIcons),
+                  _ShopItemList(items: state.items, itemIcons: itemIcons),
                 ],
               ),
             ),
@@ -664,9 +677,10 @@ class _ShopStatsList extends StatelessWidget {
 }
 
 class _ShopSkillList extends StatelessWidget {
-  const _ShopSkillList({required this.skills});
+  const _ShopSkillList({required this.skills, required this.skillIcons});
 
   final List<SkillId> skills;
+  final Map<SkillId, ui.Image?> skillIcons;
 
   @override
   Widget build(BuildContext context) {
@@ -683,9 +697,22 @@ class _ShopSkillList extends StatelessWidget {
       itemBuilder: (context, index) {
         final skillId = skills[index];
         final skill = skillDefsById[skillId];
-        return Text(
-          skill?.name ?? skillId.name,
-          style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
+        return Row(
+          children: [
+            _ListIcon(
+              image: skillIcons[skillId],
+              placeholder: Icons.auto_fix_high,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                skill?.name ?? skillId.name,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.white70,
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -693,9 +720,10 @@ class _ShopSkillList extends StatelessWidget {
 }
 
 class _ShopItemList extends StatelessWidget {
-  const _ShopItemList({required this.items});
+  const _ShopItemList({required this.items, required this.itemIcons});
 
   final List<ItemId> items;
+  final Map<ItemId, ui.Image?> itemIcons;
 
   @override
   Widget build(BuildContext context) {
@@ -712,23 +740,60 @@ class _ShopItemList extends StatelessWidget {
       itemBuilder: (context, index) {
         final itemId = items[index];
         final item = itemDefsById[itemId];
-        return Column(
+        return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              item?.name ?? itemId.name,
-              style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
-            ),
-            if (item != null)
-              Text(
-                item.description,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.white54,
-                ),
+            _ListIcon(image: itemIcons[itemId], placeholder: Icons.local_offer),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item?.name ?? itemId.name,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.white70,
+                    ),
+                  ),
+                  if (item != null)
+                    Text(
+                      item.description,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white54,
+                      ),
+                    ),
+                ],
               ),
+            ),
           ],
         );
       },
+    );
+  }
+}
+
+class _ListIcon extends StatelessWidget {
+  const _ListIcon({required this.image, required this.placeholder});
+
+  final ui.Image? image;
+  final IconData placeholder;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: image == null
+          ? Icon(placeholder, size: 14, color: Colors.white54)
+          : Padding(
+              padding: const EdgeInsets.all(3),
+              child: RawImage(image: image, fit: BoxFit.contain),
+            ),
     );
   }
 }
