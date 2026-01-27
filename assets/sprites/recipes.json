@@ -6312,6 +6312,129 @@
       ]
     },
     {
+      "id": "effect_level_up_seal",
+      "kind": "skill",
+      "outputName": "effect_level_up_seal.png",
+      "size": 48,
+      "seed": 412,
+      "palette": {
+        "primary": "#E9D8A6",
+        "shadow": "#8C7A4B",
+        "accent": "#F7F1E2",
+        "outline": "#2C2A24",
+        "highlight": "#FFFFFF"
+      },
+      "shapes": [
+        {
+          "type": "circle",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "primary",
+          "radius": 18,
+          "filled": false,
+          "thickness": 2
+        },
+        {
+          "type": "circle",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "accent",
+          "radius": 13,
+          "filled": false,
+          "thickness": 1
+        },
+        {
+          "type": "arc",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "highlight",
+          "radius": 18,
+          "startAngle": -70,
+          "sweepAngle": 40,
+          "thickness": 2
+        },
+        {
+          "type": "arc",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "highlight",
+          "radius": 18,
+          "startAngle": 110,
+          "sweepAngle": 40,
+          "thickness": 2
+        },
+        {
+          "type": "line",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "accent",
+          "start": [
+            -4,
+            0
+          ],
+          "end": [
+            4,
+            0
+          ],
+          "thickness": 1
+        },
+        {
+          "type": "line",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "accent",
+          "start": [
+            0,
+            -4
+          ],
+          "end": [
+            0,
+            4
+          ],
+          "thickness": 1
+        },
+        {
+          "type": "rect",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "primary",
+          "size": [
+            4,
+            4
+          ],
+          "filled": false,
+          "thickness": 1
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
+      ]
+    },
+    {
       "id": "skill_sword_deflect",
       "kind": "skill",
       "outputName": "skill_sword_deflect.png",
