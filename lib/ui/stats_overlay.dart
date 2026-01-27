@@ -1,16 +1,27 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 
+import '../data/ids.dart';
 import 'run_stats_content.dart';
 import 'stats_screen_state.dart';
 import 'ui_scale.dart';
 
 class StatsOverlay extends StatelessWidget {
-  const StatsOverlay({super.key, required this.state, required this.onClose});
+  const StatsOverlay({
+    super.key,
+    required this.state,
+    required this.onClose,
+    required this.skillIcons,
+    required this.itemIcons,
+  });
 
   static const String overlayKey = 'stats_overlay';
 
   final StatsScreenState state;
   final VoidCallback onClose;
+  final Map<SkillId, ui.Image?> skillIcons;
+  final Map<ItemId, ui.Image?> itemIcons;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +59,13 @@ class StatsOverlay extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      Expanded(child: RunStatsContent(state: state)),
+                      Expanded(
+                        child: RunStatsContent(
+                          state: state,
+                          skillIcons: skillIcons,
+                          itemIcons: itemIcons,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       Text(
                         'Press Tab to return',

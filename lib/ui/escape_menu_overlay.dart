@@ -1,7 +1,10 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 
 import '../game/stress_stats.dart';
 import '../game/meta_currency_wallet.dart';
+import '../data/ids.dart';
 import 'run_stats_content.dart';
 import 'start_menu_entries.dart';
 import 'stats_screen_state.dart';
@@ -17,6 +20,8 @@ class EscapeMenuOverlay extends StatelessWidget {
     required this.onOptions,
     required this.onCompendium,
     required this.onMetaUnlocks,
+    required this.skillIcons,
+    required this.itemIcons,
     this.onStressTest,
     this.onExit,
     this.stressStats,
@@ -37,6 +42,8 @@ class EscapeMenuOverlay extends StatelessWidget {
   final VoidCallback onOptions;
   final VoidCallback onCompendium;
   final VoidCallback onMetaUnlocks;
+  final Map<SkillId, ui.Image?> skillIcons;
+  final Map<ItemId, ui.Image?> itemIcons;
   final VoidCallback? onStressTest;
   final VoidCallback? onExit;
   final StressStatsSnapshot? stressStats;
@@ -56,6 +63,8 @@ class EscapeMenuOverlay extends StatelessWidget {
                 onAbort: onAbort!,
                 statsState: statsState!,
                 stressStats: stressStats,
+                skillIcons: skillIcons,
+                itemIcons: itemIcons,
               )
             : _OutOfRunMenuLayout(
                 wallet: wallet,
@@ -79,6 +88,8 @@ class _InRunMenuLayout extends StatelessWidget {
     required this.onAbort,
     required this.statsState,
     required this.stressStats,
+    required this.skillIcons,
+    required this.itemIcons,
   });
 
   final VoidCallback onClose;
@@ -86,6 +97,8 @@ class _InRunMenuLayout extends StatelessWidget {
   final VoidCallback onAbort;
   final StatsScreenState statsState;
   final StressStatsSnapshot? stressStats;
+  final Map<SkillId, ui.Image?> skillIcons;
+  final Map<ItemId, ui.Image?> itemIcons;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +147,11 @@ class _InRunMenuLayout extends StatelessWidget {
                             ],
                             Expanded(
                               child: _InRunPanel(
-                                child: RunStatsContent(state: statsState),
+                                child: RunStatsContent(
+                                  state: statsState,
+                                  skillIcons: skillIcons,
+                                  itemIcons: itemIcons,
+                                ),
                               ),
                             ),
                           ],

@@ -1,13 +1,23 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 
+import '../data/ids.dart';
 import 'run_stats_content.dart';
 import 'stats_screen_state.dart';
 import 'ui_scale.dart';
 
 class RunStatsPanel extends StatelessWidget {
-  const RunStatsPanel({super.key, required this.state});
+  const RunStatsPanel({
+    super.key,
+    required this.state,
+    required this.skillIcons,
+    required this.itemIcons,
+  });
 
   final StatsScreenState state;
+  final Map<SkillId, ui.Image?> skillIcons;
+  final Map<ItemId, ui.Image?> itemIcons;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +46,13 @@ class RunStatsPanel extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Expanded(child: RunStatsContent(state: state)),
+                  Expanded(
+                    child: RunStatsContent(
+                      state: state,
+                      skillIcons: skillIcons,
+                      itemIcons: itemIcons,
+                    ),
+                  ),
                 ],
               );
             },
