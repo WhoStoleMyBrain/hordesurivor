@@ -40,6 +40,7 @@ import '../render/projectile_batch_component.dart';
 import '../render/projectile_component.dart';
 import '../render/pickup_component.dart';
 import '../render/pickup_spark_component.dart';
+import '../render/level_up_pulse_component.dart';
 import '../render/sprite_pipeline.dart';
 import '../render/summon_component.dart';
 import '../ui/area_select_screen.dart';
@@ -125,6 +126,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _panDeadZone = 8;
   static const double _panMaxRadius = 72;
   static const String _projectileSpriteId = 'projectile_firebolt';
+  static const String _levelUpSealSpriteId = 'effect_level_up_seal';
   static const Map<PickupKind, String> _pickupSpriteIds = {
     PickupKind.xpOrb: 'pickup_xp_orb',
     PickupKind.goldCoin: 'pickup_gold_coin',
@@ -155,6 +157,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _pickupMagnetStartSpeed = 120;
   static const double _pickupMagnetAcceleration = 560;
   static const double _pickupMagnetMaxSpeed = 520;
+  static const double _levelUpAnimationDuration = 0.7;
+  static const double _levelUpPushRadius = 140;
+  static const double _levelUpPushForce = 220;
+  static const double _levelUpPushDuration = 0.35;
   static const double _shopCooldownSeconds = 60;
   static const double _shopDiscountPercent = 0.25;
   static const int _shopExitGoldReward = 20;
@@ -193,6 +199,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Map<ItemId, Image?> _itemIcons = {};
   final Map<SkillId, Image> _meleeSwipeSprites = {};
   Image? _projectileSprite;
+  Image? _levelUpSealSprite;
   final Map<PickupKind, Image?> _pickupSprites = {};
   ProjectileBatchComponent? _projectileBatchComponent;
   final Set<LogicalKeyboardKey> _keysPressed = {};
@@ -267,6 +274,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const bool _damageNumbersEnabled = false;
   final List<DamageNumberComponent> _damageNumberPool = [];
   final List<PickupSparkComponent> _pickupSparkPool = [];
+  final List<LevelUpPulseComponent> _levelUpPulsePool = [];
   final TextPaint _enemyDamagePaint = TextPaint(
     style: const TextStyle(
       color: Color(0xFFFFD166),
@@ -296,6 +304,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Vector2 _damageNumberPosition = Vector2.zero();
   final Vector2 _damageNumberVelocity = Vector2.zero();
   final Vector2 _pickupSparkPosition = Vector2.zero();
+  final Vector2 _levelUpPulsePosition = Vector2.zero();
   final Vector2 _portalPosition = Vector2.zero();
   final Vector2 _characterSelectorPosition = Vector2.zero();
   EnemyState? _debugHighlightedEnemy;
@@ -329,6 +338,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   List<String> _activeContractNames = const [];
   bool _tutorialSeen = false;
   bool _menuReturnPending = false;
+  bool _levelUpAnimationActive = false;
+  double _levelUpAnimationTimer = 0;
+  bool _levelUpAnimationQueued = false;
 
   PlayerHudState get hudState => _hudState;
   SelectionState get selectionState => _selectionState;
@@ -435,6 +447,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _projectileSprite = _spritePipeline.lookup(_projectileSpriteId);
     if (_projectileSprite == null) {
       debugPrint('Sprite cache missing $_projectileSpriteId.');
+    }
+    _levelUpSealSprite = _spritePipeline.lookup(_levelUpSealSpriteId);
+    if (_levelUpSealSprite == null) {
+      debugPrint('Sprite cache missing $_levelUpSealSpriteId.');
     }
     for (final entry in _pickupSpriteIds.entries) {
       final image = _spritePipeline.lookup(entry.value);
@@ -671,6 +687,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _step(double dt) {
     if (!_spawnerReady) {
+      return;
+    }
+    _updateLevelUpSequence(dt);
+    if (_levelUpAnimationActive) {
+      _playerState.movementIntent.setZero();
+      _playerComponent.syncWithState();
+      _syncHudState();
       return;
     }
     if (_selectionState.active ||
@@ -1544,6 +1567,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
   }
 
+  void _spawnLevelUpPulse(Vector2 position) {
+    if (_levelUpSealSprite == null) {
+      return;
+    }
+    final component = _acquireLevelUpPulse();
+    _levelUpPulsePosition.setFrom(position);
+    component.reset(position: _levelUpPulsePosition);
+    if (!component.isMounted) {
+      world.add(component);
+    }
+  }
+
   DamageNumberComponent _acquireDamageNumber() {
     if (_damageNumberPool.isNotEmpty) {
       return _damageNumberPool.removeLast();
@@ -1569,6 +1604,21 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _releasePickupSpark(PickupSparkComponent component) {
     component.removeFromParent();
     _pickupSparkPool.add(component);
+  }
+
+  LevelUpPulseComponent _acquireLevelUpPulse() {
+    if (_levelUpPulsePool.isNotEmpty) {
+      return _levelUpPulsePool.removeLast();
+    }
+    return LevelUpPulseComponent(
+      sprite: _levelUpSealSprite!,
+      onComplete: _releaseLevelUpPulse,
+    );
+  }
+
+  void _releaseLevelUpPulse(LevelUpPulseComponent component) {
+    component.removeFromParent();
+    _levelUpPulsePool.add(component);
   }
 
   void selectChoice(SelectionChoice choice) {
@@ -1729,13 +1779,75 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _syncSelectionState(trackId);
   }
 
+  void _startLevelUpSequence() {
+    _selectionState.clear();
+    overlays.remove(SelectionOverlay.overlayKey);
+    _activeSelectionTrackId = null;
+    _levelUpAnimationActive = true;
+    _levelUpAnimationTimer = _levelUpAnimationDuration;
+    _levelUpAnimationQueued = false;
+    _spawnLevelUpPulse(_playerState.position);
+    _pushEnemiesFromPlayer();
+  }
+
+  void _updateLevelUpSequence(double dt) {
+    if (!_levelUpAnimationActive) {
+      return;
+    }
+    _levelUpAnimationTimer = math.max(0, _levelUpAnimationTimer - dt);
+    if (_levelUpAnimationTimer > 0) {
+      return;
+    }
+    _levelUpAnimationActive = false;
+    _offerSelectionIfNeeded();
+  }
+
+  void _pushEnemiesFromPlayer() {
+    final px = _playerState.position.x;
+    final py = _playerState.position.y;
+    final radiusSquared = _levelUpPushRadius * _levelUpPushRadius;
+    for (final enemy in _enemyPool.active) {
+      if (!enemy.active) {
+        continue;
+      }
+      final dx = enemy.position.x - px;
+      final dy = enemy.position.y - py;
+      final distanceSquared = dx * dx + dy * dy;
+      if (distanceSquared <= 0 || distanceSquared > radiusSquared) {
+        continue;
+      }
+      final distance = math.sqrt(distanceSquared);
+      if (distance <= 0) {
+        continue;
+      }
+      final falloff = 1 - (distance / _levelUpPushRadius);
+      final force = _levelUpPushForce * falloff;
+      enemy.applyKnockback(
+        directionX: dx,
+        directionY: dy,
+        force: force,
+        duration: _levelUpPushDuration,
+      );
+    }
+  }
+
   void _offerSelectionIfNeeded() {
+    if (_levelUpAnimationActive) {
+      return;
+    }
     final nextTrackId = _levelUpSystem.nextPendingTrackId;
     if (nextTrackId == null) {
       _shopPending = false;
       _selectionState.clear();
       overlays.remove(SelectionOverlay.overlayKey);
       _activeSelectionTrackId = null;
+      _levelUpAnimationQueued = false;
+      return;
+    }
+    if (nextTrackId == ProgressionTrackId.skills &&
+        _levelUpAnimationQueued &&
+        _flowState == GameFlowState.stage) {
+      _startLevelUpSequence();
       return;
     }
     if (nextTrackId == ProgressionTrackId.items && !_isShopReady()) {
@@ -2549,6 +2661,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
   }
 
+  void _queueLevelUp(ProgressionGain gain) {
+    _levelUpSystem.queueLevels(gain.trackId, gain.levelsGained);
+    if (gain.trackId == ProgressionTrackId.skills) {
+      _levelUpAnimationQueued = true;
+    }
+    _offerSelectionIfNeeded();
+  }
+
   void _handleStageMilestone(StageMilestone milestone) {
     final message = milestone.label.isEmpty
         ? 'MILESTONE!'
@@ -2561,8 +2681,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         milestone.xpReward,
       );
       if (gain != null && gain.levelsGained > 0) {
-        _levelUpSystem.queueLevels(gain.trackId, gain.levelsGained);
-        _offerSelectionIfNeeded();
+        _queueLevelUp(gain);
       }
     }
     if (milestone.bonusWaveCount <= 0) {
@@ -2732,6 +2851,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       component.removeFromParent();
       _pickupSparkPool.add(component);
     }
+    for (final component
+        in world.children.whereType<LevelUpPulseComponent>().toList()) {
+      component.removeFromParent();
+      _levelUpPulsePool.add(component);
+    }
+    _levelUpAnimationActive = false;
+    _levelUpAnimationTimer = 0;
+    _levelUpAnimationQueued = false;
   }
 
   void _handlePlayerDefeated() {
@@ -2857,8 +2984,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       }
       final gain = _progressionSystem.addCurrency(currencyId, adjustedValue);
       if (gain != null && gain.levelsGained > 0) {
-        _levelUpSystem.queueLevels(gain.trackId, gain.levelsGained);
-        _offerSelectionIfNeeded();
+        _queueLevelUp(gain);
       }
       if (pickup.kind == PickupKind.goldCoin && pickup.bonusValue > 0) {
         _goldWallet += pickup.bonusValue;
