@@ -72,6 +72,7 @@ class RunStatsContent extends StatelessWidget {
                   skills: state.skills,
                   skillIcons: skillIcons,
                   skillLevels: state.skillLevels,
+                  statValues: state.statValues,
                 ),
                 _UpgradesTab(
                   skillUpgrades: state.upgrades,
@@ -239,11 +240,13 @@ class _SkillsTab extends StatelessWidget {
     required this.skills,
     required this.skillIcons,
     required this.skillLevels,
+    required this.statValues,
   });
 
   final List<SkillId> skills;
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<SkillId, SkillProgressSnapshot> skillLevels;
+  final Map<StatId, double> statValues;
 
   @override
   Widget build(BuildContext context) {
@@ -270,6 +273,7 @@ class _SkillsTab extends StatelessWidget {
           iconWidget: SkillHoverTooltip(
             skillId: id,
             skillLevels: skillLevels,
+            statValues: statValues,
             child: _IconSlot(
               image: skillIcons[id],
               placeholder: Icons.auto_fix_high,

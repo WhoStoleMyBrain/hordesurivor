@@ -9,6 +9,7 @@ import '../data/skill_defs.dart';
 import '../data/status_effect_defs.dart';
 import '../data/tags.dart';
 import 'item_rarity_style.dart';
+import 'skill_detail_line_text.dart';
 import 'skill_hover_tooltip.dart';
 import 'skill_detail_text.dart';
 import 'stat_text.dart';
@@ -135,6 +136,7 @@ class _SkillList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: skills.length,
@@ -142,12 +144,29 @@ class _SkillList extends StatelessWidget {
       itemBuilder: (context, index) {
         final skill = skills[index];
         final badges = tagBadgesForTags(skill.tags);
+        final detailLines = skillDetailDisplayLinesFor(skill.id, const {});
+        final detailsWidget = detailLines.isEmpty
+            ? null
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final line in detailLines)
+                    SkillDetailLineText(
+                      line: line,
+                      showBullet: true,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white60,
+                        height: 1.35,
+                      ),
+                    ),
+                ],
+              );
         return SkillHoverTooltip(
           skillId: skill.id,
           child: _CompendiumCard(
             title: skill.name,
             description: skill.description,
-            details: skillDetailBlockFor(skill.id),
+            detailsWidget: detailsWidget,
             badges: badges,
           ),
         );
@@ -210,6 +229,7 @@ class _CompendiumCard extends StatelessWidget {
     required this.title,
     required this.description,
     this.details,
+    this.detailsWidget,
     this.iconImage,
     this.showIconSlot = false,
     required this.badges,
@@ -220,6 +240,7 @@ class _CompendiumCard extends StatelessWidget {
   final String title;
   final String description;
   final String? details;
+  final Widget? detailsWidget;
   final ui.Image? iconImage;
   final bool showIconSlot;
   final List<TagBadgeData> badges;
@@ -282,7 +303,10 @@ class _CompendiumCard extends StatelessWidget {
                 ),
               ),
             ],
-            if (details != null && details!.isNotEmpty) ...[
+            if (detailsWidget != null) ...[
+              const SizedBox(height: 8),
+              detailsWidget!,
+            ] else if (details != null && details!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
                 details!,

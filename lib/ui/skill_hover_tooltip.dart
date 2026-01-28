@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../data/ids.dart';
 import '../data/skill_defs.dart';
+import '../data/stat_defs.dart';
 import '../game/skill_progression_system.dart';
+import 'skill_detail_line_text.dart';
 import 'skill_detail_text.dart';
 
 class SkillHoverTooltip extends StatefulWidget {
@@ -11,11 +13,13 @@ class SkillHoverTooltip extends StatefulWidget {
     required this.skillId,
     required this.child,
     this.skillLevels = const {},
+    this.statValues = const {},
   });
 
   final SkillId skillId;
   final Widget child;
   final Map<SkillId, SkillProgressSnapshot> skillLevels;
+  final Map<StatId, double> statValues;
 
   @override
   State<SkillHoverTooltip> createState() => _SkillHoverTooltipState();
@@ -50,6 +54,7 @@ class _SkillHoverTooltipState extends State<SkillHoverTooltip> {
                   child: _SkillTooltipCard(
                     skillId: widget.skillId,
                     skillLevels: widget.skillLevels,
+                    statValues: widget.statValues,
                   ),
                 ),
               ),
@@ -77,10 +82,15 @@ class _SkillHoverTooltipState extends State<SkillHoverTooltip> {
 }
 
 class _SkillTooltipCard extends StatelessWidget {
-  const _SkillTooltipCard({required this.skillId, required this.skillLevels});
+  const _SkillTooltipCard({
+    required this.skillId,
+    required this.skillLevels,
+    required this.statValues,
+  });
 
   final SkillId skillId;
   final Map<SkillId, SkillProgressSnapshot> skillLevels;
+  final Map<StatId, double> statValues;
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +99,7 @@ class _SkillTooltipCard extends StatelessWidget {
     final snapshot = skillLevels[skillId] ?? _fallbackSnapshot(skill);
     final xpToNext = snapshot.xpToNext <= 0 ? 1 : snapshot.xpToNext;
     final progress = (snapshot.currentXp / xpToNext).clamp(0.0, 1.0);
-    final detailLines = skillDetailTextLinesFor(skillId);
+    final detailLines = skillDetailDisplayLinesFor(skillId, statValues);
 
     return Container(
       width: 240,
@@ -158,8 +168,8 @@ class _SkillTooltipCard extends StatelessWidget {
             if (detailLines.isNotEmpty) ...[
               const SizedBox(height: 6),
               for (final line in detailLines)
-                Text(
-                  line,
+                SkillDetailLineText(
+                  line: line,
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: Colors.white54,
                   ),
