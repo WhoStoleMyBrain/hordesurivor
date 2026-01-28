@@ -136,13 +136,6 @@ class HudStatsContent extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               _HudStatRow(
-                label: 'SHOP XP',
-                value: '${hudState.gold}/${hudState.goldToNext}',
-                labelStyle: statLabelStyle,
-                valueStyle: statValueStyle,
-              ),
-              const SizedBox(height: 2),
-              _HudStatRow(
                 label: 'GOLD',
                 value: '${hudState.goldWallet}',
                 labelStyle: statLabelStyle,

@@ -41,6 +41,9 @@ import '../render/projectile_component.dart';
 import '../render/pickup_component.dart';
 import '../render/pickup_spark_component.dart';
 import '../render/level_up_pulse_component.dart';
+import '../render/shop_indicator_component.dart';
+import '../render/shop_objective_component.dart';
+import '../render/shop_prompt_component.dart';
 import '../render/sprite_pipeline.dart';
 import '../render/summon_component.dart';
 import '../ui/area_select_screen.dart';
@@ -161,13 +164,17 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _levelUpPushRadius = 140;
   static const double _levelUpPushForce = 220;
   static const double _levelUpPushDuration = 0.35;
-  static const double _shopCooldownSeconds = 60;
   static const double _shopDiscountPercent = 0.25;
   static const int _shopExitGoldReward = 20;
   static const int _shopExitBonusSlots = 1;
   static const double _shopExitXpBuffPercent = 0.2;
   static const double _shopExitXpBuffDuration = 45;
-  static const double _shopPendingXpScale = 0.5;
+  static const double _shopSpawnDelayMin = 60;
+  static const double _shopSpawnDelayMax = 120;
+  static const double _shopInteractRadius = 48;
+  static const double _shopIndicatorPadding = 28;
+  static const double _shopPromptOffset = 18;
+  static const String _shopSpriteId = 'objective_sanctum_shop';
   static const String _tutorialSeenPrefsKey = 'tutorial_seen';
   static const TagSet _igniteDamageTags = TagSet(
     elements: {ElementTag.fire},
@@ -241,8 +248,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final RunSummary _runSummary = RunSummary();
   final RunAnalysisState _runAnalysisState = RunAnalysisState();
   int _goldWallet = 0;
-  double _lastShopSelectionTime = 0;
-  bool _shopPending = false;
+  double _shopSpawnTimer = 0;
+  bool _shopActive = false;
+  bool _shopInteractionAvailable = false;
   bool _shopSessionActive = false;
   bool _shopRerolled = false;
   int _pendingShopRerollTokens = 0;
@@ -301,12 +309,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final math.Random _skillRandom = math.Random(37);
   final math.Random _summonRandom = math.Random(43);
   final math.Random _rewardRandom = math.Random(47);
+  final math.Random _shopRandom = math.Random(53);
   final Vector2 _damageNumberPosition = Vector2.zero();
   final Vector2 _damageNumberVelocity = Vector2.zero();
   final Vector2 _pickupSparkPosition = Vector2.zero();
   final Vector2 _levelUpPulsePosition = Vector2.zero();
   final Vector2 _portalPosition = Vector2.zero();
   final Vector2 _characterSelectorPosition = Vector2.zero();
+  final Vector2 _shopPosition = Vector2.zero();
+  Image? _shopSprite;
+  ShopObjectiveComponent? _shopObjectiveComponent;
+  ShopPromptComponent? _shopPromptComponent;
+  ShopIndicatorComponent? _shopIndicatorComponent;
   EnemyState? _debugHighlightedEnemy;
   double _portalLockoutTimer = 0;
   final ValueNotifier<bool> _characterSelectorReady = ValueNotifier(false);
@@ -459,6 +473,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       }
       _pickupSprites[entry.key] = image;
     }
+    _shopSprite = _spritePipeline.lookup(_shopSpriteId);
+    if (_shopSprite == null) {
+      debugPrint('Sprite cache missing $_shopSpriteId.');
+    }
     _mapSize.setValues(_currentMapSize.width, _currentMapSize.height);
     _mapBackground = MapBackgroundComponent(
       size: _mapSize,
@@ -492,6 +510,18 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     );
     _playerComponent.syncWithState();
     await world.add(_playerComponent);
+    if (_shopSprite != null) {
+      _shopObjectiveComponent = ShopObjectiveComponent(
+        spriteImage: _shopSprite!,
+        radius: _shopInteractRadius,
+      )..visible = false;
+      await world.add(_shopObjectiveComponent!);
+      _shopPromptComponent = ShopPromptComponent()..visible = false;
+      await world.add(_shopPromptComponent!);
+      _shopIndicatorComponent = ShopIndicatorComponent(iconImage: _shopSprite!)
+        ..visible = false;
+      camera.viewport.add(_shopIndicatorComponent!);
+    }
     _applyCharacterDefinition(activeCharacter, resetRun: true);
     camera.viewfinder.anchor = Anchor.center;
     camera.setBounds(
@@ -708,7 +738,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (_xpBoostRemaining > 0) {
       _xpBoostRemaining = math.max(0, _xpBoostRemaining - dt);
     }
-    _tryOpenPendingShop();
+    _updateShopObjective(dt);
     _applyInput();
     _playerState.step(dt);
     _playerState.clampToBounds(
@@ -1110,6 +1140,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(SelectionOverlay.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     _resetPlayerProgression();
+    _scheduleNextShopSpawn();
     _resetRunSummary();
     _runAnalysisState.setActiveSkills(_skillSystem.skillIds);
     _runSummary.areaName = area.name;
@@ -1241,6 +1272,22 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _playerState.tryDash();
   }
 
+  void _openShopFromObjective() {
+    if (_inputLocked ||
+        _flowState != GameFlowState.stage ||
+        !_shopActive ||
+        !_shopInteractionAvailable ||
+        _shopSessionActive ||
+        _selectionState.active) {
+      return;
+    }
+    _shopActive = false;
+    _shopInteractionAvailable = false;
+    _setShopObjectiveVisible(false);
+    _levelUpSystem.queueLevels(ProgressionTrackId.items, 1);
+    _offerSelectionIfNeeded();
+  }
+
   @override
   KeyEventResult onKeyEvent(
     KeyEvent event,
@@ -1270,6 +1317,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       return KeyEventResult.handled;
     }
     if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyE) {
+      if (_flowState == GameFlowState.stage) {
+        _openShopFromObjective();
+        return KeyEventResult.handled;
+      }
       openCharacterSelect();
       return KeyEventResult.handled;
     }
@@ -1406,16 +1457,12 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       if (enemy.xpReward > 0) {
         final pickupKind = _rollPickupKind();
         final pickupValue = pickupKind == PickupKind.goldCoin
-            ? enemy.goldShopXpReward
-            : enemy.xpReward;
-        final bonusValue = pickupKind == PickupKind.goldCoin
             ? enemy.goldCurrencyReward
-            : 0;
+            : enemy.xpReward;
         _spawnPickup(
           kind: pickupKind,
           position: enemy.position,
           value: pickupValue,
-          bonusValue: bonusValue,
         );
       }
     }
@@ -1666,7 +1713,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       skillSystem: _skillSystem,
     );
     if (trackId == ProgressionTrackId.items) {
-      _recordShopSelection();
       _closeShopSession();
     } else {
       _activeSkipReward = null;
@@ -1684,7 +1730,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     _levelUpSystem.skipChoice(trackId: trackId, playerState: _playerState);
     if (trackId == ProgressionTrackId.items) {
-      _recordShopSelection();
       final rewardAvailable = _shopExitRewardAvailable();
       final message = rewardAvailable && !stressTest
           ? _applyShopExitReward()
@@ -1837,7 +1882,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     final nextTrackId = _levelUpSystem.nextPendingTrackId;
     if (nextTrackId == null) {
-      _shopPending = false;
       _selectionState.clear();
       overlays.remove(SelectionOverlay.overlayKey);
       _activeSelectionTrackId = null;
@@ -1848,13 +1892,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         _levelUpAnimationQueued &&
         _flowState == GameFlowState.stage) {
       _startLevelUpSequence();
-      return;
-    }
-    if (nextTrackId == ProgressionTrackId.items && !_isShopReady()) {
-      _shopPending = true;
-      _selectionState.clear();
-      overlays.remove(SelectionOverlay.overlayKey);
-      _activeSelectionTrackId = null;
       return;
     }
     if (nextTrackId == ProgressionTrackId.items) {
@@ -1882,9 +1919,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _pendingShopRarityBoostTokens = 0;
     }
     if (_levelUpSystem.hasChoices) {
-      if (nextTrackId == ProgressionTrackId.items) {
-        _shopPending = false;
-      }
       _activeSelectionTrackId = nextTrackId;
       _syncSelectionState(nextTrackId);
       _runAnalysisState.recordOffer(_levelUpSystem.choices);
@@ -1953,21 +1987,125 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.add(SelectionOverlay.overlayKey);
   }
 
-  bool _isShopReady() {
-    return (_runSummary.timeAlive - _lastShopSelectionTime) >=
-        _shopCooldownSeconds;
+  void _scheduleNextShopSpawn() {
+    _shopSpawnTimer = _rollShopSpawnDelay();
+    _shopActive = false;
+    _shopInteractionAvailable = false;
+    _setShopObjectiveVisible(false);
   }
 
-  void _recordShopSelection() {
-    _lastShopSelectionTime = _runSummary.timeAlive;
-    _shopPending = false;
+  double _rollShopSpawnDelay() {
+    final spread = _shopSpawnDelayMax - _shopSpawnDelayMin;
+    return _shopSpawnDelayMin + _shopRandom.nextDouble() * spread;
   }
 
-  void _tryOpenPendingShop() {
-    if (!_shopPending || !_isShopReady()) {
+  void _updateShopObjective(double dt) {
+    if (_flowState != GameFlowState.stage || _shopObjectiveComponent == null) {
       return;
     }
-    _offerSelectionIfNeeded();
+    if (!_shopActive) {
+      _shopSpawnTimer = math.max(0, _shopSpawnTimer - dt);
+      if (_shopSpawnTimer <= 0) {
+        _spawnShopObjective();
+      }
+      return;
+    }
+    final distance = _shopPosition.distanceTo(_playerState.position);
+    final inRange = distance <= _shopInteractRadius;
+    _shopInteractionAvailable = inRange;
+    final prompt = _shopPromptComponent;
+    if (prompt != null) {
+      prompt.visible = inRange;
+      prompt.position.setFrom(
+        _playerState.position + Vector2(0, _playerRadius + _shopPromptOffset),
+      );
+    }
+    _updateShopIndicator(distance);
+  }
+
+  void _spawnShopObjective() {
+    final objective = _shopObjectiveComponent;
+    if (objective == null) {
+      return;
+    }
+    _shopPosition.setFrom(_rollShopSpawnPosition());
+    objective.position.setFrom(_shopPosition);
+    _shopActive = true;
+    _shopInteractionAvailable = false;
+    objective.visible = true;
+    _updateShopIndicator(_shopPosition.distanceTo(_playerState.position));
+  }
+
+  Vector2 _rollShopSpawnPosition() {
+    final margin = _shopInteractRadius + 48;
+    final minX = margin;
+    final maxX = math.max(minX, _mapSize.x - margin);
+    final minY = margin;
+    final maxY = math.max(minY, _mapSize.y - margin);
+    final minDistance = _shopInteractRadius * 4;
+    final position = Vector2.zero();
+    for (var attempt = 0; attempt < 10; attempt++) {
+      position.setValues(
+        _shopRandom.nextDouble() * (maxX - minX) + minX,
+        _shopRandom.nextDouble() * (maxY - minY) + minY,
+      );
+      if (position.distanceTo(_playerState.position) >= minDistance) {
+        return position.clone();
+      }
+    }
+    return Vector2(
+      _shopRandom.nextDouble() * (maxX - minX) + minX,
+      _shopRandom.nextDouble() * (maxY - minY) + minY,
+    );
+  }
+
+  double _shopVisionRadius() {
+    final zoom = camera.viewfinder.zoom;
+    final width = GameSizes.cameraViewportSize.width / zoom;
+    final height = GameSizes.cameraViewportSize.height / zoom;
+    return math.min(width, height) * 0.5;
+  }
+
+  void _updateShopIndicator(double distance) {
+    final indicator = _shopIndicatorComponent;
+    if (indicator == null) {
+      return;
+    }
+    if (!_shopActive) {
+      indicator.visible = false;
+      return;
+    }
+    final visionRadius = _shopVisionRadius();
+    if (distance <= visionRadius) {
+      indicator.visible = false;
+      return;
+    }
+    final direction = _shopPosition.clone()..sub(_playerState.position);
+    if (direction.length2 == 0) {
+      indicator.visible = false;
+      return;
+    }
+    direction.normalize();
+    final center = Vector2(
+      GameSizes.cameraViewportSize.width / 2,
+      GameSizes.cameraViewportSize.height / 2,
+    );
+    final indicatorRadius =
+        math.min(center.x, center.y) - _shopIndicatorPadding;
+    indicator.position
+      ..setFrom(direction)
+      ..scale(indicatorRadius)
+      ..add(center);
+    indicator.setDirection(direction);
+    indicator.visible = true;
+  }
+
+  void _setShopObjectiveVisible(bool visible) {
+    _shopObjectiveComponent?.visible = visible;
+    if (!visible) {
+      _shopPromptComponent?.visible = false;
+      _shopIndicatorComponent?.visible = false;
+    }
   }
 
   Map<ItemId, int> _buildShopPriceMap(
@@ -2021,17 +2159,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     return math.max(1, boosted);
   }
 
-  int _applyShopPendingXpRate(int baseValue) {
-    if (baseValue <= 0) {
-      return baseValue;
-    }
-    if (!_shopPending || _isShopReady() || _shopSessionActive) {
-      return baseValue;
-    }
-    final reduced = (baseValue * _shopPendingXpScale).round();
-    return math.max(1, reduced);
-  }
-
   void _startShopSession() {
     if (_shopSessionActive) {
       return;
@@ -2053,6 +2180,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _activeShopBonusChoices = 0;
     _shopRarityBoostsApplied = 0;
     _activeShopExitReward = null;
+    if (_flowState == GameFlowState.stage) {
+      _scheduleNextShopSpawn();
+    }
   }
 
   bool _shopExitRewardAvailable([Set<ItemId>? lockedItems]) {
@@ -2174,7 +2304,6 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final inStage = _flowState == GameFlowState.stage && stageTimer != null;
     final buildTags = _collectBuildTags();
     final skillTrack = _progressionSystem.trackForId(ProgressionTrackId.skills);
-    final itemTrack = _progressionSystem.trackForId(ProgressionTrackId.items);
     _hudState.update(
       hp: _playerState.hp,
       maxHp: _playerState.maxHp,
@@ -2183,8 +2312,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       level: skillTrack.level,
       xp: skillTrack.currentCurrency,
       xpToNext: skillTrack.currencyToNext,
-      gold: itemTrack.currentCurrency,
-      goldToNext: itemTrack.currencyToNext,
+      gold: 0,
+      goldToNext: 0,
       goldWallet: _goldWallet,
       score: inStage ? _runSummary.score : 0,
       showPerformance: stressTest,
@@ -2339,6 +2468,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     if (_inputLocked) {
       _keysPressed.clear();
       _keyboardDirection.setZero();
+      _shopPromptComponent?.visible = false;
+      _shopIndicatorComponent?.visible = false;
       _resetPointerInput();
     }
   }
@@ -2819,6 +2950,9 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _resetStageActors() {
     _clearDebugHighlight();
+    _shopActive = false;
+    _shopInteractionAvailable = false;
+    _setShopObjectiveVisible(false);
     for (final projectile in List<ProjectileState>.from(
       _projectilePool.active,
     )) {
@@ -2974,21 +3108,16 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _collectPickup(PickupState pickup) {
     if (!stressTest) {
       final currencyId = _currencyByPickupKind[pickup.kind] ?? CurrencyId.xp;
-      final adjustedValue = currencyId == CurrencyId.xp
-          ? _applyXpBoost(pickup.value)
-          : currencyId == CurrencyId.gold
-          ? _applyShopPendingXpRate(pickup.value)
-          : pickup.value;
       if (currencyId == CurrencyId.xp) {
+        final adjustedValue = _applyXpBoost(pickup.value);
         _runSummary.xpGained += adjustedValue;
-      }
-      final gain = _progressionSystem.addCurrency(currencyId, adjustedValue);
-      if (gain != null && gain.levelsGained > 0) {
-        _queueLevelUp(gain);
-      }
-      if (pickup.kind == PickupKind.goldCoin && pickup.bonusValue > 0) {
-        _goldWallet += pickup.bonusValue;
-        _runSummary.goldGained += pickup.bonusValue;
+        final gain = _progressionSystem.addCurrency(currencyId, adjustedValue);
+        if (gain != null && gain.levelsGained > 0) {
+          _queueLevelUp(gain);
+        }
+      } else if (currencyId == CurrencyId.gold) {
+        _goldWallet += pickup.value;
+        _runSummary.goldGained += pickup.value;
       }
     }
     _spawnPickupSpark(pickup.position);
@@ -3073,8 +3202,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _levelUpSystem.resetForRun(playerState: _playerState);
     _activeSelectionTrackId = null;
     _goldWallet = 0;
-    _lastShopSelectionTime = 0;
-    _shopPending = false;
+    _shopSpawnTimer = 0;
+    _shopActive = false;
+    _shopInteractionAvailable = false;
+    _setShopObjectiveVisible(false);
     _shopSessionActive = false;
     _shopRerolled = false;
     _pendingShopRerollTokens = 0;

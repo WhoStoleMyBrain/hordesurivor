@@ -119,7 +119,6 @@ class EnemySystem {
         spawnRadius: request.spawnRadius,
         spawnEnemyId: request.spawnEnemyId,
         goldCurrencyReward: request.goldCurrencyReward,
-        goldShopXpReward: request.goldShopXpReward,
         spawnRewardMultiplier: request.spawnRewardMultiplier,
       );
       _onSpawn(spawned);
@@ -207,11 +206,6 @@ class EnemySystem {
           spawnEnemyId: def.spawnEnemyId,
           goldCurrencyReward:
               (def.goldCurrencyReward *
-                      variantDef.xpRewardMultiplier *
-                      rewardMultiplier)
-                  .round(),
-          goldShopXpReward:
-              (def.goldShopXpReward *
                       variantDef.xpRewardMultiplier *
                       rewardMultiplier)
                   .round(),
@@ -586,7 +580,6 @@ class _SpawnRequest {
     required this.moveSpeed,
     required this.xpReward,
     required this.goldCurrencyReward,
-    required this.goldShopXpReward,
     required this.attackCooldown,
     required this.attackRange,
     required this.projectileSpeed,
@@ -607,7 +600,6 @@ class _SpawnRequest {
   final double moveSpeed;
   final int xpReward;
   final int goldCurrencyReward;
-  final int goldShopXpReward;
   final double attackCooldown;
   final double attackRange;
   final double projectileSpeed;
