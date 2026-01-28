@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:hordesurivor/data/ids.dart';
 import 'package:hordesurivor/data/stat_defs.dart';
-import 'package:hordesurivor/data/weapon_upgrade_defs.dart';
 import 'package:hordesurivor/game/effect_pool.dart';
 import 'package:hordesurivor/game/level_up_system.dart';
 import 'package:hordesurivor/game/player_state.dart';

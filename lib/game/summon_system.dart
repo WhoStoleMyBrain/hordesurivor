@@ -50,6 +50,7 @@ class SummonSystem {
     onEnemyDamaged,
     required void Function(double, {TagSet tags, bool selfInflicted})
     onPlayerDamaged,
+    required void Function(SkillId, double) onPlayerHealed,
     void Function(EnemyState, SkillId?)? onSynergyHit,
   }) {
     final active = _pool.active;
@@ -79,7 +80,9 @@ class SummonSystem {
         case SummonKind.menderOrb:
           _updateOrbitingSummon(summon, playerState.position, dt);
           if (summon.healingPerSecond > 0) {
-            playerState.heal(summon.healingPerSecond * dt);
+            final healing = summon.healingPerSecond * dt;
+            playerState.heal(healing);
+            onPlayerHealed(summon.sourceSkillId, healing);
           }
           _applyAuraDamage(
             summon,

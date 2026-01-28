@@ -99,6 +99,7 @@ class SkillSystem {
     required void Function(EffectState) onEffectSpawn,
     required void Function(ProjectileState) onProjectileDespawn,
     required void Function(SummonState) onSummonSpawn,
+    required void Function(SkillId) onSkillCast,
     required void Function({required double radius, required double duration})
     onPlayerDeflect,
     required void Function(
@@ -133,6 +134,7 @@ class SkillSystem {
       }
       skill.cooldownRemaining -= adjustedDt;
       while (skill.cooldownRemaining < 0) {
+        onSkillCast(skill.id);
         switch (skill.id) {
           case SkillId.fireball:
             _castFireball(

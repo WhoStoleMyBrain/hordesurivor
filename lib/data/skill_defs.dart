@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'ids.dart';
+import 'level_curve.dart';
 import 'skill_display.dart';
 import 'tags.dart';
 
@@ -165,6 +166,38 @@ class SkillRootParams {
   final double maxSlowMultiplier;
 }
 
+class SkillLevelingDef {
+  const SkillLevelingDef({
+    required this.levelCurve,
+    required this.timeXpPerSecond,
+    required this.damageXpPerPoint,
+    required this.damageXpCapPerSecond,
+    required this.damageXpCapPerFiveSeconds,
+    required this.healXpPerPoint,
+    required this.healXpCapPerSecond,
+    required this.healXpCapPerFiveSeconds,
+    required this.castXp,
+    required this.castXpCapPerFiveSeconds,
+    required this.killXp,
+    required this.eliteKillXp,
+    required this.bossKillXp,
+  });
+
+  final LevelCurve levelCurve;
+  final double timeXpPerSecond;
+  final double damageXpPerPoint;
+  final double damageXpCapPerSecond;
+  final double damageXpCapPerFiveSeconds;
+  final double healXpPerPoint;
+  final double healXpCapPerSecond;
+  final double healXpCapPerFiveSeconds;
+  final double castXp;
+  final double castXpCapPerFiveSeconds;
+  final double killXp;
+  final double eliteKillXp;
+  final double bossKillXp;
+}
+
 class SkillDef {
   const SkillDef({
     required this.id,
@@ -186,6 +219,7 @@ class SkillDef {
     this.metaUnlockId,
     this.statusEffects = const {},
     this.displayDetails = const [],
+    required this.leveling,
     this.knockbackForce = 0,
     this.knockbackDuration = 0,
     this.weight = 1,
@@ -210,6 +244,7 @@ class SkillDef {
   final MetaUnlockId? metaUnlockId;
   final Set<StatusEffectId> statusEffects;
   final List<SkillDetailLine> displayDetails;
+  final SkillLevelingDef leveling;
   final double knockbackForce;
   final double knockbackDuration;
   final int weight;
@@ -445,6 +480,360 @@ const _absolutionSlapMelee = SkillMeleeParams(
   effectDuration: 0.12,
 );
 
+const _skillLevelCurve = LevelCurve(base: 60, growth: 30);
+
+const _fireballLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.36,
+  damageXpPerPoint: 0.14,
+  damageXpCapPerSecond: 10,
+  damageXpCapPerFiveSeconds: 0,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.8,
+  castXpCapPerFiveSeconds: 10,
+  killXp: 5,
+  eliteKillXp: 14,
+  bossKillXp: 24,
+);
+
+const _waterjetLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.31,
+  damageXpPerPoint: 0.08,
+  damageXpCapPerSecond: 6,
+  damageXpCapPerFiveSeconds: 22,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.2,
+  castXpCapPerFiveSeconds: 8,
+  killXp: 4,
+  eliteKillXp: 12,
+  bossKillXp: 22,
+);
+
+const _oilBombsLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.38,
+  damageXpPerPoint: 0.06,
+  damageXpCapPerSecond: 5,
+  damageXpCapPerFiveSeconds: 18,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.4,
+  castXpCapPerFiveSeconds: 9,
+  killXp: 4,
+  eliteKillXp: 12,
+  bossKillXp: 21,
+);
+
+const _swordThrustLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.29,
+  damageXpPerPoint: 0.16,
+  damageXpCapPerSecond: 12,
+  damageXpCapPerFiveSeconds: 0,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 2.1,
+  castXpCapPerFiveSeconds: 11,
+  killXp: 5,
+  eliteKillXp: 15,
+  bossKillXp: 25,
+);
+
+const _swordCutLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.33,
+  damageXpPerPoint: 0.1,
+  damageXpCapPerSecond: 8,
+  damageXpCapPerFiveSeconds: 0,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.6,
+  castXpCapPerFiveSeconds: 9,
+  killXp: 4,
+  eliteKillXp: 13,
+  bossKillXp: 23,
+);
+
+const _swordSwingLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.34,
+  damageXpPerPoint: 0.09,
+  damageXpCapPerSecond: 8,
+  damageXpCapPerFiveSeconds: 0,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.5,
+  castXpCapPerFiveSeconds: 9,
+  killXp: 4,
+  eliteKillXp: 13,
+  bossKillXp: 23,
+);
+
+const _swordDeflectLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.42,
+  damageXpPerPoint: 0.05,
+  damageXpCapPerSecond: 4,
+  damageXpCapPerFiveSeconds: 14,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 2.6,
+  castXpCapPerFiveSeconds: 12,
+  killXp: 3,
+  eliteKillXp: 11,
+  bossKillXp: 20,
+);
+
+const _poisonGasLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.4,
+  damageXpPerPoint: 0.05,
+  damageXpCapPerSecond: 4,
+  damageXpCapPerFiveSeconds: 16,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.4,
+  castXpCapPerFiveSeconds: 9,
+  killXp: 4,
+  eliteKillXp: 12,
+  bossKillXp: 21,
+);
+
+const _rootsLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.46,
+  damageXpPerPoint: 0.04,
+  damageXpCapPerSecond: 3,
+  damageXpCapPerFiveSeconds: 12,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 2.8,
+  castXpCapPerFiveSeconds: 12,
+  killXp: 3,
+  eliteKillXp: 11,
+  bossKillXp: 20,
+);
+
+const _windCutterLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.3,
+  damageXpPerPoint: 0.13,
+  damageXpCapPerSecond: 9,
+  damageXpCapPerFiveSeconds: 0,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.7,
+  castXpCapPerFiveSeconds: 10,
+  killXp: 5,
+  eliteKillXp: 14,
+  bossKillXp: 24,
+);
+
+const _steelShardsLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.34,
+  damageXpPerPoint: 0.1,
+  damageXpCapPerSecond: 8,
+  damageXpCapPerFiveSeconds: 0,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.6,
+  castXpCapPerFiveSeconds: 10,
+  killXp: 4,
+  eliteKillXp: 13,
+  bossKillXp: 23,
+);
+
+const _flameWaveLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.33,
+  damageXpPerPoint: 0.08,
+  damageXpCapPerSecond: 6,
+  damageXpCapPerFiveSeconds: 18,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.4,
+  castXpCapPerFiveSeconds: 9,
+  killXp: 4,
+  eliteKillXp: 12,
+  bossKillXp: 22,
+);
+
+const _frostNovaLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.36,
+  damageXpPerPoint: 0.07,
+  damageXpCapPerSecond: 6,
+  damageXpCapPerFiveSeconds: 16,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.5,
+  castXpCapPerFiveSeconds: 9,
+  killXp: 4,
+  eliteKillXp: 12,
+  bossKillXp: 22,
+);
+
+const _earthSpikesLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.35,
+  damageXpPerPoint: 0.09,
+  damageXpCapPerSecond: 7,
+  damageXpCapPerFiveSeconds: 0,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.6,
+  castXpCapPerFiveSeconds: 9,
+  killXp: 4,
+  eliteKillXp: 13,
+  bossKillXp: 23,
+);
+
+const _sporeBurstLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.37,
+  damageXpPerPoint: 0.06,
+  damageXpCapPerSecond: 5,
+  damageXpCapPerFiveSeconds: 18,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.4,
+  castXpCapPerFiveSeconds: 9,
+  killXp: 4,
+  eliteKillXp: 12,
+  bossKillXp: 22,
+);
+
+const _processionIdolLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.38,
+  damageXpPerPoint: 0.08,
+  damageXpCapPerSecond: 7,
+  damageXpCapPerFiveSeconds: 0,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.3,
+  castXpCapPerFiveSeconds: 8,
+  killXp: 4,
+  eliteKillXp: 12,
+  bossKillXp: 22,
+);
+
+const _vigilLanternLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.36,
+  damageXpPerPoint: 0.1,
+  damageXpCapPerSecond: 8,
+  damageXpCapPerFiveSeconds: 0,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.3,
+  castXpCapPerFiveSeconds: 8,
+  killXp: 4,
+  eliteKillXp: 13,
+  bossKillXp: 23,
+);
+
+const _guardianOrbsLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.39,
+  damageXpPerPoint: 0.07,
+  damageXpCapPerSecond: 6,
+  damageXpCapPerFiveSeconds: 16,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.2,
+  castXpCapPerFiveSeconds: 8,
+  killXp: 4,
+  eliteKillXp: 12,
+  bossKillXp: 22,
+);
+
+const _menderOrbLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.41,
+  damageXpPerPoint: 0.06,
+  damageXpCapPerSecond: 5,
+  damageXpCapPerFiveSeconds: 14,
+  healXpPerPoint: 0.12,
+  healXpCapPerSecond: 8,
+  healXpCapPerFiveSeconds: 24,
+  castXp: 1.4,
+  castXpCapPerFiveSeconds: 9,
+  killXp: 3,
+  eliteKillXp: 11,
+  bossKillXp: 20,
+);
+
+const _mineLayerLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.32,
+  damageXpPerPoint: 0.12,
+  damageXpCapPerSecond: 10,
+  damageXpCapPerFiveSeconds: 0,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 1.7,
+  castXpCapPerFiveSeconds: 9,
+  killXp: 5,
+  eliteKillXp: 14,
+  bossKillXp: 24,
+);
+
+const _chairThrowLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.28,
+  damageXpPerPoint: 0.15,
+  damageXpCapPerSecond: 12,
+  damageXpCapPerFiveSeconds: 0,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 2.0,
+  castXpCapPerFiveSeconds: 11,
+  killXp: 5,
+  eliteKillXp: 15,
+  bossKillXp: 25,
+);
+
+const _absolutionSlapLeveling = SkillLevelingDef(
+  levelCurve: _skillLevelCurve,
+  timeXpPerSecond: 0.31,
+  damageXpPerPoint: 0.14,
+  damageXpCapPerSecond: 11,
+  damageXpCapPerFiveSeconds: 0,
+  healXpPerPoint: 0,
+  healXpCapPerSecond: 0,
+  healXpCapPerFiveSeconds: 0,
+  castXp: 2.2,
+  castXpCapPerFiveSeconds: 11,
+  killXp: 5,
+  eliteKillXp: 15,
+  bossKillXp: 25,
+);
+
 final List<SkillDef> skillDefs = [
   SkillDef(
     id: SkillId.fireball,
@@ -472,6 +861,7 @@ final List<SkillDef> skillDefs = [
       ),
       knockbackLine(force: 80, duration: 0.18),
     ],
+    leveling: _fireballLeveling,
     knockbackForce: 80,
     knockbackDuration: 0.18,
   ),
@@ -497,6 +887,7 @@ final List<SkillDef> skillDefs = [
         duration: _waterjetBeam.slowDuration ?? 0,
       ),
     ],
+    leveling: _waterjetLeveling,
   ),
   SkillDef(
     id: SkillId.oilBombs,
@@ -530,6 +921,7 @@ final List<SkillDef> skillDefs = [
       durationLine('Oil Duration', _oilBombsGround.oilDuration ?? 0),
       knockbackLine(force: 60, duration: 0.16),
     ],
+    leveling: _oilBombsLeveling,
     knockbackForce: 60,
     knockbackDuration: 0.16,
   ),
@@ -552,6 +944,7 @@ final List<SkillDef> skillDefs = [
       arcLine(_swordThrustMelee.arcDegrees),
       knockbackLine(force: 120, duration: 0.2),
     ],
+    leveling: _swordThrustLeveling,
     knockbackForce: 120,
     knockbackDuration: 0.2,
   ),
@@ -574,6 +967,7 @@ final List<SkillDef> skillDefs = [
       arcLine(_swordCutMelee.arcDegrees),
       knockbackLine(force: 100, duration: 0.18),
     ],
+    leveling: _swordCutLeveling,
     knockbackForce: 100,
     knockbackDuration: 0.18,
   ),
@@ -596,6 +990,7 @@ final List<SkillDef> skillDefs = [
       arcLine(_swordSwingMelee.arcDegrees),
       knockbackLine(force: 135, duration: 0.22),
     ],
+    leveling: _swordSwingLeveling,
     knockbackForce: 135,
     knockbackDuration: 0.22,
   ),
@@ -621,6 +1016,7 @@ final List<SkillDef> skillDefs = [
       durationLine('Deflect Duration', _swordDeflectDeflect.duration),
       knockbackLine(force: 90, duration: 0.16),
     ],
+    leveling: _swordDeflectLeveling,
     knockbackForce: 90,
     knockbackDuration: 0.16,
   ),
@@ -645,6 +1041,7 @@ final List<SkillDef> skillDefs = [
         duration: _poisonGasGround.duration,
       ),
     ],
+    leveling: _poisonGasLeveling,
   ),
   SkillDef(
     id: SkillId.roots,
@@ -674,6 +1071,7 @@ final List<SkillDef> skillDefs = [
       ),
       rangeLine(_rootsGround.castOffset ?? 0, label: 'Cast Offset'),
     ],
+    leveling: _rootsLeveling,
   ),
   SkillDef(
     id: SkillId.windCutter,
@@ -696,6 +1094,7 @@ final List<SkillDef> skillDefs = [
       projectileRadiusLine(_windCutterProjectile.radius),
       knockbackLine(force: 70, duration: 0.16),
     ],
+    leveling: _windCutterLeveling,
     knockbackForce: 70,
     knockbackDuration: 0.16,
   ),
@@ -725,6 +1124,7 @@ final List<SkillDef> skillDefs = [
       projectileRadiusLine(_steelShardsProjectile.radius),
       knockbackLine(force: 85, duration: 0.18),
     ],
+    leveling: _steelShardsLeveling,
     knockbackForce: 85,
     knockbackDuration: 0.18,
   ),
@@ -750,6 +1150,7 @@ final List<SkillDef> skillDefs = [
       beamLengthLine(_flameWaveBeam.length),
       beamWidthLine(_flameWaveBeam.width),
     ],
+    leveling: _flameWaveLeveling,
   ),
   SkillDef(
     id: SkillId.frostNova,
@@ -777,6 +1178,7 @@ final List<SkillDef> skillDefs = [
         duration: _frostNovaGround.slowDuration ?? 0,
       ),
     ],
+    leveling: _frostNovaLeveling,
   ),
   SkillDef(
     id: SkillId.earthSpikes,
@@ -801,6 +1203,7 @@ final List<SkillDef> skillDefs = [
       durationLine('Spike Duration', _earthSpikesGround.duration),
       rangeLine(_earthSpikesGround.castOffset ?? 0, label: 'Cast Offset'),
     ],
+    leveling: _earthSpikesLeveling,
   ),
   SkillDef(
     id: SkillId.sporeBurst,
@@ -834,6 +1237,7 @@ final List<SkillDef> skillDefs = [
         duration: _sporeBurstGround.slowDuration ?? 0,
       ),
     ],
+    leveling: _sporeBurstLeveling,
   ),
   SkillDef(
     id: SkillId.processionIdol,
@@ -852,6 +1256,7 @@ final List<SkillDef> skillDefs = [
       orbitSpeedLine(_processionIdolSummon.orbitSpeed),
       moveSpeedLine(_processionIdolSummon.moveSpeed ?? 0),
     ],
+    leveling: _processionIdolLeveling,
   ),
   SkillDef(
     id: SkillId.vigilLantern,
@@ -879,6 +1284,7 @@ final List<SkillDef> skillDefs = [
       orbitRadiusLine(_vigilLanternSummon.orbitRadius),
       orbitSpeedLine(_vigilLanternSummon.orbitSpeed),
     ],
+    leveling: _vigilLanternLeveling,
   ),
   SkillDef(
     id: SkillId.guardianOrbs,
@@ -901,6 +1307,7 @@ final List<SkillDef> skillDefs = [
       orbitRadiusLine(_guardianOrbsSummon.orbitRadius),
       orbitSpeedLine(_guardianOrbsSummon.orbitSpeed),
     ],
+    leveling: _guardianOrbsLeveling,
   ),
   SkillDef(
     id: SkillId.menderOrb,
@@ -923,6 +1330,7 @@ final List<SkillDef> skillDefs = [
       orbitRadiusLine(_menderOrbSummon.orbitRadius),
       orbitSpeedLine(_menderOrbSummon.orbitSpeed),
     ],
+    leveling: _menderOrbLeveling,
   ),
   SkillDef(
     id: SkillId.mineLayer,
@@ -944,6 +1352,7 @@ final List<SkillDef> skillDefs = [
       rangeLine(_mineLayerMine.triggerRadius, label: 'Trigger Radius'),
       rangeLine(_mineLayerMine.blastRadius, label: 'Blast Radius'),
     ],
+    leveling: _mineLayerLeveling,
   ),
   SkillDef(
     id: SkillId.chairThrow,
@@ -966,6 +1375,7 @@ final List<SkillDef> skillDefs = [
       projectileRadiusLine(_chairThrowProjectile.radius),
       knockbackLine(force: 110, duration: 0.2),
     ],
+    leveling: _chairThrowLeveling,
     knockbackForce: 110,
     knockbackDuration: 0.2,
   ),
@@ -988,6 +1398,7 @@ final List<SkillDef> skillDefs = [
       arcLine(_absolutionSlapMelee.arcDegrees),
       knockbackLine(force: 95, duration: 0.16),
     ],
+    leveling: _absolutionSlapLeveling,
     knockbackForce: 95,
     knockbackDuration: 0.16,
   ),

@@ -63,6 +63,8 @@ void main() {
 
   void noopSummonSpawn(SummonState summon) {}
 
+  void noopSkillCast(SkillId skillId) {}
+
   void noopEnemyDamaged(
     EnemyState enemy,
     double damage, {
@@ -95,6 +97,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: noopEnemyDamaged,
     );
@@ -111,6 +114,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: noopEnemyDamaged,
     );
@@ -151,6 +155,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
@@ -174,6 +179,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
@@ -227,6 +233,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );
@@ -273,6 +280,7 @@ void main() {
       onEffectSpawn: effects.add,
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: noopEnemyDamaged,
     );
@@ -309,6 +317,7 @@ void main() {
       onEffectSpawn: (state) => effect = state,
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: noopEnemyDamaged,
     );
@@ -348,6 +357,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: noopEnemyDamaged,
     );
@@ -378,6 +388,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: noopEnemyDamaged,
     );
@@ -409,6 +420,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: noopEnemyDamaged,
     );
@@ -442,6 +454,7 @@ void main() {
       onEffectSpawn: (state) => effect = state,
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: noopEnemyDamaged,
     );
@@ -473,6 +486,7 @@ void main() {
       onEffectSpawn: (state) => effect = state,
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: noopEnemyDamaged,
     );
@@ -505,6 +519,7 @@ void main() {
       onEffectSpawn: (state) => effect = state,
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: noopEnemyDamaged,
     );
@@ -536,6 +551,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: noopEnemyDamaged,
     );
@@ -568,6 +584,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onSummonSpawn: (_) => summonCount++,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: noopEnemyDamaged,
     );
@@ -597,6 +614,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: noopEnemyDamaged,
     );
@@ -644,6 +662,7 @@ void main() {
       onEffectSpawn: (_) {},
       onProjectileDespawn: (_) {},
       onSummonSpawn: noopSummonSpawn,
+      onSkillCast: noopSkillCast,
       onPlayerDeflect: noopPlayerDeflect,
       onEnemyDamaged: damageSystem.queueEnemyDamage,
     );

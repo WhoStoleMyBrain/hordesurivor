@@ -11,9 +11,11 @@ import '../data/synergy_defs.dart';
 import '../data/tags.dart';
 import '../data/weapon_upgrade_defs.dart';
 import '../game/level_up_system.dart';
+import '../game/skill_progression_system.dart';
 import 'item_rarity_style.dart';
 import 'selection_state.dart';
 import 'skill_detail_text.dart';
+import 'skill_hover_tooltip.dart';
 import 'stat_baseline.dart';
 import 'stats_screen_state.dart';
 import 'stat_text.dart';
@@ -165,6 +167,7 @@ class SelectionOverlay extends StatelessWidget {
                                       skillIcons,
                                       itemIcons,
                                     ),
+                                    skillLevels: statsState.skillLevels,
                                     statValues: statsState.statValues,
                                     onPressed: isPlaceholder
                                         ? null
@@ -343,6 +346,7 @@ class _ShopOverlayLayout extends StatelessWidget {
                                     skillIcons,
                                     itemIcons,
                                   ),
+                                  skillLevels: statsState.skillLevels,
                                   statValues: statsState.statValues,
                                   onPressed: isPlaceholder
                                       ? null
@@ -380,6 +384,7 @@ class _ShopOverlayLayout extends StatelessWidget {
                         _ShopSkillRow(
                           skills: statsState.skills,
                           skillIcons: skillIcons,
+                          skillLevels: statsState.skillLevels,
                         ),
                         const SizedBox(height: 12),
                         if (selectionState.skipEnabled)
@@ -446,10 +451,15 @@ class _ShopBadge extends StatelessWidget {
 }
 
 class _ShopSkillRow extends StatelessWidget {
-  const _ShopSkillRow({required this.skills, required this.skillIcons});
+  const _ShopSkillRow({
+    required this.skills,
+    required this.skillIcons,
+    required this.skillLevels,
+  });
 
   final List<SkillId> skills;
   final Map<SkillId, ui.Image?> skillIcons;
+  final Map<SkillId, SkillProgressSnapshot> skillLevels;
 
   @override
   Widget build(BuildContext context) {
@@ -466,11 +476,9 @@ class _ShopSkillRow extends StatelessWidget {
       runSpacing: 8,
       children: [
         for (final skillId in skills)
-          Tooltip(
-            waitDuration: const Duration(milliseconds: 250),
-            preferBelow: false,
-            decoration: _tooltipDecoration(),
-            richMessage: _skillTooltip(skillId),
+          SkillHoverTooltip(
+            skillId: skillId,
+            skillLevels: skillLevels,
             child: _MiniIcon(
               image: skillIcons[skillId],
               placeholder: Icons.auto_fix_high,
@@ -618,7 +626,11 @@ class _ShopStatsPanel extends StatelessWidget {
                     statValues: state.statValues,
                     baselineValues: baselineStatValues(state.activeCharacterId),
                   ),
-                  _ShopSkillList(skills: state.skills, skillIcons: skillIcons),
+                  _ShopSkillList(
+                    skills: state.skills,
+                    skillIcons: skillIcons,
+                    skillLevels: state.skillLevels,
+                  ),
                   _ShopItemList(items: state.items, itemIcons: itemIcons),
                 ],
               ),
@@ -683,10 +695,15 @@ class _ShopStatsList extends StatelessWidget {
 }
 
 class _ShopSkillList extends StatelessWidget {
-  const _ShopSkillList({required this.skills, required this.skillIcons});
+  const _ShopSkillList({
+    required this.skills,
+    required this.skillIcons,
+    required this.skillLevels,
+  });
 
   final List<SkillId> skills;
   final Map<SkillId, ui.Image?> skillIcons;
+  final Map<SkillId, SkillProgressSnapshot> skillLevels;
 
   @override
   Widget build(BuildContext context) {
@@ -705,9 +722,13 @@ class _ShopSkillList extends StatelessWidget {
         final skill = skillDefsById[skillId];
         return Row(
           children: [
-            _ListIcon(
-              image: skillIcons[skillId],
-              placeholder: Icons.auto_fix_high,
+            SkillHoverTooltip(
+              skillId: skillId,
+              skillLevels: skillLevels,
+              child: _ListIcon(
+                image: skillIcons[skillId],
+                placeholder: Icons.auto_fix_high,
+              ),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -809,35 +830,6 @@ BoxDecoration _tooltipDecoration() {
     color: Colors.black.withValues(alpha: 0.9),
     borderRadius: BorderRadius.circular(8),
     border: Border.all(color: Colors.white24),
-  );
-}
-
-TextSpan _skillTooltip(SkillId skillId) {
-  final skill = skillDefsById[skillId];
-  final lines = <String>[];
-  if (skill != null) {
-    lines.add(skill.description);
-  }
-  lines.addAll(skillDetailTextLinesFor(skillId));
-  return TextSpan(
-    children: [
-      TextSpan(
-        text: skill?.name ?? skillId.name,
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
-          fontSize: UiScale.fontSize(12),
-        ),
-      ),
-      if (lines.isNotEmpty)
-        TextSpan(
-          text: '\n${lines.join('\n')}',
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: UiScale.fontSize(11),
-          ),
-        ),
-    ],
   );
 }
 
@@ -957,6 +949,7 @@ class _ChoiceCard extends StatelessWidget {
   const _ChoiceCard({
     required this.choice,
     required this.iconImage,
+    required this.skillLevels,
     required this.statValues,
     required this.onPressed,
     required this.banishesRemaining,
@@ -970,6 +963,7 @@ class _ChoiceCard extends StatelessWidget {
 
   final SelectionChoice choice;
   final ui.Image? iconImage;
+  final Map<SkillId, SkillProgressSnapshot> skillLevels;
   final Map<StatId, double> statValues;
   final VoidCallback? onPressed;
   final int banishesRemaining;
@@ -990,6 +984,14 @@ class _ChoiceCard extends StatelessWidget {
     final statChanges = _statChangesForChoice(choice);
     final skillDetails = _skillDetailsForChoice(choice, statValues);
     final synergies = _synergyHintsForTags(tags);
+    final skillId = _skillIdForChoice(choice);
+    final icon = skillId == null
+        ? _ChoiceIcon(image: iconImage, isPlaceholder: isPlaceholder)
+        : SkillHoverTooltip(
+            skillId: skillId,
+            skillLevels: skillLevels,
+            child: _ChoiceIcon(image: iconImage, isPlaceholder: isPlaceholder),
+          );
     final canAfford = price == null || goldAvailable >= price!;
     final priceLabel = price == null ? null : '${price}g';
     final rarity = _rarityForChoice(choice);
@@ -1010,7 +1012,7 @@ class _ChoiceCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _ChoiceIcon(image: iconImage, isPlaceholder: isPlaceholder),
+              icon,
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -1303,6 +1305,26 @@ TagSet _tagsForChoice(SelectionChoice choice) {
           : const TagSet();
     case SelectionType.stat:
       return const TagSet();
+  }
+}
+
+SkillId? _skillIdForChoice(SelectionChoice choice) {
+  switch (choice.type) {
+    case SelectionType.skill:
+      return choice.skillId;
+    case SelectionType.skillUpgrade:
+      final upgradeId = choice.skillUpgradeId;
+      return upgradeId == null
+          ? null
+          : skillUpgradeDefsById[upgradeId]?.skillId;
+    case SelectionType.weaponUpgrade:
+      final upgradeId = choice.weaponUpgradeId;
+      return upgradeId == null
+          ? null
+          : weaponUpgradeDefsById[upgradeId]?.skillId;
+    case SelectionType.item:
+    case SelectionType.stat:
+      return null;
   }
 }
 

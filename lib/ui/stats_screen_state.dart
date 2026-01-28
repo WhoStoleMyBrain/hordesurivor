@@ -6,10 +6,12 @@ import '../data/character_defs.dart';
 import '../data/ids.dart';
 import '../data/stat_defs.dart';
 import '../data/tags.dart';
+import '../game/skill_progression_system.dart';
 
 class StatsScreenState extends ChangeNotifier {
   Map<StatId, double> statValues = const {};
   List<SkillId> skills = const [];
+  Map<SkillId, SkillProgressSnapshot> skillLevels = const {};
   List<SkillUpgradeId> upgrades = const [];
   List<String> weaponUpgrades = const [];
   List<ItemId> items = const [];
@@ -22,6 +24,7 @@ class StatsScreenState extends ChangeNotifier {
   void update({
     required Map<StatId, double> statValues,
     required List<SkillId> skills,
+    required Map<SkillId, SkillProgressSnapshot> skillLevels,
     required List<SkillUpgradeId> upgrades,
     required List<String> weaponUpgrades,
     required List<ItemId> items,
@@ -33,6 +36,7 @@ class StatsScreenState extends ChangeNotifier {
   }) {
     if (mapEquals(this.statValues, statValues) &&
         listEquals(this.skills, skills) &&
+        mapEquals(this.skillLevels, skillLevels) &&
         listEquals(this.upgrades, upgrades) &&
         listEquals(this.weaponUpgrades, weaponUpgrades) &&
         listEquals(this.items, items) &&
@@ -45,6 +49,7 @@ class StatsScreenState extends ChangeNotifier {
     }
     this.statValues = Map<StatId, double>.from(statValues);
     this.skills = List<SkillId>.from(skills);
+    this.skillLevels = Map<SkillId, SkillProgressSnapshot>.from(skillLevels);
     this.upgrades = List<SkillUpgradeId>.from(upgrades);
     this.weaponUpgrades = List<String>.from(weaponUpgrades);
     this.items = List<ItemId>.from(items);
