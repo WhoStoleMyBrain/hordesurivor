@@ -15,6 +15,7 @@ enum StatId {
   critChance,
   critDamagePercent,
   attackSpeed,
+  moveSpeedPercent,
   cooldownRecovery,
   aoeSize,
   // DOT/Status

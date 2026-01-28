@@ -13,6 +13,7 @@ import 'progression_track_defs.dart';
 import 'selection_pool_defs.dart';
 import 'skill_defs.dart';
 import 'skill_upgrade_defs.dart';
+import 'stat_level_up_defs.dart';
 import 'stat_defs.dart';
 import 'status_effect_defs.dart';
 import 'synergy_defs.dart';
@@ -111,6 +112,11 @@ DataValidationResult validateGameData() {
   _checkUniqueIds(
     ids: progressionTrackDefs.map((def) => def.id),
     label: 'ProgressionTrackDef',
+    result: result,
+  );
+  _checkUniqueIds(
+    ids: statLevelUpDefs.map((def) => def.id),
+    label: 'StatLevelUpDef',
     result: result,
   );
   _checkUniqueIds(
@@ -410,6 +416,15 @@ DataValidationResult validateGameData() {
         'ContractDef ${def.id} references missing meta unlock '
         '${def.metaUnlockId}.',
       );
+    }
+  }
+
+  for (final def in statLevelUpDefs) {
+    if (def.modifiers.isEmpty) {
+      result.errors.add('StatLevelUpDef ${def.id} has no modifiers.');
+    }
+    if (def.weight <= 0) {
+      result.errors.add('StatLevelUpDef ${def.id} has non-positive weight.');
     }
   }
 

@@ -5,13 +5,14 @@ import '../data/item_defs.dart';
 import '../data/progression_track_defs.dart';
 import '../data/skill_defs.dart';
 import '../data/skill_upgrade_defs.dart';
+import '../data/stat_level_up_defs.dart';
 import '../data/stat_defs.dart';
 import '../data/tags.dart';
 import '../data/weapon_upgrade_defs.dart';
 import 'player_state.dart';
 import 'skill_system.dart';
 
-enum SelectionType { skill, item, skillUpgrade, weaponUpgrade }
+enum SelectionType { skill, item, skillUpgrade, weaponUpgrade, stat }
 
 class SelectionChoice {
   const SelectionChoice({
@@ -23,6 +24,9 @@ class SelectionChoice {
     this.itemId,
     this.skillUpgradeId,
     this.weaponUpgradeId,
+    this.statLevelUpId,
+    this.rarity,
+    this.statModifiers = const [],
   });
 
   final SelectionType type;
@@ -33,6 +37,9 @@ class SelectionChoice {
   final ItemId? itemId;
   final SkillUpgradeId? skillUpgradeId;
   final String? weaponUpgradeId;
+  final StatLevelUpId? statLevelUpId;
+  final ItemRarity? rarity;
+  final List<StatModifier> statModifiers;
 }
 
 class LevelUpSystem {
@@ -62,6 +69,7 @@ class LevelUpSystem {
   final Set<ItemId> _banishedItems = {};
   final Set<SkillUpgradeId> _banishedSkillUpgrades = {};
   final Set<String> _banishedWeaponUpgrades = {};
+  final Set<StatLevelUpId> _banishedStatLevelUps = {};
   final List<ItemId> _lockedItems = [];
   final Map<ProgressionTrackId, int> _pendingLevels = {};
   final Map<SkillId, int> _weaponUpgradeTiers = {};
@@ -119,6 +127,7 @@ class LevelUpSystem {
     _banishedItems.clear();
     _banishedSkillUpgrades.clear();
     _banishedWeaponUpgrades.clear();
+    _banishedStatLevelUps.clear();
     _weaponUpgradeTiers.clear();
     _lockedItems.clear();
     _rerollsRemaining = 0;
@@ -312,6 +321,10 @@ class LevelUpSystem {
         if (skillId != null) {
           skillSystem.addSkill(skillId);
         }
+      case SelectionType.stat:
+        if (choice.statModifiers.isNotEmpty) {
+          playerState.applyModifiers(choice.statModifiers);
+        }
     }
     _syncRerolls(playerState);
     _syncBanishes(playerState);
@@ -395,6 +408,12 @@ class LevelUpSystem {
           return false;
         }
         _banishedWeaponUpgrades.add(upgradeId);
+      case SelectionType.stat:
+        final statId = choice.statLevelUpId;
+        if (statId == null) {
+          return false;
+        }
+        _banishedStatLevelUps.add(statId);
     }
     _banishesRemaining = math.max(0, _banishesRemaining - 1);
     _choices
@@ -440,6 +459,10 @@ class LevelUpSystem {
         unlockedMeta,
         rarityBoosts: rarityBoosts,
       );
+    }
+    if (selectionPoolId == SelectionPoolId.skillPool &&
+        !skillSystem.hasOpenSkillSlot) {
+      return _buildStatChoices(choiceCount, trackLevel);
     }
     final candidates = _buildCandidates(
       skillSystem,
@@ -499,32 +522,18 @@ class LevelUpSystem {
   ) {
     switch (selectionPoolId) {
       case SelectionPoolId.skillPool:
-        final allowNewSkills = skillSystem.hasOpenSkillSlot;
         return [
-          if (allowNewSkills)
-            for (final skill in skillDefs)
-              if (!skillSystem.hasSkill(skill.id) &&
-                  !_banishedSkills.contains(skill.id) &&
-                  (skill.metaUnlockId == null ||
-                      unlockedMeta.contains(skill.metaUnlockId)))
-                SelectionChoice(
-                  type: SelectionType.skill,
-                  title: skill.name,
-                  description: skill.description,
-                  skillId: skill.id,
-                ),
-          for (final upgrade in skillUpgradeDefs)
-            if (skillSystem.hasSkill(upgrade.skillId) &&
-                !_appliedUpgrades.contains(upgrade.id) &&
-                !_banishedSkillUpgrades.contains(upgrade.id))
+          for (final skill in skillDefs)
+            if (!skillSystem.hasSkill(skill.id) &&
+                !_banishedSkills.contains(skill.id) &&
+                (skill.metaUnlockId == null ||
+                    unlockedMeta.contains(skill.metaUnlockId)))
               SelectionChoice(
-                type: SelectionType.skillUpgrade,
-                title:
-                    '${skillDefsById[upgrade.skillId]?.name}: ${upgrade.name}',
-                description: upgrade.summary,
-                skillUpgradeId: upgrade.id,
+                type: SelectionType.skill,
+                title: skill.name,
+                description: skill.description,
+                skillId: skill.id,
               ),
-          ..._buildWeaponUpgradeCandidates(skillSystem),
         ];
       case SelectionPoolId.itemPool:
         return const [];
@@ -636,6 +645,45 @@ class LevelUpSystem {
       choices,
       rarityBoostsApplied: rarityBoostsApplied,
     );
+  }
+
+  _ChoiceBuildResult _buildStatChoices(int choiceCount, int trackLevel) {
+    final available = statLevelUpDefs
+        .where((def) => !_banishedStatLevelUps.contains(def.id))
+        .toList();
+    if (available.isEmpty) {
+      return _ChoiceBuildResult(const []);
+    }
+    final choices = <SelectionChoice>[];
+    final rarityWeights = _statRarityWeightsForLevel(trackLevel);
+    while (choices.length < choiceCount && available.isNotEmpty) {
+      final rarity = _pickWeightedRarityFromWeights(rarityWeights);
+      final statDef = _pickWeightedStat(available);
+      if (statDef == null || rarity == null) {
+        break;
+      }
+      final tierMultiplier = _statTierMultiplier(rarity);
+      final modifiers = [
+        for (final modifier in statDef.modifiers)
+          StatModifier(
+            stat: modifier.stat,
+            amount: modifier.amount * tierMultiplier,
+            kind: modifier.kind,
+          ),
+      ];
+      choices.add(
+        SelectionChoice(
+          type: SelectionType.stat,
+          title: statDef.name,
+          description: statDef.description,
+          statLevelUpId: statDef.id,
+          rarity: rarity,
+          statModifiers: modifiers,
+        ),
+      );
+      available.remove(statDef);
+    }
+    return _ChoiceBuildResult(choices);
   }
 
   int _applyRarityBoosts(
@@ -845,6 +893,50 @@ class LevelUpSystem {
     };
   }
 
+  Map<ItemRarity, int> _statRarityWeightsForLevel(int level) {
+    return _itemRarityWeightsForLevel(level);
+  }
+
+  ItemRarity? _pickWeightedRarityFromWeights(
+    Map<ItemRarity, int> rarityWeights,
+  ) {
+    var totalWeight = 0;
+    for (final rarity in ItemRarity.values) {
+      final weight = rarityWeights[rarity] ?? 0;
+      if (weight > 0) {
+        totalWeight += weight;
+      }
+    }
+    if (totalWeight <= 0) {
+      return null;
+    }
+    var roll = _random.nextInt(totalWeight);
+    for (final rarity in ItemRarity.values) {
+      final weight = rarityWeights[rarity] ?? 0;
+      if (weight <= 0) {
+        continue;
+      }
+      roll -= weight;
+      if (roll < 0) {
+        return rarity;
+      }
+    }
+    return null;
+  }
+
+  double _statTierMultiplier(ItemRarity rarity) {
+    switch (rarity) {
+      case ItemRarity.common:
+        return 1;
+      case ItemRarity.uncommon:
+        return 2;
+      case ItemRarity.rare:
+        return 3;
+      case ItemRarity.epic:
+        return 4;
+    }
+  }
+
   ItemRarity? _pickWeightedRarity(
     Map<ItemRarity, List<ItemDef>> availableByRarity,
     Map<ItemRarity, int> rarityWeights,
@@ -900,6 +992,24 @@ class LevelUpSystem {
       roll -= _weightedItemWeight(item, tagBias);
       if (roll < 0) {
         return item;
+      }
+    }
+    return null;
+  }
+
+  StatLevelUpDef? _pickWeightedStat(List<StatLevelUpDef> stats) {
+    var totalWeight = 0;
+    for (final stat in stats) {
+      totalWeight += stat.weight;
+    }
+    if (totalWeight <= 0) {
+      return null;
+    }
+    var roll = _random.nextInt(totalWeight);
+    for (final stat in stats) {
+      roll -= stat.weight;
+      if (roll < 0) {
+        return stat;
       }
     }
     return null;
@@ -1000,44 +1110,6 @@ class LevelUpSystem {
   }
 
   int _itemCount(ItemId itemId) => _appliedItemCounts[itemId] ?? 0;
-
-  List<SelectionChoice> _buildWeaponUpgradeCandidates(SkillSystem skillSystem) {
-    if (skillSystem.skillIds.isEmpty) {
-      return const [];
-    }
-    final candidates = <SelectionChoice>[];
-    for (final skillId in skillSystem.skillIds) {
-      final currentTier = _currentWeaponTier(skillId, skillSystem);
-      final nextTier = currentTier + 1;
-      final upgrade = weaponUpgradeDefsBySkillAndTier[skillId]?[nextTier];
-      if (upgrade == null) {
-        continue;
-      }
-      if (_banishedWeaponUpgrades.contains(upgrade.id)) {
-        continue;
-      }
-      if (_appliedWeaponUpgrades.contains(upgrade.id)) {
-        continue;
-      }
-      final skillName = skillDefsById[skillId]?.name ?? skillId.name;
-      candidates.add(
-        SelectionChoice(
-          type: SelectionType.weaponUpgrade,
-          title: '$skillName: ${upgrade.name}',
-          description: upgrade.summary,
-          weaponUpgradeId: upgrade.id,
-        ),
-      );
-    }
-    return candidates;
-  }
-
-  int _currentWeaponTier(SkillId skillId, SkillSystem skillSystem) {
-    if (!skillSystem.hasSkill(skillId)) {
-      return 0;
-    }
-    return math.max(1, _weaponUpgradeTiers[skillId] ?? 1);
-  }
 }
 
 class _ChoiceBuildResult {
