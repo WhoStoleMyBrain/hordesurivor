@@ -2283,6 +2283,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         return 'Upgrade: ${choice.title}';
       case SelectionType.weaponUpgrade:
         return 'Weapon Upgrade: ${choice.title}';
+      case SelectionType.stat:
+        return 'Stat: ${choice.title}';
     }
   }
 

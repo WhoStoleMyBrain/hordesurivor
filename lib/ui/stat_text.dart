@@ -47,6 +47,7 @@ const Map<StatId, String> _labels = {
   StatId.critChance: 'Crit Chance',
   StatId.critDamagePercent: 'Crit Damage',
   StatId.attackSpeed: 'Attack Speed',
+  StatId.moveSpeedPercent: 'Move Speed',
   StatId.cooldownRecovery: 'Cooldown Recovery',
   StatId.aoeSize: 'AOE Size',
   StatId.dotDamagePercent: 'DOT Damage',

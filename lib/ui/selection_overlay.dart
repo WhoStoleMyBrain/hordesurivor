@@ -89,7 +89,13 @@ class SelectionOverlay extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                _headerTitleForTrack(selectionState.trackId),
+                                _headerTitleForTrack(
+                                  selectionState.trackId,
+                                  hasStatChoices: choices.any(
+                                    (choice) =>
+                                        choice.type == SelectionType.stat,
+                                  ),
+                                ),
                                 style: TextStyle(
                                   fontSize: UiScale.fontSize(18),
                                   fontWeight: FontWeight.bold,
@@ -1230,7 +1236,13 @@ class _ChoiceIcon extends StatelessWidget {
   }
 }
 
-String _headerTitleForTrack(ProgressionTrackId? trackId) {
+String _headerTitleForTrack(
+  ProgressionTrackId? trackId, {
+  bool hasStatChoices = false,
+}) {
+  if (hasStatChoices) {
+    return 'Choose a Stat Reward';
+  }
   switch (trackId) {
     case ProgressionTrackId.skills:
       return 'Choose a Skill Reward';
@@ -1262,6 +1274,8 @@ String _labelForChoice(SelectionType type) {
       return 'Upgrade';
     case SelectionType.weaponUpgrade:
       return 'Weapon Upgrade';
+    case SelectionType.stat:
+      return 'Stat';
   }
 }
 
@@ -1287,18 +1301,26 @@ TagSet _tagsForChoice(SelectionChoice choice) {
       return upgradeId != null
           ? weaponUpgradeDefsById[upgradeId]?.tags ?? const TagSet()
           : const TagSet();
+    case SelectionType.stat:
+      return const TagSet();
   }
 }
 
 ItemRarity? _rarityForChoice(SelectionChoice choice) {
-  if (choice.type != SelectionType.item) {
-    return null;
+  switch (choice.type) {
+    case SelectionType.item:
+      final itemId = choice.itemId;
+      if (itemId == null) {
+        return null;
+      }
+      return itemDefsById[itemId]?.rarity;
+    case SelectionType.stat:
+      return choice.rarity;
+    case SelectionType.skill:
+    case SelectionType.skillUpgrade:
+    case SelectionType.weaponUpgrade:
+      return null;
   }
-  final itemId = choice.itemId;
-  if (itemId == null) {
-    return null;
-  }
-  return itemDefsById[itemId]?.rarity;
 }
 
 Set<StatusEffectId> _statusEffectsForChoice(SelectionChoice choice) {
@@ -1311,6 +1333,7 @@ Set<StatusEffectId> _statusEffectsForChoice(SelectionChoice choice) {
     case SelectionType.item:
     case SelectionType.skillUpgrade:
     case SelectionType.weaponUpgrade:
+    case SelectionType.stat:
       return const {};
   }
 }
@@ -1341,6 +1364,8 @@ ui.Image? _iconForChoice(
       }
       final upgrade = weaponUpgradeDefsById[upgradeId];
       return upgrade == null ? null : skillIcons[upgrade.skillId];
+    case SelectionType.stat:
+      return null;
   }
 }
 
@@ -1387,6 +1412,11 @@ List<String> _statChangesForChoice(SelectionChoice choice) {
       ];
     case SelectionType.skill:
       return const [];
+    case SelectionType.stat:
+      return [
+        for (final modifier in choice.statModifiers)
+          StatText.formatModifier(modifier),
+      ];
   }
 }
 
@@ -1404,6 +1434,7 @@ List<SkillDetailDisplayLine> _skillDetailsForChoice(
     case SelectionType.skillUpgrade:
     case SelectionType.weaponUpgrade:
     case SelectionType.item:
+    case SelectionType.stat:
       return const [];
   }
 }

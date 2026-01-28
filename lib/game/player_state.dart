@@ -87,7 +87,8 @@ class PlayerState {
   double get maxHp => math.max(1, stats.value(StatId.maxHp));
   double get maxMana => math.max(0, stats.value(StatId.maxMana));
   double get moveSpeed {
-    return math.max(0, baseMoveSpeed);
+    final bonus = stats.value(StatId.moveSpeedPercent);
+    return math.max(0, baseMoveSpeed * (1 + bonus));
   }
 
   bool get isInvulnerable => invulnerabilityTimeRemaining > 0;

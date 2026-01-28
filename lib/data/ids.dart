@@ -168,3 +168,13 @@ enum ProgressionTrackId { skills, items }
 enum SelectionPoolId { skillPool, itemPool, futurePool }
 
 enum CharacterId { priest, warden, cook }
+
+enum StatLevelUpId {
+  vitality,
+  quickness,
+  footwork,
+  renewal,
+  warding,
+  focus,
+  reach,
+}
