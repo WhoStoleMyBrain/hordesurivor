@@ -52,6 +52,8 @@ void main() {
     double knockbackY = 0,
   }) {}
 
+  void noopPlayerHealed(SkillId skillId, double amount) {}
+
   test('vigil lantern fires at nearby enemies', () {
     final summonPool = SummonPool(initialCapacity: 0);
     final summon = summonPool.acquire();
@@ -89,6 +91,7 @@ void main() {
       onDespawn: (_) {},
       onEnemyDamaged: noopEnemyDamaged,
       onPlayerDamaged: (_, {tags = const TagSet(), selfInflicted = false}) {},
+      onPlayerHealed: noopPlayerHealed,
     );
 
     expect(fired, isTrue);
@@ -130,6 +133,7 @@ void main() {
       onDespawn: (_) {},
       onEnemyDamaged: damageSystem.queueEnemyDamage,
       onPlayerDamaged: (_, {tags = const TagSet(), selfInflicted = false}) {},
+      onPlayerHealed: noopPlayerHealed,
     );
     damageSystem.resolve(onEnemyDefeated: (_) {});
 
@@ -166,6 +170,7 @@ void main() {
       onDespawn: (_) {},
       onEnemyDamaged: noopEnemyDamaged,
       onPlayerDamaged: (_, {tags = const TagSet(), selfInflicted = false}) {},
+      onPlayerHealed: noopPlayerHealed,
     );
 
     expect(player.hp, greaterThan(60));
@@ -212,6 +217,7 @@ void main() {
       },
       onEnemyDamaged: damageSystem.queueEnemyDamage,
       onPlayerDamaged: (_, {tags = const TagSet(), selfInflicted = false}) {},
+      onPlayerHealed: noopPlayerHealed,
     );
     damageSystem.resolve(onEnemyDefeated: (_) {});
 

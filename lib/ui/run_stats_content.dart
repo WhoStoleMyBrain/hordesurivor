@@ -10,6 +10,8 @@ import '../data/skill_upgrade_defs.dart';
 import '../data/stat_defs.dart';
 import '../data/tags.dart';
 import '../data/weapon_upgrade_defs.dart';
+import '../game/skill_progression_system.dart';
+import 'skill_hover_tooltip.dart';
 import 'stat_baseline.dart';
 import 'stat_text.dart';
 import 'stats_screen_state.dart';
@@ -66,7 +68,11 @@ class RunStatsContent extends StatelessWidget {
                   statValues: state.statValues,
                   baselineValues: baselineStatValues(state.activeCharacterId),
                 ),
-                _SkillsTab(skills: state.skills, skillIcons: skillIcons),
+                _SkillsTab(
+                  skills: state.skills,
+                  skillIcons: skillIcons,
+                  skillLevels: state.skillLevels,
+                ),
                 _UpgradesTab(
                   skillUpgrades: state.upgrades,
                   weaponUpgrades: state.weaponUpgrades,
@@ -229,10 +235,15 @@ class _StatsTab extends StatelessWidget {
 }
 
 class _SkillsTab extends StatelessWidget {
-  const _SkillsTab({required this.skills, required this.skillIcons});
+  const _SkillsTab({
+    required this.skills,
+    required this.skillIcons,
+    required this.skillLevels,
+  });
 
   final List<SkillId> skills;
   final Map<SkillId, ui.Image?> skillIcons;
+  final Map<SkillId, SkillProgressSnapshot> skillLevels;
 
   @override
   Widget build(BuildContext context) {
@@ -256,7 +267,14 @@ class _SkillsTab extends StatelessWidget {
           title: skill?.name ?? id.name,
           subtitle: skill?.description ?? 'Details unavailable.',
           footer: _tagsLine(tags),
-          icon: skillIcons[id],
+          iconWidget: SkillHoverTooltip(
+            skillId: id,
+            skillLevels: skillLevels,
+            child: _IconSlot(
+              image: skillIcons[id],
+              placeholder: Icons.auto_fix_high,
+            ),
+          ),
           placeholder: Icons.auto_fix_high,
           showIconSlot: true,
         );
@@ -593,6 +611,7 @@ class _InfoCard extends StatelessWidget {
     required this.subtitle,
     this.footer,
     this.icon,
+    this.iconWidget,
     this.placeholder,
     this.showIconSlot = false,
   });
@@ -601,6 +620,7 @@ class _InfoCard extends StatelessWidget {
   final String subtitle;
   final String? footer;
   final ui.Image? icon;
+  final Widget? iconWidget;
   final IconData? placeholder;
   final bool showIconSlot;
 
@@ -642,10 +662,11 @@ class _InfoCard extends StatelessWidget {
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _IconSlot(
-                  image: icon,
-                  placeholder: placeholder ?? Icons.image_not_supported,
-                ),
+                iconWidget ??
+                    _IconSlot(
+                      image: icon,
+                      placeholder: placeholder ?? Icons.image_not_supported,
+                    ),
                 const SizedBox(width: 12),
                 Expanded(child: content),
               ],

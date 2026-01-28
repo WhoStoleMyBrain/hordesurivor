@@ -85,6 +85,7 @@ import 'progression_system.dart';
 import 'projectile_pool.dart';
 import 'projectile_state.dart';
 import 'projectile_system.dart';
+import 'skill_progression_system.dart';
 import 'skill_system.dart';
 import 'spatial_grid.dart';
 import 'spawn_director.dart';
@@ -226,6 +227,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final SummonPool _summonPool;
   late final SummonSystem _summonSystem;
   late final SkillSystem _skillSystem;
+  final SkillProgressionSystem _skillProgressionSystem =
+      SkillProgressionSystem();
   late final PickupPool _pickupPool;
   late final SpatialGrid _enemyGrid;
   late final DamageSystem _damageSystem;
@@ -297,6 +300,14 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       fontSize: 9,
       fontWeight: FontWeight.w700,
       letterSpacing: 0.5,
+    ),
+  );
+  final TextPaint _skillLevelPaint = TextPaint(
+    style: const TextStyle(
+      color: Color(0xFFBADA55),
+      fontSize: 9,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 0.4,
     ),
   );
   final math.Random _stressRandom = math.Random(41);
@@ -740,6 +751,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     _updateShopObjective(dt);
     _applyInput();
+    _skillProgressionSystem.syncSkills(_skillSystem.skillIds);
+    _skillProgressionSystem.update(dt, _skillSystem.skillIds);
     _playerState.step(dt);
     _playerState.clampToBounds(
       min: Vector2(_playerRadius, _playerRadius),
@@ -794,6 +807,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       onEffectSpawn: _handleEffectSpawn,
       onProjectileDespawn: _handleProjectileDespawn,
       onSummonSpawn: _handleSummonSpawn,
+      onSkillCast: _skillProgressionSystem.addCast,
       onPlayerDeflect: ({required double radius, required double duration}) {
         _playerState.startDeflect(radius: radius, duration: duration);
       },
@@ -818,6 +832,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
               selfInflicted: selfInflicted,
             );
           },
+      onPlayerHealed: _skillProgressionSystem.addHealing,
       onSynergyHit: _handleSynergyHit,
     );
     if (stressTest) {
@@ -869,6 +884,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       onPlayerDamaged: _handlePlayerDamaged,
       onPlayerDefeated: _handlePlayerDefeated,
     );
+    _handleSkillLevelUps();
     _updatePickups(dt);
     _syncHudState();
 
@@ -1452,6 +1468,20 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _handleEnemyDefeated(EnemyState enemy) {
+    final sourceSkillId = enemy.lastDamageSourceSkillId;
+    if (sourceSkillId != null) {
+      final isElite =
+          enemy.role == EnemyRole.elite ||
+          enemy.variant == EnemyVariant.champion;
+      final isBoss =
+          enemy.role == EnemyRole.elite &&
+          enemy.variant == EnemyVariant.champion;
+      _skillProgressionSystem.addKill(
+        sourceSkillId,
+        elite: isElite,
+        boss: isBoss,
+      );
+    }
     if (!stressTest) {
       _runSummary.enemiesDefeated += 1;
       if (enemy.xpReward > 0) {
@@ -1524,6 +1554,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       return;
     }
     _runAnalysisState.recordEnemyDamage(amount, sourceSkillId: sourceSkillId);
+    if (sourceSkillId != null) {
+      enemy.lastDamageSourceSkillId = sourceSkillId;
+      _skillProgressionSystem.addDamage(sourceSkillId, amount);
+    }
     tryLifesteal(
       player: _playerState,
       chance: _playerState.stats.value(StatId.absolution),
@@ -1591,6 +1625,43 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       velocity: _damageNumberVelocity,
       label: synergy.triggerLabel,
       lifespan: 0.6,
+    );
+    if (!component.isMounted) {
+      world.add(component);
+    }
+  }
+
+  void _handleSkillLevelUps() {
+    final levelUps = _skillProgressionSystem.consumeLevelUps();
+    if (levelUps.isEmpty) {
+      return;
+    }
+    for (final levelUp in levelUps) {
+      final name = skillDefsById[levelUp.skillId]?.name ?? levelUp.skillId.name;
+      _spawnLevelUpPulse(_playerState.position);
+      _spawnSkillLevelPopup('$name Lv ${levelUp.level}');
+    }
+  }
+
+  void _spawnSkillLevelPopup(String label) {
+    final component = _acquireDamageNumber();
+    final jitterX = (_damageNumberRandom.nextDouble() - 0.5) * 12;
+    final jitterY = (_damageNumberRandom.nextDouble() - 0.5) * 8;
+    _damageNumberPosition.setValues(
+      _playerState.position.x + jitterX,
+      _playerState.position.y - 18 + jitterY,
+    );
+    _damageNumberVelocity.setValues(
+      0,
+      -22 - _damageNumberRandom.nextDouble() * 8,
+    );
+    component.reset(
+      position: _damageNumberPosition,
+      amount: 0,
+      textPaint: _skillLevelPaint,
+      velocity: _damageNumberVelocity,
+      label: label,
+      lifespan: 1.1,
     );
     if (!component.isMounted) {
       world.add(component);
@@ -2338,6 +2409,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _statsScreenState.update(
       statValues: _collectStatValues(),
       skills: _skillSystem.skillIds,
+      skillLevels: _skillProgressionSystem.buildSnapshots(),
       upgrades: _levelUpSystem.appliedUpgrades.toList(),
       weaponUpgrades: _levelUpSystem.appliedWeaponUpgrades.toList(),
       items: _levelUpSystem.appliedItems.toList(),
@@ -3196,6 +3268,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _resetPlayerProgression() {
     _progressionSystem.reset();
     _skillSystem.resetToDefaults();
+    _skillProgressionSystem.reset();
     final characterDef = _activeCharacterDef();
     _playerState.setBaseStats(characterDef.baseStats);
     _playerState.resetForRun();

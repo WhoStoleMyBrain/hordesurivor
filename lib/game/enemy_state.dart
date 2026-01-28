@@ -47,6 +47,7 @@ class EnemyState {
   double igniteTimer = 0;
   double igniteDamagePerSecond = 0;
   SkillId? igniteSourceSkillId;
+  SkillId? lastDamageSourceSkillId;
   double vulnerableTimer = 0;
   double vulnerableMultiplier = 1;
   double speedMultiplier = 1;
@@ -114,6 +115,7 @@ class EnemyState {
     igniteTimer = 0;
     igniteDamagePerSecond = 0;
     igniteSourceSkillId = null;
+    lastDamageSourceSkillId = null;
     vulnerableTimer = 0;
     vulnerableMultiplier = 1;
     speedMultiplier = 1;
