@@ -33,7 +33,6 @@ class EnemyState {
   double spawnRadius = 48;
   int xpReward = 0;
   int goldCurrencyReward = 0;
-  int goldShopXpReward = 0;
   double spawnRewardMultiplier = 0;
   double specialCooldown = 0;
   double specialTimer = 0;
@@ -78,7 +77,6 @@ class EnemyState {
     required double spawnRadius,
     required EnemyId? spawnEnemyId,
     required int goldCurrencyReward,
-    required int goldShopXpReward,
     required double spawnRewardMultiplier,
   }) {
     this.id = id;
@@ -102,7 +100,6 @@ class EnemyState {
     this.spawnRadius = spawnRadius;
     this.xpReward = xpReward;
     this.goldCurrencyReward = goldCurrencyReward;
-    this.goldShopXpReward = goldShopXpReward;
     this.spawnRewardMultiplier = spawnRewardMultiplier;
     specialCooldown = 0;
     specialTimer = 0;

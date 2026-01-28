@@ -458,9 +458,6 @@ DataValidationResult validateGameData() {
     if (def.goldCurrencyReward < 0) {
       result.errors.add('EnemyDef ${def.id} has negative goldCurrencyReward.');
     }
-    if (def.goldShopXpReward < 0) {
-      result.errors.add('EnemyDef ${def.id} has negative goldShopXpReward.');
-    }
     if (def.weight <= 0) {
       result.errors.add('EnemyDef ${def.id} has non-positive weight.');
     }
