@@ -14,6 +14,7 @@ import '../game/level_up_system.dart';
 import '../game/skill_progression_system.dart';
 import 'item_rarity_style.dart';
 import 'selection_state.dart';
+import 'skill_detail_line_text.dart';
 import 'skill_detail_text.dart';
 import 'skill_hover_tooltip.dart';
 import 'stat_baseline.dart';
@@ -385,6 +386,7 @@ class _ShopOverlayLayout extends StatelessWidget {
                           skills: statsState.skills,
                           skillIcons: skillIcons,
                           skillLevels: statsState.skillLevels,
+                          statValues: statsState.statValues,
                         ),
                         const SizedBox(height: 12),
                         if (selectionState.skipEnabled)
@@ -455,11 +457,13 @@ class _ShopSkillRow extends StatelessWidget {
     required this.skills,
     required this.skillIcons,
     required this.skillLevels,
+    required this.statValues,
   });
 
   final List<SkillId> skills;
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<SkillId, SkillProgressSnapshot> skillLevels;
+  final Map<StatId, double> statValues;
 
   @override
   Widget build(BuildContext context) {
@@ -479,6 +483,7 @@ class _ShopSkillRow extends StatelessWidget {
           SkillHoverTooltip(
             skillId: skillId,
             skillLevels: skillLevels,
+            statValues: statValues,
             child: _MiniIcon(
               image: skillIcons[skillId],
               placeholder: Icons.auto_fix_high,
@@ -630,6 +635,7 @@ class _ShopStatsPanel extends StatelessWidget {
                     skills: state.skills,
                     skillIcons: skillIcons,
                     skillLevels: state.skillLevels,
+                    statValues: state.statValues,
                   ),
                   _ShopItemList(items: state.items, itemIcons: itemIcons),
                 ],
@@ -699,11 +705,13 @@ class _ShopSkillList extends StatelessWidget {
     required this.skills,
     required this.skillIcons,
     required this.skillLevels,
+    required this.statValues,
   });
 
   final List<SkillId> skills;
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<SkillId, SkillProgressSnapshot> skillLevels;
+  final Map<StatId, double> statValues;
 
   @override
   Widget build(BuildContext context) {
@@ -725,6 +733,7 @@ class _ShopSkillList extends StatelessWidget {
             SkillHoverTooltip(
               skillId: skillId,
               skillLevels: skillLevels,
+              statValues: statValues,
               child: _ListIcon(
                 image: skillIcons[skillId],
                 placeholder: Icons.auto_fix_high,
@@ -990,6 +999,7 @@ class _ChoiceCard extends StatelessWidget {
         : SkillHoverTooltip(
             skillId: skillId,
             skillLevels: skillLevels,
+            statValues: statValues,
             child: _ChoiceIcon(image: iconImage, isPlaceholder: isPlaceholder),
           );
     final canAfford = price == null || goldAvailable >= price!;
@@ -1103,7 +1113,7 @@ class _ChoiceCard extends StatelessWidget {
           if (skillDetails.isNotEmpty) ...[
             const SizedBox(height: 8),
             for (final line in skillDetails)
-              _SkillDetailLineText(
+              SkillDetailLineText(
                 line: line,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: Colors.white60,
@@ -1159,37 +1169,6 @@ class _ChoiceCard extends StatelessWidget {
               ),
             ),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-class _SkillDetailLineText extends StatelessWidget {
-  const _SkillDetailLineText({required this.line, this.style});
-
-  final SkillDetailDisplayLine line;
-  final TextStyle? style;
-
-  @override
-  Widget build(BuildContext context) {
-    final baseStyle = style ?? DefaultTextStyle.of(context).style;
-    if (!line.hasChange) {
-      return Text('${line.label}: ${line.baseValue}', style: baseStyle);
-    }
-    final actualColor = line.isBetter ? Colors.greenAccent : Colors.redAccent;
-    return Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(text: '${line.label}: ', style: baseStyle),
-          TextSpan(
-            text: line.actualValue,
-            style: baseStyle.copyWith(color: actualColor),
-          ),
-          TextSpan(
-            text: ' (${line.baseValue})',
-            style: baseStyle.copyWith(color: Colors.white38),
-          ),
         ],
       ),
     );
