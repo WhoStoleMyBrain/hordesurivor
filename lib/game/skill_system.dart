@@ -1445,8 +1445,7 @@ class SkillSystem {
 
   double _cooldownSpeed(StatSheet stats) {
     final attackSpeed = stats.value(StatId.attackSpeed);
-    final cooldownRecovery = stats.value(StatId.cooldownRecovery);
-    return math.max(0.1, 1 + attackSpeed + cooldownRecovery);
+    return math.max(0.1, 1 + attackSpeed);
   }
 
   double _attackSpeedScale(StatSheet stats) {

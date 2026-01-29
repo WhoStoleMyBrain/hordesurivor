@@ -54,7 +54,7 @@ const List<StatLevelUpDef> statLevelUpDefs = [
     id: StatLevelUpId.focus,
     name: 'Minor Benediction: Focus',
     description: 'Sharpen your cadence.',
-    modifiers: [StatModifier(stat: StatId.cooldownRecovery, amount: 0.03)],
+    modifiers: [StatModifier(stat: StatId.attackSpeed, amount: 0.03)],
   ),
   StatLevelUpDef(
     id: StatLevelUpId.reach,

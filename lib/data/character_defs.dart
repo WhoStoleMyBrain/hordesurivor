@@ -102,7 +102,7 @@ final List<CharacterDef> characterDefs = [
     id: CharacterId.priest,
     name: 'The Priest',
     themeLine: 'Bell rites and steady chants keep the horde at bay.',
-    modifierLine: 'Rite of Cadence — +Cooldown recovery / -Dodge chance',
+    modifierLine: 'Rite of Cadence — +Attack speed / -Dodge chance',
     spriteId: 'player_priest',
     startingSkills: [
       SkillId.fireball,
@@ -119,7 +119,7 @@ final List<CharacterDef> characterDefs = [
       dashInvulnerability: 0.2,
     ),
     modifiers: [
-      StatModifier(stat: StatId.cooldownRecovery, amount: 0.12),
+      StatModifier(stat: StatId.attackSpeed, amount: 0.12),
       StatModifier(stat: StatId.dodgeChance, amount: -0.05),
     ],
   ),

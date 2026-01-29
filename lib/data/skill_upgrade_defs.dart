@@ -65,10 +65,7 @@ const List<SkillUpgradeDef> skillUpgradeDefs = [
     name: 'Steady Stream',
     summary: 'Waterjet cycles faster.',
     tags: TagSet(elements: {ElementTag.water}, deliveries: {DeliveryTag.beam}),
-    modifiers: [
-      StatModifier(stat: StatId.attackSpeed, amount: 0.1),
-      StatModifier(stat: StatId.cooldownRecovery, amount: 0.05),
-    ],
+    modifiers: [StatModifier(stat: StatId.attackSpeed, amount: 0.15)],
   ),
   SkillUpgradeDef(
     id: SkillUpgradeId.oilBombsExpandedPuddles,
@@ -168,10 +165,7 @@ const List<SkillUpgradeDef> skillUpgradeDefs = [
       effects: {EffectTag.aoe},
       deliveries: {DeliveryTag.melee},
     ),
-    modifiers: [
-      StatModifier(stat: StatId.attackSpeed, amount: 0.1),
-      StatModifier(stat: StatId.cooldownRecovery, amount: 0.05),
-    ],
+    modifiers: [StatModifier(stat: StatId.attackSpeed, amount: 0.15)],
   ),
   SkillUpgradeDef(
     id: SkillUpgradeId.swordDeflectWiderParry,

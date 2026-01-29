@@ -106,7 +106,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
       StatId.meleeDamagePercent,
       0.06,
       0.015,
-      StatId.cooldownRecovery,
+      StatId.attackSpeed,
       0.04,
       0.01,
       tier,
@@ -247,7 +247,7 @@ final List<WeaponUpgradeDef> weaponUpgradeDefs = [
   ..._buildWeaponUpgradeChain(
     skillId: SkillId.menderOrb,
     modifiersForTier: (tier) => _primarySecondary(
-      StatId.cooldownRecovery,
+      StatId.attackSpeed,
       0.05,
       0.015,
       StatId.healingReceivedPercent,

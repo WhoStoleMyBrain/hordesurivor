@@ -518,7 +518,6 @@ List<_StatCategory> _statCategories() {
         StatId.critChance,
         StatId.critDamagePercent,
         StatId.attackSpeed,
-        StatId.cooldownRecovery,
         StatId.aoeSize,
       ],
       initiallyExpanded: true,
