@@ -5,6 +5,7 @@ class RunAnalysisState {
   double totalDamageDealt = 0;
   double damageTaken = 0;
   final Map<SkillId, double> damageBySkill = {};
+  final Map<SkillId, double> skillAcquiredAt = {};
   final Map<SkillId, int> skillOffers = {};
   final Map<SkillId, int> skillPicks = {};
   final Map<ItemId, int> itemOffers = {};
@@ -17,6 +18,7 @@ class RunAnalysisState {
     totalDamageDealt = 0;
     damageTaken = 0;
     damageBySkill.clear();
+    skillAcquiredAt.clear();
     skillOffers.clear();
     skillPicks.clear();
     itemOffers.clear();
@@ -61,15 +63,22 @@ class RunAnalysisState {
     }
   }
 
-  void recordPick(SelectionChoice choice) {
+  void recordPick(SelectionChoice choice, {double? timeAlive}) {
     final skillId = choice.skillId;
     if (skillId != null) {
       skillPicks[skillId] = (skillPicks[skillId] ?? 0) + 1;
+      if (timeAlive != null) {
+        recordSkillAcquired(skillId, timeAlive);
+      }
     }
     final itemId = choice.itemId;
     if (itemId != null) {
       itemPicks[itemId] = (itemPicks[itemId] ?? 0) + 1;
     }
+  }
+
+  void recordSkillAcquired(SkillId id, double timeAlive) {
+    skillAcquiredAt.putIfAbsent(id, () => timeAlive);
   }
 
   void recordDeadOffer() {
@@ -78,5 +87,8 @@ class RunAnalysisState {
 
   void setActiveSkills(List<SkillId> skills) {
     activeSkills = List<SkillId>.from(skills);
+    for (final skillId in activeSkills) {
+      skillAcquiredAt.putIfAbsent(skillId, () => 0);
+    }
   }
 }

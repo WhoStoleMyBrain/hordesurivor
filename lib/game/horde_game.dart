@@ -1772,7 +1772,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         return;
       }
       _syncSelectionState(trackId);
-      _runAnalysisState.recordPick(choice);
+      _runAnalysisState.recordPick(choice, timeAlive: _hudState.stageElapsed);
       _runAnalysisState.setActiveSkills(_skillSystem.skillIds);
       _hudState.triggerRewardMessage(_rewardMessageForChoice(choice));
       return;
@@ -1788,7 +1788,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     } else {
       _activeSkipReward = null;
     }
-    _runAnalysisState.recordPick(choice);
+    _runAnalysisState.recordPick(choice, timeAlive: _hudState.stageElapsed);
     _runAnalysisState.setActiveSkills(_skillSystem.skillIds);
     _hudState.triggerRewardMessage(_rewardMessageForChoice(choice));
     _offerSelectionIfNeeded();
