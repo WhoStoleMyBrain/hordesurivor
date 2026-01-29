@@ -991,7 +991,12 @@ class _ChoiceCard extends StatelessWidget {
     final statusEffects = _statusEffectsForChoice(choice);
     final statusBadges = statusBadgesForEffects(statusEffects);
     final statChanges = _statChangesForChoice(choice);
-    final skillDetails = _skillDetailsForChoice(choice, statValues);
+    final skillDetails = _skillDetailsForChoice(
+      choice,
+      statValues,
+      skillLevels,
+    );
+    final levelUpPreview = _skillLevelPreviewForChoice(choice);
     final synergies = _synergyHintsForTags(tags);
     final skillId = _skillIdForChoice(choice);
     final icon = skillId == null
@@ -1114,6 +1119,24 @@ class _ChoiceCard extends StatelessWidget {
             const SizedBox(height: 8),
             for (final line in skillDetails)
               SkillDetailLineText(
+                line: line,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.white60,
+                ),
+              ),
+          ],
+          if (levelUpPreview.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Leveling (Lv1 → Lv2)',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.white70,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 4),
+            for (final line in levelUpPreview)
+              SkillLevelBonusLineText(
                 line: line,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: Colors.white60,
@@ -1424,6 +1447,7 @@ List<String> _statChangesForChoice(SelectionChoice choice) {
 List<SkillDetailDisplayLine> _skillDetailsForChoice(
   SelectionChoice choice,
   Map<StatId, double> statValues,
+  Map<SkillId, SkillProgressSnapshot> skillLevels,
 ) {
   switch (choice.type) {
     case SelectionType.skill:
@@ -1431,13 +1455,30 @@ List<SkillDetailDisplayLine> _skillDetailsForChoice(
       if (skillId == null) {
         return const [];
       }
-      return skillDetailDisplayLinesFor(skillId, statValues);
+      return skillDetailDisplayLinesFor(
+        skillId,
+        statValues,
+        skillLevel: skillLevels[skillId]?.level ?? 1,
+      );
     case SelectionType.skillUpgrade:
     case SelectionType.weaponUpgrade:
     case SelectionType.item:
     case SelectionType.stat:
       return const [];
   }
+}
+
+List<SkillLevelModifierLine> _skillLevelPreviewForChoice(
+  SelectionChoice choice,
+) {
+  if (choice.type != SelectionType.skill) {
+    return const [];
+  }
+  final skillId = choice.skillId;
+  if (skillId == null) {
+    return const [];
+  }
+  return skillLevelModifierLinesFor(skillId, fromLevel: 1, toLevel: 2);
 }
 
 List<String> _synergyHintsForTags(TagSet tags) {

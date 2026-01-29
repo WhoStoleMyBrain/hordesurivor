@@ -99,7 +99,16 @@ class _SkillTooltipCard extends StatelessWidget {
     final snapshot = skillLevels[skillId] ?? _fallbackSnapshot(skill);
     final xpToNext = snapshot.xpToNext <= 0 ? 1 : snapshot.xpToNext;
     final progress = (snapshot.currentXp / xpToNext).clamp(0.0, 1.0);
-    final detailLines = skillDetailDisplayLinesFor(skillId, statValues);
+    final detailLines = skillDetailDisplayLinesFor(
+      skillId,
+      statValues,
+      skillLevel: snapshot.level,
+    );
+    final levelBonusLines = skillLevelModifierLinesFor(
+      skillId,
+      fromLevel: 1,
+      toLevel: snapshot.level,
+    );
 
     return Container(
       width: 240,
@@ -170,6 +179,24 @@ class _SkillTooltipCard extends StatelessWidget {
               const SizedBox(height: 6),
               for (final line in detailLines)
                 SkillDetailLineText(
+                  line: line,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: Colors.white54,
+                  ),
+                ),
+            ],
+            if (levelBonusLines.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Level bonuses',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              for (final line in levelBonusLines)
+                SkillLevelBonusLineText(
                   line: line,
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: Colors.white54,
