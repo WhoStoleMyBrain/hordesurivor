@@ -196,8 +196,7 @@ double _stat(Map<StatId, double> statValues, StatId id) {
 
 double _cooldownSpeed(Map<StatId, double> statValues) {
   final attackSpeed = _stat(statValues, StatId.attackSpeed);
-  final cooldownRecovery = _stat(statValues, StatId.cooldownRecovery);
-  return math.max(0.1, 1 + attackSpeed + cooldownRecovery);
+  return math.max(0.1, 1 + attackSpeed);
 }
 
 double _attackSpeedScale(Map<StatId, double> statValues) {
