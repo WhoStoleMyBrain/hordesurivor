@@ -3684,6 +3684,96 @@
       ]
     },
     {
+      "id": "pickup_rite_seal",
+      "kind": "pickup",
+      "outputName": "pickup_rite_seal.png",
+      "size": 32,
+      "seed": 59,
+      "palette": {
+        "primary": "#F8E7B1",
+        "shadow": "#B88B3F",
+        "accent": "#8FD3FF",
+        "outline": "#2A1C0B",
+        "highlight": "#FFF9D6"
+      },
+      "shapes": [
+        {
+          "type": "circle",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "primary",
+          "radius": 8
+        },
+        {
+          "type": "circle",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "highlight",
+          "radius": 6
+        },
+        {
+          "type": "circle",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "accent",
+          "radius": 3
+        },
+        {
+          "type": "line",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "shadow",
+          "start": [
+            -4,
+            0
+          ],
+          "end": [
+            4,
+            0
+          ],
+          "thickness": 2
+        },
+        {
+          "type": "line",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "shadow",
+          "start": [
+            0,
+            -4
+          ],
+          "end": [
+            0,
+            4
+          ],
+          "thickness": 2
+        }
+      ],
+      "post": [
+        {
+          "type": "shadow",
+          "dx": 1,
+          "dy": 1,
+          "color": "shadow"
+        },
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
+      ]
+    },
+    {
       "id": "item_heavy_plate",
       "kind": "item",
       "outputName": "item_heavy_plate.png",

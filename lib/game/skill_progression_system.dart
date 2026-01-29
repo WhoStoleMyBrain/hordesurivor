@@ -115,6 +115,50 @@ class SkillProgressionSystem {
     );
   }
 
+  double totalXpFor(SkillId skillId) {
+    final def = skillDefsById[skillId];
+    final state = _states[skillId];
+    if (def == null || state == null) {
+      return 0;
+    }
+    var total = 0.0;
+    for (var level = 1; level < state.level; level++) {
+      total += def.leveling.levelCurve.xpForLevel(level).toDouble();
+    }
+    total += state.currentXp;
+    return total;
+  }
+
+  void addDirectXp(SkillId skillId, double amount) {
+    if (amount <= 0) {
+      return;
+    }
+    final def = skillDefsById[skillId];
+    if (def == null) {
+      return;
+    }
+    final state = _ensureState(skillId);
+    state.addRawXp(amount, def.leveling, (level) {
+      _pendingLevelUps.add(SkillLevelUpEvent(skillId: skillId, level: level));
+    });
+  }
+
+  double applySwapTransfer({
+    required SkillId fromSkillId,
+    required SkillId toSkillId,
+    double fraction = 0.75,
+  }) {
+    if (fraction <= 0) {
+      return 0;
+    }
+    final transferAmount = totalXpFor(fromSkillId) * fraction;
+    if (transferAmount <= 0) {
+      return 0;
+    }
+    addDirectXp(toSkillId, transferAmount);
+    return transferAmount;
+  }
+
   List<SkillLevelUpEvent> consumeLevelUps() {
     if (_pendingLevelUps.isEmpty) {
       return const [];
@@ -247,6 +291,14 @@ class _SkillProgressState {
       return;
     }
     _addXp(bonus, leveling, onLevelUp);
+  }
+
+  void addRawXp(
+    double amount,
+    SkillLevelingDef leveling,
+    void Function(int) onLevelUp,
+  ) {
+    _addXp(amount, leveling, onLevelUp);
   }
 
   SkillProgressSnapshot snapshot() {
