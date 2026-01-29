@@ -172,6 +172,7 @@ class DeathScreen extends StatelessWidget {
                               damageTaken: summary.damageTaken,
                               totalDamageDealt: analysisState.totalDamageDealt,
                               damageBySkill: analysisState.damageBySkill,
+                              skillAcquiredAt: analysisState.skillAcquiredAt,
                               activeSkills: analysisState.activeSkills,
                               skillOffers: analysisState.skillOffers,
                               skillPicks: analysisState.skillPicks,

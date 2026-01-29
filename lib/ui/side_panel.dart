@@ -120,6 +120,7 @@ class HudSidePanel extends StatelessWidget {
                         damageTaken: runAnalysisState.damageTaken,
                         totalDamageDealt: runAnalysisState.totalDamageDealt,
                         damageBySkill: runAnalysisState.damageBySkill,
+                        skillAcquiredAt: runAnalysisState.skillAcquiredAt,
                         activeSkills: runAnalysisState.activeSkills,
                         skillOffers: runAnalysisState.skillOffers,
                         skillPicks: runAnalysisState.skillPicks,

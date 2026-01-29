@@ -12,6 +12,7 @@ class RunAnalysisOverview extends StatelessWidget {
     required this.damageTaken,
     required this.totalDamageDealt,
     required this.damageBySkill,
+    required this.skillAcquiredAt,
     required this.activeSkills,
     required this.skillOffers,
     required this.skillPicks,
@@ -26,6 +27,7 @@ class RunAnalysisOverview extends StatelessWidget {
   final double damageTaken;
   final double totalDamageDealt;
   final Map<SkillId, double> damageBySkill;
+  final Map<SkillId, double> skillAcquiredAt;
   final List<SkillId> activeSkills;
   final Map<SkillId, int> skillOffers;
   final Map<SkillId, int> skillPicks;
@@ -58,7 +60,7 @@ class RunAnalysisOverview extends StatelessWidget {
     final standardEnemy = enemyDefsById[EnemyId.imp];
     final standardHp = standardEnemy?.maxHp ?? 12;
     final ttkSeconds = totalDps > 0 ? standardHp / totalDps : null;
-    final skillDpsEntries = _skillDpsEntries();
+    final skillDamageEntries = _skillDamageEntries();
     final skillPickEntries = _pickRateEntries(
       skillOffers,
       skillPicks,
@@ -97,12 +99,19 @@ class RunAnalysisOverview extends StatelessWidget {
           valueStyle: valueStyle,
         ),
         const SizedBox(height: 8),
-        Text('DPS by Skill', style: labelStyle),
+        Text('Skill Damage (since acquisition)', style: labelStyle),
         const SizedBox(height: 4),
-        if (skillDpsEntries.isEmpty)
+        if (skillDamageEntries.isEmpty)
           Text('No skill damage yet.', style: labelStyle)
-        else
-          _EntryList(entries: skillDpsEntries),
+        else ...[
+          _SkillDamageHeader(labelStyle: labelStyle),
+          const SizedBox(height: 6),
+          _SkillDamageList(
+            entries: skillDamageEntries,
+            labelStyle: labelStyle,
+            valueStyle: valueStyle,
+          ),
+        ],
         const SizedBox(height: 8),
         Divider(color: dividerColor, height: 1),
         const SizedBox(height: 8),
@@ -150,30 +159,35 @@ class RunAnalysisOverview extends StatelessWidget {
     return '${percent.toStringAsFixed(0)}%';
   }
 
-  List<_Entry> _skillDpsEntries() {
+  List<_SkillDamageEntry> _skillDamageEntries() {
     final skills = activeSkills.isNotEmpty
         ? activeSkills
         : damageBySkill.keys.toList();
-    final entries = <_Entry>[];
+    final entries = <_SkillDamageEntry>[];
     for (final id in skills) {
       final damage = damageBySkill[id] ?? 0;
-      final dps = _safeRate(damage, timeAlive);
+      final acquiredAt = skillAcquiredAt[id] ?? 0;
+      final timeActive = timeAlive > acquiredAt ? timeAlive - acquiredAt : 0.0;
+      final dps = _safeRate(damage, timeActive);
       final name = skillDefsById[id]?.name ?? id.name;
+      final percent = totalDamageDealt > 0 ? damage / totalDamageDealt : 0.0;
       entries.add(
-        _Entry(label: name, value: dps > 0 ? dps.toStringAsFixed(1) : '—'),
+        _SkillDamageEntry(
+          name: name,
+          damage: damage,
+          dps: dps,
+          percent: percent,
+        ),
       );
     }
-    entries.sort((a, b) => _sortEntryValue(b, a));
+    entries.sort((a, b) {
+      final compareDamage = b.damage.compareTo(a.damage);
+      if (compareDamage != 0) {
+        return compareDamage;
+      }
+      return a.name.compareTo(b.name);
+    });
     return entries;
-  }
-
-  int _sortEntryValue(_Entry a, _Entry b) {
-    final aValue = double.tryParse(a.value.replaceAll(RegExp('[^0-9.]'), ''));
-    final bValue = double.tryParse(b.value.replaceAll(RegExp('[^0-9.]'), ''));
-    if (aValue == null || bValue == null) {
-      return a.label.compareTo(b.label);
-    }
-    return aValue.compareTo(bValue);
   }
 
   List<_Entry> _pickRateEntries<T>(
@@ -203,6 +217,190 @@ class _Entry {
 
   final String label;
   final String value;
+}
+
+class _SkillDamageEntry {
+  const _SkillDamageEntry({
+    required this.name,
+    required this.damage,
+    required this.dps,
+    required this.percent,
+  });
+
+  final String name;
+  final double damage;
+  final double dps;
+  final double percent;
+}
+
+class _SkillDamageHeader extends StatelessWidget {
+  const _SkillDamageHeader({this.labelStyle});
+
+  final TextStyle? labelStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    final headerStyle = labelStyle?.copyWith(
+      color: Colors.white60,
+      fontWeight: FontWeight.w600,
+    );
+    return Row(
+      children: [
+        Expanded(child: Text('Skill', style: headerStyle)),
+        SizedBox(
+          width: 72,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Text('Total', style: headerStyle),
+          ),
+        ),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 64,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Text('DPS', style: headerStyle),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SkillDamageList extends StatelessWidget {
+  const _SkillDamageList({
+    required this.entries,
+    this.labelStyle,
+    this.valueStyle,
+  });
+
+  final List<_SkillDamageEntry> entries;
+  final TextStyle? labelStyle;
+  final TextStyle? valueStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final entry in entries)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: _SkillDamageRow(
+              entry: entry,
+              labelStyle: labelStyle,
+              valueStyle: valueStyle,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _SkillDamageRow extends StatelessWidget {
+  const _SkillDamageRow({
+    required this.entry,
+    this.labelStyle,
+    this.valueStyle,
+  });
+
+  final _SkillDamageEntry entry;
+  final TextStyle? labelStyle;
+  final TextStyle? valueStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    final percent = entry.percent.clamp(0.0, 1.0);
+    final damageText = _formatCompact(entry.damage, fractionDigits: 0);
+    final dpsText = _formatCompact(entry.dps, fractionDigits: 1);
+    final percentText = '${(percent * 100).toStringAsFixed(0)}%';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(child: Text(entry.name, style: labelStyle)),
+            SizedBox(
+              width: 72,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(damageText, style: valueStyle),
+              ),
+            ),
+            const SizedBox(width: 8),
+            SizedBox(
+              width: 64,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(dpsText, style: valueStyle),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            Expanded(child: _DamageBar(percent: percent)),
+            const SizedBox(width: 8),
+            Text(percentText, style: labelStyle),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _DamageBar extends StatelessWidget {
+  const _DamageBar({required this.percent});
+
+  final double percent;
+
+  @override
+  Widget build(BuildContext context) {
+    final fillColor = Colors.orangeAccent.withValues(alpha: 0.8);
+    final trackColor = Colors.white.withValues(alpha: 0.12);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth * percent;
+        return Stack(
+          children: [
+            Container(
+              height: 6,
+              decoration: BoxDecoration(
+                color: trackColor,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            Container(
+              height: 6,
+              width: width,
+              decoration: BoxDecoration(
+                color: fillColor,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+String _formatCompact(double value, {int fractionDigits = 1}) {
+  if (value >= 1000000) {
+    return '${_trimZero((value / 1000000).toStringAsFixed(fractionDigits))}M';
+  }
+  if (value >= 1000) {
+    return '${_trimZero((value / 1000).toStringAsFixed(fractionDigits))}k';
+  }
+  if (fractionDigits <= 0) {
+    return value.toStringAsFixed(0);
+  }
+  return _trimZero(value.toStringAsFixed(fractionDigits));
+}
+
+String _trimZero(String value) {
+  return value.replaceAll(RegExp(r'\.0$'), '');
 }
 
 class _EntryList extends StatelessWidget {
