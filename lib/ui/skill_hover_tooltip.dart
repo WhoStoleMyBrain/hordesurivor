@@ -123,6 +123,7 @@ class _SkillTooltipCard extends StatelessWidget {
             const TextStyle(color: Colors.white70),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               skill?.name ?? skillId.name,
