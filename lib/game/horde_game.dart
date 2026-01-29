@@ -62,6 +62,8 @@ import '../ui/meta_unlock_screen.dart';
 import '../ui/options_screen.dart';
 import '../ui/selection_overlay.dart';
 import '../ui/selection_state.dart';
+import '../ui/skill_swap_overlay.dart';
+import '../ui/skill_swap_state.dart';
 import '../ui/start_screen.dart';
 import '../ui/stats_overlay.dart';
 import '../ui/stats_screen_state.dart';
@@ -134,6 +136,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const Map<PickupKind, String> _pickupSpriteIds = {
     PickupKind.xpOrb: 'pickup_xp_orb',
     PickupKind.goldCoin: 'pickup_gold_coin',
+    PickupKind.skillSwapSeal: 'pickup_rite_seal',
   };
   static const Map<SkillId, String> _meleeSwipeSpriteIds = {
     SkillId.swordCut: 'effect_sword_cut_swipe',
@@ -158,6 +161,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _baseEnemyProjectileSpeedMultiplier = 0.85;
   static const double _pickupRadiusBase = 32;
   static const double _pickupLifetime = 30;
+  static const double _eliteSkillSwapDropChance = 0.01;
   static const double _pickupMagnetStartSpeed = 120;
   static const double _pickupMagnetAcceleration = 560;
   static const double _pickupMagnetMaxSpeed = 520;
@@ -248,6 +252,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final PlayerHudState _hudState = PlayerHudState();
   final SelectionState _selectionState = SelectionState();
   ProgressionTrackId? _activeSelectionTrackId;
+  final SkillSwapState _skillSwapState = SkillSwapState();
   final StatsScreenState _statsScreenState = StatsScreenState();
   final RunSummary _runSummary = RunSummary();
   final RunAnalysisState _runAnalysisState = RunAnalysisState();
@@ -370,6 +375,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   PlayerHudState get hudState => _hudState;
   SelectionState get selectionState => _selectionState;
+  SkillSwapState get skillSwapState => _skillSwapState;
   StatsScreenState get statsScreenState => _statsScreenState;
   GameFlowState get flowState => _flowState;
   ValueListenable<GameFlowState> get flowStateListenable => _flowStateNotifier;
@@ -739,6 +745,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       return;
     }
     if (_selectionState.active ||
+        _skillSwapState.active ||
         overlays.isActive(StatsOverlay.overlayKey) ||
         overlays.isActive(EscapeMenuOverlay.overlayKey)) {
       _playerState.movementIntent.setZero();
@@ -1475,11 +1482,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   }
 
   void _handleEnemyDefeated(EnemyState enemy) {
+    final isElite =
+        enemy.role == EnemyRole.elite || enemy.variant == EnemyVariant.champion;
     final sourceSkillId = enemy.lastDamageSourceSkillId;
     if (sourceSkillId != null) {
-      final isElite =
-          enemy.role == EnemyRole.elite ||
-          enemy.variant == EnemyVariant.champion;
       final isBoss =
           enemy.role == EnemyRole.elite &&
           enemy.variant == EnemyVariant.champion;
@@ -1491,6 +1497,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     }
     if (!stressTest) {
       _runSummary.enemiesDefeated += 1;
+      if (isElite && _pickupRandom.nextDouble() <= _eliteSkillSwapDropChance) {
+        _spawnPickup(
+          kind: PickupKind.skillSwapSeal,
+          position: enemy.position,
+          value: 0,
+        );
+      }
       if (enemy.xpReward > 0) {
         final pickupKind = _rollPickupKind();
         final pickupValue = pickupKind == PickupKind.goldCoin
@@ -1869,6 +1882,59 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       _syncSelectionState(trackId);
       _runAnalysisState.recordOffer(_levelUpSystem.choices);
     }
+  }
+
+  void confirmSkillSwap() {
+    final plan = _skillSwapState.plan;
+    _skillSystem.setSkills(plan.equippedSkills);
+    if (plan.hasSwap) {
+      _skillProgressionSystem.applySwapTransfer(
+        fromSkillId: plan.outgoingSkillId!,
+        toSkillId: plan.incomingSkillId!,
+        fraction: 0.75,
+      );
+      _runAnalysisState.recordSkillAcquired(
+        plan.incomingSkillId!,
+        _runSummary.timeAlive,
+      );
+    }
+    _runAnalysisState.setActiveSkills(_skillSystem.skillIds);
+    _skillSwapState.clear();
+    overlays.remove(SkillSwapOverlay.overlayKey);
+    _syncHudState();
+  }
+
+  void skipSkillSwap() {
+    _skillSwapState.clear();
+    overlays.remove(SkillSwapOverlay.overlayKey);
+  }
+
+  void _openSkillSwapFromDrop() {
+    if (_skillSwapState.active) {
+      return;
+    }
+    final choices = _levelUpSystem.buildSkillSwapChoices(
+      playerState: _playerState,
+      skillSystem: _skillSystem,
+      unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
+    );
+    if (choices.isEmpty) {
+      return;
+    }
+    final offeredSkills = [
+      for (final choice in choices)
+        if (choice.skillId != null) choice.skillId!,
+    ];
+    if (offeredSkills.isEmpty) {
+      return;
+    }
+    _skillSwapState.show(
+      offeredSkills: offeredSkills,
+      equippedSkills: _skillSystem.skillIds,
+      skillLevels: _skillLevelSnapshots,
+      statValues: _collectStatValues(),
+    );
+    overlays.add(SkillSwapOverlay.overlayKey);
   }
 
   void banishSelection(SelectionChoice choice) {
@@ -2635,6 +2701,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   void _resetToStart() {
     _resetStageActors();
     _selectionState.clear();
+    _skillSwapState.clear();
     _activeArea = null;
     _stageTimer = null;
     _resetFinaleState();
@@ -2652,6 +2719,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(AreaSelectScreen.overlayKey);
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(SelectionOverlay.overlayKey);
+    overlays.remove(SkillSwapOverlay.overlayKey);
     overlays.remove(OptionsScreen.overlayKey);
     overlays.remove(CompendiumScreen.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
@@ -3101,8 +3169,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _stageTimer = null;
     _resetFinaleState();
     _selectionState.clear();
+    _skillSwapState.clear();
     _activeSelectionTrackId = null;
     overlays.remove(SelectionOverlay.overlayKey);
+    overlays.remove(SkillSwapOverlay.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(EscapeMenuOverlay.overlayKey);
     _setFlowState(GameFlowState.death);
@@ -3188,17 +3258,29 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   void _collectPickup(PickupState pickup) {
     if (!stressTest) {
-      final currencyId = _currencyByPickupKind[pickup.kind] ?? CurrencyId.xp;
-      if (currencyId == CurrencyId.xp) {
-        final adjustedValue = _applyXpBoost(pickup.value);
-        _runSummary.xpGained += adjustedValue;
-        final gain = _progressionSystem.addCurrency(currencyId, adjustedValue);
-        if (gain != null && gain.levelsGained > 0) {
-          _queueLevelUp(gain);
-        }
-      } else if (currencyId == CurrencyId.gold) {
-        _goldWallet += pickup.value;
-        _runSummary.goldGained += pickup.value;
+      switch (pickup.kind) {
+        case PickupKind.skillSwapSeal:
+          _openSkillSwapFromDrop();
+          break;
+        case PickupKind.xpOrb:
+        case PickupKind.goldCoin:
+          final currencyId =
+              _currencyByPickupKind[pickup.kind] ?? CurrencyId.xp;
+          if (currencyId == CurrencyId.xp) {
+            final adjustedValue = _applyXpBoost(pickup.value);
+            _runSummary.xpGained += adjustedValue;
+            final gain = _progressionSystem.addCurrency(
+              currencyId,
+              adjustedValue,
+            );
+            if (gain != null && gain.levelsGained > 0) {
+              _queueLevelUp(gain);
+            }
+          } else if (currencyId == CurrencyId.gold) {
+            _goldWallet += pickup.value;
+            _runSummary.goldGained += pickup.value;
+          }
+          break;
       }
     }
     _spawnPickupSpark(pickup.position);
@@ -3276,6 +3358,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _progressionSystem.reset();
     _skillSystem.resetToDefaults();
     _skillProgressionSystem.reset();
+    _skillSwapState.clear();
+    overlays.remove(SkillSwapOverlay.overlayKey);
     final characterDef = _activeCharacterDef();
     _playerState.setBaseStats(characterDef.baseStats);
     _playerState.resetForRun();

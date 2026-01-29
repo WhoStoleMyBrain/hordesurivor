@@ -1,6 +1,6 @@
 import 'package:flame/extensions.dart';
 
-enum PickupKind { xpOrb, goldCoin }
+enum PickupKind { xpOrb, goldCoin, skillSwapSeal }
 
 class PickupState {
   PickupState() : position = Vector2.zero();

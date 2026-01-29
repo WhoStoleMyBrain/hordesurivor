@@ -83,6 +83,27 @@ class SkillSystem {
     }
   }
 
+  void setSkills(List<SkillId> skillIds) {
+    final existingSlots = {for (final slot in _skills) slot.id: slot};
+    _skills
+      ..clear()
+      ..addAll(
+        skillIds.map((id) {
+          final existing = existingSlots[id];
+          if (existing != null) {
+            return existing;
+          }
+          final cooldown = skillDefsById[id]?.cooldown ?? 1.0;
+          return SkillSlot(id: id, cooldown: cooldown);
+        }),
+      );
+    for (final id in skillIds) {
+      if (!existingSlots.containsKey(id) && _passiveSummonSkills.contains(id)) {
+        _pendingPassiveSummons.add(id);
+      }
+    }
+  }
+
   void resetToDefaults() {
     _skills
       ..clear()

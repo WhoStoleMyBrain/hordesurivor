@@ -213,6 +213,22 @@ class LevelUpSystem {
     _activeTrackId = _choices.isEmpty ? null : ProgressionTrackId.skills;
   }
 
+  List<SelectionChoice> buildSkillSwapChoices({
+    required PlayerState playerState,
+    required SkillSystem skillSystem,
+    required Set<MetaUnlockId> unlockedMeta,
+  }) {
+    final extraChoices = playerState.stats.value(StatId.choiceCount).round();
+    final choiceCount = math.max(1, _baseChoiceCount + extraChoices);
+    final candidates = _buildCandidates(
+      skillSystem,
+      SelectionPoolId.skillPool,
+      unlockedMeta,
+    );
+    candidates.shuffle(_random);
+    return candidates.take(choiceCount).toList();
+  }
+
   bool rerollChoices({
     required ProgressionTrackId trackId,
     required SelectionPoolId selectionPoolId,

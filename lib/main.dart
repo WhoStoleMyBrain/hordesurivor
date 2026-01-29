@@ -25,6 +25,7 @@ import 'ui/mana_orb_overlay.dart';
 import 'ui/meta_unlock_screen.dart';
 import 'ui/options_screen.dart';
 import 'ui/selection_overlay.dart';
+import 'ui/skill_swap_overlay.dart';
 import 'ui/start_screen.dart';
 import 'ui/stats_overlay.dart';
 import 'ui/side_panel.dart';
@@ -203,6 +204,12 @@ class _GameShellState extends State<_GameShell> {
                     onSkip: game.skipSelection,
                     skillIcons: game.skillIcons,
                     itemIcons: game.itemIcons,
+                  ),
+                  SkillSwapOverlay.overlayKey: (_, game) => SkillSwapOverlay(
+                    state: game.skillSwapState,
+                    skillIcons: game.skillIcons,
+                    onConfirm: game.confirmSkillSwap,
+                    onSkip: game.skipSkillSwap,
                   ),
                   StatsOverlay.overlayKey: (_, game) => StatsOverlay(
                     state: game.statsScreenState,
