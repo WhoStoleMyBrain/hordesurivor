@@ -39,3 +39,27 @@ class SkillDetailLineText extends StatelessWidget {
     );
   }
 }
+
+class SkillLevelBonusLineText extends StatelessWidget {
+  const SkillLevelBonusLineText({super.key, required this.line, this.style});
+
+  final SkillLevelModifierLine line;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    final baseStyle = style ?? DefaultTextStyle.of(context).style;
+    final color = line.isBetter ? Colors.greenAccent : Colors.redAccent;
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: '${line.label}: ', style: baseStyle),
+          TextSpan(
+            text: line.deltaValue,
+            style: baseStyle.copyWith(color: color),
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:hordesurivor/data/data.dart';
 
+import '../game/skill_level_scaling.dart';
+
 class SkillDetailDisplayLine {
   const SkillDetailDisplayLine({
     required this.label,
@@ -18,6 +20,18 @@ class SkillDetailDisplayLine {
   bool get hasChange => actualValue != null && actualValue != baseValue;
 }
 
+class SkillLevelModifierLine {
+  const SkillLevelModifierLine({
+    required this.label,
+    required this.deltaValue,
+    required this.isBetter,
+  });
+
+  final String label;
+  final String deltaValue;
+  final bool isBetter;
+}
+
 List<SkillDetailLine> skillDetailLinesFor(SkillId id) {
   return skillDefsById[id]?.displayDetails ?? const [];
 }
@@ -30,8 +44,9 @@ List<String> skillDetailTextLinesFor(SkillId id) {
 
 List<SkillDetailDisplayLine> skillDetailDisplayLinesFor(
   SkillId id,
-  Map<StatId, double> statValues,
-) {
+  Map<StatId, double> statValues, {
+  int skillLevel = 1,
+}) {
   final def = skillDefsById[id];
   if (def == null) {
     return const [];
@@ -39,8 +54,72 @@ List<SkillDetailDisplayLine> skillDetailDisplayLinesFor(
   final tags = def.tags;
   return [
     for (final detail in def.displayDetails)
-      _detailLineFor(detail, id, tags, statValues),
+      _detailLineFor(detail, id, tags, statValues, skillLevel),
   ];
+}
+
+List<SkillLevelModifierLine> skillLevelModifierLinesFor(
+  SkillId id, {
+  int fromLevel = 1,
+  int toLevel = 1,
+}) {
+  if (toLevel <= fromLevel) {
+    return const [];
+  }
+  final def = skillDefsById[id];
+  if (def == null) {
+    return const [];
+  }
+  final lines = <SkillLevelModifierLine>[];
+  for (final detail in def.displayDetails) {
+    final type = detail.detailType;
+    final primary = detail.primaryValue;
+    if (type == null || primary == null) {
+      continue;
+    }
+    final secondary = detail.secondaryValue;
+    final basePrimary = _applySkillLevelScaling(type, primary, fromLevel);
+    final baseSecondary = secondary == null
+        ? null
+        : _applySkillLevelScalingSecondary(type, secondary, fromLevel);
+    final levelPrimary = _applySkillLevelScaling(type, primary, toLevel);
+    final levelSecondary = secondary == null
+        ? null
+        : _applySkillLevelScalingSecondary(type, secondary, toLevel);
+    if (!_hasMeaningfulChange(
+      basePrimary,
+      levelPrimary,
+      baseSecondary,
+      levelSecondary,
+    )) {
+      continue;
+    }
+    var deltaPrimary = levelPrimary - basePrimary;
+    final deltaSecondary = (levelSecondary != null && baseSecondary != null)
+        ? levelSecondary - baseSecondary
+        : null;
+    if (type == SkillDetailValueType.slow) {
+      final baseSlow = (1 - basePrimary).clamp(0.0, 1.0);
+      final levelSlow = (1 - levelPrimary).clamp(0.0, 1.0);
+      deltaPrimary = levelSlow - baseSlow;
+    }
+    final deltaValue = _formatSkillLevelDelta(
+      type,
+      deltaPrimary,
+      deltaSecondary,
+    );
+    if (deltaValue.isEmpty) {
+      continue;
+    }
+    lines.add(
+      SkillLevelModifierLine(
+        label: detail.label,
+        deltaValue: deltaValue,
+        isBetter: _isLevelDeltaBetter(type, deltaPrimary, deltaSecondary),
+      ),
+    );
+  }
+  return lines;
 }
 
 String skillDetailBlockFor(SkillId id) {
@@ -56,6 +135,7 @@ SkillDetailDisplayLine _detailLineFor(
   SkillId skillId,
   TagSet tags,
   Map<StatId, double> statValues,
+  int skillLevel,
 ) {
   final type = detail.detailType;
   final primary = detail.primaryValue;
@@ -64,50 +144,58 @@ SkillDetailDisplayLine _detailLineFor(
     return SkillDetailDisplayLine(label: detail.label, baseValue: detail.value);
   }
 
-  var actualPrimary = primary;
-  var actualSecondary = secondary;
+  final levelPrimary = _applySkillLevelScaling(type, primary, skillLevel);
+  final levelSecondary = secondary == null
+      ? null
+      : _applySkillLevelScalingSecondary(type, secondary, skillLevel);
+  var actualPrimary = levelPrimary;
+  var actualSecondary = levelSecondary;
   var isBetter = true;
   switch (type) {
     case SkillDetailValueType.cooldown:
-      actualPrimary = primary / _cooldownSpeed(statValues);
+      actualPrimary = levelPrimary / _cooldownSpeed(statValues);
       isBetter = actualPrimary < primary;
       break;
     case SkillDetailValueType.attackCooldown:
-      actualPrimary = primary / _attackSpeedScale(statValues);
+      actualPrimary = levelPrimary / _attackSpeedScale(statValues);
       isBetter = actualPrimary < primary;
       break;
     case SkillDetailValueType.damage:
     case SkillDetailValueType.damagePerSecond:
-      actualPrimary = _scaledDamageForTags(tags, statValues, primary);
+      actualPrimary = _scaledDamageForTags(tags, statValues, levelPrimary);
       isBetter = actualPrimary > primary;
       break;
     case SkillDetailValueType.damageOverTime:
-      actualPrimary = _scaledDamageForTags(tags, statValues, primary);
+      actualPrimary = _scaledDamageForTags(tags, statValues, levelPrimary);
       isBetter = actualPrimary > primary;
       break;
     case SkillDetailValueType.healingPerSecond:
-      actualPrimary = primary * _supportMultiplier(statValues);
+      actualPrimary = levelPrimary * _supportMultiplier(statValues);
       isBetter = actualPrimary > primary;
       break;
     case SkillDetailValueType.beamLength:
     case SkillDetailValueType.beamWidth:
     case SkillDetailValueType.groundRadius:
     case SkillDetailValueType.deflectRadius:
-      actualPrimary = primary * _aoeScale(statValues);
+      actualPrimary = levelPrimary * _aoeScale(statValues);
       isBetter = actualPrimary > primary;
       break;
     case SkillDetailValueType.range:
       if (detail.scalesWithAoe) {
-        actualPrimary = primary * _aoeScale(statValues);
+        actualPrimary = levelPrimary * _aoeScale(statValues);
         isBetter = actualPrimary > primary;
       }
       break;
     case SkillDetailValueType.knockback:
-      actualPrimary = primary * _knockbackScale(statValues);
+      actualPrimary = levelPrimary * _knockbackScale(statValues);
       isBetter = actualPrimary > primary;
       break;
     case SkillDetailValueType.ignite:
-      actualPrimary = _scaledDamageForTags(_igniteTags, statValues, primary);
+      actualPrimary = _scaledDamageForTags(
+        _igniteTags,
+        statValues,
+        levelPrimary,
+      );
       isBetter = actualPrimary > primary;
       break;
     case SkillDetailValueType.slow:
@@ -118,9 +206,9 @@ SkillDetailDisplayLine _detailLineFor(
             rootDef.minDurationScale,
             1 + _stat(statValues, StatId.statusDurationPercent),
           );
-          actualSecondary = (secondary ?? 0) * durationScale;
+          actualSecondary = (levelSecondary ?? 0) * durationScale;
           final strength =
-              (rootDef.baseStrength +
+              (applySkillLevelSlowStrength(rootDef.baseStrength, skillLevel) +
                       _stat(statValues, StatId.statusPotencyPercent))
                   .clamp(rootDef.minStrength, rootDef.maxStrength);
           final multiplier = (1 - strength).clamp(
@@ -135,6 +223,14 @@ SkillDetailDisplayLine _detailLineFor(
           } else if (secondary != null) {
             isBetter = actualSecondary > secondary;
           }
+        }
+      } else {
+        final baseSlow = (1 - primary).clamp(0.0, 1.0);
+        final actualSlow = (1 - actualPrimary).clamp(0.0, 1.0);
+        if ((actualSlow - baseSlow).abs() > _epsilon) {
+          isBetter = actualSlow > baseSlow;
+        } else if (secondary != null) {
+          isBetter = (actualSecondary ?? 0) > secondary;
         }
       }
       break;
@@ -171,6 +267,174 @@ SkillDetailDisplayLine _detailLineFor(
     actualValue: formattedActual,
     isBetter: isBetter,
   );
+}
+
+double _applySkillLevelScaling(
+  SkillDetailValueType type,
+  double value,
+  int skillLevel,
+) {
+  switch (type) {
+    case SkillDetailValueType.cooldown:
+    case SkillDetailValueType.attackCooldown:
+      return applySkillLevelCooldown(value, skillLevel);
+    case SkillDetailValueType.damage:
+    case SkillDetailValueType.damagePerSecond:
+    case SkillDetailValueType.damageOverTime:
+    case SkillDetailValueType.healingPerSecond:
+    case SkillDetailValueType.ignite:
+      return applySkillLevelDamage(value, skillLevel);
+    case SkillDetailValueType.projectileSpeed:
+    case SkillDetailValueType.orbitSpeed:
+    case SkillDetailValueType.moveSpeed:
+      return applySkillLevelSpeed(value, skillLevel);
+    case SkillDetailValueType.projectileRadius:
+    case SkillDetailValueType.beamLength:
+    case SkillDetailValueType.beamWidth:
+    case SkillDetailValueType.groundRadius:
+    case SkillDetailValueType.range:
+    case SkillDetailValueType.arc:
+    case SkillDetailValueType.deflectRadius:
+    case SkillDetailValueType.orbitRadius:
+      return applySkillLevelSize(value, skillLevel);
+    case SkillDetailValueType.duration:
+      return applySkillLevelDuration(value, skillLevel);
+    case SkillDetailValueType.slow:
+      return applySkillLevelSlowMultiplier(value, skillLevel);
+    case SkillDetailValueType.knockback:
+      return applySkillLevelKnockback(value, skillLevel);
+  }
+}
+
+double _applySkillLevelScalingSecondary(
+  SkillDetailValueType type,
+  double value,
+  int skillLevel,
+) {
+  switch (type) {
+    case SkillDetailValueType.damageOverTime:
+    case SkillDetailValueType.ignite:
+    case SkillDetailValueType.knockback:
+    case SkillDetailValueType.slow:
+    case SkillDetailValueType.duration:
+      return applySkillLevelDuration(value, skillLevel);
+    case SkillDetailValueType.cooldown:
+    case SkillDetailValueType.attackCooldown:
+    case SkillDetailValueType.damage:
+    case SkillDetailValueType.damagePerSecond:
+    case SkillDetailValueType.healingPerSecond:
+    case SkillDetailValueType.projectileSpeed:
+    case SkillDetailValueType.projectileRadius:
+    case SkillDetailValueType.beamLength:
+    case SkillDetailValueType.beamWidth:
+    case SkillDetailValueType.groundRadius:
+    case SkillDetailValueType.range:
+    case SkillDetailValueType.arc:
+    case SkillDetailValueType.deflectRadius:
+    case SkillDetailValueType.orbitRadius:
+    case SkillDetailValueType.orbitSpeed:
+    case SkillDetailValueType.moveSpeed:
+      return value;
+  }
+}
+
+String _formatSkillLevelDelta(
+  SkillDetailValueType type,
+  double deltaPrimary,
+  double? deltaSecondary,
+) {
+  switch (type) {
+    case SkillDetailValueType.cooldown:
+    case SkillDetailValueType.attackCooldown:
+    case SkillDetailValueType.duration:
+      return _formatSigned(
+        formatSkillSeconds(deltaPrimary.abs()),
+        deltaPrimary,
+      );
+    case SkillDetailValueType.damage:
+    case SkillDetailValueType.damagePerSecond:
+    case SkillDetailValueType.healingPerSecond:
+    case SkillDetailValueType.projectileSpeed:
+    case SkillDetailValueType.projectileRadius:
+    case SkillDetailValueType.beamLength:
+    case SkillDetailValueType.beamWidth:
+    case SkillDetailValueType.groundRadius:
+    case SkillDetailValueType.range:
+    case SkillDetailValueType.deflectRadius:
+    case SkillDetailValueType.orbitRadius:
+    case SkillDetailValueType.orbitSpeed:
+    case SkillDetailValueType.moveSpeed:
+      return _formatSigned(formatSkillNumber(deltaPrimary.abs()), deltaPrimary);
+    case SkillDetailValueType.arc:
+      final value = formatSkillNumber(deltaPrimary.abs());
+      return _formatSigned('$value°', deltaPrimary);
+    case SkillDetailValueType.damageOverTime:
+      final primary = _formatSigned(
+        formatSkillNumber(deltaPrimary.abs()),
+        deltaPrimary,
+      );
+      final secondary = _formatSigned(
+        formatSkillSeconds((deltaSecondary ?? 0).abs()),
+        deltaSecondary ?? 0,
+      );
+      return '$primary / $secondary';
+    case SkillDetailValueType.slow:
+      final primary = _formatSigned(
+        formatSkillPercent(deltaPrimary.abs()),
+        deltaPrimary,
+      );
+      if (deltaSecondary == null) {
+        return primary;
+      }
+      final secondary = _formatSigned(
+        formatSkillSeconds(deltaSecondary.abs()),
+        deltaSecondary,
+      );
+      return '$primary / $secondary';
+    case SkillDetailValueType.ignite:
+      final primary = _formatSigned(
+        formatSkillNumber(deltaPrimary.abs()),
+        deltaPrimary,
+      );
+      final secondary = _formatSigned(
+        formatSkillSeconds((deltaSecondary ?? 0).abs()),
+        deltaSecondary ?? 0,
+      );
+      return '$primary DPS / $secondary';
+    case SkillDetailValueType.knockback:
+      final primary = _formatSigned(
+        formatSkillNumber(deltaPrimary.abs()),
+        deltaPrimary,
+      );
+      final secondary = _formatSigned(
+        formatSkillSeconds((deltaSecondary ?? 0).abs()),
+        deltaSecondary ?? 0,
+      );
+      return '$primary force / $secondary';
+  }
+}
+
+String _formatSigned(String value, double delta) {
+  if (delta == 0) {
+    return value;
+  }
+  return delta > 0 ? '+$value' : '-$value';
+}
+
+bool _isLevelDeltaBetter(
+  SkillDetailValueType type,
+  double deltaPrimary,
+  double? deltaSecondary,
+) {
+  switch (type) {
+    case SkillDetailValueType.cooldown:
+    case SkillDetailValueType.attackCooldown:
+      return deltaPrimary < 0;
+    case SkillDetailValueType.slow:
+      return deltaPrimary > 0 || (deltaSecondary ?? 0) > 0;
+    default:
+      return deltaPrimary > 0 || (deltaSecondary ?? 0) > 0;
+  }
 }
 
 const _epsilon = 0.0001;

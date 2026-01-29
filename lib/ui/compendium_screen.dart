@@ -144,7 +144,11 @@ class _SkillList extends StatelessWidget {
       itemBuilder: (context, index) {
         final skill = skills[index];
         final badges = tagBadgesForTags(skill.tags);
-        final detailLines = skillDetailDisplayLinesFor(skill.id, const {});
+        final detailLines = skillDetailDisplayLinesFor(
+          skill.id,
+          const {},
+          skillLevel: 1,
+        );
         final detailsWidget = detailLines.isEmpty
             ? null
             : Column(

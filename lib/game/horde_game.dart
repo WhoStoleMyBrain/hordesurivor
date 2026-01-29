@@ -229,6 +229,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final SkillSystem _skillSystem;
   final SkillProgressionSystem _skillProgressionSystem =
       SkillProgressionSystem();
+  Map<SkillId, SkillProgressSnapshot> _skillLevelSnapshots = const {};
   late final PickupPool _pickupPool;
   late final SpatialGrid _enemyGrid;
   late final DamageSystem _damageSystem;
@@ -796,11 +797,17 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final playerAttackOrigin = _playerState.resolveAttackOrigin(
       _playerAttackOrigin,
     );
+    _skillLevelSnapshots = _skillProgressionSystem.buildSnapshots();
+    final skillLevelMap = <SkillId, int>{
+      for (final entry in _skillLevelSnapshots.entries)
+        entry.key: entry.value.level,
+    };
     _skillSystem.update(
       dt: dt,
       playerPosition: playerAttackOrigin,
       aimDirection: _playerState.movementIntent,
       stats: _playerState.stats,
+      skillLevels: skillLevelMap,
       enemyPool: _enemyPool,
       enemyGrid: _enemyGrid,
       onProjectileSpawn: _handleProjectileSpawn,
@@ -2409,7 +2416,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _statsScreenState.update(
       statValues: _collectStatValues(),
       skills: _skillSystem.skillIds,
-      skillLevels: _skillProgressionSystem.buildSnapshots(),
+      skillLevels: _skillLevelSnapshots,
       upgrades: _levelUpSystem.appliedUpgrades.toList(),
       weaponUpgrades: _levelUpSystem.appliedWeaponUpgrades.toList(),
       items: _levelUpSystem.appliedItems.toList(),
