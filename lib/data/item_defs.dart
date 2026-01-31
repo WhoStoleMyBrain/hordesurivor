@@ -200,7 +200,7 @@ const List<ItemDef> commonItems = [
     description: 'Blessing: +HP Regen / Burden: -Damage',
     flavorText: 'Nutritious, if you ignore the taste.',
     modifiers: [
-      StatModifier(stat: StatId.hpRegen, amount: 0.4, kind: ModifierKind.flat),
+      StatModifier(stat: StatId.hpRegen, amount: 4, kind: ModifierKind.flat),
       StatModifier(stat: StatId.damagePercent, amount: -0.03),
     ],
     rarity: ItemRarity.common,
@@ -437,7 +437,7 @@ const List<ItemDef> rareItems = [
     modifiers: [
       StatModifier(stat: StatId.healingReceivedPercent, amount: 0.3),
       StatModifier(stat: StatId.damagePercent, amount: -0.2),
-      StatModifier(stat: StatId.hpRegen, amount: 0.8, kind: ModifierKind.flat),
+      StatModifier(stat: StatId.hpRegen, amount: 8, kind: ModifierKind.flat),
     ],
     metaUnlockId: MetaUnlockId.mercyCharmVow,
     tags: TagSet(effects: {EffectTag.support}),
