@@ -9,6 +9,7 @@ import '../data/skill_defs.dart';
 import '../data/status_effect_defs.dart';
 import '../data/tags.dart';
 import 'item_rarity_style.dart';
+import 'scripture_card.dart';
 import 'skill_detail_line_text.dart';
 import 'skill_hover_tooltip.dart';
 import 'skill_detail_text.dart';
@@ -20,12 +21,14 @@ class CompendiumScreen extends StatelessWidget {
     super.key,
     required this.onClose,
     required this.itemIcons,
+    required this.cardBackground,
   });
 
   static const String overlayKey = 'compendium_screen';
 
   final VoidCallback onClose;
   final Map<ItemId, ui.Image?> itemIcons;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -79,8 +82,15 @@ class CompendiumScreen extends StatelessWidget {
                     Expanded(
                       child: TabBarView(
                         children: [
-                          _SkillList(skills: skillDefs),
-                          _ItemList(items: itemDefs, itemIcons: itemIcons),
+                          _SkillList(
+                            skills: skillDefs,
+                            cardBackground: cardBackground,
+                          ),
+                          _ItemList(
+                            items: itemDefs,
+                            itemIcons: itemIcons,
+                            cardBackground: cardBackground,
+                          ),
                           _EnemyList(enemies: enemyDefs),
                           _StatusList(statusEffects: statusEffectDefs),
                         ],
@@ -98,10 +108,15 @@ class CompendiumScreen extends StatelessWidget {
 }
 
 class _ItemList extends StatelessWidget {
-  const _ItemList({required this.items, required this.itemIcons});
+  const _ItemList({
+    required this.items,
+    required this.itemIcons,
+    required this.cardBackground,
+  });
 
   final List<ItemDef> items;
   final Map<ItemId, ui.Image?> itemIcons;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -123,6 +138,7 @@ class _ItemList extends StatelessWidget {
           badges: badges,
           rarityLabel: rarityLabel,
           rarityColor: rarityColor,
+          cardBackground: cardBackground,
         );
       },
     );
@@ -130,9 +146,10 @@ class _ItemList extends StatelessWidget {
 }
 
 class _SkillList extends StatelessWidget {
-  const _SkillList({required this.skills});
+  const _SkillList({required this.skills, required this.cardBackground});
 
   final List<SkillDef> skills;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -167,11 +184,13 @@ class _SkillList extends StatelessWidget {
               );
         return SkillHoverTooltip(
           skillId: skill.id,
+          cardBackground: cardBackground,
           child: _CompendiumCard(
             title: skill.name,
             description: skill.description,
             detailsWidget: detailsWidget,
             badges: badges,
+            cardBackground: cardBackground,
           ),
         );
       },
@@ -239,6 +258,7 @@ class _CompendiumCard extends StatelessWidget {
     required this.badges,
     this.rarityLabel,
     this.rarityColor,
+    this.cardBackground,
   });
 
   final String title;
@@ -250,86 +270,82 @@ class _CompendiumCard extends StatelessWidget {
   final List<TagBadgeData> badges;
   final String? rarityLabel;
   final Color? rarityColor;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final borderColor = rarityColor?.withValues(alpha: 0.45) ?? Colors.white12;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xFF1C2230),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (showIconSlot) ...[
-                  _CompendiumIcon(image: iconImage),
-                  const SizedBox(width: 10),
-                ],
-                Expanded(
-                  child: Text(
-                    title,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+    return ScriptureCard(
+      backgroundImage: cardBackground,
+      borderColor: borderColor,
+      showShadow: false,
+      padding: const EdgeInsets.all(16),
+      backgroundColor: const Color(0xFF1C2230),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (showIconSlot) ...[
+                _CompendiumIcon(image: iconImage),
+                const SizedBox(width: 10),
+              ],
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                if (rarityLabel != null && rarityColor != null)
-                  Text(
-                    rarityLabel!,
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: rarityColor!.withValues(alpha: 0.9),
-                      fontWeight: FontWeight.w600,
-                    ),
+              ),
+              if (rarityLabel != null && rarityColor != null)
+                Text(
+                  rarityLabel!,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: rarityColor!.withValues(alpha: 0.9),
+                    fontWeight: FontWeight.w600,
                   ),
-              ],
-            ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            description,
+            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
+          ),
+          if (rarityLabel != null && rarityColor != null) ...[
             const SizedBox(height: 6),
             Text(
-              description,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: Colors.white70,
+              'Rarity: $rarityLabel',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: rarityColor!.withValues(alpha: 0.9),
               ),
             ),
-            if (rarityLabel != null && rarityColor != null) ...[
-              const SizedBox(height: 6),
-              Text(
-                'Rarity: $rarityLabel',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: rarityColor!.withValues(alpha: 0.9),
-                ),
-              ),
-            ],
-            if (detailsWidget != null) ...[
-              const SizedBox(height: 8),
-              detailsWidget!,
-            ] else if (details != null && details!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(
-                details!,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.white60,
-                  height: 1.35,
-                ),
-              ),
-            ],
-            if (badges.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [for (final badge in badges) TagBadge(data: badge)],
-              ),
-            ],
           ],
-        ),
+          if (detailsWidget != null) ...[
+            const SizedBox(height: 8),
+            detailsWidget!,
+          ] else if (details != null && details!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              details!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.white60,
+                height: 1.35,
+              ),
+            ),
+          ],
+          if (badges.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [for (final badge in badges) TagBadge(data: badge)],
+            ),
+          ],
+        ],
       ),
     );
   }

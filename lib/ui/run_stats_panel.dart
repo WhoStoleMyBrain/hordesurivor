@@ -13,11 +13,13 @@ class RunStatsPanel extends StatelessWidget {
     required this.state,
     required this.skillIcons,
     required this.itemIcons,
+    required this.cardBackground,
   });
 
   final StatsScreenState state;
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<ItemId, ui.Image?> itemIcons;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +53,7 @@ class RunStatsPanel extends StatelessWidget {
                       state: state,
                       skillIcons: skillIcons,
                       itemIcons: itemIcons,
+                      cardBackground: cardBackground,
                     ),
                   ),
                 ],

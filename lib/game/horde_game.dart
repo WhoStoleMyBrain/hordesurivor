@@ -180,6 +180,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   static const double _shopIndicatorPadding = 28;
   static const double _shopPromptOffset = 18;
   static const String _shopSpriteId = 'objective_sanctum_shop';
+  static const String _cardBackgroundSpriteId = 'ui_scripture_card';
   static const String _tutorialSeenPrefsKey = 'tutorial_seen';
   static const TagSet _igniteDamageTags = TagSet(
     elements: {ElementTag.fire},
@@ -212,6 +213,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Map<SkillId, Image> _meleeSwipeSprites = {};
   Image? _projectileSprite;
   Image? _levelUpSealSprite;
+  Image? _cardBackgroundSprite;
   final Map<PickupKind, Image?> _pickupSprites = {};
   ProjectileBatchComponent? _projectileBatchComponent;
   final Set<LogicalKeyboardKey> _keysPressed = {};
@@ -388,6 +390,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   Map<CharacterId, Image?> get characterSprites => _characterSprites;
   Map<SkillId, Image?> get skillIcons => _skillIcons;
   Map<ItemId, Image?> get itemIcons => _itemIcons;
+  Image? get cardBackgroundSprite => _cardBackgroundSprite;
   CharacterId get activeCharacterId => _activeCharacterId;
   ValueListenable<CharacterId> get activeCharacterListenable =>
       _activeCharacterNotifier;
@@ -494,6 +497,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _shopSprite = _spritePipeline.lookup(_shopSpriteId);
     if (_shopSprite == null) {
       debugPrint('Sprite cache missing $_shopSpriteId.');
+    }
+    _cardBackgroundSprite = _spritePipeline.lookup(_cardBackgroundSpriteId);
+    if (_cardBackgroundSprite == null) {
+      debugPrint('Sprite cache missing $_cardBackgroundSpriteId.');
     }
     _mapSize.setValues(_currentMapSize.width, _currentMapSize.height);
     _mapBackground = MapBackgroundComponent(
