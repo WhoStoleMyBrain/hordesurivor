@@ -313,6 +313,9 @@ class SkillSwapCard extends StatelessWidget {
         : emphasize
         ? Colors.white70
         : Colors.white24;
+    final titleColor = scriptureStrongTextColor(cardBackground);
+    final bodyColor = scriptureTextColor(cardBackground);
+    final mutedColor = scriptureMutedTextColor(cardBackground);
     return ConstrainedBox(
       constraints: const BoxConstraints(minWidth: 220, maxWidth: 260),
       child: ScriptureCard(
@@ -334,6 +337,7 @@ class SkillSwapCard extends StatelessWidget {
                       Text(
                         def?.name ?? skillId.name,
                         style: theme.textTheme.titleSmall?.copyWith(
+                          color: titleColor,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -341,7 +345,7 @@ class SkillSwapCard extends StatelessWidget {
                       Text(
                         def?.description ?? '',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.white70,
+                          color: bodyColor,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -349,7 +353,7 @@ class SkillSwapCard extends StatelessWidget {
                         'Level ${snapshot.level} · ${snapshot.currentXp.toStringAsFixed(0)}'
                         '/${snapshot.xpToNext.toStringAsFixed(0)} XP',
                         style: theme.textTheme.labelSmall?.copyWith(
-                          color: Colors.white54,
+                          color: mutedColor,
                         ),
                       ),
                     ],
@@ -362,9 +366,7 @@ class SkillSwapCard extends StatelessWidget {
               for (final line in details)
                 SkillDetailLineText(
                   line: line,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.white60,
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(color: mutedColor),
                 ),
             ],
             if (badges.isNotEmpty) ...[

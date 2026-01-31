@@ -117,6 +117,9 @@ class _SkillTooltipCard extends StatelessWidget {
       fromLevel: 1,
       toLevel: snapshot.level,
     );
+    final titleColor = scriptureStrongTextColor(cardBackground);
+    final bodyColor = scriptureTextColor(cardBackground);
+    final mutedColor = scriptureMutedTextColor(cardBackground);
 
     return Padding(
       padding: const EdgeInsets.only(top: 8),
@@ -126,8 +129,8 @@ class _SkillTooltipCard extends StatelessWidget {
           backgroundImage: cardBackground,
           child: DefaultTextStyle(
             style:
-                theme.textTheme.bodySmall?.copyWith(color: Colors.white70) ??
-                const TextStyle(color: Colors.white70),
+                theme.textTheme.bodySmall?.copyWith(color: bodyColor) ??
+                TextStyle(color: bodyColor),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -135,7 +138,7 @@ class _SkillTooltipCard extends StatelessWidget {
                 Text(
                   skill?.name ?? skillId.name,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: const Color(0xFFE9D7A8),
+                    color: titleColor,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -143,7 +146,7 @@ class _SkillTooltipCard extends StatelessWidget {
                 Text(
                   'Level ${snapshot.level}',
                   style: theme.textTheme.labelMedium?.copyWith(
-                    color: Colors.white,
+                    color: titleColor,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.6,
                   ),
@@ -165,7 +168,7 @@ class _SkillTooltipCard extends StatelessWidget {
                   '${snapshot.currentXp.toStringAsFixed(0)}'
                   ' / ${snapshot.xpToNext.toStringAsFixed(0)}',
                   style: theme.textTheme.labelSmall?.copyWith(
-                    color: Colors.white60,
+                    color: mutedColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -179,7 +182,7 @@ class _SkillTooltipCard extends StatelessWidget {
                     SkillDetailLineText(
                       line: line,
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color: Colors.white54,
+                        color: mutedColor,
                       ),
                     ),
                 ],
@@ -188,7 +191,7 @@ class _SkillTooltipCard extends StatelessWidget {
                   Text(
                     'Level bonuses',
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: Colors.white70,
+                      color: bodyColor,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -197,7 +200,7 @@ class _SkillTooltipCard extends StatelessWidget {
                     SkillLevelBonusLineText(
                       line: line,
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color: Colors.white54,
+                        color: mutedColor,
                       ),
                     ),
                 ],

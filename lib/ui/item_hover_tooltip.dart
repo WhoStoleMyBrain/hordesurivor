@@ -95,6 +95,9 @@ class _ItemTooltipCard extends StatelessWidget {
             for (final modifier in item.modifiers)
               StatText.formatModifier(modifier),
           ];
+    final titleColor = scriptureStrongTextColor(cardBackground);
+    final bodyColor = scriptureTextColor(cardBackground);
+    final mutedColor = scriptureMutedTextColor(cardBackground);
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: SizedBox(
@@ -104,8 +107,8 @@ class _ItemTooltipCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           child: DefaultTextStyle(
             style:
-                theme.textTheme.bodySmall?.copyWith(color: Colors.white70) ??
-                const TextStyle(color: Colors.white70),
+                theme.textTheme.bodySmall?.copyWith(color: bodyColor) ??
+                TextStyle(color: bodyColor),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -113,7 +116,7 @@ class _ItemTooltipCard extends StatelessWidget {
                 Text(
                   item?.name ?? itemId.name,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: const Color(0xFFE9D7A8),
+                    color: titleColor,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -127,7 +130,7 @@ class _ItemTooltipCard extends StatelessWidget {
                     Text(
                       line,
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color: Colors.white60,
+                        color: mutedColor,
                         fontSize: UiScale.fontSize(11),
                       ),
                     ),
