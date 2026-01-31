@@ -11,6 +11,7 @@ import '../data/stat_defs.dart';
 import '../data/tags.dart';
 import '../data/weapon_upgrade_defs.dart';
 import '../game/skill_progression_system.dart';
+import 'scripture_card.dart';
 import 'skill_hover_tooltip.dart';
 import 'stat_baseline.dart';
 import 'stat_text.dart';
@@ -22,11 +23,13 @@ class RunStatsContent extends StatelessWidget {
     required this.state,
     required this.skillIcons,
     required this.itemIcons,
+    required this.cardBackground,
   });
 
   final StatsScreenState state;
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<ItemId, ui.Image?> itemIcons;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -73,12 +76,18 @@ class RunStatsContent extends StatelessWidget {
                   skillIcons: skillIcons,
                   skillLevels: state.skillLevels,
                   statValues: state.statValues,
+                  cardBackground: cardBackground,
                 ),
                 _UpgradesTab(
                   skillUpgrades: state.upgrades,
                   weaponUpgrades: state.weaponUpgrades,
+                  cardBackground: cardBackground,
                 ),
-                _ItemsTab(items: state.items, itemIcons: itemIcons),
+                _ItemsTab(
+                  items: state.items,
+                  itemIcons: itemIcons,
+                  cardBackground: cardBackground,
+                ),
               ],
             ),
           ),
@@ -241,12 +250,14 @@ class _SkillsTab extends StatelessWidget {
     required this.skillIcons,
     required this.skillLevels,
     required this.statValues,
+    required this.cardBackground,
   });
 
   final List<SkillId> skills;
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<SkillId, SkillProgressSnapshot> skillLevels;
   final Map<StatId, double> statValues;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -274,6 +285,7 @@ class _SkillsTab extends StatelessWidget {
             skillId: id,
             skillLevels: skillLevels,
             statValues: statValues,
+            cardBackground: cardBackground,
             child: _IconSlot(
               image: skillIcons[id],
               placeholder: Icons.auto_fix_high,
@@ -281,6 +293,7 @@ class _SkillsTab extends StatelessWidget {
           ),
           placeholder: Icons.auto_fix_high,
           showIconSlot: true,
+          cardBackground: cardBackground,
         );
       },
     );
@@ -291,10 +304,12 @@ class _UpgradesTab extends StatelessWidget {
   const _UpgradesTab({
     required this.skillUpgrades,
     required this.weaponUpgrades,
+    required this.cardBackground,
   });
 
   final List<SkillUpgradeId> skillUpgrades;
   final List<String> weaponUpgrades;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -324,6 +339,7 @@ class _UpgradesTab extends StatelessWidget {
                 title: _upgradeLabel(id),
                 subtitle:
                     skillUpgradeDefsById[id]?.summary ?? 'Details unavailable.',
+                cardBackground: cardBackground,
               ),
             ),
           ),
@@ -344,6 +360,7 @@ class _UpgradesTab extends StatelessWidget {
                 subtitle:
                     weaponUpgradeDefsById[id]?.summary ??
                     'Details unavailable.',
+                cardBackground: cardBackground,
               ),
             ),
           ),
@@ -353,10 +370,15 @@ class _UpgradesTab extends StatelessWidget {
 }
 
 class _ItemsTab extends StatelessWidget {
-  const _ItemsTab({required this.items, required this.itemIcons});
+  const _ItemsTab({
+    required this.items,
+    required this.itemIcons,
+    required this.cardBackground,
+  });
 
   final List<ItemId> items;
   final Map<ItemId, ui.Image?> itemIcons;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -383,6 +405,7 @@ class _ItemsTab extends StatelessWidget {
           icon: itemIcons[id],
           placeholder: Icons.local_offer,
           showIconSlot: true,
+          cardBackground: cardBackground,
         );
       },
     );
@@ -617,6 +640,7 @@ class _InfoCard extends StatelessWidget {
     this.iconWidget,
     this.placeholder,
     this.showIconSlot = false,
+    this.cardBackground,
   });
 
   final String title;
@@ -626,6 +650,7 @@ class _InfoCard extends StatelessWidget {
   final Widget? iconWidget;
   final IconData? placeholder;
   final bool showIconSlot;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -654,13 +679,9 @@ class _InfoCard extends StatelessWidget {
         ],
       ],
     );
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white10),
-      ),
+    return ScriptureCard(
+      backgroundImage: cardBackground,
+      showShadow: false,
       child: showIconSlot
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,

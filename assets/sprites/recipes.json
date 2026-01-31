@@ -7626,8 +7626,195 @@
           "diagonal": true
         }
       ]
-    }
-    ,
+    },
+    {
+      "id": "ui_scripture_card",
+      "kind": "item",
+      "outputName": "ui_scripture_card.png",
+      "size": 128,
+      "seed": 902,
+      "palette": {
+        "primary": "#EFE6CF",
+        "shadow": "#B59C6D",
+        "accent": "#F7F0E0",
+        "outline": "#3A2A1B",
+        "highlight": "#FFF9EA"
+      },
+      "shapes": [
+        {
+          "type": "rect",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "primary",
+          "size": [
+            120,
+            120
+          ]
+        },
+        {
+          "type": "rect",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "shadow",
+          "size": [
+            124,
+            124
+          ],
+          "filled": false,
+          "thickness": 2
+        },
+        {
+          "type": "rect",
+          "offset": [
+            0,
+            0
+          ],
+          "color": "accent",
+          "size": [
+            110,
+            110
+          ],
+          "filled": false,
+          "thickness": 1
+        },
+        {
+          "type": "line",
+          "offset": [
+            0,
+            -34
+          ],
+          "color": "shadow",
+          "start": [
+            -46,
+            0
+          ],
+          "end": [
+            46,
+            0
+          ],
+          "thickness": 1
+        },
+        {
+          "type": "line",
+          "offset": [
+            0,
+            34
+          ],
+          "color": "shadow",
+          "start": [
+            -46,
+            0
+          ],
+          "end": [
+            46,
+            0
+          ],
+          "thickness": 1
+        },
+        {
+          "type": "circle",
+          "offset": [
+            0,
+            -48
+          ],
+          "color": "accent",
+          "radius": 5
+        },
+        {
+          "type": "line",
+          "offset": [
+            0,
+            -48
+          ],
+          "color": "outline",
+          "start": [
+            -2,
+            0
+          ],
+          "end": [
+            2,
+            0
+          ],
+          "thickness": 1
+        },
+        {
+          "type": "line",
+          "offset": [
+            0,
+            -48
+          ],
+          "color": "outline",
+          "start": [
+            0,
+            -2
+          ],
+          "end": [
+            0,
+            2
+          ],
+          "thickness": 1
+        },
+        {
+          "type": "circle",
+          "offset": [
+            -52,
+            -52
+          ],
+          "color": "shadow",
+          "radius": 2
+        },
+        {
+          "type": "circle",
+          "offset": [
+            52,
+            -52
+          ],
+          "color": "shadow",
+          "radius": 2
+        },
+        {
+          "type": "circle",
+          "offset": [
+            -52,
+            52
+          ],
+          "color": "shadow",
+          "radius": 2
+        },
+        {
+          "type": "circle",
+          "offset": [
+            52,
+            52
+          ],
+          "color": "shadow",
+          "radius": 2
+        },
+        {
+          "type": "rect",
+          "offset": [
+            0,
+            50
+          ],
+          "color": "accent",
+          "size": [
+            10,
+            2
+          ]
+        }
+      ],
+      "post": [
+        {
+          "type": "outline",
+          "color": "outline",
+          "diagonal": true
+        }
+      ]
+    },
     {
       "id": "objective_sanctum_shop",
       "kind": "objective",

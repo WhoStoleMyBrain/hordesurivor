@@ -6,6 +6,7 @@ import '../data/ids.dart';
 import '../data/skill_defs.dart';
 import '../data/stat_defs.dart';
 import '../game/skill_progression_system.dart';
+import 'scripture_card.dart';
 import 'skill_detail_line_text.dart';
 import 'skill_detail_text.dart';
 import 'skill_swap_state.dart';
@@ -18,6 +19,7 @@ class SkillSwapOverlay extends StatelessWidget {
     required this.skillIcons,
     required this.onConfirm,
     required this.onSkip,
+    required this.cardBackground,
   });
 
   static const String overlayKey = 'skill_swap';
@@ -26,6 +28,7 @@ class SkillSwapOverlay extends StatelessWidget {
   final Map<SkillId, ui.Image?> skillIcons;
   final VoidCallback onConfirm;
   final VoidCallback onSkip;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +94,7 @@ class SkillSwapOverlay extends StatelessWidget {
                               skillIcons: skillIcons,
                               statValues: state.statValues,
                               skillLevels: state.skillLevels,
+                              cardBackground: cardBackground,
                             ),
                             const SizedBox(height: 20),
                             _SkillRow(
@@ -101,6 +105,7 @@ class SkillSwapOverlay extends StatelessWidget {
                               skillIcons: skillIcons,
                               statValues: state.statValues,
                               skillLevels: state.skillLevels,
+                              cardBackground: cardBackground,
                             ),
                             const SizedBox(height: 16),
                             Align(
@@ -143,6 +148,7 @@ class _SkillRow extends StatelessWidget {
     required this.skillIcons,
     required this.statValues,
     required this.skillLevels,
+    required this.cardBackground,
   });
 
   final String title;
@@ -152,6 +158,7 @@ class _SkillRow extends StatelessWidget {
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<StatId, double> statValues;
   final Map<SkillId, SkillProgressSnapshot> skillLevels;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -179,6 +186,7 @@ class _SkillRow extends StatelessWidget {
                 skillIcons: skillIcons,
                 statValues: statValues,
                 skillLevels: skillLevels,
+                cardBackground: cardBackground,
               ),
           ],
         ),
@@ -195,6 +203,7 @@ class _SkillSlot extends StatelessWidget {
     required this.skillIcons,
     required this.statValues,
     required this.skillLevels,
+    required this.cardBackground,
   });
 
   final SkillSwapSlot slot;
@@ -203,6 +212,7 @@ class _SkillSlot extends StatelessWidget {
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<StatId, double> statValues;
   final Map<SkillId, SkillProgressSnapshot> skillLevels;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -230,6 +240,7 @@ class _SkillSlot extends StatelessWidget {
                 statValues: statValues,
                 skillLevels: skillLevels,
                 emphasize: true,
+                cardBackground: cardBackground,
               ),
             ),
           ),
@@ -241,6 +252,7 @@ class _SkillSlot extends StatelessWidget {
               statValues: statValues,
               skillLevels: skillLevels,
               highlight: isTargeted,
+              cardBackground: cardBackground,
             ),
           ),
           child: SkillSwapCard(
@@ -249,6 +261,7 @@ class _SkillSlot extends StatelessWidget {
             statValues: statValues,
             skillLevels: skillLevels,
             highlight: isTargeted,
+            cardBackground: cardBackground,
           ),
         );
       },
@@ -263,6 +276,7 @@ class SkillSwapCard extends StatelessWidget {
     required this.iconImage,
     required this.statValues,
     required this.skillLevels,
+    required this.cardBackground,
     this.highlight = false,
     this.emphasize = false,
   });
@@ -271,6 +285,7 @@ class SkillSwapCard extends StatelessWidget {
   final ui.Image? iconImage;
   final Map<StatId, double> statValues;
   final Map<SkillId, SkillProgressSnapshot> skillLevels;
+  final ui.Image? cardBackground;
   final bool highlight;
   final bool emphasize;
 
@@ -298,90 +313,80 @@ class SkillSwapCard extends StatelessWidget {
         : emphasize
         ? Colors.white70
         : Colors.white24;
-    return Container(
+    return ConstrainedBox(
       constraints: const BoxConstraints(minWidth: 220, maxWidth: 260),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF26221F),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor, width: 1.2),
-        boxShadow: emphasize
-            ? [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.35),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                ),
-              ]
-            : const [],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _SkillIcon(image: iconImage),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      def?.name ?? skillId.name,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      def?.description ?? '',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white70,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Level ${snapshot.level} · ${snapshot.currentXp.toStringAsFixed(0)}'
-                      '/${snapshot.xpToNext.toStringAsFixed(0)} XP',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: Colors.white54,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          if (details.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            for (final line in details)
-              SkillDetailLineText(
-                line: line,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.white60,
-                ),
-              ),
-          ],
-          if (badges.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [for (final badge in badges) TagBadge(data: badge)],
-            ),
-          ],
-          if (statusBadges.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
+      child: ScriptureCard(
+        backgroundImage: cardBackground,
+        borderColor: borderColor,
+        showShadow: emphasize,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (final badge in statusBadges) TagBadge(data: badge),
+                _SkillIcon(image: iconImage),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        def?.name ?? skillId.name,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        def?.description ?? '',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.white70,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Level ${snapshot.level} · ${snapshot.currentXp.toStringAsFixed(0)}'
+                        '/${snapshot.xpToNext.toStringAsFixed(0)} XP',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: Colors.white54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
+            if (details.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              for (final line in details)
+                SkillDetailLineText(
+                  line: line,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.white60,
+                  ),
+                ),
+            ],
+            if (badges.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [for (final badge in badges) TagBadge(data: badge)],
+              ),
+            ],
+            if (statusBadges.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final badge in statusBadges) TagBadge(data: badge),
+                ],
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

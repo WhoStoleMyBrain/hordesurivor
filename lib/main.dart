@@ -204,18 +204,21 @@ class _GameShellState extends State<_GameShell> {
                     onSkip: game.skipSelection,
                     skillIcons: game.skillIcons,
                     itemIcons: game.itemIcons,
+                    cardBackground: game.cardBackgroundSprite,
                   ),
                   SkillSwapOverlay.overlayKey: (_, game) => SkillSwapOverlay(
                     state: game.skillSwapState,
                     skillIcons: game.skillIcons,
                     onConfirm: game.confirmSkillSwap,
                     onSkip: game.skipSkillSwap,
+                    cardBackground: game.cardBackgroundSprite,
                   ),
                   StatsOverlay.overlayKey: (_, game) => StatsOverlay(
                     state: game.statsScreenState,
                     onClose: game.toggleStatsOverlay,
                     skillIcons: game.skillIcons,
                     itemIcons: game.itemIcons,
+                    cardBackground: game.cardBackgroundSprite,
                   ),
                   StartScreen.overlayKey: (context, game) => StartScreen(
                     onStart: game.beginHomeBaseFromStartScreen,
@@ -240,6 +243,7 @@ class _GameShellState extends State<_GameShell> {
                   CompendiumScreen.overlayKey: (_, game) => CompendiumScreen(
                     onClose: game.closeCompendiumScreen,
                     itemIcons: game.itemIcons,
+                    cardBackground: game.cardBackgroundSprite,
                   ),
                   MetaUnlockScreen.overlayKey: (_, game) => MetaUnlockScreen(
                     wallet: game.metaWallet,
@@ -265,6 +269,7 @@ class _GameShellState extends State<_GameShell> {
                         onMetaUnlocks: game.openMetaUnlocksFromMenu,
                         skillIcons: game.skillIcons,
                         itemIcons: game.itemIcons,
+                        cardBackground: game.cardBackgroundSprite,
                         onStressTest: () => Navigator.of(
                           context,
                         ).pushReplacementNamed('/stress'),

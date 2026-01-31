@@ -22,6 +22,7 @@ class EscapeMenuOverlay extends StatelessWidget {
     required this.onMetaUnlocks,
     required this.skillIcons,
     required this.itemIcons,
+    required this.cardBackground,
     this.onStressTest,
     this.onExit,
     this.stressStats,
@@ -44,6 +45,7 @@ class EscapeMenuOverlay extends StatelessWidget {
   final VoidCallback onMetaUnlocks;
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<ItemId, ui.Image?> itemIcons;
+  final ui.Image? cardBackground;
   final VoidCallback? onStressTest;
   final VoidCallback? onExit;
   final StressStatsSnapshot? stressStats;
@@ -65,6 +67,7 @@ class EscapeMenuOverlay extends StatelessWidget {
                 stressStats: stressStats,
                 skillIcons: skillIcons,
                 itemIcons: itemIcons,
+                cardBackground: cardBackground,
               )
             : _OutOfRunMenuLayout(
                 wallet: wallet,
@@ -90,6 +93,7 @@ class _InRunMenuLayout extends StatelessWidget {
     required this.stressStats,
     required this.skillIcons,
     required this.itemIcons,
+    required this.cardBackground,
   });
 
   final VoidCallback onClose;
@@ -99,6 +103,7 @@ class _InRunMenuLayout extends StatelessWidget {
   final StressStatsSnapshot? stressStats;
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<ItemId, ui.Image?> itemIcons;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +156,7 @@ class _InRunMenuLayout extends StatelessWidget {
                                   state: statsState,
                                   skillIcons: skillIcons,
                                   itemIcons: itemIcons,
+                                  cardBackground: cardBackground,
                                 ),
                               ),
                             ),

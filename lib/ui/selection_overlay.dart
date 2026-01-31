@@ -12,8 +12,10 @@ import '../data/tags.dart';
 import '../data/weapon_upgrade_defs.dart';
 import '../game/level_up_system.dart';
 import '../game/skill_progression_system.dart';
+import 'item_hover_tooltip.dart';
 import 'item_rarity_style.dart';
 import 'selection_state.dart';
+import 'scripture_card.dart';
 import 'skill_detail_line_text.dart';
 import 'skill_detail_text.dart';
 import 'skill_hover_tooltip.dart';
@@ -34,6 +36,7 @@ class SelectionOverlay extends StatelessWidget {
     required this.onSkip,
     required this.skillIcons,
     required this.itemIcons,
+    required this.cardBackground,
     required this.statsState,
   });
 
@@ -47,6 +50,7 @@ class SelectionOverlay extends StatelessWidget {
   final VoidCallback onSkip;
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<ItemId, ui.Image?> itemIcons;
+  final ui.Image? cardBackground;
   final StatsScreenState statsState;
 
   @override
@@ -73,6 +77,7 @@ class SelectionOverlay extends StatelessWidget {
                 onSkip: onSkip,
                 skillIcons: skillIcons,
                 itemIcons: itemIcons,
+                cardBackground: cardBackground,
               );
             }
             const choiceCardWidth = 280.0;
@@ -183,6 +188,7 @@ class SelectionOverlay extends StatelessWidget {
                                       choice.itemId,
                                     ),
                                     isPlaceholder: isPlaceholder,
+                                    cardBackground: cardBackground,
                                     onBanish:
                                         selectionState.banishesRemaining > 0 &&
                                             !isPlaceholder
@@ -231,6 +237,7 @@ class _ShopOverlayLayout extends StatelessWidget {
     required this.onSkip,
     required this.skillIcons,
     required this.itemIcons,
+    required this.cardBackground,
   });
 
   final SelectionState selectionState;
@@ -242,6 +249,7 @@ class _ShopOverlayLayout extends StatelessWidget {
   final VoidCallback onSkip;
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<ItemId, ui.Image?> itemIcons;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -360,6 +368,7 @@ class _ShopOverlayLayout extends StatelessWidget {
                                     choice.itemId,
                                   ),
                                   isPlaceholder: isPlaceholder,
+                                  cardBackground: cardBackground,
                                   onBanish:
                                       selectionState.banishesRemaining > 0 &&
                                           !isPlaceholder
@@ -387,6 +396,7 @@ class _ShopOverlayLayout extends StatelessWidget {
                           skillIcons: skillIcons,
                           skillLevels: statsState.skillLevels,
                           statValues: statsState.statValues,
+                          cardBackground: cardBackground,
                         ),
                         const SizedBox(height: 12),
                         if (selectionState.skipEnabled)
@@ -407,6 +417,7 @@ class _ShopOverlayLayout extends StatelessWidget {
                       state: statsState,
                       skillIcons: skillIcons,
                       itemIcons: itemIcons,
+                      cardBackground: cardBackground,
                     ),
                   ),
                 ],
@@ -418,6 +429,7 @@ class _ShopOverlayLayout extends StatelessWidget {
             child: _OwnedItemsBar(
               items: statsState.items,
               itemIcons: itemIcons,
+              cardBackground: cardBackground,
             ),
           ),
         ],
@@ -458,12 +470,14 @@ class _ShopSkillRow extends StatelessWidget {
     required this.skillIcons,
     required this.skillLevels,
     required this.statValues,
+    required this.cardBackground,
   });
 
   final List<SkillId> skills;
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<SkillId, SkillProgressSnapshot> skillLevels;
   final Map<StatId, double> statValues;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -484,6 +498,7 @@ class _ShopSkillRow extends StatelessWidget {
             skillId: skillId,
             skillLevels: skillLevels,
             statValues: statValues,
+            cardBackground: cardBackground,
             child: _MiniIcon(
               image: skillIcons[skillId],
               placeholder: Icons.auto_fix_high,
@@ -495,21 +510,21 @@ class _ShopSkillRow extends StatelessWidget {
 }
 
 class _OwnedItemsBar extends StatelessWidget {
-  const _OwnedItemsBar({required this.items, required this.itemIcons});
+  const _OwnedItemsBar({
+    required this.items,
+    required this.itemIcons,
+    required this.cardBackground,
+  });
 
   final List<ItemId> items;
   final Map<ItemId, ui.Image?> itemIcons;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF120C09),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF3A2B1B)),
-      ),
+    return ScriptureCard(
+      backgroundImage: cardBackground,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -532,11 +547,9 @@ class _OwnedItemsBar extends StatelessWidget {
               runSpacing: 8,
               children: [
                 for (final itemId in items)
-                  Tooltip(
-                    waitDuration: const Duration(milliseconds: 250),
-                    preferBelow: false,
-                    decoration: _tooltipDecoration(),
-                    richMessage: _itemTooltip(itemId),
+                  ItemHoverTooltip(
+                    itemId: itemId,
+                    cardBackground: cardBackground,
                     child: _MiniIcon(
                       image: itemIcons[itemId],
                       placeholder: Icons.local_offer,
@@ -581,11 +594,13 @@ class _ShopStatsPanel extends StatelessWidget {
     required this.state,
     required this.skillIcons,
     required this.itemIcons,
+    required this.cardBackground,
   });
 
   final StatsScreenState state;
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<ItemId, ui.Image?> itemIcons;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -636,8 +651,13 @@ class _ShopStatsPanel extends StatelessWidget {
                     skillIcons: skillIcons,
                     skillLevels: state.skillLevels,
                     statValues: state.statValues,
+                    cardBackground: cardBackground,
                   ),
-                  _ShopItemList(items: state.items, itemIcons: itemIcons),
+                  _ShopItemList(
+                    items: state.items,
+                    itemIcons: itemIcons,
+                    cardBackground: cardBackground,
+                  ),
                 ],
               ),
             ),
@@ -706,12 +726,14 @@ class _ShopSkillList extends StatelessWidget {
     required this.skillIcons,
     required this.skillLevels,
     required this.statValues,
+    required this.cardBackground,
   });
 
   final List<SkillId> skills;
   final Map<SkillId, ui.Image?> skillIcons;
   final Map<SkillId, SkillProgressSnapshot> skillLevels;
   final Map<StatId, double> statValues;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -734,6 +756,7 @@ class _ShopSkillList extends StatelessWidget {
               skillId: skillId,
               skillLevels: skillLevels,
               statValues: statValues,
+              cardBackground: cardBackground,
               child: _ListIcon(
                 image: skillIcons[skillId],
                 placeholder: Icons.auto_fix_high,
@@ -756,10 +779,15 @@ class _ShopSkillList extends StatelessWidget {
 }
 
 class _ShopItemList extends StatelessWidget {
-  const _ShopItemList({required this.items, required this.itemIcons});
+  const _ShopItemList({
+    required this.items,
+    required this.itemIcons,
+    required this.cardBackground,
+  });
 
   final List<ItemId> items;
   final Map<ItemId, ui.Image?> itemIcons;
+  final ui.Image? cardBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -776,32 +804,40 @@ class _ShopItemList extends StatelessWidget {
       itemBuilder: (context, index) {
         final itemId = items[index];
         final item = itemDefsById[itemId];
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _ListIcon(image: itemIcons[itemId], placeholder: Icons.local_offer),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item?.name ?? itemId.name,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: Colors.white70,
-                    ),
-                  ),
-                  if (item != null)
+        return ScriptureCard(
+          backgroundImage: cardBackground,
+          padding: const EdgeInsets.all(10),
+          showShadow: false,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _ListIcon(
+                image: itemIcons[itemId],
+                placeholder: Icons.local_offer,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      item.description,
+                      item?.name ?? itemId.name,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white54,
+                        color: Colors.white70,
                       ),
                     ),
-                ],
+                    if (item != null)
+                      Text(
+                        item.description,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.white54,
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
@@ -832,52 +868,6 @@ class _ListIcon extends StatelessWidget {
             ),
     );
   }
-}
-
-BoxDecoration _tooltipDecoration() {
-  return BoxDecoration(
-    color: Colors.black.withValues(alpha: 0.9),
-    borderRadius: BorderRadius.circular(8),
-    border: Border.all(color: Colors.white24),
-  );
-}
-
-TextSpan _itemTooltip(ItemId itemId) {
-  final item = itemDefsById[itemId];
-  final modifierLines = item == null
-      ? const <String>[]
-      : [
-          for (final modifier in item.modifiers)
-            StatText.formatModifier(modifier),
-        ];
-  return TextSpan(
-    children: [
-      TextSpan(
-        text: item?.name ?? itemId.name,
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
-          fontSize: UiScale.fontSize(12),
-        ),
-      ),
-      if (item != null)
-        TextSpan(
-          text: '\n${item.description}',
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: UiScale.fontSize(11),
-          ),
-        ),
-      if (modifierLines.isNotEmpty)
-        TextSpan(
-          text: '\n${modifierLines.join('\n')}',
-          style: TextStyle(
-            color: Colors.white60,
-            fontSize: UiScale.fontSize(11),
-          ),
-        ),
-    ],
-  );
 }
 
 class _RerollButton extends StatelessWidget {
@@ -966,6 +956,7 @@ class _ChoiceCard extends StatelessWidget {
     required this.price,
     required this.locked,
     required this.isPlaceholder,
+    required this.cardBackground,
     this.onBanish,
     this.onToggleLock,
   });
@@ -980,6 +971,7 @@ class _ChoiceCard extends StatelessWidget {
   final int? price;
   final bool locked;
   final bool isPlaceholder;
+  final ui.Image? cardBackground;
   final VoidCallback? onBanish;
   final VoidCallback? onToggleLock;
 
@@ -1005,6 +997,7 @@ class _ChoiceCard extends StatelessWidget {
             skillId: skillId,
             skillLevels: skillLevels,
             statValues: statValues,
+            cardBackground: cardBackground,
             child: _ChoiceIcon(image: iconImage, isPlaceholder: isPlaceholder),
           );
     final canAfford = price == null || goldAvailable >= price!;
@@ -1014,185 +1007,189 @@ class _ChoiceCard extends StatelessWidget {
     final rarityColor = rarity == null ? null : itemRarityColor(rarity);
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.all(12),
-        side: BorderSide(
-          color: (rarityColor ?? Colors.white24).withValues(alpha: 0.55),
-        ),
+        padding: EdgeInsets.zero,
+        side: BorderSide.none,
         foregroundColor: Colors.white,
       ),
       onPressed: canAfford ? onPressed : null,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              icon,
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            choice.title,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: isPlaceholder ? Colors.white54 : null,
+      child: ScriptureCard(
+        backgroundImage: cardBackground,
+        borderColor: (rarityColor ?? Colors.white24).withValues(alpha: 0.55),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                icon,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              choice.title,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: isPlaceholder ? Colors.white54 : null,
+                              ),
                             ),
                           ),
+                          if (locked)
+                            const Padding(
+                              padding: EdgeInsets.only(right: 6),
+                              child: Icon(
+                                Icons.lock,
+                                size: 14,
+                                color: Colors.amberAccent,
+                              ),
+                            ),
+                          if (priceLabel != null)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 6),
+                              child: Text(
+                                priceLabel,
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: canAfford
+                                      ? Colors.amberAccent
+                                      : Colors.redAccent,
+                                ),
+                              ),
+                            ),
+                          if (rarityLabel != null && rarityColor != null)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 6),
+                              child: Text(
+                                rarityLabel,
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: rarityColor.withValues(alpha: 0.9),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          Text(
+                            _labelForChoice(choice.type),
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        choice.description,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: isPlaceholder
+                              ? Colors.white38
+                              : Colors.white70,
                         ),
-                        if (locked)
-                          const Padding(
-                            padding: EdgeInsets.only(right: 6),
-                            child: Icon(
-                              Icons.lock,
-                              size: 14,
-                              color: Colors.amberAccent,
-                            ),
-                          ),
-                        if (priceLabel != null)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 6),
-                            child: Text(
-                              priceLabel,
-                              style: theme.textTheme.labelMedium?.copyWith(
-                                color: canAfford
-                                    ? Colors.amberAccent
-                                    : Colors.redAccent,
-                              ),
-                            ),
-                          ),
-                        if (rarityLabel != null && rarityColor != null)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 6),
-                            child: Text(
-                              rarityLabel,
-                              style: theme.textTheme.labelMedium?.copyWith(
-                                color: rarityColor.withValues(alpha: 0.9),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
+                      ),
+                      if (choice.flavorText.isNotEmpty) ...[
+                        const SizedBox(height: 6),
                         Text(
-                          _labelForChoice(choice.type),
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: Colors.white70,
+                          choice.flavorText,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.white54,
+                            fontStyle: FontStyle.italic,
                           ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      choice.description,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: isPlaceholder ? Colors.white38 : Colors.white70,
-                      ),
-                    ),
-                    if (choice.flavorText.isNotEmpty) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        choice.flavorText,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.white54,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
                     ],
+                  ),
+                ),
+              ],
+            ),
+            if (statChanges.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              for (final line in statChanges)
+                Text(
+                  line,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.white60,
+                  ),
+                ),
+            ],
+            if (skillDetails.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              for (final line in skillDetails)
+                SkillDetailLineText(
+                  line: line,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.white60,
+                  ),
+                ),
+            ],
+            if (levelUpPreview.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Leveling (Lv1 → Lv2)',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              for (final line in levelUpPreview)
+                SkillLevelBonusLineText(
+                  line: line,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.white60,
+                  ),
+                ),
+            ],
+            if (badges.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [for (final badge in badges) TagBadge(data: badge)],
+              ),
+            ],
+            if (statusBadges.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final badge in statusBadges) TagBadge(data: badge),
+                ],
+              ),
+            ],
+            if (synergies.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              for (final line in synergies)
+                Text(
+                  line,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.white70,
+                  ),
+                ),
+            ],
+            if (onBanish != null || onToggleLock != null) ...[
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Wrap(
+                  spacing: 8,
+                  children: [
+                    if (onToggleLock != null)
+                      TextButton(
+                        onPressed: onToggleLock,
+                        child: Text(locked ? 'Unlock' : 'Lock'),
+                      ),
+                    if (onBanish != null)
+                      TextButton(
+                        onPressed: onBanish,
+                        child: Text('Banish ($banishesRemaining)'),
+                      ),
                   ],
                 ),
               ),
             ],
-          ),
-          if (statChanges.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            for (final line in statChanges)
-              Text(
-                line,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.white60,
-                ),
-              ),
           ],
-          if (skillDetails.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            for (final line in skillDetails)
-              SkillDetailLineText(
-                line: line,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.white60,
-                ),
-              ),
-          ],
-          if (levelUpPreview.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              'Leveling (Lv1 → Lv2)',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.white70,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 4),
-            for (final line in levelUpPreview)
-              SkillLevelBonusLineText(
-                line: line,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.white60,
-                ),
-              ),
-          ],
-          if (badges.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [for (final badge in badges) TagBadge(data: badge)],
-            ),
-          ],
-          if (statusBadges.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                for (final badge in statusBadges) TagBadge(data: badge),
-              ],
-            ),
-          ],
-          if (synergies.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            for (final line in synergies)
-              Text(
-                line,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.white70,
-                ),
-              ),
-          ],
-          if (onBanish != null || onToggleLock != null) ...[
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Wrap(
-                spacing: 8,
-                children: [
-                  if (onToggleLock != null)
-                    TextButton(
-                      onPressed: onToggleLock,
-                      child: Text(locked ? 'Unlock' : 'Lock'),
-                    ),
-                  if (onBanish != null)
-                    TextButton(
-                      onPressed: onBanish,
-                      child: Text('Banish ($banishesRemaining)'),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }
