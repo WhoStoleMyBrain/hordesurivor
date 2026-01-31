@@ -655,26 +655,29 @@ class _InfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final titleColor = scriptureStrongTextColor(cardBackground);
+    final bodyColor = scriptureTextColor(cardBackground);
+    final mutedColor = scriptureMutedTextColor(cardBackground);
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: Colors.white,
+            color: titleColor,
             fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           subtitle,
-          style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
+          style: theme.textTheme.bodySmall?.copyWith(color: bodyColor),
         ),
         if (footer != null) ...[
           const SizedBox(height: 6),
           Text(
             footer!,
-            style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
+            style: theme.textTheme.bodySmall?.copyWith(color: mutedColor),
           ),
         ],
       ],

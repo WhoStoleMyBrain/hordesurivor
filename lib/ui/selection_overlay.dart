@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -81,7 +82,7 @@ class SelectionOverlay extends StatelessWidget {
               );
             }
             const choiceCardWidth = 280.0;
-            const choiceListHeight = 260.0;
+            final choiceListHeight = _choiceListHeight(context);
             return Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 920),
@@ -335,7 +336,7 @@ class _ShopOverlayLayout extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         SizedBox(
-                          height: 260,
+                          height: _choiceListHeight(context),
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: choices.length,
@@ -523,6 +524,8 @@ class _OwnedItemsBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final titleColor = scriptureStrongTextColor(cardBackground);
+    final mutedColor = scriptureMutedTextColor(cardBackground);
     return ScriptureCard(
       backgroundImage: cardBackground,
       child: Column(
@@ -531,7 +534,7 @@ class _OwnedItemsBar extends StatelessWidget {
           Text(
             'Owned Rites',
             style: theme.textTheme.titleSmall?.copyWith(
-              color: const Color(0xFFE9D7A8),
+              color: titleColor,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -539,7 +542,7 @@ class _OwnedItemsBar extends StatelessWidget {
           if (items.isEmpty)
             Text(
               'No rites claimed yet.',
-              style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
+              style: theme.textTheme.bodySmall?.copyWith(color: mutedColor),
             )
           else
             Wrap(
@@ -792,10 +795,12 @@ class _ShopItemList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final titleColor = scriptureStrongTextColor(cardBackground);
+    final mutedColor = scriptureMutedTextColor(cardBackground);
     if (items.isEmpty) {
       return Text(
         'No rites claimed yet.',
-        style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
+        style: theme.textTheme.bodySmall?.copyWith(color: mutedColor),
       );
     }
     return ListView.separated(
@@ -823,14 +828,14 @@ class _ShopItemList extends StatelessWidget {
                     Text(
                       item?.name ?? itemId.name,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white70,
+                        color: titleColor,
                       ),
                     ),
                     if (item != null)
                       Text(
                         item.description,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.white54,
+                          color: mutedColor,
                         ),
                       ),
                   ],
@@ -978,6 +983,10 @@ class _ChoiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final titleColor = scriptureStrongTextColor(cardBackground);
+    final bodyColor = scriptureTextColor(cardBackground);
+    final mutedColor = scriptureMutedTextColor(cardBackground);
+    final faintColor = scriptureFaintTextColor(cardBackground);
     final tags = _tagsForChoice(choice);
     final badges = tagBadgesForTags(tags);
     final statusEffects = _statusEffectsForChoice(choice);
@@ -1033,7 +1042,7 @@ class _ChoiceCard extends StatelessWidget {
                             child: Text(
                               choice.title,
                               style: theme.textTheme.titleMedium?.copyWith(
-                                color: isPlaceholder ? Colors.white54 : null,
+                                color: isPlaceholder ? mutedColor : titleColor,
                               ),
                             ),
                           ),
@@ -1072,7 +1081,7 @@ class _ChoiceCard extends StatelessWidget {
                           Text(
                             _labelForChoice(choice.type),
                             style: theme.textTheme.labelMedium?.copyWith(
-                              color: Colors.white70,
+                              color: faintColor,
                             ),
                           ),
                         ],
@@ -1081,9 +1090,7 @@ class _ChoiceCard extends StatelessWidget {
                       Text(
                         choice.description,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: isPlaceholder
-                              ? Colors.white38
-                              : Colors.white70,
+                          color: isPlaceholder ? faintColor : bodyColor,
                         ),
                       ),
                       if (choice.flavorText.isNotEmpty) ...[
@@ -1091,7 +1098,7 @@ class _ChoiceCard extends StatelessWidget {
                         Text(
                           choice.flavorText,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.white54,
+                            color: mutedColor,
                             fontStyle: FontStyle.italic,
                           ),
                         ),
@@ -1106,9 +1113,7 @@ class _ChoiceCard extends StatelessWidget {
               for (final line in statChanges)
                 Text(
                   line,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.white60,
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(color: mutedColor),
                 ),
             ],
             if (skillDetails.isNotEmpty) ...[
@@ -1116,9 +1121,7 @@ class _ChoiceCard extends StatelessWidget {
               for (final line in skillDetails)
                 SkillDetailLineText(
                   line: line,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.white60,
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(color: mutedColor),
                 ),
             ],
             if (levelUpPreview.isNotEmpty) ...[
@@ -1126,7 +1129,7 @@ class _ChoiceCard extends StatelessWidget {
               Text(
                 'Leveling (Lv1 → Lv2)',
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.white70,
+                  color: bodyColor,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -1134,9 +1137,7 @@ class _ChoiceCard extends StatelessWidget {
               for (final line in levelUpPreview)
                 SkillLevelBonusLineText(
                   line: line,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.white60,
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(color: mutedColor),
                 ),
             ],
             if (badges.isNotEmpty) ...[
@@ -1162,9 +1163,7 @@ class _ChoiceCard extends StatelessWidget {
               for (final line in synergies)
                 Text(
                   line,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.white70,
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(color: bodyColor),
                 ),
             ],
             if (onBanish != null || onToggleLock != null) ...[
@@ -1193,6 +1192,11 @@ class _ChoiceCard extends StatelessWidget {
       ),
     );
   }
+}
+
+double _choiceListHeight(BuildContext context) {
+  final height = MediaQuery.sizeOf(context).height;
+  return math.min(420.0, math.max(280.0, height * 0.55));
 }
 
 class _SkipButton extends StatelessWidget {

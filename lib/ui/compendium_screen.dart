@@ -276,6 +276,9 @@ class _CompendiumCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final borderColor = rarityColor?.withValues(alpha: 0.45) ?? Colors.white12;
+    final titleColor = scriptureStrongTextColor(cardBackground);
+    final bodyColor = scriptureTextColor(cardBackground);
+    final mutedColor = scriptureMutedTextColor(cardBackground);
     return ScriptureCard(
       backgroundImage: cardBackground,
       borderColor: borderColor,
@@ -296,6 +299,7 @@ class _CompendiumCard extends StatelessWidget {
                 child: Text(
                   title,
                   style: theme.textTheme.titleMedium?.copyWith(
+                    color: titleColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -313,7 +317,7 @@ class _CompendiumCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             description,
-            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
+            style: theme.textTheme.bodyMedium?.copyWith(color: bodyColor),
           ),
           if (rarityLabel != null && rarityColor != null) ...[
             const SizedBox(height: 6),
@@ -332,7 +336,7 @@ class _CompendiumCard extends StatelessWidget {
             Text(
               details!,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.white60,
+                color: mutedColor,
                 height: 1.35,
               ),
             ),
