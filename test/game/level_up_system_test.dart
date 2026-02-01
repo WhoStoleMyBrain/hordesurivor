@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:hordesurivor/data/ids.dart';
 import 'package:hordesurivor/data/stat_defs.dart';
+import 'package:hordesurivor/game/active_skill_system.dart';
 import 'package:hordesurivor/game/effect_pool.dart';
 import 'package:hordesurivor/game/level_up_system.dart';
 import 'package:hordesurivor/game/player_state.dart';
@@ -59,6 +60,7 @@ void main() {
       effectPool: EffectPool(),
       summonPool: SummonPool(),
     );
+    final activeSkillSystem = ActiveSkillSystem(effectPool: EffectPool());
     const choice = SelectionChoice(
       type: SelectionType.item,
       title: 'Glass Catalyst',
@@ -72,6 +74,7 @@ void main() {
       choice: choice,
       playerState: playerState,
       skillSystem: skillSystem,
+      activeSkillSystem: activeSkillSystem,
     );
 
     expect(playerState.maxHp, closeTo(100, 0.001));
@@ -374,6 +377,7 @@ void main() {
       effectPool: EffectPool(),
       summonPool: SummonPool(),
     );
+    final activeSkillSystem = ActiveSkillSystem(effectPool: EffectPool());
 
     for (var i = 0; i < 4; i += 1) {
       system.applyChoice(
@@ -386,6 +390,7 @@ void main() {
         ),
         playerState: playerState,
         skillSystem: skillSystem,
+        activeSkillSystem: activeSkillSystem,
       );
     }
     expect(system.appliedItemCounts[ItemId.glassCatalyst], 1);
@@ -419,6 +424,7 @@ void main() {
       ),
       playerState: playerState,
       skillSystem: skillSystem,
+      activeSkillSystem: activeSkillSystem,
     );
 
     system.queueLevels(ProgressionTrackId.items, 1);

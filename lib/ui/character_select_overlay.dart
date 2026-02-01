@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../data/active_skill_defs.dart';
 import '../data/character_defs.dart';
 import '../data/skill_defs.dart';
 import '../data/stat_defs.dart';
@@ -190,6 +191,26 @@ class _CharacterCard extends StatelessWidget {
                   return _TagChip(label: skillName.trim());
                 })
                 .toList(growable: false),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Active Skill',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: Colors.white60,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              _TagChip(
+                label:
+                    activeSkillDefsById[character.startingActiveSkill]?.name ??
+                    character.startingActiveSkill.name,
+              ),
+            ],
           ),
           const SizedBox(height: 10),
           Text(

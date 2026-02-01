@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import 'active_skill_defs.dart';
 import 'area_defs.dart';
 import 'character_defs.dart';
 import 'contract_defs.dart';
@@ -47,6 +48,11 @@ DataValidationResult validateGameData() {
   _checkUniqueIds(
     ids: skillDefs.map((def) => def.id),
     label: 'SkillDef',
+    result: result,
+  );
+  _checkUniqueIds(
+    ids: activeSkillDefs.map((def) => def.id),
+    label: 'ActiveSkillDef',
     result: result,
   );
   _checkUniqueIds(
@@ -147,6 +153,21 @@ DataValidationResult validateGameData() {
     }
   }
 
+  for (final def in activeSkillDefs) {
+    if (_isTagSetEmpty(def.tags)) {
+      result.errors.add('ActiveSkillDef ${def.id} has no tags.');
+    }
+    if (def.cooldown <= 0) {
+      result.errors.add('ActiveSkillDef ${def.id} has invalid cooldown.');
+    }
+    if (def.manaCost < 0) {
+      result.errors.add('ActiveSkillDef ${def.id} has invalid mana cost.');
+    }
+    if (def.iconId.trim().isEmpty) {
+      result.errors.add('ActiveSkillDef ${def.id} has an empty iconId.');
+    }
+  }
+
   for (final def in characterDefs) {
     if (!def.baseStats.containsKey(StatId.maxHp)) {
       result.errors.add('CharacterDef ${def.id} missing maxHp base stat.');
@@ -168,6 +189,12 @@ DataValidationResult validateGameData() {
           'CharacterDef ${def.id} references unknown skill $skillId.',
         );
       }
+    }
+    if (!activeSkillDefsById.containsKey(def.startingActiveSkill)) {
+      result.errors.add(
+        'CharacterDef ${def.id} references unknown active skill '
+        '${def.startingActiveSkill}.',
+      );
     }
   }
 

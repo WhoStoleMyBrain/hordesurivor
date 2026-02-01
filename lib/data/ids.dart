@@ -44,6 +44,8 @@ enum SkillUpgradeId {
   rootsTighteningGrasp,
 }
 
+enum ActiveSkillId { litanyOfCensure, sealOfBastion, hotSoupSplash }
+
 enum StatusEffectId { slow, root, ignite, oilSoaked, vulnerable }
 
 enum SynergyId {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../data/active_skill_defs.dart';
+import '../data/ids.dart';
 import 'hud_state.dart';
 import 'tag_badge.dart';
 
@@ -115,6 +117,19 @@ class HudStatsContent extends StatelessWidget {
                   dashMaxCharges: hudState.dashMaxCharges,
                   dashCooldownRemaining: hudState.dashCooldownRemaining,
                   dashCooldownDuration: hudState.dashCooldownDuration,
+                  labelStyle: statLabelStyle,
+                  valueStyle: statValueStyle,
+                  mutedStyle: mutedStyle,
+                ),
+              ],
+              if (hudState.activeSkillId != null) ...[
+                const SizedBox(height: 6),
+                _ActiveSkillRow(
+                  skillId: hudState.activeSkillId!,
+                  cooldownRemaining: hudState.activeSkillCooldownRemaining,
+                  cooldownDuration: hudState.activeSkillCooldownDuration,
+                  manaAvailable: hudState.mana,
+                  manaCost: hudState.activeSkillManaCost,
                   labelStyle: statLabelStyle,
                   valueStyle: statValueStyle,
                   mutedStyle: mutedStyle,
@@ -414,6 +429,103 @@ class _DashChargePip extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(color: color.withValues(alpha: 0.7), width: 1),
+          color: fillColor,
+        ),
+      ),
+    );
+  }
+}
+
+class _ActiveSkillRow extends StatelessWidget {
+  const _ActiveSkillRow({
+    required this.skillId,
+    required this.cooldownRemaining,
+    required this.cooldownDuration,
+    required this.manaAvailable,
+    required this.manaCost,
+    this.labelStyle,
+    this.valueStyle,
+    this.mutedStyle,
+  });
+
+  final ActiveSkillId skillId;
+  final double cooldownRemaining;
+  final double cooldownDuration;
+  final double manaAvailable;
+  final double manaCost;
+  final TextStyle? labelStyle;
+  final TextStyle? valueStyle;
+  final TextStyle? mutedStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    final def = activeSkillDefsById[skillId];
+    final ready = cooldownRemaining <= 0 && manaAvailable >= manaCost;
+    final hasMana = manaAvailable >= manaCost;
+    final cooldownLabel = cooldownRemaining > 0
+        ? '${cooldownRemaining.toStringAsFixed(1)}s'
+        : hasMana
+        ? 'READY'
+        : 'LOW MANA';
+    final statusStyle = ready
+        ? valueStyle?.copyWith(color: Colors.lightGreenAccent)
+        : mutedStyle;
+    final name = def?.name ?? skillId.name;
+    final cooldownRatio = cooldownDuration > 0
+        ? (1 - (cooldownRemaining / cooldownDuration)).clamp(0.0, 1.0)
+        : 1.0;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text('ACTIVE', style: labelStyle),
+        const SizedBox(width: 6),
+        _ActiveSkillPip(
+          active: ready,
+          progress: cooldownRatio,
+          hasMana: hasMana,
+        ),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            '$name ($cooldownLabel)',
+            style: statusStyle,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ActiveSkillPip extends StatelessWidget {
+  const _ActiveSkillPip({
+    required this.active,
+    required this.progress,
+    required this.hasMana,
+  });
+
+  final bool active;
+  final double progress;
+  final bool hasMana;
+
+  @override
+  Widget build(BuildContext context) {
+    final borderColor = active
+        ? Colors.lightGreenAccent
+        : hasMana
+        ? Colors.orangeAccent
+        : Colors.redAccent;
+    final fillColor = active
+        ? borderColor.withValues(alpha: 0.6)
+        : borderColor.withValues(alpha: 0.25 + 0.4 * progress);
+    return SizedBox(
+      width: 12,
+      height: 12,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: borderColor.withValues(alpha: 0.7)),
           color: fillColor,
         ),
       ),

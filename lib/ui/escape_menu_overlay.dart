@@ -21,6 +21,7 @@ class EscapeMenuOverlay extends StatelessWidget {
     required this.onCompendium,
     required this.onMetaUnlocks,
     required this.skillIcons,
+    required this.activeSkillIcons,
     required this.itemIcons,
     required this.cardBackground,
     this.onStressTest,
@@ -44,6 +45,7 @@ class EscapeMenuOverlay extends StatelessWidget {
   final VoidCallback onCompendium;
   final VoidCallback onMetaUnlocks;
   final Map<SkillId, ui.Image?> skillIcons;
+  final Map<ActiveSkillId, ui.Image?> activeSkillIcons;
   final Map<ItemId, ui.Image?> itemIcons;
   final ui.Image? cardBackground;
   final VoidCallback? onStressTest;
@@ -66,6 +68,7 @@ class EscapeMenuOverlay extends StatelessWidget {
                 statsState: statsState!,
                 stressStats: stressStats,
                 skillIcons: skillIcons,
+                activeSkillIcons: activeSkillIcons,
                 itemIcons: itemIcons,
                 cardBackground: cardBackground,
               )
@@ -92,6 +95,7 @@ class _InRunMenuLayout extends StatelessWidget {
     required this.statsState,
     required this.stressStats,
     required this.skillIcons,
+    required this.activeSkillIcons,
     required this.itemIcons,
     required this.cardBackground,
   });
@@ -102,6 +106,7 @@ class _InRunMenuLayout extends StatelessWidget {
   final StatsScreenState statsState;
   final StressStatsSnapshot? stressStats;
   final Map<SkillId, ui.Image?> skillIcons;
+  final Map<ActiveSkillId, ui.Image?> activeSkillIcons;
   final Map<ItemId, ui.Image?> itemIcons;
   final ui.Image? cardBackground;
 
@@ -155,6 +160,7 @@ class _InRunMenuLayout extends StatelessWidget {
                                 child: RunStatsContent(
                                   state: statsState,
                                   skillIcons: skillIcons,
+                                  activeSkillIcons: activeSkillIcons,
                                   itemIcons: itemIcons,
                                   cardBackground: cardBackground,
                                 ),

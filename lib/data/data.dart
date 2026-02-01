@@ -1,3 +1,4 @@
+export 'active_skill_defs.dart';
 export 'area_defs.dart';
 export 'character_defs.dart';
 export 'contract_defs.dart';

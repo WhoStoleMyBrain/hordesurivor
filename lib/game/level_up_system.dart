@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import '../data/active_skill_defs.dart';
 import '../data/ids.dart';
 import '../data/item_defs.dart';
 import '../data/progression_track_defs.dart';
@@ -9,10 +10,18 @@ import '../data/stat_level_up_defs.dart';
 import '../data/stat_defs.dart';
 import '../data/tags.dart';
 import '../data/weapon_upgrade_defs.dart';
+import 'active_skill_system.dart';
 import 'player_state.dart';
 import 'skill_system.dart';
 
-enum SelectionType { skill, item, skillUpgrade, weaponUpgrade, stat }
+enum SelectionType {
+  skill,
+  item,
+  skillUpgrade,
+  weaponUpgrade,
+  stat,
+  activeSkill,
+}
 
 class SelectionChoice {
   const SelectionChoice({
@@ -22,6 +31,7 @@ class SelectionChoice {
     this.flavorText = '',
     this.skillId,
     this.itemId,
+    this.activeSkillId,
     this.skillUpgradeId,
     this.weaponUpgradeId,
     this.statLevelUpId,
@@ -35,6 +45,7 @@ class SelectionChoice {
   final String flavorText;
   final SkillId? skillId;
   final ItemId? itemId;
+  final ActiveSkillId? activeSkillId;
   final SkillUpgradeId? skillUpgradeId;
   final String? weaponUpgradeId;
   final StatLevelUpId? statLevelUpId;
@@ -55,6 +66,7 @@ class LevelUpSystem {
   final int _baseChoiceCount;
   final int _baseRerolls;
   static const double _shopPriceGrowthRate = 1.1;
+  static const double _activeSkillOfferChance = 0.18;
   static const SelectionChoice _shopPlaceholderChoice = SelectionChoice(
     type: SelectionType.item,
     title: 'Empty Slot',
@@ -66,6 +78,7 @@ class LevelUpSystem {
   final List<ItemId> _appliedItems = [];
   final Map<ItemId, int> _appliedItemCounts = {};
   final Set<SkillId> _banishedSkills = {};
+  final Set<ActiveSkillId> _banishedActiveSkills = {};
   final Set<ItemId> _banishedItems = {};
   final Set<SkillUpgradeId> _banishedSkillUpgrades = {};
   final Set<String> _banishedWeaponUpgrades = {};
@@ -124,6 +137,7 @@ class LevelUpSystem {
     _appliedItems.clear();
     _appliedItemCounts.clear();
     _banishedSkills.clear();
+    _banishedActiveSkills.clear();
     _banishedItems.clear();
     _banishedSkillUpgrades.clear();
     _banishedWeaponUpgrades.clear();
@@ -148,6 +162,7 @@ class LevelUpSystem {
     required PlayerState playerState,
     required SkillSystem skillSystem,
     required int trackLevel,
+    ActiveSkillId? activeSkillId,
     int shopBonusChoices = 0,
     int rarityBoosts = 0,
     Set<MetaUnlockId> unlockedMeta = const {},
@@ -164,6 +179,7 @@ class LevelUpSystem {
       selectionPoolId,
       trackLevel,
       unlockedMeta,
+      activeSkillId: activeSkillId,
       shopBonusChoices: shopBonusChoices,
       rarityBoosts: rarityBoosts,
     );
@@ -235,6 +251,7 @@ class LevelUpSystem {
     required PlayerState playerState,
     required SkillSystem skillSystem,
     required int trackLevel,
+    ActiveSkillId? activeSkillId,
     int shopBonusChoices = 0,
     bool ignoreRerollLimit = false,
     Set<MetaUnlockId> unlockedMeta = const {},
@@ -253,6 +270,7 @@ class LevelUpSystem {
       selectionPoolId,
       trackLevel,
       unlockedMeta,
+      activeSkillId: activeSkillId,
       shopBonusChoices: shopBonusChoices,
     ).choices;
     _choices
@@ -297,6 +315,7 @@ class LevelUpSystem {
     required SelectionChoice choice,
     required PlayerState playerState,
     required SkillSystem skillSystem,
+    required ActiveSkillSystem activeSkillSystem,
   }) {
     switch (choice.type) {
       case SelectionType.item:
@@ -337,6 +356,11 @@ class LevelUpSystem {
         if (skillId != null) {
           skillSystem.addSkill(skillId);
         }
+      case SelectionType.activeSkill:
+        final activeSkillId = choice.activeSkillId;
+        if (activeSkillId != null) {
+          activeSkillSystem.setActiveSkill(activeSkillId);
+        }
       case SelectionType.stat:
         if (choice.statModifiers.isNotEmpty) {
           playerState.applyModifiers(choice.statModifiers);
@@ -373,6 +397,22 @@ class LevelUpSystem {
     return true;
   }
 
+  bool applyShopActiveSkill({
+    required SelectionChoice choice,
+    required ActiveSkillSystem activeSkillSystem,
+  }) {
+    if (choice.type != SelectionType.activeSkill) {
+      return false;
+    }
+    final activeSkillId = choice.activeSkillId;
+    if (activeSkillId == null) {
+      return false;
+    }
+    activeSkillSystem.setActiveSkill(activeSkillId);
+    _replaceChoiceWithPlaceholder(choice);
+    return true;
+  }
+
   void skipChoice({
     required ProgressionTrackId trackId,
     required PlayerState playerState,
@@ -391,6 +431,7 @@ class LevelUpSystem {
     required PlayerState playerState,
     required SkillSystem skillSystem,
     required int trackLevel,
+    ActiveSkillId? activeSkillId,
     Set<MetaUnlockId> unlockedMeta = const {},
   }) {
     if (_choices.isEmpty ||
@@ -405,6 +446,12 @@ class LevelUpSystem {
           return false;
         }
         _banishedSkills.add(skillId);
+      case SelectionType.activeSkill:
+        final activeSkillId = choice.activeSkillId;
+        if (activeSkillId == null) {
+          return false;
+        }
+        _banishedActiveSkills.add(activeSkillId);
       case SelectionType.item:
         final itemId = choice.itemId;
         if (itemId == null) {
@@ -441,6 +488,7 @@ class LevelUpSystem {
           selectionPoolId,
           trackLevel,
           unlockedMeta,
+          activeSkillId: activeSkillId,
         ).choices,
       );
     if (_choices.isEmpty) {
@@ -456,6 +504,7 @@ class LevelUpSystem {
     SelectionPoolId selectionPoolId,
     int trackLevel,
     Set<MetaUnlockId> unlockedMeta, {
+    ActiveSkillId? activeSkillId,
     int shopBonusChoices = 0,
     int rarityBoosts = 0,
   }) {
@@ -473,6 +522,7 @@ class LevelUpSystem {
         choiceCount,
         trackLevel,
         unlockedMeta,
+        activeSkillId: activeSkillId,
         rarityBoosts: rarityBoosts,
       );
     }
@@ -563,6 +613,7 @@ class LevelUpSystem {
     int choiceCount,
     int trackLevel,
     Set<MetaUnlockId> unlockedMeta, {
+    ActiveSkillId? activeSkillId,
     int rarityBoosts = 0,
   }) {
     final tagBias = _buildShopTagBias(skillSystem);
@@ -656,6 +707,11 @@ class LevelUpSystem {
       tagBias,
       lockedIds,
       rarityBoosts,
+    );
+    _injectActiveSkillChoice(
+      choices,
+      activeSkillId: activeSkillId,
+      lockedIds: lockedIds,
     );
     return _ChoiceBuildResult(
       choices,
@@ -773,6 +829,58 @@ class LevelUpSystem {
       boostsApplied += 1;
     }
     return boostsApplied;
+  }
+
+  void _injectActiveSkillChoice(
+    List<SelectionChoice> choices, {
+    required Set<ItemId> lockedIds,
+    ActiveSkillId? activeSkillId,
+  }) {
+    if (choices.isEmpty || _random.nextDouble() > _activeSkillOfferChance) {
+      return;
+    }
+    final availableActiveSkills = [
+      for (final def in activeSkillDefs)
+        if (def.id != activeSkillId &&
+            !_banishedActiveSkills.contains(def.id) &&
+            (def.rarity == ItemRarity.rare || def.rarity == ItemRarity.epic))
+          def,
+    ];
+    if (availableActiveSkills.isEmpty) {
+      return;
+    }
+    final eligibleIndexes = <int>[];
+    for (var i = 0; i < choices.length; i++) {
+      final choice = choices[i];
+      if (choice.type != SelectionType.item) {
+        continue;
+      }
+      final itemId = choice.itemId;
+      if (itemId == null || lockedIds.contains(itemId)) {
+        continue;
+      }
+      final item = itemDefsById[itemId];
+      if (item == null) {
+        continue;
+      }
+      if (item.rarity == ItemRarity.rare || item.rarity == ItemRarity.epic) {
+        eligibleIndexes.add(i);
+      }
+    }
+    if (eligibleIndexes.isEmpty) {
+      return;
+    }
+    final choiceIndex =
+        eligibleIndexes[_random.nextInt(eligibleIndexes.length)];
+    final activeDef =
+        availableActiveSkills[_random.nextInt(availableActiveSkills.length)];
+    choices[choiceIndex] = SelectionChoice(
+      type: SelectionType.activeSkill,
+      title: activeDef.name,
+      description: activeDef.description,
+      activeSkillId: activeDef.id,
+      rarity: activeDef.rarity,
+    );
   }
 
   ItemRarity? _nextRarity(ItemRarity rarity) {

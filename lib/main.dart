@@ -11,6 +11,7 @@ import 'package:window_manager/window_manager.dart';
 import 'data/data_validation.dart';
 import 'data/ids.dart';
 import 'game/horde_game.dart';
+import 'ui/active_skill_button_overlay.dart';
 import 'ui/area_select_screen.dart';
 import 'ui/character_select_overlay.dart';
 import 'ui/compendium_screen.dart';
@@ -203,6 +204,7 @@ class _GameShellState extends State<_GameShell> {
                     onToggleLock: game.toggleShopLock,
                     onSkip: game.skipSelection,
                     skillIcons: game.skillIcons,
+                    activeSkillIcons: game.activeSkillIcons,
                     itemIcons: game.itemIcons,
                     cardBackground: game.cardBackgroundSprite,
                   ),
@@ -217,6 +219,7 @@ class _GameShellState extends State<_GameShell> {
                     state: game.statsScreenState,
                     onClose: game.toggleStatsOverlay,
                     skillIcons: game.skillIcons,
+                    activeSkillIcons: game.activeSkillIcons,
                     itemIcons: game.itemIcons,
                     cardBackground: game.cardBackgroundSprite,
                   ),
@@ -268,6 +271,7 @@ class _GameShellState extends State<_GameShell> {
                         onCompendium: game.openCompendiumFromMenu,
                         onMetaUnlocks: game.openMetaUnlocksFromMenu,
                         skillIcons: game.skillIcons,
+                        activeSkillIcons: game.activeSkillIcons,
                         itemIcons: game.itemIcons,
                         cardBackground: game.cardBackgroundSprite,
                         onStressTest: () => Navigator.of(
@@ -326,6 +330,12 @@ class _GameShellState extends State<_GameShell> {
                       HealthOrbOverlay(hudState: game.hudState),
                   ManaOrbOverlay.overlayKey: (_, game) =>
                       ManaOrbOverlay(hudState: game.hudState),
+                  ActiveSkillButtonOverlay.overlayKey: (_, game) =>
+                      ActiveSkillButtonOverlay(
+                        hudState: game.hudState,
+                        activeSkillIcons: game.activeSkillIcons,
+                        onPressed: game.castActiveSkill,
+                      ),
                 },
                 initialActiveOverlays: widget.stressTest
                     ? const [VirtualStickOverlay.overlayKey]
