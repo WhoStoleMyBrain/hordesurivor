@@ -228,7 +228,7 @@ class _SkillSlot extends StatelessWidget {
       },
       builder: (context, candidates, _) {
         final isTargeted = candidates.isNotEmpty;
-        return LongPressDraggable<_DragSkillData>(
+        return Draggable<_DragSkillData>(
           data: data,
           feedback: Material(
             color: Colors.transparent,
