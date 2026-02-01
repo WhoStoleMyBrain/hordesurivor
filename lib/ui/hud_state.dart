@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../data/ids.dart';
 import '../data/tags.dart';
 
 class PlayerHudState extends ChangeNotifier {
@@ -33,6 +34,10 @@ class PlayerHudState extends ChangeNotifier {
   int dashMaxCharges = 0;
   double dashCooldownRemaining = 0;
   double dashCooldownDuration = 0;
+  ActiveSkillId? activeSkillId;
+  double activeSkillCooldownRemaining = 0;
+  double activeSkillCooldownDuration = 0;
+  double activeSkillManaCost = 0;
 
   void triggerRewardMessage(String message) {
     rewardMessage = message;
@@ -68,6 +73,10 @@ class PlayerHudState extends ChangeNotifier {
     required int dashMaxCharges,
     required double dashCooldownRemaining,
     required double dashCooldownDuration,
+    required ActiveSkillId? activeSkillId,
+    required double activeSkillCooldownRemaining,
+    required double activeSkillCooldownDuration,
+    required double activeSkillManaCost,
   }) {
     final didLevelChange = this.level != level;
     final nextLevelUpCounter = didLevelChange
@@ -100,6 +109,10 @@ class PlayerHudState extends ChangeNotifier {
         this.dashMaxCharges == dashMaxCharges &&
         this.dashCooldownRemaining == dashCooldownRemaining &&
         this.dashCooldownDuration == dashCooldownDuration &&
+        this.activeSkillId == activeSkillId &&
+        this.activeSkillCooldownRemaining == activeSkillCooldownRemaining &&
+        this.activeSkillCooldownDuration == activeSkillCooldownDuration &&
+        this.activeSkillManaCost == activeSkillManaCost &&
         levelUpCounter == nextLevelUpCounter) {
       return;
     }
@@ -131,6 +144,10 @@ class PlayerHudState extends ChangeNotifier {
     this.dashMaxCharges = dashMaxCharges;
     this.dashCooldownRemaining = dashCooldownRemaining;
     this.dashCooldownDuration = dashCooldownDuration;
+    this.activeSkillId = activeSkillId;
+    this.activeSkillCooldownRemaining = activeSkillCooldownRemaining;
+    this.activeSkillCooldownDuration = activeSkillCooldownDuration;
+    this.activeSkillManaCost = activeSkillManaCost;
     levelUpCounter = nextLevelUpCounter;
     notifyListeners();
   }

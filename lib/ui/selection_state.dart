@@ -14,6 +14,7 @@ class SelectionState extends ChangeNotifier {
   int _rerollCost = 0;
   int _shopLevel = 0;
   Map<ItemId, int> _itemPrices = const {};
+  Map<ActiveSkillId, int> _activeSkillPrices = const {};
   Set<ItemId> _lockedItems = const {};
   int _shopFreeRerolls = 0;
   int _shopDiscountTokens = 0;
@@ -31,6 +32,7 @@ class SelectionState extends ChangeNotifier {
   int get rerollCost => _rerollCost;
   int get shopLevel => _shopLevel;
   Map<ItemId, int> get itemPrices => _itemPrices;
+  Map<ActiveSkillId, int> get activeSkillPrices => _activeSkillPrices;
   Set<ItemId> get lockedItems => _lockedItems;
   int get shopFreeRerolls => _shopFreeRerolls;
   int get shopDiscountTokens => _shopDiscountTokens;
@@ -38,14 +40,25 @@ class SelectionState extends ChangeNotifier {
   int get shopBonusChoices => _shopBonusChoices;
 
   int? priceForChoice(SelectionChoice choice) {
-    if (choice.type != SelectionType.item) {
-      return null;
+    switch (choice.type) {
+      case SelectionType.item:
+        final itemId = choice.itemId;
+        if (itemId == null) {
+          return null;
+        }
+        return _itemPrices[itemId];
+      case SelectionType.activeSkill:
+        final activeSkillId = choice.activeSkillId;
+        if (activeSkillId == null) {
+          return null;
+        }
+        return _activeSkillPrices[activeSkillId];
+      case SelectionType.skill:
+      case SelectionType.skillUpgrade:
+      case SelectionType.weaponUpgrade:
+      case SelectionType.stat:
+        return null;
     }
-    final itemId = choice.itemId;
-    if (itemId == null) {
-      return null;
-    }
-    return _itemPrices[itemId];
   }
 
   void showChoices(
@@ -59,6 +72,7 @@ class SelectionState extends ChangeNotifier {
     int rerollCost = 0,
     int shopLevel = 0,
     Map<ItemId, int> itemPrices = const {},
+    Map<ActiveSkillId, int> activeSkillPrices = const {},
     Set<ItemId> lockedItems = const {},
     int shopFreeRerolls = 0,
     int shopDiscountTokens = 0,
@@ -75,6 +89,9 @@ class SelectionState extends ChangeNotifier {
     _rerollCost = rerollCost;
     _shopLevel = shopLevel;
     _itemPrices = Map<ItemId, int>.unmodifiable(itemPrices);
+    _activeSkillPrices = Map<ActiveSkillId, int>.unmodifiable(
+      activeSkillPrices,
+    );
     _lockedItems = Set<ItemId>.unmodifiable(lockedItems);
     _shopFreeRerolls = shopFreeRerolls;
     _shopDiscountTokens = shopDiscountTokens;
@@ -102,6 +119,7 @@ class SelectionState extends ChangeNotifier {
         _rerollCost == 0 &&
         _shopLevel == 0 &&
         _itemPrices.isEmpty &&
+        _activeSkillPrices.isEmpty &&
         _lockedItems.isEmpty &&
         _shopFreeRerolls == 0 &&
         _shopDiscountTokens == 0 &&
@@ -119,6 +137,7 @@ class SelectionState extends ChangeNotifier {
     _rerollCost = 0;
     _shopLevel = 0;
     _itemPrices = const {};
+    _activeSkillPrices = const {};
     _lockedItems = const {};
     _shopFreeRerolls = 0;
     _shopDiscountTokens = 0;

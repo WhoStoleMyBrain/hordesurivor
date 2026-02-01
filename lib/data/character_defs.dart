@@ -9,6 +9,7 @@ class CharacterDef {
     required this.modifierLine,
     required this.spriteId,
     required this.startingSkills,
+    required this.startingActiveSkill,
     required this.baseStats,
     required this.movement,
     required this.modifiers,
@@ -20,6 +21,7 @@ class CharacterDef {
   final String modifierLine;
   final String spriteId;
   final List<SkillId> startingSkills;
+  final ActiveSkillId startingActiveSkill;
   final Map<StatId, double> baseStats;
   final CharacterMovementDef movement;
   final List<StatModifier> modifiers;
@@ -111,6 +113,7 @@ final List<CharacterDef> characterDefs = [
       SkillId.menderOrb,
       SkillId.vigilLantern,
     ],
+    startingActiveSkill: ActiveSkillId.litanyOfCensure,
     baseStats: Map<StatId, double>.from(_basePlayerStats)
       ..addAll({StatId.maxHp: 105}),
     movement: _basePlayerMovement.copyWith(
@@ -136,6 +139,7 @@ final List<CharacterDef> characterDefs = [
       SkillId.swordDeflect,
       SkillId.roots,
     ],
+    startingActiveSkill: ActiveSkillId.sealOfBastion,
     baseStats: Map<StatId, double>.from(_basePlayerStats)
       ..addAll({StatId.maxHp: 130}),
     movement: _basePlayerMovement.copyWith(
@@ -163,6 +167,7 @@ final List<CharacterDef> characterDefs = [
       SkillId.mineLayer,
       SkillId.processionIdol,
     ],
+    startingActiveSkill: ActiveSkillId.hotSoupSplash,
     baseStats: Map<StatId, double>.from(_basePlayerStats)
       ..addAll({StatId.maxHp: 90}),
     movement: _basePlayerMovement.copyWith(

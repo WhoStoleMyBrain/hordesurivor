@@ -13,6 +13,7 @@ class StatsOverlay extends StatelessWidget {
     required this.state,
     required this.onClose,
     required this.skillIcons,
+    required this.activeSkillIcons,
     required this.itemIcons,
     required this.cardBackground,
   });
@@ -22,6 +23,7 @@ class StatsOverlay extends StatelessWidget {
   final StatsScreenState state;
   final VoidCallback onClose;
   final Map<SkillId, ui.Image?> skillIcons;
+  final Map<ActiveSkillId, ui.Image?> activeSkillIcons;
   final Map<ItemId, ui.Image?> itemIcons;
   final ui.Image? cardBackground;
 
@@ -65,6 +67,7 @@ class StatsOverlay extends StatelessWidget {
                         child: RunStatsContent(
                           state: state,
                           skillIcons: skillIcons,
+                          activeSkillIcons: activeSkillIcons,
                           itemIcons: itemIcons,
                           cardBackground: cardBackground,
                         ),

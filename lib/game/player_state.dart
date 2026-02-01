@@ -158,6 +158,17 @@ class PlayerState {
     mana = math.min(maxMana, mana + amount);
   }
 
+  bool trySpendMana(double amount) {
+    if (amount <= 0) {
+      return true;
+    }
+    if (mana < amount) {
+      return false;
+    }
+    mana = math.max(0, mana - amount);
+    return true;
+  }
+
   void resetForRun() {
     stats.resetModifiers();
     hp = maxHp;

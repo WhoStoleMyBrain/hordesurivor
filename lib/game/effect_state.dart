@@ -12,6 +12,9 @@ enum EffectKind {
   earthSpikes,
   sporeCloud,
   swordSlash,
+  censureBeam,
+  bastionRing,
+  soupSplash,
 }
 
 enum EffectShape { beam, ground, arc }

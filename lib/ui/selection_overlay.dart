@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
+import '../data/active_skill_defs.dart';
 import '../data/ids.dart';
 import '../data/item_defs.dart';
 import '../data/skill_defs.dart';
@@ -36,6 +37,7 @@ class SelectionOverlay extends StatelessWidget {
     required this.onToggleLock,
     required this.onSkip,
     required this.skillIcons,
+    required this.activeSkillIcons,
     required this.itemIcons,
     required this.cardBackground,
     required this.statsState,
@@ -50,6 +52,7 @@ class SelectionOverlay extends StatelessWidget {
   final void Function(SelectionChoice choice) onToggleLock;
   final VoidCallback onSkip;
   final Map<SkillId, ui.Image?> skillIcons;
+  final Map<ActiveSkillId, ui.Image?> activeSkillIcons;
   final Map<ItemId, ui.Image?> itemIcons;
   final ui.Image? cardBackground;
   final StatsScreenState statsState;
@@ -77,6 +80,7 @@ class SelectionOverlay extends StatelessWidget {
                 onToggleLock: onToggleLock,
                 onSkip: onSkip,
                 skillIcons: skillIcons,
+                activeSkillIcons: activeSkillIcons,
                 itemIcons: itemIcons,
                 cardBackground: cardBackground,
               );
@@ -172,6 +176,7 @@ class SelectionOverlay extends StatelessWidget {
                                     iconImage: _iconForChoice(
                                       choice,
                                       skillIcons,
+                                      activeSkillIcons,
                                       itemIcons,
                                     ),
                                     skillLevels: statsState.skillLevels,
@@ -198,7 +203,8 @@ class SelectionOverlay extends StatelessWidget {
                                     onToggleLock:
                                         selectionState.trackId ==
                                                 ProgressionTrackId.items &&
-                                            !isPlaceholder
+                                            !isPlaceholder &&
+                                            choice.type == SelectionType.item
                                         ? () => onToggleLock(choice)
                                         : null,
                                   ),
@@ -237,6 +243,7 @@ class _ShopOverlayLayout extends StatelessWidget {
     required this.onToggleLock,
     required this.onSkip,
     required this.skillIcons,
+    required this.activeSkillIcons,
     required this.itemIcons,
     required this.cardBackground,
   });
@@ -249,6 +256,7 @@ class _ShopOverlayLayout extends StatelessWidget {
   final void Function(SelectionChoice choice) onToggleLock;
   final VoidCallback onSkip;
   final Map<SkillId, ui.Image?> skillIcons;
+  final Map<ActiveSkillId, ui.Image?> activeSkillIcons;
   final Map<ItemId, ui.Image?> itemIcons;
   final ui.Image? cardBackground;
 
@@ -354,6 +362,7 @@ class _ShopOverlayLayout extends StatelessWidget {
                                   iconImage: _iconForChoice(
                                     choice,
                                     skillIcons,
+                                    activeSkillIcons,
                                     itemIcons,
                                   ),
                                   skillLevels: statsState.skillLevels,
@@ -375,7 +384,9 @@ class _ShopOverlayLayout extends StatelessWidget {
                                           !isPlaceholder
                                       ? () => onBanish(choice)
                                       : null,
-                                  onToggleLock: !isPlaceholder
+                                  onToggleLock:
+                                      !isPlaceholder &&
+                                          choice.type == SelectionType.item
                                       ? () => onToggleLock(choice)
                                       : null,
                                 ),
@@ -398,6 +409,8 @@ class _ShopOverlayLayout extends StatelessWidget {
                           skillLevels: statsState.skillLevels,
                           statValues: statsState.statValues,
                           cardBackground: cardBackground,
+                          activeSkillId: statsState.activeSkillId,
+                          activeSkillIcons: activeSkillIcons,
                         ),
                         const SizedBox(height: 12),
                         if (selectionState.skipEnabled)
@@ -417,6 +430,7 @@ class _ShopOverlayLayout extends StatelessWidget {
                     child: _ShopStatsPanel(
                       state: statsState,
                       skillIcons: skillIcons,
+                      activeSkillIcons: activeSkillIcons,
                       itemIcons: itemIcons,
                       cardBackground: cardBackground,
                     ),
@@ -472,6 +486,8 @@ class _ShopSkillRow extends StatelessWidget {
     required this.skillLevels,
     required this.statValues,
     required this.cardBackground,
+    required this.activeSkillId,
+    required this.activeSkillIcons,
   });
 
   final List<SkillId> skills;
@@ -479,10 +495,12 @@ class _ShopSkillRow extends StatelessWidget {
   final Map<SkillId, SkillProgressSnapshot> skillLevels;
   final Map<StatId, double> statValues;
   final ui.Image? cardBackground;
+  final ActiveSkillId? activeSkillId;
+  final Map<ActiveSkillId, ui.Image?> activeSkillIcons;
 
   @override
   Widget build(BuildContext context) {
-    if (skills.isEmpty) {
+    if (skills.isEmpty && activeSkillId == null) {
       return Text(
         'No skills prepared yet.',
         style: Theme.of(
@@ -494,6 +512,11 @@ class _ShopSkillRow extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: [
+        if (activeSkillId != null)
+          _MiniIcon(
+            image: activeSkillIcons[activeSkillId],
+            placeholder: Icons.flash_on,
+          ),
         for (final skillId in skills)
           SkillHoverTooltip(
             skillId: skillId,
@@ -596,12 +619,14 @@ class _ShopStatsPanel extends StatelessWidget {
   const _ShopStatsPanel({
     required this.state,
     required this.skillIcons,
+    required this.activeSkillIcons,
     required this.itemIcons,
     required this.cardBackground,
   });
 
   final StatsScreenState state;
   final Map<SkillId, ui.Image?> skillIcons;
+  final Map<ActiveSkillId, ui.Image?> activeSkillIcons;
   final Map<ItemId, ui.Image?> itemIcons;
   final ui.Image? cardBackground;
 
@@ -655,6 +680,8 @@ class _ShopStatsPanel extends StatelessWidget {
                     skillLevels: state.skillLevels,
                     statValues: state.statValues,
                     cardBackground: cardBackground,
+                    activeSkillId: state.activeSkillId,
+                    activeSkillIcons: activeSkillIcons,
                   ),
                   _ShopItemList(
                     items: state.items,
@@ -730,6 +757,8 @@ class _ShopSkillList extends StatelessWidget {
     required this.skillLevels,
     required this.statValues,
     required this.cardBackground,
+    required this.activeSkillId,
+    required this.activeSkillIcons,
   });
 
   final List<SkillId> skills;
@@ -737,23 +766,40 @@ class _ShopSkillList extends StatelessWidget {
   final Map<SkillId, SkillProgressSnapshot> skillLevels;
   final Map<StatId, double> statValues;
   final ui.Image? cardBackground;
+  final ActiveSkillId? activeSkillId;
+  final Map<ActiveSkillId, ui.Image?> activeSkillIcons;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    if (skills.isEmpty) {
+    if (skills.isEmpty && activeSkillId == null) {
       return Text(
         'No skills equipped yet.',
         style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
       );
     }
-    return ListView.separated(
-      itemCount: skills.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 6),
-      itemBuilder: (context, index) {
-        final skillId = skills[index];
-        final skill = skillDefsById[skillId];
-        return Row(
+    final activeId = activeSkillId;
+    final entries = <Widget>[
+      if (activeId != null)
+        Row(
+          children: [
+            _ListIcon(
+              image: activeSkillIcons[activeId],
+              placeholder: Icons.flash_on,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                activeSkillDefsById[activeId]?.name ?? activeId.name,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.white70,
+                ),
+              ),
+            ),
+          ],
+        ),
+      for (final skillId in skills)
+        Row(
           children: [
             SkillHoverTooltip(
               skillId: skillId,
@@ -768,15 +814,19 @@ class _ShopSkillList extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                skill?.name ?? skillId.name,
+                skillDefsById[skillId]?.name ?? skillId.name,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: Colors.white70,
                 ),
               ),
             ),
           ],
-        );
-      },
+        ),
+    ];
+    return ListView.separated(
+      itemCount: entries.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 6),
+      itemBuilder: (context, index) => entries[index],
     );
   }
 }
@@ -997,6 +1047,7 @@ class _ChoiceCard extends StatelessWidget {
       statValues,
       skillLevels,
     );
+    final activeSkillDetails = _activeSkillDetailsForChoice(choice);
     final levelUpPreview = _skillLevelPreviewForChoice(choice);
     final synergies = _synergyHintsForTags(tags);
     final skillId = _skillIdForChoice(choice);
@@ -1121,6 +1172,14 @@ class _ChoiceCard extends StatelessWidget {
               for (final line in skillDetails)
                 SkillDetailLineText(
                   line: line,
+                  style: theme.textTheme.bodySmall?.copyWith(color: mutedColor),
+                ),
+            ],
+            if (activeSkillDetails.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              for (final line in activeSkillDetails)
+                Text(
+                  line,
                   style: theme.textTheme.bodySmall?.copyWith(color: mutedColor),
                 ),
             ],
@@ -1281,6 +1340,8 @@ String _labelForChoice(SelectionType type) {
       return 'Weapon Upgrade';
     case SelectionType.stat:
       return 'Stat';
+    case SelectionType.activeSkill:
+      return 'Active Skill';
   }
 }
 
@@ -1295,6 +1356,11 @@ TagSet _tagsForChoice(SelectionChoice choice) {
       final itemId = choice.itemId;
       return itemId != null
           ? itemDefsById[itemId]?.tags ?? const TagSet()
+          : const TagSet();
+    case SelectionType.activeSkill:
+      final activeSkillId = choice.activeSkillId;
+      return activeSkillId != null
+          ? activeSkillDefsById[activeSkillId]?.tags ?? const TagSet()
           : const TagSet();
     case SelectionType.skillUpgrade:
       final upgradeId = choice.skillUpgradeId;
@@ -1327,6 +1393,7 @@ SkillId? _skillIdForChoice(SelectionChoice choice) {
           : weaponUpgradeDefsById[upgradeId]?.skillId;
     case SelectionType.item:
     case SelectionType.stat:
+    case SelectionType.activeSkill:
       return null;
   }
 }
@@ -1339,6 +1406,12 @@ ItemRarity? _rarityForChoice(SelectionChoice choice) {
         return null;
       }
       return itemDefsById[itemId]?.rarity;
+    case SelectionType.activeSkill:
+      final activeSkillId = choice.activeSkillId;
+      if (activeSkillId == null) {
+        return null;
+      }
+      return activeSkillDefsById[activeSkillId]?.rarity;
     case SelectionType.stat:
       return choice.rarity;
     case SelectionType.skill:
@@ -1359,6 +1432,7 @@ Set<StatusEffectId> _statusEffectsForChoice(SelectionChoice choice) {
     case SelectionType.skillUpgrade:
     case SelectionType.weaponUpgrade:
     case SelectionType.stat:
+    case SelectionType.activeSkill:
       return const {};
   }
 }
@@ -1366,6 +1440,7 @@ Set<StatusEffectId> _statusEffectsForChoice(SelectionChoice choice) {
 ui.Image? _iconForChoice(
   SelectionChoice choice,
   Map<SkillId, ui.Image?> skillIcons,
+  Map<ActiveSkillId, ui.Image?> activeSkillIcons,
   Map<ItemId, ui.Image?> itemIcons,
 ) {
   switch (choice.type) {
@@ -1375,6 +1450,9 @@ ui.Image? _iconForChoice(
     case SelectionType.item:
       final itemId = choice.itemId;
       return itemId != null ? itemIcons[itemId] : null;
+    case SelectionType.activeSkill:
+      final activeSkillId = choice.activeSkillId;
+      return activeSkillId != null ? activeSkillIcons[activeSkillId] : null;
     case SelectionType.skillUpgrade:
       final upgradeId = choice.skillUpgradeId;
       if (upgradeId == null) {
@@ -1442,6 +1520,8 @@ List<String> _statChangesForChoice(SelectionChoice choice) {
         for (final modifier in choice.statModifiers)
           StatText.formatModifier(modifier),
       ];
+    case SelectionType.activeSkill:
+      return const [];
   }
 }
 
@@ -1465,8 +1545,22 @@ List<SkillDetailDisplayLine> _skillDetailsForChoice(
     case SelectionType.weaponUpgrade:
     case SelectionType.item:
     case SelectionType.stat:
+    case SelectionType.activeSkill:
       return const [];
   }
+}
+
+List<String> _activeSkillDetailsForChoice(SelectionChoice choice) {
+  if (choice.type != SelectionType.activeSkill) {
+    return const [];
+  }
+  final activeSkillId = choice.activeSkillId;
+  if (activeSkillId == null) {
+    return const [];
+  }
+  return activeSkillDetailLinesFor(
+    activeSkillId,
+  ).map((detail) => detail.format()).toList(growable: false);
 }
 
 List<SkillLevelModifierLine> _skillLevelPreviewForChoice(

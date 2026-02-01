@@ -12,6 +12,7 @@ import 'package:flutter/material.dart' show KeyEventResult;
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/active_skill_defs.dart';
 import '../data/area_defs.dart';
 import '../data/character_defs.dart';
 import '../data/contract_defs.dart';
@@ -56,6 +57,7 @@ import '../ui/first_run_hints_overlay.dart';
 import '../ui/flow_debug_overlay.dart';
 import '../ui/health_orb_overlay.dart';
 import '../ui/mana_orb_overlay.dart';
+import '../ui/active_skill_button_overlay.dart';
 import '../ui/hud_state.dart';
 import '../ui/home_base_overlay.dart';
 import '../ui/meta_unlock_screen.dart';
@@ -69,6 +71,7 @@ import '../ui/stats_overlay.dart';
 import '../ui/stats_screen_state.dart';
 import '../ui/virtual_stick_overlay.dart';
 import '../ui/virtual_stick_state.dart';
+import 'active_skill_system.dart';
 import 'damage_system.dart';
 import 'effect_pool.dart';
 import 'effect_state.dart';
@@ -209,6 +212,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   final Map<CharacterId, Image> _characterSprites = {};
   final Map<SkillId, Image?> _skillIcons = {};
   final Map<SkillId, Image> _skillProjectileSprites = {};
+  final Map<ActiveSkillId, Image?> _activeSkillIcons = {};
   final Map<ItemId, Image?> _itemIcons = {};
   final Map<SkillId, Image> _meleeSwipeSprites = {};
   Image? _projectileSprite;
@@ -230,6 +234,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   late final ProjectileSystem _projectileSystem;
   late final EffectPool _effectPool;
   late final EffectSystem _effectSystem;
+  late final ActiveSkillSystem _activeSkillSystem;
   late final SummonPool _summonPool;
   late final SummonSystem _summonSystem;
   late final SkillSystem _skillSystem;
@@ -389,6 +394,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
   List<CharacterDef> get availableCharacters => characterDefs;
   Map<CharacterId, Image?> get characterSprites => _characterSprites;
   Map<SkillId, Image?> get skillIcons => _skillIcons;
+  Map<ActiveSkillId, Image?> get activeSkillIcons => _activeSkillIcons;
   Map<ItemId, Image?> get itemIcons => _itemIcons;
   Image? get cardBackgroundSprite => _cardBackgroundSprite;
   CharacterId get activeCharacterId => _activeCharacterId;
@@ -463,6 +469,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
           _skillProjectileSprites[def.id] = projectileSprite;
         }
       }
+    }
+    for (final def in activeSkillDefs) {
+      final spriteImage = _spritePipeline.lookup(def.iconId);
+      if (spriteImage == null) {
+        debugPrint('Sprite cache missing ${def.iconId} for ${def.id}.');
+      }
+      _activeSkillIcons[def.id] = spriteImage;
     }
     for (final def in itemDefs) {
       final spriteImage = _spritePipeline.lookup(def.iconId);
@@ -595,6 +608,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _enemyGrid = SpatialGrid(cellSize: 64);
     _projectileSystem = ProjectileSystem(_projectilePool);
     _effectSystem = EffectSystem(_effectPool);
+    _activeSkillSystem = ActiveSkillSystem(effectPool: _effectPool);
+    _activeSkillSystem.setActiveSkill(activeCharacter.startingActiveSkill);
     _summonSystem = SummonSystem(_summonPool, random: _summonRandom);
     _skillSystem = SkillSystem(
       projectilePool: _projectilePool,
@@ -769,6 +784,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _skillProgressionSystem.syncSkills(_skillSystem.skillIds);
     _skillProgressionSystem.update(dt, _skillSystem.skillIds);
     _playerState.step(dt);
+    _activeSkillSystem.update(dt, _playerState.stats);
     _playerState.clampToBounds(
       min: Vector2(_playerRadius, _playerRadius),
       max: Vector2(_mapSize.x - _playerRadius, _mapSize.y - _playerRadius),
@@ -1050,6 +1066,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _activeCharacterId = id;
     _activeCharacterNotifier.value = id;
     _applyCharacterDefinition(def, resetRun: true);
+    _activeSkillSystem.setActiveSkill(def.startingActiveSkill);
     closeCharacterSelect();
   }
 
@@ -1197,6 +1214,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.add(ExperienceBarOverlay.overlayKey);
     overlays.add(HealthOrbOverlay.overlayKey);
     overlays.add(ManaOrbOverlay.overlayKey);
+    overlays.add(ActiveSkillButtonOverlay.overlayKey);
     _showFirstRunHintsIfNeeded();
     _syncHudState();
     _offerStartingSkillSelection();
@@ -1219,6 +1237,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(ExperienceBarOverlay.overlayKey);
     overlays.remove(HealthOrbOverlay.overlayKey);
     overlays.remove(ManaOrbOverlay.overlayKey);
+    overlays.remove(ActiveSkillButtonOverlay.overlayKey);
     overlays.remove(DeathScreen.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
@@ -1252,6 +1271,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(ExperienceBarOverlay.overlayKey);
     overlays.remove(HealthOrbOverlay.overlayKey);
     overlays.remove(ManaOrbOverlay.overlayKey);
+    overlays.remove(ActiveSkillButtonOverlay.overlayKey);
     overlays.remove(StatsOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
     overlays.remove(EscapeMenuOverlay.overlayKey);
@@ -1307,6 +1327,22 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       return;
     }
     _playerState.tryDash();
+  }
+
+  void castActiveSkill() {
+    if (_inputLocked || _flowState != GameFlowState.stage) {
+      return;
+    }
+    final playerAttackOrigin = _playerState.resolveAttackOrigin(
+      _playerAttackOrigin,
+    );
+    _activeSkillSystem.tryCast(
+      playerState: _playerState,
+      playerPosition: playerAttackOrigin,
+      aimDirection: _playerState.movementIntent,
+      stats: _playerState.stats,
+      onEffectSpawn: _handleEffectSpawn,
+    );
   }
 
   void _openShopFromObjective() {
@@ -1772,31 +1808,63 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       return;
     }
     if (trackId == ProgressionTrackId.items &&
-        choice.type == SelectionType.item) {
-      final itemId = choice.itemId;
+        (choice.type == SelectionType.item ||
+            choice.type == SelectionType.activeSkill)) {
       final shopLevel = _progressionSystem.trackForId(trackId).level;
-      final item = itemId != null ? itemDefsById[itemId] : null;
-      if (item == null) {
-        return;
-      }
-      var cost = _levelUpSystem.itemPriceForRarity(item.rarity, shopLevel);
       final usedDiscount = _shopDiscountTokens > 0;
-      if (usedDiscount) {
-        cost = _discountedItemCost(cost);
-      }
-      if (_goldWallet < cost) {
-        return;
-      }
-      _goldWallet -= cost;
-      if (usedDiscount) {
-        _shopDiscountTokens = math.max(0, _shopDiscountTokens - 1);
-      }
-      final purchased = _levelUpSystem.applyShopPurchase(
-        choice: choice,
-        playerState: _playerState,
-      );
-      if (!purchased) {
-        return;
+      if (choice.type == SelectionType.item) {
+        final itemId = choice.itemId;
+        final item = itemId != null ? itemDefsById[itemId] : null;
+        if (item == null) {
+          return;
+        }
+        var cost = _levelUpSystem.itemPriceForRarity(item.rarity, shopLevel);
+        if (usedDiscount) {
+          cost = _discountedItemCost(cost);
+        }
+        if (_goldWallet < cost) {
+          return;
+        }
+        _goldWallet -= cost;
+        if (usedDiscount) {
+          _shopDiscountTokens = math.max(0, _shopDiscountTokens - 1);
+        }
+        final purchased = _levelUpSystem.applyShopPurchase(
+          choice: choice,
+          playerState: _playerState,
+        );
+        if (!purchased) {
+          return;
+        }
+      } else {
+        final activeSkillId = choice.activeSkillId;
+        final activeSkill = activeSkillId != null
+            ? activeSkillDefsById[activeSkillId]
+            : null;
+        if (activeSkill == null) {
+          return;
+        }
+        var cost = _levelUpSystem.itemPriceForRarity(
+          activeSkill.rarity,
+          shopLevel,
+        );
+        if (usedDiscount) {
+          cost = _discountedItemCost(cost);
+        }
+        if (_goldWallet < cost) {
+          return;
+        }
+        _goldWallet -= cost;
+        if (usedDiscount) {
+          _shopDiscountTokens = math.max(0, _shopDiscountTokens - 1);
+        }
+        final purchased = _levelUpSystem.applyShopActiveSkill(
+          choice: choice,
+          activeSkillSystem: _activeSkillSystem,
+        );
+        if (!purchased) {
+          return;
+        }
       }
       _syncSelectionState(trackId);
       _runAnalysisState.recordPick(choice, timeAlive: _hudState.stageElapsed);
@@ -1809,6 +1877,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       choice: choice,
       playerState: _playerState,
       skillSystem: _skillSystem,
+      activeSkillSystem: _activeSkillSystem,
     );
     if (trackId == ProgressionTrackId.items) {
       _closeShopSession();
@@ -1861,6 +1930,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         playerState: _playerState,
         skillSystem: _skillSystem,
         trackLevel: _progressionSystem.trackForId(trackId).level,
+        activeSkillId: _activeSkillSystem.activeSkillId,
         shopBonusChoices: _activeShopBonusChoices,
         ignoreRerollLimit: true,
         unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
@@ -1883,6 +1953,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       playerState: _playerState,
       skillSystem: _skillSystem,
       trackLevel: _progressionSystem.trackForId(trackId).level,
+      activeSkillId: _activeSkillSystem.activeSkillId,
       unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
     );
     if (rerolled) {
@@ -1953,6 +2024,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       playerState: _playerState,
       skillSystem: _skillSystem,
       trackLevel: _progressionSystem.trackForId(trackId).level,
+      activeSkillId: _activeSkillSystem.activeSkillId,
       unlockedMeta: _metaUnlocks.unlockedIds.toSet(),
     );
     if (banished) {
@@ -2059,6 +2131,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       playerState: _playerState,
       skillSystem: _skillSystem,
       trackLevel: _progressionSystem.trackForId(nextTrackId).level,
+      activeSkillId: _activeSkillSystem.activeSkillId,
       shopBonusChoices: nextTrackId == ProgressionTrackId.items
           ? _activeShopBonusChoices
           : 0,
@@ -2096,6 +2169,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
             applyDiscount: _shopDiscountTokens > 0,
           )
         : const <ItemId, int>{};
+    final activeSkillPrices = isShop
+        ? _buildActiveSkillPriceMap(
+            _levelUpSystem.choices,
+            shopLevel,
+            applyDiscount: _shopDiscountTokens > 0,
+          )
+        : const <ActiveSkillId, int>{};
     _selectionState.showChoices(
       _levelUpSystem.choices,
       trackId: trackId,
@@ -2109,6 +2189,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       rerollCost: isShop ? _levelUpSystem.shopRerollCost(shopLevel) : 0,
       shopLevel: isShop ? shopLevel : 0,
       itemPrices: itemPrices,
+      activeSkillPrices: activeSkillPrices,
       lockedItems: isShop ? _levelUpSystem.lockedItems : const <ItemId>{},
       shopFreeRerolls: isShop ? _activeShopFreeRerolls : 0,
       shopDiscountTokens: isShop ? _shopDiscountTokens : 0,
@@ -2286,6 +2367,33 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     return prices;
   }
 
+  Map<ActiveSkillId, int> _buildActiveSkillPriceMap(
+    List<SelectionChoice> choices,
+    int shopLevel, {
+    bool applyDiscount = false,
+  }) {
+    final prices = <ActiveSkillId, int>{};
+    for (final choice in choices) {
+      if (choice.type != SelectionType.activeSkill) {
+        continue;
+      }
+      final activeSkillId = choice.activeSkillId;
+      if (activeSkillId == null) {
+        continue;
+      }
+      final def = activeSkillDefsById[activeSkillId];
+      if (def == null) {
+        continue;
+      }
+      var price = _levelUpSystem.itemPriceForRarity(def.rarity, shopLevel);
+      if (applyDiscount) {
+        price = _discountedItemCost(price);
+      }
+      prices[activeSkillId] = price;
+    }
+    return prices;
+  }
+
   SelectionPoolId _selectionPoolForTrack(ProgressionTrackId trackId) {
     return progressionTrackDefsById[trackId]?.selectionPoolId ??
         SelectionPoolId.skillPool;
@@ -2436,6 +2544,8 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
         return 'Weapon Upgrade: ${choice.title}';
       case SelectionType.stat:
         return 'Stat: ${choice.title}';
+      case SelectionType.activeSkill:
+        return 'Active Skill: ${choice.title}';
     }
   }
 
@@ -2457,6 +2567,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     final inStage = _flowState == GameFlowState.stage && stageTimer != null;
     final buildTags = _collectBuildTags();
     final skillTrack = _progressionSystem.trackForId(ProgressionTrackId.skills);
+    final activeSkill = _activeSkillSystem.activeSkillDef;
     _hudState.update(
       hp: _playerState.hp,
       maxHp: _playerState.maxHp,
@@ -2485,6 +2596,10 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       dashMaxCharges: _playerState.dashMaxCharges,
       dashCooldownRemaining: _playerState.dashCooldownRemaining,
       dashCooldownDuration: math.max(0, _playerState.dashCooldown),
+      activeSkillId: _activeSkillSystem.activeSkillId,
+      activeSkillCooldownRemaining: _activeSkillSystem.cooldownRemaining,
+      activeSkillCooldownDuration: activeSkill?.cooldown ?? 0,
+      activeSkillManaCost: activeSkill?.manaCost ?? 0,
     );
     _statsScreenState.update(
       statValues: _collectStatValues(),
@@ -2498,6 +2613,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
       activeCharacterId: _activeCharacterId,
       activeCharacterSprite: _characterSprites[_activeCharacterId],
       buildTags: buildTags,
+      activeSkillId: _activeSkillSystem.activeSkillId,
     );
   }
 
@@ -2544,6 +2660,13 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
 
   TagSet _collectBuildTags() {
     var tags = const TagSet();
+    final activeSkillId = _activeSkillSystem.activeSkillId;
+    if (activeSkillId != null) {
+      final def = activeSkillDefsById[activeSkillId];
+      if (def != null) {
+        tags = tags.merge(def.tags);
+      }
+    }
     for (final skillId in _skillSystem.skillIds) {
       final def = skillDefsById[skillId];
       if (def != null) {
@@ -3187,6 +3310,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     overlays.remove(ExperienceBarOverlay.overlayKey);
     overlays.remove(HealthOrbOverlay.overlayKey);
     overlays.remove(ManaOrbOverlay.overlayKey);
+    overlays.remove(ActiveSkillButtonOverlay.overlayKey);
     overlays.remove(FirstRunHintsOverlay.overlayKey);
     overlays.add(DeathScreen.overlayKey);
     _syncHudState();
@@ -3365,6 +3489,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _progressionSystem.reset();
     _skillSystem.resetToDefaults();
     _skillProgressionSystem.reset();
+    _activeSkillSystem.reset();
     _skillSwapState.clear();
     overlays.remove(SkillSwapOverlay.overlayKey);
     final characterDef = _activeCharacterDef();
@@ -3372,6 +3497,7 @@ class HordeGame extends FlameGame with KeyboardEvents, PanDetector {
     _playerState.resetForRun();
     _playerState.applyModifiers(characterDef.modifiers);
     _playerState.applyModifiers(_metaUnlocks.activeModifiers);
+    _activeSkillSystem.setActiveSkill(characterDef.startingActiveSkill);
     _levelUpSystem.resetForRun(playerState: _playerState);
     _activeSelectionTrackId = null;
     _goldWallet = 0;

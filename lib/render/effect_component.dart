@@ -172,6 +172,12 @@ class EffectComponent extends PositionComponent {
         return const Color(0xFF5F9E4A).withValues(alpha: 0.45);
       case EffectKind.swordSlash:
         return const Color(0xFFE5E8F2).withValues(alpha: 0.55);
+      case EffectKind.censureBeam:
+        return const Color(0xFFF7E9A2).withValues(alpha: 0.7);
+      case EffectKind.bastionRing:
+        return const Color(0xFFB7C6F3).withValues(alpha: 0.45);
+      case EffectKind.soupSplash:
+        return const Color(0xFFE9B37A).withValues(alpha: 0.55);
     }
   }
 

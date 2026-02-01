@@ -15,6 +15,7 @@ class StatsScreenState extends ChangeNotifier {
   List<SkillUpgradeId> upgrades = const [];
   List<String> weaponUpgrades = const [];
   List<ItemId> items = const [];
+  ActiveSkillId? activeSkillId;
   int rerollsRemaining = 0;
   int rerollsMax = 0;
   CharacterId activeCharacterId = characterDefs.first.id;
@@ -28,6 +29,7 @@ class StatsScreenState extends ChangeNotifier {
     required List<SkillUpgradeId> upgrades,
     required List<String> weaponUpgrades,
     required List<ItemId> items,
+    required ActiveSkillId? activeSkillId,
     required int rerollsRemaining,
     required int rerollsMax,
     required CharacterId activeCharacterId,
@@ -40,6 +42,7 @@ class StatsScreenState extends ChangeNotifier {
         listEquals(this.upgrades, upgrades) &&
         listEquals(this.weaponUpgrades, weaponUpgrades) &&
         listEquals(this.items, items) &&
+        this.activeSkillId == activeSkillId &&
         this.rerollsRemaining == rerollsRemaining &&
         this.rerollsMax == rerollsMax &&
         this.activeCharacterId == activeCharacterId &&
@@ -53,6 +56,7 @@ class StatsScreenState extends ChangeNotifier {
     this.upgrades = List<SkillUpgradeId>.from(upgrades);
     this.weaponUpgrades = List<String>.from(weaponUpgrades);
     this.items = List<ItemId>.from(items);
+    this.activeSkillId = activeSkillId;
     this.rerollsRemaining = rerollsRemaining;
     this.rerollsMax = rerollsMax;
     this.activeCharacterId = activeCharacterId;

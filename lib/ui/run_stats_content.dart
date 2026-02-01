@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
+import '../data/active_skill_defs.dart';
 import '../data/character_defs.dart';
 import '../data/ids.dart';
 import '../data/item_defs.dart';
@@ -22,12 +23,14 @@ class RunStatsContent extends StatelessWidget {
     super.key,
     required this.state,
     required this.skillIcons,
+    required this.activeSkillIcons,
     required this.itemIcons,
     required this.cardBackground,
   });
 
   final StatsScreenState state;
   final Map<SkillId, ui.Image?> skillIcons;
+  final Map<ActiveSkillId, ui.Image?> activeSkillIcons;
   final Map<ItemId, ui.Image?> itemIcons;
   final ui.Image? cardBackground;
 
@@ -74,6 +77,8 @@ class RunStatsContent extends StatelessWidget {
                 _SkillsTab(
                   skills: state.skills,
                   skillIcons: skillIcons,
+                  activeSkillId: state.activeSkillId,
+                  activeSkillIcons: activeSkillIcons,
                   skillLevels: state.skillLevels,
                   statValues: state.statValues,
                   cardBackground: cardBackground,
@@ -198,6 +203,16 @@ class _OverviewTab extends StatelessWidget {
             _StatChip(label: 'Items', value: state.items.length.toString()),
           ],
         ),
+        const SizedBox(height: 12),
+        _SectionHeader(title: 'Active Skill'),
+        const SizedBox(height: 6),
+        Text(
+          state.activeSkillId == null
+              ? 'No active skill equipped.'
+              : (activeSkillDefsById[state.activeSkillId]?.name ??
+                    state.activeSkillId!.name),
+          style: theme.textTheme.bodySmall?.copyWith(color: Colors.white60),
+        ),
         const SizedBox(height: 16),
         _SectionHeader(title: 'Build Tags'),
         const SizedBox(height: 6),
@@ -248,6 +263,8 @@ class _SkillsTab extends StatelessWidget {
   const _SkillsTab({
     required this.skills,
     required this.skillIcons,
+    required this.activeSkillId,
+    required this.activeSkillIcons,
     required this.skillLevels,
     required this.statValues,
     required this.cardBackground,
@@ -255,6 +272,8 @@ class _SkillsTab extends StatelessWidget {
 
   final List<SkillId> skills;
   final Map<SkillId, ui.Image?> skillIcons;
+  final ActiveSkillId? activeSkillId;
+  final Map<ActiveSkillId, ui.Image?> activeSkillIcons;
   final Map<SkillId, SkillProgressSnapshot> skillLevels;
   final Map<StatId, double> statValues;
   final ui.Image? cardBackground;
@@ -262,7 +281,7 @@ class _SkillsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    if (skills.isEmpty) {
+    if (skills.isEmpty && activeSkillId == null) {
       return Center(
         child: Text(
           'No skills yet. Seek rites to begin your litany.',
@@ -271,10 +290,27 @@ class _SkillsTab extends StatelessWidget {
       );
     }
     return ListView.separated(
-      itemCount: skills.length,
+      itemCount: skills.length + (activeSkillId == null ? 0 : 1),
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
-        final id = skills[index];
+        if (activeSkillId != null && index == 0) {
+          final activeDef = activeSkillDefsById[activeSkillId];
+          final tags = activeDef?.tags ?? const TagSet();
+          return _InfoCard(
+            title: activeDef?.name ?? activeSkillId!.name,
+            subtitle: activeDef?.description ?? 'Details unavailable.',
+            footer: _tagsLine(tags),
+            iconWidget: _IconSlot(
+              image: activeSkillIcons[activeSkillId],
+              placeholder: Icons.flash_on,
+            ),
+            placeholder: Icons.flash_on,
+            showIconSlot: true,
+            cardBackground: cardBackground,
+          );
+        }
+        final skillIndex = activeSkillId == null ? index : index - 1;
+        final id = skills[skillIndex];
         final skill = skillDefsById[id];
         final tags = skill?.tags ?? const TagSet();
         return _InfoCard(
