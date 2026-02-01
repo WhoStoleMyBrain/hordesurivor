@@ -462,7 +462,7 @@ class _StatCategoryTile extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 2),
               child: _StatValueRow(
-                label: StatText.labelFor(stat),
+                statId: stat,
                 value: StatText.formatStatValue(stat, statValues[stat] ?? 0),
                 valueColor: statDeltaColor(
                   value: statValues[stat] ?? 0,
@@ -493,12 +493,12 @@ class _StatCategory {
 
 class _StatValueRow extends StatelessWidget {
   const _StatValueRow({
-    required this.label,
+    required this.statId,
     required this.value,
     required this.valueColor,
   });
 
-  final String label;
+  final StatId statId;
   final String value;
   final Color valueColor;
 
@@ -507,11 +507,15 @@ class _StatValueRow extends StatelessWidget {
     final textStyle = Theme.of(
       context,
     ).textTheme.bodySmall?.copyWith(color: Colors.white70);
-    return Row(
-      children: [
-        Expanded(child: Text(label, style: textStyle)),
-        Text(value, style: textStyle?.copyWith(color: valueColor)),
-      ],
+    return Tooltip(
+      message: StatText.tooltipFor(statId),
+      waitDuration: const Duration(milliseconds: 300),
+      child: Row(
+        children: [
+          Expanded(child: Text(StatText.labelFor(statId), style: textStyle)),
+          Text(value, style: textStyle?.copyWith(color: valueColor)),
+        ],
+      ),
     );
   }
 }
