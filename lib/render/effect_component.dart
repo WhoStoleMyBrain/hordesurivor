@@ -83,17 +83,19 @@ class EffectComponent extends PositionComponent {
           final currentAngle =
               directionAngle +
               (sweepStart + (sweepEnd - sweepStart) * progress);
-          final startAngle = currentAngle - sweepWidth * 0.5;
-          final rect = Rect.fromCircle(
-            center: Offset.zero,
-            radius: _state.radius,
-          );
-          final path = Path()
-            ..moveTo(0, 0)
-            ..arcTo(rect, startAngle, sweepWidth, false)
-            ..close();
-          canvas.drawPath(path, _paint);
-          canvas.drawPath(path, _strokePaint);
+          if (_slashSprite == null) {
+            final startAngle = currentAngle - sweepWidth * 0.5;
+            final rect = Rect.fromCircle(
+              center: Offset.zero,
+              radius: _state.radius,
+            );
+            final path = Path()
+              ..moveTo(0, 0)
+              ..arcTo(rect, startAngle, sweepWidth, false)
+              ..close();
+            canvas.drawPath(path, _paint);
+            canvas.drawPath(path, _strokePaint);
+          }
           _renderSlashSprite(canvas, currentAngle);
         } else {
           final sweep = _state.arcDegrees * (math.pi / 180);
